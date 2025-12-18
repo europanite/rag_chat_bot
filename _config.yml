@@ -1,6 +1,6 @@
-title: "rag_container_template"
-description: "A Full-Stack RAG Container Template"
-baseurl: "/rag_container_template"
+title: "rag_bot_container_weather"
+description: "A Full-Stack RAG Bot Container"
+baseurl: "/rag_bot_container_weather"
 url: "https://europanite.github.io"
 theme: minima
 markdown: kramdown
