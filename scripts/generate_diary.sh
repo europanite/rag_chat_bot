@@ -103,8 +103,10 @@ done
 
 echo "Warming up /rag/query ..."
 WARM_PAYLOAD='{"question":"ping","use_live_weather":false}'
+
 for i in {1..300}; do
-  RES_WARM="$(curl -sS "${API_BASE}/rag/query" -H "Content-Type: application/json" -d "${WARM_PAYLOAD}" || true)"
+  RES_WARM="$(curl -sS --retry 5 --retry-all-errors --retry-delay 2 \
+    "${API_BASE}/rag/query" -H "Content-Type: application/json" -d "${WARM_PAYLOAD}" || true)"
   python - <<'PY' <<<"${RES_WARM}" && break || true
 import json,sys
 obj=json.loads(sys.stdin.read())
@@ -116,13 +118,26 @@ done
 
 # Call backend (retry a bit in case ollama/model warmup is slow)
 RES=""
-for i in {1..8}; do
-  if RES="$(curl -fsS "${QUERY_URL}" -H "Content-Type: application/json" -d "${JSON_PAYLOAD}")"; then
-    break
-  fi
-  echo "curl failed (attempt ${i}/8). Retrying..." >&2
+ok_json=0
+for i in {1..20}; do
+  RES="$(curl -sS --retry 5 --retry-all-errors --retry-delay 2 \
+    "${QUERY_URL}" -H "Content-Type: application/json" -d "${JSON_PAYLOAD}" || true)"
+  python - <<'PY' <<<"${RES}" && { ok_json=1; break; } || true
+import json,sys
+obj=json.loads(sys.stdin.read())
+assert isinstance(obj, dict)
+assert "answer" in obj
+PY
+  echo "query not ready (attempt ${i}/20). raw_len=${#RES}" >&2
   sleep 3
 done
+
+if [ "${ok_json}" -ne 1 ]; then
+  echo "ERROR: /rag/query never returned valid JSON with 'answer'." >&2
+  echo "---- raw response ----" >&2
+  echo "${RES}" >&2
+  exit 1
+fi
 
 if [[ -z "${RES}" ]]; then
   echo "ERROR: Backend returned an empty response from ${QUERY_URL}" >&2
@@ -159,6 +174,11 @@ if not ans:
 print(ans)
 PY
 <<<"${RES}")"
+
+if [[ -z "${TWEET}" ]]; then
+  echo "ERROR: tweet is empty after parsing." >&2
+  exit 1
+fi
 
 # Update JSON feed for the frontend
 python scripts/update_weather_feed.py   --feed "${FEED_PATH}"   --latest "${LATEST_PATH}"   --date "${TODAY}"   --text "${TWEET}"   --place "${WEATHER_PLACE:-}"
