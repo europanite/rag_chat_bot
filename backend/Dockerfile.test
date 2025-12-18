@@ -1,0 +1,6 @@
+FROM python:3.12-slim
+
+WORKDIR /root
+COPY requirements.txt requirements.test.txt pyproject.toml pytest.ini ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements.test.txt
+

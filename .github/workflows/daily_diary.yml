@@ -1,0 +1,65 @@
+name: Daily Weather Tweet (RAG + Live Weather)
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 00:00 UTC = 09:00 JST
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Start stack (db + ollama + backend)
+        run: |
+          docker compose up -d --build db ollama backend
+
+      - name: Wait for backend
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8000/health >/dev/null; then
+              echo "Backend is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend did not become ready in time"
+          docker compose logs --no-color backend || true
+          exit 1
+
+      - name: Generate weather tweet post
+        env:
+          WEATHER_LAT: "35.2810"
+          WEATHER_LON: "139.6722"
+          WEATHER_TZ: "Asia/Tokyo"
+        run: |
+          chmod +x scripts/generate_diary.sh
+          scripts/generate_diary.sh
+
+      - name: Stop stack
+        if: always()
+        run: |
+          docker compose down -v
+
+      - name: Commit & push if changed
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _posts public
+          git commit -m "chore: daily weather tweet"
+          git push

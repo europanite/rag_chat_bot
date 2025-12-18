@@ -1,0 +1,116 @@
+services:
+  db:
+    image: postgres:16
+    container_name: db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    tty: true
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      BACKEND_PORT: ${BACKEND_PORT}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_EXPIRE_MINUTES: ${AUTH_EXPIRE_MINUTES}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL}
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL}
+      CHROMA_DB_DIR: ${CHROMA_DB_DIR}
+      CHROMA_COLLECTION_NAME: ${CHROMA_COLLECTION_NAME}
+      DOCS_DIR: ${DOCS_DIR}
+      RAG_AUTO_INDEX: ${RAG_AUTO_INDEX}
+      RAG_REBUILD_ON_START: ${RAG_REBUILD_ON_START}
+      RAG_INDEX_FAIL_FAST: ${RAG_INDEX_FAIL_FAST}
+      RAG_CHUNK_SIZE: ${RAG_CHUNK_SIZE}
+      WEATHER_LAT: ${WEATHER_LAT}
+      WEATHER_LON: ${WEATHER_LON}
+      WEATHER_TZ: ${WEATHER_TZ}
+      WEATHER_PLACE: ${WEATHER_PLACE}
+      WEATHER_BOT_HASHTAGS: ${WEATHER_BOT_HASHTAGS}
+      WEATHER_TWEET_MAX_CHARS: ${WEATHER_TWEET_MAX_CHARS}
+      WEATHER_TWEET_STYLE: ${WEATHER_TWEET_STYLE}
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./backend/app:/app
+      - ./data/docs:/data/docs:ro
+      - ./chroma_db:/chroma
+      - ./public:/public
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    environment:
+      EXPO_TUNNEL: ${EXPO_TUNNEL}
+      EXPO_DEVTOOLS_LISTEN_ADDRESS: ${EXPO_DEVTOOLS_LISTEN_ADDRESS}
+      EXPO_PUBLIC_API_HOST: ${EXPO_PUBLIC_API_HOST}
+      EXPO_PUBLIC_API_PORT: ${EXPO_PUBLIC_API_PORT}
+      EXPO_PUBLIC_API_BASE: ${EXPO_PUBLIC_API_BASE}
+      EXPO_PUBLIC_FEED_URL: ${EXPO_PUBLIC_FEED_URL}
+      REACT_NATIVE_PACKAGER_HOSTNAME: ${REACT_NATIVE_PACKAGER_HOSTNAME}
+    ports:
+      - "19000:19000"  # Expo dev server (Metro)
+      - "19001:19001"  # React Native debugger(old)
+      - "19002:19002"  # Expo web UI
+      - "8081:8081"    # Metro bundler
+    volumes:
+      - ./frontend/app:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: ["npx", "expo", "start", "--tunnel"]
+
+  ollama:
+    image: ollama/ollama:0.13.4-rc1-rocm
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c", "\
+      ollama serve & \
+      sleep 5 && \
+      ollama pull ${EMBEDDING_MODEL} && \
+      ollama pull ${OLLAMA_CHAT_MODEL} && \
+      wait"]
+    healthcheck:
+      test: ["CMD-SHELL", "ollama show ${EMBEDDING_MODEL} >/dev/null 2>&1 && ollama show ${OLLAMA_CHAT_MODEL} >/dev/null 2>&1"]
+      interval: 20s
+      timeout: 20s
+      retries: 60
+volumes:
+  db_data:
+  ollama:

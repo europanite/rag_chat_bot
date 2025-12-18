@@ -1,0 +1,112 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*$py.class
+
+# SQlite
+*.sqlite3
+db.sqlite3
+
+# Virtual env
+.venv/
+env/
+venv/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node / React Native (Expo)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.expo/
+.expo-shared/
+web-build/
+dist/
+build/
+
+# macOS / Linux / Windows
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE 
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+
+# Docker
+*.pid
+*.sock
+*.tar
+
+# coverage reports (backend & frontend)
+coverage/
+backend/app/coverage/
+frontend/app/coverage/
+
+# Jest cache
+frontend/app/.jest-cache/
+
+# ---- Node / JS / React Native / Expo ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Expo / React Native build artifacts
+.expo/
+.expo-shared/
+web-build/
+dist/
+
+# Bare workflow
+android/
+ios/
+
+# Packaging
+*.egg-info/
+*.egg
+build/
+develop-eggs/
+.eggs/
+
+# Testing / coverage / type checking
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# coverage reports (backend & frontend)
+coverage/
+backend/reports
+frontend/reports
+backend/app/coverage/
+frontend/app/coverage/
+
+# Logs
+*.log
+
+# ---- Local data / DB / vector store ----
+chroma_db/
+postgres-data/
+db-data/
+data/
+tmp/

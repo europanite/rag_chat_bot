@@ -1,0 +1,10 @@
+title: "rag_container_template"
+description: "A Full-Stack RAG Container Template"
+baseurl: "/rag_container_template"
+url: "https://europanite.github.io"
+theme: minima
+markdown: kramdown
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+highlighter: rouge
