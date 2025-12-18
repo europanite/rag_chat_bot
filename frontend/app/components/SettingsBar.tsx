@@ -60,9 +60,6 @@ export default function SettingsBar() {
                 </Text>
               </View>
               <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
-                <Btn title="Home" onPress={() => nav.navigate("Home")} />
-                <Btn title="Diary" onPress={() => nav.navigate("Diary")} />
-
                 <Text style={{ fontWeight: "700", color: "#ffffffff" }}>
                   {user ? `${user.email}` : "Not signed in"}
                 </Text>
@@ -74,6 +71,8 @@ export default function SettingsBar() {
                 ) : (
                   <Btn title="Sign out" onPress={signOut} />
                 )}
+                <Btn title="Home" onPress={() => nav.navigate("Home")} />
+                <Btn title="Diary" onPress={() => nav.navigate("Diary")} />
               </View>
             </View>
           </View>

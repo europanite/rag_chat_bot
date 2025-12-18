@@ -20,31 +20,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Node
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: frontend/app/package-lock.json
-
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            frontend/app/package-lock.json
       - name: Install deps
         working-directory: frontend/app
         run: npm ci
-
-      - name: Build Expo Web
+      - name: Build (expo export -p web)
         working-directory: frontend/app
+        env:
+          EXPO_PUBLIC_FEED_URL: https://europanite.github.io/rag_bot_container_weather/public/weather_feed.json
         run: |
           npx expo export --platform web --output-dir web-build
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend/app/web-build
-
+          path: frontend/app/web-buildd
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     environment:
