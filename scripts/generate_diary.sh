@@ -30,138 +30,95 @@ IFS=',' read -r -a LATESTS <<< "${LATEST_PATHS}"
 
 API_BASE="${API_BASE:-http://localhost:${BACKEND_PORT:-8000}}"
 
-# Personality + constraints for the bot (English, friendly, Yokosuka locals + visitors)
-QUESTION="${QUESTION:-Write ONE short, friendly weather tweet for today.
-You are a cheerful Yokosuka weather bot speaking to locals and tourists.
-- Write in English.
-- 1 tweet only (no numbering).
-- 200 characters max.
-- Mention Yokosuka and suggest ONE light activity (sea walk, port, hiking, etc.) if appropriate.
-- Keep it upbeat, not salesy.
-- Use 0-2 emojis (optional).
-- Avoid citations, sources, and debugging text.
-}"
+LAT="${WEATHER_LAT:-35.2810}"
+LON="${WEATHER_LON:-139.6722}"
+TZ_NAME="${WEATHER_TZ:-Asia/Tokyo}"
 
-export QUESTION
-
-JSON_PAYLOAD="$(python - <<'PY'
-import json, os
-q = os.environ["QUESTION"]
-print(json.dumps({"question": q, "use_live_weather": True}))
-PY
-)"
-
-# Build query URL.
-# IMPORTANT: env vars set in the workflow step won't reach the *already-running* backend container.
-# So, when WEATHER_LAT/WEATHER_LON are available, pass them as query params.
-QUERY_URL="${API_BASE}/rag/query"
-if [[ -n "${WEATHER_LAT:-}" && -n "${WEATHER_LON:-}" ]]; then
-  PLACE_Q=""
-  if [[ -n "${WEATHER_PLACE:-}" ]]; then
-    PLACE_Q="$(python - <<'PY'
-import os, urllib.parse
-print(urllib.parse.quote(os.environ.get("WEATHER_PLACE","")))
-PY
-)"
-  fi
-  QUERY_URL="${QUERY_URL}?lat=${WEATHER_LAT}&lon=${WEATHER_LON}"
-  if [[ -n "${PLACE_Q}" ]]; then
-    QUERY_URL="${QUERY_URL}&place=${PLACE_Q}"
-  fi
-fi
-
+# Warmup /rag/status
 echo "Waiting for backend /rag/status ..."
-for i in {1..60}; do
-  STATUS_JSON="$(curl -sS "${API_BASE}/rag/status" || true)"
-  if echo "$STATUS_JSON" | python -c 'import json,sys; d=json.load(sys.stdin); print(d.get("json_files"), d.get("chunks_in_store"))' >/dev/null 2>&1; then
-    echo "OK: /rag/status"
-    break
-  fi
-  sleep 2
-done
-
-echo "status: ${STATUS_JSON}"
-
-JSON_FILES="$(echo "$STATUS_JSON" | python -c 'import json,sys; print(json.load(sys.stdin).get("json_files",0))')"
-CHUNKS="$(echo "$STATUS_JSON" | python -c 'import json,sys; print(json.load(sys.stdin).get("chunks_in_store",0))')"
-
-if [ "${JSON_FILES}" -le 0 ]; then
-  echo "ERROR: No rag docs found (json_files=0). Is rag_docs committed and mounted?"
-  exit 1
-fi
-
-if [ "${CHUNKS}" -le 0 ]; then
-  echo "No chunks in store -> POST /rag/reindex"
-  curl -fsS -X POST "${API_BASE}/rag/reindex" -H "Content-Type: application/json" -d '{}' >/dev/null
-
-  echo "Waiting for chunks_in_store > 0 ..."
-  for i in {1..120}; do
-    STATUS_JSON="$(curl -sS "${API_BASE}/rag/status" || true)"
-    CHUNKS="$(echo "$STATUS_JSON" | python -c 'import json,sys; print(json.load(sys.stdin).get("chunks_in_store",0))' 2>/dev/null || echo 0)"
-    [ "${CHUNKS}" -gt 0 ] && break
-    sleep 2
-  done
-
-  if [ "${CHUNKS}" -le 0 ]; then
-    echo "ERROR: reindex did not populate chunks. status=${STATUS_JSON}"
-    exit 1
-  fi
-fi
-
-# --- wait for backend + rag to be truly ready ---
-echo "Waiting for backend /rag/status ..."
-for i in {1..300}; do
+for i in {1..120}; do
   if curl -fsS "${API_BASE}/rag/status" >/dev/null; then
     echo "OK: /rag/status"
     break
   fi
-  sleep 2
+  sleep 1
 done
+
+STATUS="$(curl -fsS "${API_BASE}/rag/status")"
+echo "status: ${STATUS}"
+
+# If no chunks yet, trigger reindex (best-effort)
+chunks_in_store="$(python - <<'PY'
+import json, sys
+try:
+    obj=json.loads(sys.stdin.read())
+except Exception:
+    print(0); sys.exit(0)
+print(int(obj.get("chunks_in_store") or 0))
+PY
+<<<"${STATUS}")"
+
+if [ "${chunks_in_store}" -le 0 ]; then
+  echo "No chunks in store -> POST /rag/reindex"
+  curl -fsS -X POST "${API_BASE}/rag/reindex" >/dev/null || true
+
+  echo "Waiting for chunks_in_store > 0 ..."
+  for i in {1..120}; do
+    s="$(curl -fsS "${API_BASE}/rag/status" || true)"
+    c="$(python - <<'PY'
+import json, sys
+raw=sys.stdin.read().strip()
+try:
+    obj=json.loads(raw)
+except Exception:
+    print(0); sys.exit(0)
+print(int(obj.get("chunks_in_store") or 0))
+PY
+<<<"${s}")"
+    if [ "${c}" -gt 0 ]; then
+      echo "OK: chunks_in_store=${c}"
+      break
+    fi
+    sleep 1
+  done
+fi
 
 echo "Warming up /rag/query ..."
-WARM_PAYLOAD='{"question":"ping","use_live_weather":false}'
+WARM_URL="${API_BASE}/rag/query"
+curl -fsS -H "Content-Type: application/json" -d '{"query":"hello","top_k":1}' "${WARM_URL}" >/dev/null || true
 
-for i in {1..300}; do
-  RES_WARM="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
-  "${API_BASE}/rag/query" -H "Content-Type: application/json" -d "${WARM_PAYLOAD}")"
-  python - <<'PY' <<<"${RES_WARM}" && break || true
-import json,sys
-obj=json.loads(sys.stdin.read())
-ans=(obj.get("answer") or "").strip()
-if (ans.startswith('"') and ans.endswith('"')) or (ans.startswith("'") and ans.endswith("'")):
-  ans=ans[1:-1].strip()
-assert ans  # require non-empty tweet
+# Query (include lat/lon in query params)
+QUERY_URL="${API_BASE}/rag/query?lat=${LAT}&lon=${LON}"
+BODY="$(cat <<EOF
+{
+  "query": "Write today's short weather tweet. Include temperature and conditions. Keep it friendly and local."
+}
+EOF
+)"
+
+# Retry loop (models may warm up)
+ok_json=0
+RES=""
+for i in {1..5}; do
+  RES="$(curl -sS -H "Content-Type: application/json" -d "${BODY}" "${QUERY_URL}" || true)"
+
+  # Validate: must be JSON and include non-empty 'answer'
+  ok_json="$(python - <<'PY'
+import json, sys
+raw = sys.stdin.read().strip()
+try:
+    obj = json.loads(raw)
+except Exception:
+    print(0); sys.exit(0)
+ans = (obj.get("answer") or "").strip()
+print(1 if ans else 0)
 PY
-  sleep 2
-done
-# --- end wait ---
+<<<"${RES}")"
 
-
-
-# Call backend (retry a bit in case ollama/model warmup is slow)
-for i in {1..20}; do
-  set +e
-  RES="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
-    --connect-timeout 5 --max-time 180 \
-    "${QUERY_URL}" -H "Content-Type: application/json" -d "${JSON_PAYLOAD}" 2>curl_err.txt)"
-  rc=$?
-  set -e
-
-  if [ $rc -ne 0 ]; then
-    echo "curl failed (attempt ${i}/20, rc=${rc})" >&2
-    cat curl_err.txt >&2
-    sleep 3
-    continue
+  if [ "${ok_json}" -eq 1 ]; then
+    break
   fi
-
-  python - <<'PY' <<<"${RES}" && { ok_json=1; break; } || true
-import json,sys
-obj=json.loads(sys.stdin.read())
-assert isinstance(obj, dict)
-assert "answer" in obj
-PY
-  echo "query not ready (attempt ${i}/20). raw_len=${#RES}" >&2
-  sleep 3
+  sleep 2
 done
 
 if [ "${ok_json}" -ne 1 ]; then
