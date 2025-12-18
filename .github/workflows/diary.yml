@@ -51,6 +51,8 @@ jobs:
             ${{ runner.os }}-rag-
 
       - name: Wait for backend
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
         run: |
           ok=0
           for i in {1..600}; do
