@@ -25,11 +25,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            .cache/ollama
-            chroma_db
-          key: ${{ runner.os }}-ollama-chroma-v1
+            .ci_cache/ollama
+            .ci_cache/chroma
+          key: ${{ runner.os }}-rag-v1
           restore-keys: |
-            ${{ runner.os }}-ollama-chroma-
+            ${{ runner.os }}-rag-
 
       - name: Start stack (db + ollama + backend)
         env:
@@ -37,18 +37,8 @@ jobs:
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "false"
         run: |
-          mkdir -p .cache/ollama chroma_db
+          mkdir -p .ci_cache/ollama .ci_cache/chroma
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
-
-      - name: Cache ollama + vector db
-        uses: actions/cache@v4
-        with:
-          path: |
-            .ci_cache/ollama
-            .ci_cache/chroma
-          key: ${{ runner.os }}-rag-v1
-          restore-keys: |
-            ${{ runner.os }}-rag-
 
       - name: Wait for backend
         env:
@@ -83,7 +73,7 @@ jobs:
           WEATHER_LAT: "35.2810"
           WEATHER_LON: "139.6722"
           WEATHER_TZ: "Asia/Tokyo"
-          FEED_PATHS: frontend/app/public/weather_feed.json
+          FEED_PATH: frontend/app/public/weather_feed.json
           LATEST_PATH: frontend/app/public/latest.json
         run: |
           chmod +x scripts/generate_diary.sh

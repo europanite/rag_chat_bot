@@ -11,8 +11,13 @@ TODAY="${TODAY:-$(TZ="${TZ_NAME}" date +%F)}"
 mkdir -p _posts public
 
 POST="_posts/${TODAY}-weather.md"
-FEED_PATH="${FEED_PATH:-public/weather_feed.json}"
-LATEST_PATH="${LATEST_PATH:-public/latest.json}"
+# Backward compat:
+# - if FEED_PATHS is set (comma-separated), use it
+# - else fall back to FEED_PATH
+FEED_PATHS="${FEED_PATHS:-${FEED_PATH:-public/weather_feed.json}}"
+LATEST_PATHS="${LATEST_PATHS:-${LATEST_PATH:-public/latest.json}}"
+IFS=',' read -r -a FEEDS <<< "${FEED_PATHS}"
+IFS=',' read -r -a LATESTS <<< "${LATEST_PATHS}"
 
 API_BASE="${API_BASE:-http://localhost:${BACKEND_PORT:-8000}}"
 
@@ -113,7 +118,10 @@ for i in {1..300}; do
   python - <<'PY' <<<"${RES_WARM}" && break || true
 import json,sys
 obj=json.loads(sys.stdin.read())
-assert "answer" in obj
+ans=(obj.get("answer") or "").strip()
+if (ans.startswith('"') and ans.endswith('"')) or (ans.startswith("'") and ans.endswith("'")):
+  ans=ans[1:-1].strip()
+assert ans  # require non-empty tweet
 PY
   sleep 2
 done
@@ -148,7 +156,7 @@ PY
 done
 
 if [ "${ok_json}" -ne 1 ]; then
-  echo "ERROR: /rag/query never returned valid JSON with 'answer'." >&2
+  echo "ERROR: /rag/query never returned valid JSON with non-empty 'answer'." >&2
   echo "---- raw response ----" >&2
   echo "${RES}" >&2
   exit 1
@@ -195,8 +203,17 @@ if [[ -z "${TWEET}" ]]; then
   exit 1
 fi
 
-# Update JSON feed for the frontend
-python scripts/update_weather_feed.py   --feed "${FEED_PATH}"   --latest "${LATEST_PATH}"   --date "${TODAY}"   --text "${TWEET}"   --place "${WEATHER_PLACE:-}"
+# Update feed(s)
+for idx in "${!FEEDS[@]}"; do
+  feed="$(echo "${FEEDS[$idx]}" | xargs)"
+  latest="$(echo "${LATESTS[$idx]:-${LATESTS[0]}}" | xargs)"
+  python scripts/update_weather_feed.py \
+    --feed "${feed}" \
+    --latest "${latest}" \
+    --date "${TODAY}" \
+    --text "${TWEET}" \
+    --place "${WEATHER_PLACE:-}"
+done
 
 # Optional: keep a markdown diary post too
 cat > "${POST}" <<EOF
@@ -212,4 +229,4 @@ ${TWEET}
 EOF
 
 echo "Wrote ${POST}"
-echo "Updated ${FEED_PATH} and ${LATEST_PATH}"
+echo "Updated feeds: ${FEED_PATHS} | latest: ${LATEST_PATHS}"
