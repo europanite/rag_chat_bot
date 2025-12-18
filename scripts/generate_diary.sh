@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-set -euo pipefail
+trap 'echo "---- docker compose ps ----"; docker compose ps;
+      echo "---- backend logs ----"; docker compose logs --no-color --tail=200 backend || true;
+      echo "---- ollama logs ----"; docker compose logs --no-color --tail=200 ollama || true;' ERR
+set -eEuo pipefail
 
 # Use JST by default (the workflow runs at 00:00 UTC = 09:00 JST)
 TZ_NAME="${WEATHER_TZ:-Asia/Tokyo}"
@@ -105,8 +108,8 @@ echo "Warming up /rag/query ..."
 WARM_PAYLOAD='{"question":"ping","use_live_weather":false}'
 
 for i in {1..300}; do
-  RES_WARM="$(curl -sS --retry 5 --retry-all-errors --retry-delay 2 \
-    "${API_BASE}/rag/query" -H "Content-Type: application/json" -d "${WARM_PAYLOAD}" || true)"
+  RES_WARM="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
+  "${API_BASE}/rag/query" -H "Content-Type: application/json" -d "${WARM_PAYLOAD}")"
   python - <<'PY' <<<"${RES_WARM}" && break || true
 import json,sys
 obj=json.loads(sys.stdin.read())
@@ -116,12 +119,24 @@ PY
 done
 # --- end wait ---
 
+
+
 # Call backend (retry a bit in case ollama/model warmup is slow)
-RES=""
-ok_json=0
 for i in {1..20}; do
-  RES="$(curl -sS --retry 5 --retry-all-errors --retry-delay 2 \
-    "${QUERY_URL}" -H "Content-Type: application/json" -d "${JSON_PAYLOAD}" || true)"
+  set +e
+  RES="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
+    --connect-timeout 5 --max-time 180 \
+    "${QUERY_URL}" -H "Content-Type: application/json" -d "${JSON_PAYLOAD}" 2>curl_err.txt)"
+  rc=$?
+  set -e
+
+  if [ $rc -ne 0 ]; then
+    echo "curl failed (attempt ${i}/20, rc=${rc})" >&2
+    cat curl_err.txt >&2
+    sleep 3
+    continue
+  fi
+
   python - <<'PY' <<<"${RES}" && { ok_json=1; break; } || true
 import json,sys
 obj=json.loads(sys.stdin.read())
