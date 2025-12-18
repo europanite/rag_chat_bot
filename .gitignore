@@ -110,3 +110,6 @@ postgres-data/
 db-data/
 data/
 tmp/
+
+# cache 
+.cache/

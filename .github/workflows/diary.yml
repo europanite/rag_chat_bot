@@ -40,6 +40,16 @@ jobs:
           mkdir -p .cache/ollama chroma_db
           docker compose up -d --build db ollama backend
 
+      - name: Cache ollama + vector db
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/ollama
+            .cache/chroma
+          key: ${{ runner.os }}-rag-${{ hashFiles('rag_docs/**/*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-rag-
+
       - name: Wait for backend
         run: |
           for i in {1..60}; do

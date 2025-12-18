@@ -53,6 +53,44 @@ PY
   fi
 fi
 
+echo "Waiting for backend /rag/status ..."
+for i in {1..60}; do
+  STATUS_JSON="$(curl -sS "${API_BASE}/rag/status" || true)"
+  if echo "$STATUS_JSON" | python -c 'import json,sys; d=json.load(sys.stdin); print(d.get("json_files"), d.get("chunks_in_store"))' >/dev/null 2>&1; then
+    echo "OK: /rag/status"
+    break
+  fi
+  sleep 2
+done
+
+echo "status: ${STATUS_JSON}"
+
+JSON_FILES="$(echo "$STATUS_JSON" | python -c 'import json,sys; print(json.load(sys.stdin).get("json_files",0))')"
+CHUNKS="$(echo "$STATUS_JSON" | python -c 'import json,sys; print(json.load(sys.stdin).get("chunks_in_store",0))')"
+
+if [ "${JSON_FILES}" -le 0 ]; then
+  echo "ERROR: No rag docs found (json_files=0). Is rag_docs committed and mounted?"
+  exit 1
+fi
+
+if [ "${CHUNKS}" -le 0 ]; then
+  echo "No chunks in store -> POST /rag/reindex"
+  curl -fsS -X POST "${API_BASE}/rag/reindex" -H "Content-Type: application/json" -d '{}' >/dev/null
+
+  echo "Waiting for chunks_in_store > 0 ..."
+  for i in {1..120}; do
+    STATUS_JSON="$(curl -sS "${API_BASE}/rag/status" || true)"
+    CHUNKS="$(echo "$STATUS_JSON" | python -c 'import json,sys; print(json.load(sys.stdin).get("chunks_in_store",0))' 2>/dev/null || echo 0)"
+    [ "${CHUNKS}" -gt 0 ] && break
+    sleep 2
+  done
+
+  if [ "${CHUNKS}" -le 0 ]; then
+    echo "ERROR: reindex did not populate chunks. status=${STATUS_JSON}"
+    exit 1
+  fi
+fi
+
 # --- wait for backend + rag to be truly ready ---
 echo "Waiting for backend /rag/status ..."
 for i in {1..300}; do

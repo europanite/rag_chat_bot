@@ -9,6 +9,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./.cache/chroma:/chroma/chroma
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -99,6 +100,7 @@ services:
       - "11434:11434"
     volumes:
       - ollama:/root/.ollama
+      - ./.cache/ollama:/root/.ollama
     restart: unless-stopped
     entrypoint: ["/bin/bash", "-c", "\
       ollama serve & \
