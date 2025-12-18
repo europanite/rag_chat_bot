@@ -33,7 +33,6 @@ jobs:
 
       - name: Start stack (db + ollama + backend)
         env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: "192.168.3.3"
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "false"
@@ -54,7 +53,7 @@ jobs:
       - name: Wait for backend
         run: |
           ok=0
-          for i in {1..120}; do
+          for i in {1..600}; do
             if curl -fsS http://localhost:8000/health >/dev/null; then
               ok=$((ok+1))
               [ "$ok" -ge 3 ] && break
