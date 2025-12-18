@@ -22,12 +22,16 @@ jobs:
           python-version: "3.12"
 
       - name: Start stack (db + ollama + backend)
+        env:
+          RAG_AUTO_INDEX: "false"
+          RAG_REBUILD_ON_START: "false"
+          RAG_REINDEX_ENABLED: "false"
         run: |
           docker compose up -d --build db ollama backend
 
       - name: Wait for backend
         run: |
-          for i in {1..60}; do
+          for i in {1..300}; do
             if curl -fsS http://localhost:8000/health >/dev/null; then
               echo "Backend is up"
               exit 0
