@@ -23,10 +23,10 @@ export default function App() {
           <SettingsBar />
           <View style={{ flex: 1 }}>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Diary" component={DiaryScreen} />
               <Stack.Screen name="Home" component={HomeScreen} />
               <Stack.Screen name="SignIn" component={SignInScreen} />
               <Stack.Screen name="SignUp" component={SignUpScreen} />
-              <Stack.Screen name="Diary" component={DiaryScreen} />
             </Stack.Navigator>
           </View>
         </NavigationContainer>
