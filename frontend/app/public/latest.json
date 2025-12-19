@@ -1,0 +1,41 @@
+{
+  "date": "2025-12-19",
+  "generated_at": "2025-12-19T07:43:14Z",
+  "text": "Clear skies in Yokosuka today! Temp's a pleasant 11.4°C with 64% humidity. Windy at 8.4 km/h from 7°. Enjoy the scenic views of Mt. Fuji from the south! #Yokosuka #Miura",
+  "place": "Yokosuka",
+  "weather": {
+    "source": "open-meteo",
+    "generated_at": "2025-12-19T07:41:43Z",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2025-12-19T16:30",
+      "temp_c": 11.4,
+      "apparent_temp_c": 8.9,
+      "humidity_pct": 64,
+      "precip_mm": 0.0,
+      "weather_code": 1,
+      "cloud_cover_pct": 21,
+      "wind_kmh": 8.4,
+      "wind_dir_deg": 7
+    },
+    "today": {
+      "date": "2025-12-19",
+      "weather_code": 1,
+      "temp_max_c": 12.1,
+      "temp_min_c": 7.2,
+      "precip_sum_mm": 0.0,
+      "wind_max_kmh": 19.7
+    },
+    "tomorrow": {
+      "date": "2025-12-20",
+      "weather_code": 61,
+      "temp_max_c": 18.2,
+      "temp_min_c": 10.1,
+      "precip_sum_mm": 3.0,
+      "wind_max_kmh": 15.9
+    }
+  }
+}
