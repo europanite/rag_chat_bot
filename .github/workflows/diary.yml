@@ -35,7 +35,7 @@ jobs:
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
-          RAG_REINDEX_ENABLED: "false"
+          RAG_REINDEX_ENABLED: "true"
         run: |
           mkdir -p .ci_cache/ollama .ci_cache/chroma
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
@@ -67,7 +67,7 @@ jobs:
         run: |
           sudo chown -R "$USER:$USER" frontend/app/public public || true
           chmod -R u+rwX frontend/app/public public || true
-          
+
       - name: Generate weather tweet post
         env:
           WEATHER_LAT: "35.2810"
@@ -76,6 +76,7 @@ jobs:
           OUT_DIR: frontend/app/public
           FEED_PATH: frontend/app/public/weather_feed.json
           LATEST_PATH: frontend/app/public/latest.json
+          # DEBUG: "1"
         run: |
           chmod +x scripts/generate_diary.sh
           scripts/generate_diary.sh
@@ -95,7 +96,10 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add _posts public
-          git add frontend/app/public/weather_feed.json
+
+          # Stage outputs deterministically
+          git add _posts public || true
+          git add frontend/app/public/*.json || true
+
           git commit -m "chore: daily weather tweet"
           git push

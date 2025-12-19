@@ -15,6 +15,7 @@ set -euo pipefail
 #   TWEET_MAX_CHARS (default: 240)
 #   RAG_HASHTAGS (default: empty)
 #   RAG_TOKEN (optional bearer token)
+#   DEBUG (default: 0)  # set 1 to print extra debug info
 #
 # Output paths:
 #   FEED_PATH / LATEST_PATH (single) OR FEED_PATHS / LATEST_PATHS (colon-separated)
@@ -23,6 +24,7 @@ set -euo pipefail
 #     LATEST_PATH=frontend/app/public/latest.json
 
 API_BASE="${BACKEND_URL:-http://localhost:8000}"
+DEBUG="${DEBUG:-0}"
 
 # Location (required)
 LAT="${WEATHER_LAT:-}"
@@ -58,6 +60,12 @@ echo "WEATHER: lat=${LAT} lon=${LON} tz=${TZ_NAME} place='${WEATHER_PLACE}'"
 echo "TOP_K=${TOP_K} MAX_CHARS=${MAX_CHARS}"
 echo "FEED_PATHS=${FEED_PATHS}"
 echo "LATEST_PATHS=${LATEST_PATHS}"
+
+# Export values that are referenced from Python heredocs via os.environ / os.getenv.
+# (Without export, Python sees nothing -> KeyError / empty context)
+export TOP_K
+export MAX_CHARS
+export WEATHER_PLACE
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -136,6 +144,13 @@ SNAP_JSON="$(python scripts/fetch_weather.py \
   --tz "${TZ_NAME}" \
   --place "${WEATHER_PLACE}")"
 
+# Make sure the live weather JSON is available to Python payload builder.
+export SNAP_JSON
+
+if [[ "${DEBUG}" == "1" ]]; then
+  echo "DEBUG: SNAP_JSON bytes=$(printf "%s" "${SNAP_JSON}" | wc -c | tr -d ' ')"
+fi
+
 # -----------------------------------------------------------------------------
 # 2) Ensure backend ready + index
 # -----------------------------------------------------------------------------
@@ -150,6 +165,12 @@ PY
 if [[ "${chunks_in_store}" == "0" ]]; then
   echo "No chunks in store -> POST /rag/reindex"
   curl -fsS -X POST "${API_BASE}/rag/reindex" >/dev/null
+
+  # Optional: re-check status for visibility
+  if [[ "${DEBUG}" == "1" ]]; then
+    status2="$(curl -fsS "${API_BASE}/rag/status" || true)"
+    echo "DEBUG: status(after reindex)=${status2}"
+  fi
 fi
 
 # Warm up once (helps avoid cold-start timeouts)
@@ -160,29 +181,42 @@ curl -fsS -X POST -H "Content-Type: application/json" \
 # -----------------------------------------------------------------------------
 # 3) Query backend for today's tweet
 # -----------------------------------------------------------------------------
-QUESTION=$'Write exactly ONE short tweet-style post about TODAY\\x27s weather.\\n'\
-$'Use ONLY information from the provided live weather JSON.\\n'\
-$'Keep it within about '"${MAX_CHARS}"' characters.\\n'\
-$'Output ONLY the tweet text (no quotes, no markdown).\\n'
+QUESTION=$'Write exactly ONE short tweet-style post about TODAY\x27s weather.\n'\
+$'Use ONLY information from the provided live weather JSON.\n'\
+$'Keep it within about '"${MAX_CHARS}"' characters.\n'\
+$'Output ONLY the tweet text (no quotes, no markdown).\n'
+
+# THIS is the direct fix for your KeyError: export the bash var so Python can read it.
+export QUESTION
 
 JSON_PAYLOAD="$(python - <<'PY'
-import json, os
+import json, os, sys
+
+question = os.getenv("QUESTION")
+if not question:
+    print("ERROR: QUESTION is missing in environment. Did you forget 'export QUESTION'?", file=sys.stderr)
+    raise SystemExit(1)
+
 payload = {
-  "question": os.environ["QUESTION"],
-  "top_k": int(os.environ.get("TOP_K", "3")),
-  "extra_context": os.environ.get("SNAP_JSON", ""),
+  "question": question,
+  "top_k": int(os.getenv("TOP_K", "3")),
+  "extra_context": os.getenv("SNAP_JSON", ""),
   "use_live_weather": False,
 }
 print(json.dumps(payload, ensure_ascii=False))
 PY
 )"
 
+if [[ "${DEBUG}" == "1" ]]; then
+  echo "DEBUG: JSON_PAYLOAD=${JSON_PAYLOAD}"
+fi
+
 resp="$(curl_json POST "${API_BASE}/rag/query" "${JSON_PAYLOAD}")"
 tweet="$(python - <<'PY' "${resp}"
 import json,sys,re
 obj=json.loads(sys.argv[1])
 ans=(obj.get("answer") or "").strip()
-ans=re.sub(r"\\s+"," ",ans).strip()
+ans=re.sub(r"\s+"," ",ans).strip()
 print(ans)
 PY
 )"
@@ -198,27 +232,43 @@ if [[ -n "${HASHTAGS}" && "${tweet}" != *"#"* ]]; then
   tweet="${tweet} ${HASHTAGS}"
 fi
 
+# Export for the ENTRY_JSON builder below (prevents the next KeyError chain).
+export tweet
+
 # -----------------------------------------------------------------------------
 # 4) Write outputs (feed + latest + snapshot) to all configured paths
 # -----------------------------------------------------------------------------
 today="$(date -u +%Y-%m-%d)"
 now_iso="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+export today
+export now_iso
 
 ENTRY_JSON="$(python - <<'PY'
-import json, os
-snap_raw = os.environ.get("SNAP_JSON","{}")
+import json, os, sys
+
+snap_raw = os.getenv("SNAP_JSON","{}")
 try:
     snap = json.loads(snap_raw)
 except Exception:
     snap = {"raw": snap_raw}
+
+t = os.getenv("today")
+n = os.getenv("now_iso")
+tw = os.getenv("tweet")
+
+missing = [k for k,v in [("today", t), ("now_iso", n), ("tweet", tw)] if not v]
+if missing:
+    print(f"ERROR: missing env vars for ENTRY_JSON: {', '.join(missing)}", file=sys.stderr)
+    raise SystemExit(1)
+
 entry = {
-  "date": os.environ["today"],
-  "generated_at": os.environ["now_iso"],
-  "text": os.environ["tweet"],
-  "place": os.environ.get("WEATHER_PLACE",""),
+  "date": t,
+  "generated_at": n,
+  "text": tw,
+  "place": os.getenv("WEATHER_PLACE",""),
   "weather": snap,
 }
-print(json.dumps(entry, ensure_ascii=False, indent=2) + "\\n")
+print(json.dumps(entry, ensure_ascii=False, indent=2) + "\n")
 PY
 )"
 
@@ -255,7 +305,7 @@ feed = [e for e in feed if e.get("date") != entry.get("date")]
 feed.append(entry)
 feed.sort(key=lambda x: x.get("date",""))
 
-feed_path.write_text(json.dumps(feed, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+feed_path.write_text(json.dumps(feed, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(f"Wrote: {feed_path} ({len(feed)} entries)")
 PY
 
