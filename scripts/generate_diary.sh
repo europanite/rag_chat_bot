@@ -2,6 +2,11 @@
 set -Eeuo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
 
+# Debug helpers
+tmpdir="$(mktemp -d)"
+cleanup(){ rm -rf "$tmpdir"; }
+trap cleanup EXIT
+
 dump_debug() {
   {
     echo "---- docker compose ps ----"
@@ -12,7 +17,46 @@ dump_debug() {
     docker compose logs --no-color --tail=200 ollama || true
   } >&2
 }
+
 trap dump_debug ERR
+
+
+curl_json() {
+  # usage: curl_json <url> <payload_json>
+  local url="$1"
+  local payload="$2"
+  local headers="$tmpdir/headers.txt"
+  local body="$tmpdir/body.json"
+  local code
+
+  code="$(curl -sS -D "$headers" -o "$body" \
+    -H 'Content-Type: application/json' \
+    -X POST "$url" \
+    --connect-timeout 10 --max-time 90 \
+    -w "%{http_code}" \
+    -d "$payload" || true)"
+
+  echo "HTTP_CODE=$code" >&2
+  echo "---- response headers ----" >&2
+  sed -n '1,20p' "$headers" >&2 || true
+  echo "---- response body (first 400 bytes) ----" >&2
+  head -c 400 "$body" >&2 || true
+  echo >&2
+
+  if [[ "$code" != "200" ]]; then
+    echo "ERROR: non-200 response ($code) from $url" >&2
+    return 1
+  fi
+  if [[ ! -s "$body" ]]; then
+    echo "ERROR: empty body from $url (HTTP 200)" >&2
+    return 1
+  fi
+  python - <<'PY' < "$body" >/dev/null
+import json,sys
+json.load(sys.stdin)
+PY
+  cat "$body"
+}
 
 # Use JST by default (the workflow runs at 00:00 UTC = 09:00 JST)
 TZ_NAME="${WEATHER_TZ:-Asia/Tokyo}"
