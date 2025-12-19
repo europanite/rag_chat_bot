@@ -123,7 +123,7 @@ place = os.environ.get("WEATHER_PLACE","").strip()
 q = "Write a short Japanese weather diary/tweet for today based on this weather JSON. Mention the place if provided."
 if place:
     q += f" Place: {place}."
-payload = {"query": q, "top_k": 3, "context": json.dumps(snap, ensure_ascii=False)}
+payload = {"question": q, "top_k": 3, "context": json.dumps(snap, ensure_ascii=False)}
 print(json.dumps(payload, ensure_ascii=False))
 PY
 <<<"${SNAP_JSON}")"
@@ -132,7 +132,7 @@ ok_json=0
 RES=""
 
 # --- wait: ensure /rag/query returns non-empty answer at least once ---
-WARM_PAYLOAD='{"query":"hello","top_k":1}'
+WARM_PAYLOAD='{"question":"hello","top_k":1}'
 for i in {1..300}; do
   RES_WARM="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
   "${API_BASE}/rag/query" -H "Content-Type: application/json" -d "${WARM_PAYLOAD}")"
