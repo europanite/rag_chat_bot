@@ -51,7 +51,7 @@ now_local="$(TZ=${TZ_NAME} date +%Y%m%d_%H%M%S_%Z)"
 export now_local
 
 # Output paths
-FEED_PATH="${FEED_PATH}/weather_feed_${now_local}.json"
+FEED_PATH="${FEED_PATH}/feed_${now_local}.json"
 LATEST_PATH="${LATEST_PATH:-frontend/app/public/latest.json}"
 
 # Support both single-path vars (FEED_PATH/LATEST_PATH) and multi-path vars (FEED_PATHS/LATEST_PATHS).
@@ -435,7 +435,7 @@ PY
 
   # Also write weather snapshot next to latest (for debugging / transparency)
   local snap_path
-  snap_path="$(dirname "${latest_path}")/weather_snapshot_${now_local}.json"
+  snap_path="$(dirname "${latest_path}")/snapshot_${now_local}.json"
   printf "%s\n" "${SNAP_JSON}" > "${snap_path}"
   echo "Wrote: ${latest_path}"
   echo "Wrote: ${snap_path}"

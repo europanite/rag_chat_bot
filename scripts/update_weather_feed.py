@@ -57,7 +57,7 @@ def _atomic_write(path: Path, obj: Any) -> None:
 
 def main() -> int:
   ap = argparse.ArgumentParser()
-  ap.add_argument("--feed", default="public/weather_feed.json")
+  ap.add_argument("--feed", default="public/feed.json")
   ap.add_argument("--latest", default="public/latest.json")
   ap.add_argument("--date", required=True, help="YYYY-MM-DD")
   ap.add_argument("--text", required=True)

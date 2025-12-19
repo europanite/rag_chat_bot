@@ -7,7 +7,7 @@ This writes a compact JSON snapshot that can be passed to the backend as
 Example:
   python scripts/fetch_weather.py \
     --lat 35.2810 --lon 139.6720 --tz Asia/Tokyo --place Yokosuka \
-    --format json --out frontend/app/public/weather_snapshot.json
+    --format json --out frontend/app/public/snapshot.json
 """
 
 from __future__ import annotations
