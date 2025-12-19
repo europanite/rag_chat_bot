@@ -149,7 +149,7 @@ done
 # --- end wait ---
 
 # Call backend (retry a bit in case ollama/model warmup is slow)
-for i in {1..20}; do
+for i in {1..300}; do
   set +e
   RES="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
     --connect-timeout 5 --max-time 180 \
@@ -167,8 +167,10 @@ for i in {1..20}; do
   python - <<'PY' <<<"${RES}" && { ok_json=1; break; } || true
 import json,sys
 obj=json.loads(sys.stdin.read())
-assert isinstance(obj, dict)
-assert "answer" in obj
+ans=(obj.get("answer") or "").strip()
+if (ans.startswith('"') and ans.endswith('"')) or (ans.startswith("'") and ans.endswith("'")):
+  ans=ans[1:-1].strip()
+assert ans
 PY
   echo "query not ready (attempt ${i}/20). raw_len=${#RES}" >&2
   sleep 3
