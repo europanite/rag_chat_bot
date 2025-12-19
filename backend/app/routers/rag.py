@@ -57,6 +57,10 @@ class QueryRequest(BaseModel):
         ),
     )
 
+    # Backward-compat aliases for older clients/scripts
+    context: str | None = Field(default=None, description="Alias for extra_context")
+    user_context: str | None = Field(default=None, description="Alias for extra_context")
+
     use_live_weather: bool = Field(
         default=False,
         description=(
@@ -349,7 +353,9 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
 
     context_texts = [c.text for c in chunks]
 
-    live_extra: str | None = payload.extra_context
+    # Compat: accept `context` / `user_context` as aliases for `extra_context`
+    extra_ctx: str | None = payload.extra_context or payload.context or payload.user_context
+    live_extra: str | None = extra_ctx
     if (live_extra is None or not live_extra.strip()) and payload.use_live_weather:
         try:
             live_extra = weather_service.get_live_weather_context(

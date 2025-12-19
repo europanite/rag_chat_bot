@@ -1,73 +1,43 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
-shopt -s inherit_errexit 2>/dev/null || true
+set -euo pipefail
 
-# Debug helpers
-tmpdir="$(mktemp -d)"
-cleanup(){ rm -rf "$tmpdir"; }
-trap cleanup EXIT
+# Generate a daily weather tweet using the backend RAG API, and write outputs to
+# one or more JSON files (useful for GitHub Pages).
+#
+# Required env (or defaults below):
+#   WEATHER_LAT, WEATHER_LON
+#
+# Optional env:
+#   BACKEND_URL (default: http://localhost:8000)
+#   WEATHER_TZ (default: Asia/Tokyo)
+#   WEATHER_PLACE (default: empty)
+#   RAG_TOP_K (default: 3)
+#   TWEET_MAX_CHARS (default: 240)
+#   RAG_HASHTAGS (default: empty)
+#   RAG_TOKEN (optional bearer token)
+#
+# Output paths:
+#   FEED_PATH / LATEST_PATH (single) OR FEED_PATHS / LATEST_PATHS (colon-separated)
+#   Default:
+#     FEED_PATH=frontend/app/public/feed.json
+#     LATEST_PATH=frontend/app/public/latest.json
 
-dump_debug() {
-  {
-    echo "---- docker compose ps ----"
-    docker compose ps || true
-    echo "---- backend logs ----"
-    docker compose logs --no-color --tail=200 backend || true
-    echo "---- ollama logs ----"
-    docker compose logs --no-color --tail=200 ollama || true
-  } >&2
-}
+API_BASE="${BACKEND_URL:-http://localhost:8000}"
 
-trap dump_debug ERR
-
-
-curl_json() {
-  # usage: curl_json <url> <payload_json>
-  local url="$1"
-  local payload="$2"
-  local headers="$tmpdir/headers.txt"
-  local body="$tmpdir/body.json"
-  local code
-
-  code="$(curl -sS -D "$headers" -o "$body" \
-    -H 'Content-Type: application/json' \
-    -X POST "$url" \
-    --connect-timeout 10 --max-time 90 \
-    -w "%{http_code}" \
-    -d "$payload" || true)"
-
-  echo "HTTP_CODE=$code" >&2
-  echo "---- response headers ----" >&2
-  sed -n '1,20p' "$headers" >&2 || true
-  echo "---- response body (first 400 bytes) ----" >&2
-  head -c 400 "$body" >&2 || true
-  echo >&2
-
-  if [[ "$code" != "200" ]]; then
-    echo "ERROR: non-200 response ($code) from $url" >&2
-    return 1
-  fi
-  if [[ ! -s "$body" ]]; then
-    echo "ERROR: empty body from $url (HTTP 200)" >&2
-    return 1
-  fi
-  python - <<'PY' < "$body" >/dev/null
-import json,sys
-json.load(sys.stdin)
-PY
-  cat "$body"
-}
-
-# Use JST by default (the workflow runs at 00:00 UTC = 09:00 JST)
+# Location (required)
+LAT="${WEATHER_LAT:-}"
+LON="${WEATHER_LON:-}"
 TZ_NAME="${WEATHER_TZ:-Asia/Tokyo}"
-TODAY="${TODAY:-$(TZ="${TZ_NAME}" date +%F)}"
+WEATHER_PLACE="${WEATHER_PLACE:-}"
 
-OUT_DIR="${OUT_DIR:-frontend/app/public}"
-POST_DIR="${POST_DIR:-${OUT_DIR}/posts}"
-POST="${POST_DIR}/${TODAY}-weather.md"
-FEED_PATH="${FEED_PATH:-${OUT_DIR}/weather_feed.json}"
-LATEST_PATH="${LATEST_PATH:-${OUT_DIR}/latest.json}"
-mkdir -p "${POST_DIR}" "$(dirname "${FEED_PATH}")" "$(dirname "${LATEST_PATH}")"
+# Tweet config
+TOP_K="${RAG_TOP_K:-3}"
+MAX_CHARS="${TWEET_MAX_CHARS:-240}"
+HASHTAGS="${RAG_HASHTAGS:-}"
+
+# Output paths
+FEED_PATH="${FEED_PATH:-frontend/app/public/feed.json}"
+LATEST_PATH="${LATEST_PATH:-frontend/app/public/latest.json}"
 
 # Support both single-path vars (FEED_PATH/LATEST_PATH) and multi-path vars (FEED_PATHS/LATEST_PATHS).
 FEED_PATHS="${FEED_PATHS:-}"
@@ -75,280 +45,244 @@ if [[ -z "${FEED_PATHS//[[:space:]]/}" ]]; then FEED_PATHS="${FEED_PATH}"; fi
 LATEST_PATHS="${LATEST_PATHS:-}"
 if [[ -z "${LATEST_PATHS//[[:space:]]/}" ]]; then LATEST_PATHS="${LATEST_PATH}"; fi
 
-IFS=',' read -r -a FEEDS <<< "${FEED_PATHS}"
-IFS=',' read -r -a LATESTS <<< "${LATEST_PATHS}"
+RAG_TOKEN="${RAG_TOKEN:-}"
 
-# Ensure output dirs exist even when FEED_PATHS/LATEST_PATHS contains multiple paths.
-for f in "${FEEDS[@]}"; do
-  f="$(echo "${f}" | xargs)"
-  [[ -n "${f}" ]] && mkdir -p "$(dirname "${f}")"
-done
-for l in "${LATESTS[@]}"; do
-  l="$(echo "${l}" | xargs)"
-  [[ -n "${l}" ]] && mkdir -p "$(dirname "${l}")"
-done
+if [[ -z "${LAT}" || -z "${LON}" ]]; then
+  echo "ERROR: WEATHER_LAT and WEATHER_LON must be set." >&2
+  echo "Example: export WEATHER_LAT=35.2810 WEATHER_LON=139.6720" >&2
+  exit 1
+fi
 
-API_BASE="${API_BASE:-http://localhost:${BACKEND_PORT:-8000}}"
+echo "API_BASE: ${API_BASE}"
+echo "WEATHER: lat=${LAT} lon=${LON} tz=${TZ_NAME} place='${WEATHER_PLACE}'"
+echo "TOP_K=${TOP_K} MAX_CHARS=${MAX_CHARS}"
+echo "FEED_PATHS=${FEED_PATHS}"
+echo "LATEST_PATHS=${LATEST_PATHS}"
 
-LAT="${WEATHER_LAT:-35.2810}"
-LON="${WEATHER_LON:-139.6722}"
-TZ_NAME="${WEATHER_TZ:-Asia/Tokyo}"
+# -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
+wait_for_backend() {
+  local tries="${1:-60}"
+  local sleep_s="${2:-2}"
 
-# Warmup /rag/status
-echo "Waiting for backend /rag/status ..."
-for i in {1..120}; do
-  if curl -fsS "${API_BASE}/rag/status" >/dev/null; then
-    echo "OK: /rag/status"
-    break
-  fi
-  sleep 1
-done
-
-STATUS="$(curl -fsS "${API_BASE}/rag/status")"
-echo "status: ${STATUS}"
-
-# If no chunks yet, trigger reindex (best-effort)
-chunks_in_store="$(python - <<'PY'
-import json, sys
-try:
-    obj=json.loads(sys.stdin.read())
-except Exception:
-    print(0); sys.exit(0)
-print(int(obj.get("chunks_in_store") or 0))
-PY
-<<<"${STATUS}")"
-
-if [ "${chunks_in_store}" -le 0 ]; then
-  echo "No chunks in store -> POST /rag/reindex"
-  curl -fsS -X POST "${API_BASE}/rag/reindex" >/dev/null || true
-
-  echo "Waiting for chunks_in_store > 0 ..."
-  for i in {1..120}; do
-    s="$(curl -fsS "${API_BASE}/rag/status" || true)"
-    c="$(python - <<'PY'
-import json, sys
-raw=sys.stdin.read().strip()
-try:
-    obj=json.loads(raw)
-except Exception:
-    print(0); sys.exit(0)
-print(int(obj.get("chunks_in_store") or 0))
-PY
-<<<"${s}")"
-    if [ "${c}" -gt 0 ]; then
-      echo "OK: chunks_in_store=${c}"
-      break
+  for ((i=1; i<=tries; i++)); do
+    if curl -fsS "${API_BASE}/rag/status" >/dev/null 2>&1; then
+      echo "OK: ${API_BASE}/rag/status"
+      return 0
     fi
-    sleep 1
+    echo "Waiting for backend /rag/status ... (${i}/${tries})"
+    sleep "${sleep_s}"
   done
-fi
 
-echo "Warming up /rag/query ..."
-WARM_URL="${API_BASE}/rag/query"
-curl -fsS -H "Content-Type: application/json" -d '{"question":"hello","top_k":1}' "${WARM_URL}" >/dev/null || true
-
-# Read weather snapshot (best-effort)
-SNAP_JSON="$(python scripts/fetch_weather.py --format json --lat "${LAT}" --lon "${LON}" --tz "${TZ_NAME}" 2>/dev/null || true)"
-if [[ -z "${SNAP_JSON}" ]]; then
-  # fallback: allow backend to still generate something
-  SNAP_JSON="{}"
-fi
-
-QUERY_URL="${API_BASE}/rag/query"
-JSON_PAYLOAD="$(python - <<'PY'
-import json, os, sys
-raw = sys.stdin.read().strip() or "{}"
-try:
-    snap = json.loads(raw)
-except Exception:
-    snap = {}
-# Keep query consistent and clearly "weather"
-place = os.environ.get("WEATHER_PLACE","").strip()
-q = "Write a short Japanese weather diary/tweet for today based on this weather JSON. Mention the place if provided."
-if place:
-    q += f" Place: {place}."
-payload = {"question": q, "top_k": 3, "context": json.dumps(snap, ensure_ascii=False)}
-print(json.dumps(payload, ensure_ascii=False))
-PY
-<<<"${SNAP_JSON}")"
-
-ok_json=0
-RES=""
-
-# --- wait: ensure /rag/query returns non-empty answer at least once ---
-WARM_PAYLOAD='{"question":"hello","top_k":1}'
-for i in {1..300}; do
-  RES_WARM="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
-  "${API_BASE}/rag/query" -H "Content-Type: application/json" -d "${WARM_PAYLOAD}")"
-  python - <<'PY' <<<"${RES_WARM}" && break || true
-import json,sys
-obj=json.loads(sys.stdin.read())
-ans=(obj.get("answer") or "").strip()
-if (ans.startswith('"') and ans.endswith('"')) or (ans.startswith("'") and ans.endswith("'")):
-  ans=ans[1:-1].strip()
-assert ans  # require non-empty tweet
-PY
-  sleep 2
-done
-# --- end wait ---
-
-# Call backend (retry a bit in case ollama/model warmup is slow)
-for i in {1..300}; do
-  set +e
-  RES="$(curl -fsS --retry 5 --retry-all-errors --retry-delay 2 \
-    --connect-timeout 5 --max-time 180 \
-    "${QUERY_URL}" -H "Content-Type: application/json" -d "${JSON_PAYLOAD}" 2>curl_err.txt)"
-  rc=$?
-  set -e
-
-  if [ $rc -ne 0 ]; then
-    echo "curl failed (attempt ${i}/20, rc=${rc})" >&2
-    cat curl_err.txt >&2
-    sleep 3
-    continue
-  fi
-
-  python - <<'PY' <<<"${RES}" && { ok_json=1; break; } || true
-import json,sys
-obj=json.loads(sys.stdin.read())
-ans=(obj.get("answer") or "").strip()
-if (ans.startswith('"') and ans.endswith('"')) or (ans.startswith("'") and ans.endswith("'")):
-  ans=ans[1:-1].strip()
-assert ans
-PY
-  echo "query not ready (attempt ${i}/20). raw_len=${#RES}" >&2
-  sleep 3
-done
-
-curl_json() {
-  local url="$1"
-  local data="${2:-}"
-  local tmp_body tmp_hdr
-  tmp_body="$(mktemp)"
-  tmp_hdr="$(mktemp)"
-
-  # -sS は維持しつつ、HTTPコード/Content-Type/サイズを必ず取る
-  local http_code ct size
-  if [[ -n "$data" ]]; then
-    http_code="$(curl -sS -D "$tmp_hdr" -o "$tmp_body" \
-      -H 'Content-Type: application/json' \
-      -w '%{http_code}' \
-      --data "$data" \
-      "$url" || echo "curl_error")"
-  else
-    http_code="$(curl -sS -D "$tmp_hdr" -o "$tmp_body" \
-      -w '%{http_code}' \
-      "$url" || echo "curl_error")"
-  fi
-
-  ct="$(awk 'BEGIN{IGNORECASE=1} /^content-type:/ {sub(/\r$/,""); print $0}' "$tmp_hdr" | head -n 1)"
-  size="$(wc -c < "$tmp_body" | tr -d ' ')"
-
-  echo "---- HTTP DEBUG ----" >&2
-  echo "URL: $url" >&2
-  echo "HTTP: $http_code" >&2
-  echo "SIZE: ${size} bytes" >&2
-  echo "CT: ${ct:-"(no content-type)"}" >&2
-  echo "---- HEADERS ----" >&2
-  sed -n '1,40p' "$tmp_hdr" >&2
-  echo "---- BODY (first 200 bytes) ----" >&2
-  head -c 200 "$tmp_body" | cat -v >&2
-  echo >&2
-  echo "---- BODY (full) ----" >&2
-  cat "$tmp_body" >&2
-  echo >&2
-
-  if [[ "$http_code" =~ ^2 && "$size" -gt 0 ]]; then
-    cat "$tmp_body"
-    rm -f "$tmp_body" "$tmp_hdr"
-    return 0
-  fi
-
-  rm -f "$tmp_body" "$tmp_hdr"
+  echo "ERROR: backend not ready: ${API_BASE}" >&2
   return 1
 }
 
-resp="$(curl_json "http://localhost:8000/rag/query" "$payload")" || {
-  echo "ERROR: /rag/query failed (see HTTP DEBUG above)" >&2
-  exit 1
-}
-python - <<'PY'
-import json,sys
-print(json.loads(sys.stdin.read()))
-PY <<<"$resp"
+curl_json() {
+  local method="${1}"; shift
+  local url="${1}"; shift
+  local payload="${1}"; shift
 
-if [ "${ok_json}" -ne 1 ]; then
-  echo "ERROR: /rag/query never returned valid JSON with non-empty 'answer'." >&2
-  echo "---- raw response ----" >&2
-  echo "${RES}" >&2
-  exit 1
-fi
+  local auth_header=()
+  if [[ -n "${RAG_TOKEN}" ]]; then
+    auth_header=(-H "Authorization: Bearer ${RAG_TOKEN}")
+  fi
 
-if [[ -z "${RES}" ]]; then
-  echo "ERROR: Backend returned an empty response from ${QUERY_URL}" >&2
-  exit 1
-fi
+  local body
+  body="$(curl -sS --retry 3 --retry-delay 2 --max-time 90 -X "${method}" \
+    -H "Content-Type: application/json" \
+    "${auth_header[@]}" \
+    -d "${payload}" \
+    "${url}" || true)"
 
-TWEET="$(python - <<'PY'
+  if [[ -z "${body}" ]]; then
+    echo "ERROR: backend response body is empty (${url})" >&2
+    return 1
+  fi
+
+  python - <<'PY' "${body}"
 import json, sys
-raw = sys.stdin.read().strip()
+raw = sys.argv[1]
 try:
-    obj = json.loads(raw)
+    json.loads(raw)
 except Exception as e:
     print("ERROR: backend response is not JSON:", e, file=sys.stderr)
     print("---- raw response ----", file=sys.stderr)
     print(raw, file=sys.stderr)
-    sys.exit(2)
+    raise SystemExit(1)
+print(raw)
+PY
+}
 
-# Support both success and error JSON.
-if "answer" not in obj:
-    print("ERROR: backend response did not include 'answer'.", file=sys.stderr)
-    print(json.dumps(obj, ensure_ascii=False, indent=2), file=sys.stderr)
-    sys.exit(3)
+split_paths() {
+  # Split colon-separated paths into lines
+  python - <<'PY' "${1}"
+import sys
+s = sys.argv[1]
+for p in [x.strip() for x in s.split(":") if x.strip()]:
+    print(p)
+PY
+}
 
-ans = (obj.get("answer") or "").strip()
-# some models wrap quotes; strip one layer
-if (ans.startswith('"') and ans.endswith('"')) or (ans.startswith("'") and ans.endswith("'")):
-    ans = ans[1:-1].strip()
+# -----------------------------------------------------------------------------
+# 1) Fetch weather snapshot (Open-Meteo)
+# -----------------------------------------------------------------------------
+echo "Fetching weather snapshot (Open-Meteo)..."
+SNAP_JSON="$(python scripts/fetch_weather.py \
+  --format json \
+  --lat "${LAT}" \
+  --lon "${LON}" \
+  --tz "${TZ_NAME}" \
+  --place "${WEATHER_PLACE}")"
 
-if not ans:
-    print("ERROR: 'answer' is empty.", file=sys.stderr)
-    print(json.dumps(obj, ensure_ascii=False, indent=2), file=sys.stderr)
-    sys.exit(4)
+# -----------------------------------------------------------------------------
+# 2) Ensure backend ready + index
+# -----------------------------------------------------------------------------
+wait_for_backend
 
+status_json="$(curl -fsS "${API_BASE}/rag/status")"
+chunks_in_store="$(python - <<'PY' "${status_json}"
+import json,sys
+print(json.loads(sys.argv[1]).get("chunks_in_store", 0))
+PY
+)"
+if [[ "${chunks_in_store}" == "0" ]]; then
+  echo "No chunks in store -> POST /rag/reindex"
+  curl -fsS -X POST "${API_BASE}/rag/reindex" >/dev/null
+fi
+
+# Warm up once (helps avoid cold-start timeouts)
+curl -fsS -X POST -H "Content-Type: application/json" \
+  -d '{"question":"ping","top_k":1,"extra_context":"{}","use_live_weather":false}' \
+  "${API_BASE}/rag/query" >/dev/null 2>&1 || true
+
+# -----------------------------------------------------------------------------
+# 3) Query backend for today's tweet
+# -----------------------------------------------------------------------------
+QUESTION=$'Write exactly ONE short tweet-style post about TODAY\\x27s weather.\\n'\
+$'Use ONLY information from the provided live weather JSON.\\n'\
+$'Keep it within about '"${MAX_CHARS}"' characters.\\n'\
+$'Output ONLY the tweet text (no quotes, no markdown).\\n'
+
+JSON_PAYLOAD="$(python - <<'PY'
+import json, os
+payload = {
+  "question": os.environ["QUESTION"],
+  "top_k": int(os.environ.get("TOP_K", "3")),
+  "extra_context": os.environ.get("SNAP_JSON", ""),
+  "use_live_weather": False,
+}
+print(json.dumps(payload, ensure_ascii=False))
+PY
+)"
+
+resp="$(curl_json POST "${API_BASE}/rag/query" "${JSON_PAYLOAD}")"
+tweet="$(python - <<'PY' "${resp}"
+import json,sys,re
+obj=json.loads(sys.argv[1])
+ans=(obj.get("answer") or "").strip()
+ans=re.sub(r"\\s+"," ",ans).strip()
 print(ans)
 PY
-<<<"${RES}")"
+)"
 
-if [[ -z "${TWEET}" ]]; then
+if [[ -z "${tweet}" ]]; then
   echo "ERROR: tweet is empty after parsing." >&2
+  echo "---- raw response ----" >&2
+  echo "${resp}" >&2
   exit 1
 fi
 
-# Update feed(s)
+if [[ -n "${HASHTAGS}" && "${tweet}" != *"#"* ]]; then
+  tweet="${tweet} ${HASHTAGS}"
+fi
+
+# -----------------------------------------------------------------------------
+# 4) Write outputs (feed + latest + snapshot) to all configured paths
+# -----------------------------------------------------------------------------
+today="$(date -u +%Y-%m-%d)"
+now_iso="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+ENTRY_JSON="$(python - <<'PY'
+import json, os
+snap_raw = os.environ.get("SNAP_JSON","{}")
+try:
+    snap = json.loads(snap_raw)
+except Exception:
+    snap = {"raw": snap_raw}
+entry = {
+  "date": os.environ["today"],
+  "generated_at": os.environ["now_iso"],
+  "text": os.environ["tweet"],
+  "place": os.environ.get("WEATHER_PLACE",""),
+  "weather": snap,
+}
+print(json.dumps(entry, ensure_ascii=False, indent=2) + "\\n")
+PY
+)"
+
+write_feed_and_latest() {
+  local feed_path="${1}"
+  local latest_path="${2}"
+
+  mkdir -p "$(dirname "${feed_path}")" "$(dirname "${latest_path}")"
+
+  # Write latest
+  printf "%s" "${ENTRY_JSON}" > "${latest_path}"
+
+  # Update feed (list)
+  python - <<'PY' "${feed_path}" "${ENTRY_JSON}"
+import json, sys
+from pathlib import Path
+
+feed_path = Path(sys.argv[1])
+entry_txt = sys.argv[2]
+entry = json.loads(entry_txt)
+
+if feed_path.exists() and feed_path.stat().st_size > 0:
+    try:
+        feed = json.loads(feed_path.read_text(encoding="utf-8"))
+        if not isinstance(feed, list):
+            feed = []
+    except Exception:
+        feed = []
+else:
+    feed = []
+
+# replace today's entry
+feed = [e for e in feed if e.get("date") != entry.get("date")]
+feed.append(entry)
+feed.sort(key=lambda x: x.get("date",""))
+
+feed_path.write_text(json.dumps(feed, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+print(f"Wrote: {feed_path} ({len(feed)} entries)")
+PY
+
+  # Also write weather snapshot next to latest (for debugging / transparency)
+  local snap_path
+  snap_path="$(dirname "${latest_path}")/weather_snapshot.json"
+  printf "%s\n" "${SNAP_JSON}" > "${snap_path}"
+  echo "Wrote: ${latest_path}"
+  echo "Wrote: ${snap_path}"
+}
+
+# Pair paths by index. If counts mismatch, fall back to pairing each feed with the first latest.
+mapfile -t FEEDS < <(split_paths "${FEED_PATHS}")
+mapfile -t LATESTS < <(split_paths "${LATEST_PATHS}")
+
+if [[ "${#FEEDS[@]}" -eq 0 || "${#LATESTS[@]}" -eq 0 ]]; then
+  echo "ERROR: FEED_PATHS / LATEST_PATHS resolved to empty." >&2
+  exit 1
+fi
+
 for idx in "${!FEEDS[@]}"; do
-  feed="$(echo "${FEEDS[$idx]}" | xargs)"
-  latest="$(echo "${LATESTS[$idx]:-${LATESTS[0]}}" | xargs)"
-  python scripts/update_weather_feed.py \
-    --feed "${feed}" \
-    --latest "${latest}" \
-    --date "${TODAY}" \
-    --text "${TWEET}" \
-    --place "${WEATHER_PLACE:-}"
+  feed="${FEEDS[$idx]}"
+  latest="${LATESTS[0]}"
+  if [[ $idx -lt ${#LATESTS[@]} ]]; then
+    latest="${LATESTS[$idx]}"
+  fi
+  write_feed_and_latest "${feed}" "${latest}"
 done
 
-# Optional: keep a markdown diary post too
-cat > "${POST}" <<EOF
----
-layout: post
-title: "Weather (Yokosuka) - ${TODAY}"
-date: ${TODAY} 09:00:00 +0900
-categories: weather
----
-
-${TWEET}
-
-EOF
-
-echo "Wrote ${POST}"
-echo "Updated feeds: ${FEED_PATHS} | latest: ${LATEST_PATHS}"
+echo "DONE"
