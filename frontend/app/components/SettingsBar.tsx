@@ -30,7 +30,7 @@ export default function SettingsBar() {
     </TouchableOpacity>
   );
 
-  const REPO_URL = "https://github.com/europanite/rag_chat_container_template";
+  const REPO_URL = "https://github.com/europanite/rag_bot_container_weather";
 
   return (
     <SafeAreaView edges={["top"]} style={{ backgroundColor: BAR_BG }}>
@@ -56,7 +56,7 @@ export default function SettingsBar() {
                   }}
                   onPress={() => Linking.openURL(REPO_URL)}
                 >
-                  RAG Chat Container Template
+                  RAG Chat Bot
                 </Text>
               </View>
               <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
