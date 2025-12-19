@@ -32,7 +32,7 @@ jobs:
       - name: Build (expo export -p web)
         working-directory: frontend/app
         env:
-          # EXPO_PUBLIC_FEED_URL: https://europanite.github.io/rag_bot_container_weather/latest.json
+          # EXPO_PUBLIC_FEED_URL: https://europanite.github.io/rag_chat_bot/latest.json
           EXPO_PUBLIC_FEED_URL: ./latest.json
         run: |
           npx expo export --platform web --output-dir web-build

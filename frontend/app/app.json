@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "rag_bot_container_weather",
-    "slug": "rag_bot_container_weather",
+    "name": "rag_chat_bot",
+    "slug": "rag_chat_bot",
     "experiments": {
-      "baseUrl": "/rag_bot_container_weather"
+      "baseUrl": "/rag_chat_bot"
     },
     "version": "1.0.0",
     "orientation": "portrait",

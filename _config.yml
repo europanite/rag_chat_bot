@@ -1,6 +1,6 @@
-title: "rag_bot_container_weather"
+title: "rag_chat_bot"
 description: "A Full-Stack RAG Bot Container"
-baseurl: "/rag_bot_container_weather"
+baseurl: "/rag_chat_bot"
 url: "https://europanite.github.io"
 theme: minima
 markdown: kramdown

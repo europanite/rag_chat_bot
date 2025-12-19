@@ -30,7 +30,7 @@ export default function SettingsBar() {
     </TouchableOpacity>
   );
 
-  const REPO_URL = "https://github.com/europanite/rag_bot_container_weather";
+  const REPO_URL = "https://github.com/europanite/rag_chat_bot";
 
   return (
     <SafeAreaView edges={["top"]} style={{ backgroundColor: BAR_BG }}>
