@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # Optional env:
 #   BACKEND_URL (default: http://localhost:8000)
-#   WEATHER_TZ (default: Asia/Tokyo)
+#   TZ_NAME (default: Asia/Tokyo)
 #   WEATHER_PLACE (default: empty)
 #   RAG_TOP_K (default: 3)
 #   TWEET_MAX_CHARS (default: 240)
@@ -36,7 +36,7 @@ export QUESTION
 # Location (required)
 LAT="${WEATHER_LAT:-}"
 LON="${WEATHER_LON:-}"
-TZ_NAME="${WEATHER_TZ:-Asia/Tokyo}"
+TZ_NAME="${TZ_NAME:-Asia/Tokyo}"
 WEATHER_PLACE="${WEATHER_PLACE:-}"
 
 # Tweet config

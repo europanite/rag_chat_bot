@@ -125,7 +125,7 @@ def _to_env(loc: DetectedLocation) -> str:
         f"WEATHER_LON={loc.lon}",
     ]
     if loc.timezone:
-        lines.append(f"WEATHER_TZ={loc.timezone}")
+        lines.append(f"TZ_NAME={loc.timezone}")
     # Optional human hint
     place_bits = [b for b in [loc.city, loc.region, loc.country] if b]
     if place_bits:
