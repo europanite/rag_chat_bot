@@ -1,40 +1,40 @@
 {
   "date": "2025-12-19",
-  "generated_at": "2025-12-19T18:32:34Z",
-  "text": "Clear skies with a high of 15.2°C and a gentle breeze! Enjoy the scenic views of Mt. Fuji on a bright day like today in Yokosuka #Yokosuka #Miura",
+  "generated_at": "2025-12-19T18:58:19Z",
+  "text": "Mild morning in Yokosuka! 9.9°C, 7.6°C apparent, 73% humidity, and partly cloudy skies. Perfect day to explore the Miura Peninsula's coastal lines and hiking trails! #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-19T18:30:57Z",
+    "generated_at": "2025-12-19T18:56:27Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-20T03:30",
-      "temp_c": 9.6,
-      "apparent_temp_c": 7.0,
-      "humidity_pct": 72,
+      "time": "2025-12-20T03:45",
+      "temp_c": 9.9,
+      "apparent_temp_c": 7.6,
+      "humidity_pct": 73,
       "precip_mm": 0.0,
       "weather_code": 0,
-      "cloud_cover_pct": 16,
-      "wind_kmh": 8.7,
-      "wind_dir_deg": 30
+      "cloud_cover_pct": 7,
+      "wind_kmh": 7.7,
+      "wind_dir_deg": 62
     },
     "today": {
       "date": "2025-12-20",
-      "weather_code": 63,
-      "temp_max_c": 15.2,
+      "weather_code": 65,
+      "temp_max_c": 15.7,
       "temp_min_c": 8.9,
-      "precip_sum_mm": 15.4,
-      "wind_max_kmh": 12.3
+      "precip_sum_mm": 14.4,
+      "wind_max_kmh": 11.9
     },
     "tomorrow": {
       "date": "2025-12-21",
       "weather_code": 61,
-      "temp_max_c": 18.7,
+      "temp_max_c": 19.0,
       "temp_min_c": 12.8,
-      "precip_sum_mm": 9.5,
+      "precip_sum_mm": 10.7,
       "wind_max_kmh": 25.3
     }
   }
