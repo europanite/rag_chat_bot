@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-19T17:43:06Z",
+      "date": "2025-12-19",
+      "text": "Clear skies tonight in Yokosuka! Current temperature is 9.1°C with 70% humidity. Windy at 8.2 km/h from the northwest. Enjoy the Fuji views! #Yokosuka #Miura",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-19T17:43:06Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-19T17:41:17Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-20T02:30",
+          "temp_c": 9.1,
+          "apparent_temp_c": 6.5,
+          "humidity_pct": 70,
+          "precip_mm": 0.0,
+          "weather_code": 0,
+          "cloud_cover_pct": 17,
+          "wind_kmh": 8.2,
+          "wind_dir_deg": 15
+        },
+        "today": {
+          "date": "2025-12-20",
+          "weather_code": 63,
+          "temp_max_c": 15.2,
+          "temp_min_c": 8.9,
+          "precip_sum_mm": 15.4,
+          "wind_max_kmh": 12.3
+        },
+        "tomorrow": {
+          "date": "2025-12-21",
+          "weather_code": 61,
+          "temp_max_c": 18.7,
+          "temp_min_c": 12.8,
+          "precip_sum_mm": 9.5,
+          "wind_max_kmh": 25.3
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-19T17:43:06Z",
+  "place": "Yokosuka"
+}
