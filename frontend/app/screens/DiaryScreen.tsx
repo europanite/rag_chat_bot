@@ -36,9 +36,11 @@ function safeJsonParse(raw: string): unknown | null {
 function normalizeFeed(parsed: unknown): Feed | null {
   if (!parsed) return null;
 
-  // New shape: { items: [...] }
+  // Feed shape: { items: [...] }
   if (typeof parsed === "object" && !Array.isArray(parsed)) {
     const obj = parsed as any;
+
+    // New shape: { items: [...] }
     if (Array.isArray(obj.items)) {
       const items: FeedItem[] = obj.items
         .map((it: any, idx: number): FeedItem | null => {
@@ -60,6 +62,24 @@ function normalizeFeed(parsed: unknown): Feed | null {
         updated_at: typeof obj.updated_at === "string" ? obj.updated_at : undefined,
         place: typeof obj.place === "string" ? obj.place : undefined,
         items,
+      };
+    }
+
+    // Latest entry shape: { date, text, ... } (optionally includes feed_file/feed_url pointers)
+    const date = typeof obj.date === "string" ? obj.date : "";
+    const text = typeof obj.text === "string" ? obj.text : "";
+    if (date && text) {
+      const id =
+        typeof obj.id === "string"
+          ? obj.id
+          : typeof obj.generated_at === "string"
+            ? obj.generated_at
+            : date;
+      const place = typeof obj.place === "string" && obj.place ? obj.place : undefined;
+      return {
+        updated_at: typeof obj.generated_at === "string" ? obj.generated_at : undefined,
+        place,
+        items: [{ id, date, text, place }],
       };
     }
   }
@@ -93,13 +113,41 @@ function normalizeFeed(parsed: unknown): Feed | null {
   return null;
 }
 
+function getFeedPointer(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
+
+  const cand =
+    typeof obj.feed_url === "string"
+      ? obj.feed_url
+      : typeof obj.feed_file === "string"
+        ? obj.feed_file
+        : typeof obj.feed_path === "string"
+          ? obj.feed_path
+          : null;
+
+  if (!cand) return null;
+  const s = String(cand).trim();
+  return s ? s : null;
+}
+
+function resolveUrl(maybeRelative: string, baseUrl: string): string {
+  try {
+    if (maybeRelative.startsWith("http://") || maybeRelative.startsWith("https://")) return maybeRelative;
+    if (typeof window !== "undefined") return new URL(maybeRelative, baseUrl).toString();
+  } catch {
+    // ignore
+  }
+  return maybeRelative;
+}
+
 function addCacheBuster(url: string): string {
   const sep = url.includes("?") ? "&" : "?";
   return `${url}${sep}v=${Date.now()}`;
 }
 
 export default function DiaryScreen() {
-  const FEED_URL = process.env.EXPO_PUBLIC_FEED_URL || "./weather_feed.json";
+  const FEED_URL = process.env.EXPO_PUBLIC_FEED_URL || "./latest.json";
 
   const RESOLVED_FEED_URL = useMemo(() => {
     try {
@@ -123,21 +171,47 @@ export default function DiaryScreen() {
 
   const latest = sortedItems[0] ?? null;
 
+  const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
+
+  useEffect(() => {
+    setEffectiveUrl(RESOLVED_FEED_URL);
+  }, [RESOLVED_FEED_URL]);
+
   const load = useCallback(async () => {
+    let currentEffectiveUrl = RESOLVED_FEED_URL;
+
     try {
       setError(null);
-      const fetchUrl = addCacheBuster(RESOLVED_FEED_URL);
-      const res = await fetch(fetchUrl, { headers: { "Cache-Control": "no-cache" } });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+
+      const fetchJson = async (url: string): Promise<{ raw: string; parsed: unknown }> => {
+        const finalUrl = addCacheBuster(url);
+        const res = await fetch(finalUrl, { headers: { "Cache-Control": "no-cache" } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.text();
+        const parsed = safeJsonParse(raw);
+        return { raw, parsed };
+      };
+
+      // 1) Fetch "entry" JSON (default: ./latest.json)
+      setEffectiveUrl(RESOLVED_FEED_URL);
+      const first = await fetchJson(RESOLVED_FEED_URL);
+
+      // 2) If it contains a pointer to the real feed file, follow it
+      const pointer = getFeedPointer(first.parsed);
+      let target = first;
+
+      if (pointer) {
+        currentEffectiveUrl = resolveUrl(pointer, RESOLVED_FEED_URL);
+        setEffectiveUrl(currentEffectiveUrl);
+        target = await fetchJson(currentEffectiveUrl);
       }
-      const raw = await res.text();
-      const parsed = safeJsonParse(raw);
-      const normalized = normalizeFeed(parsed);
+
+      const normalized = normalizeFeed(target.parsed);
       if (!normalized) {
-        const preview = raw.slice(0, 180).replace(/\s+/g, " ").trim();
-        throw new Error(`Invalid feed JSON shape\nURL: ${RESOLVED_FEED_URL}\nRAW: ${preview}`);
+        const preview = target.raw.slice(0, 180).replace(/\s+/g, " ").trim();
+        throw new Error(`Invalid feed JSON shape\nURL: ${currentEffectiveUrl}\nRAW: ${preview}`);
       }
+
       setFeed(normalized);
     } catch (e: any) {
       setError(e?.message ?? "Failed to load feed");
@@ -145,8 +219,7 @@ export default function DiaryScreen() {
     } finally {
       setLoading(false);
     }
-  }, [RESOLVED_FEED_URL]);
-
+  }, [RESOLVED_FEED_URL]);\n
   useEffect(() => {
     void load();
   }, [load]);
@@ -158,9 +231,9 @@ export default function DiaryScreen() {
   }, [load]);
 
   const openFeed = useCallback(() => {
-    if (!RESOLVED_FEED_URL) return;
-    void Linking.openURL(RESOLVED_FEED_URL);
-  }, [RESOLVED_FEED_URL]);
+    if (!effectiveUrl) return;
+    void Linking.openURL(effectiveUrl);
+  }, [effectiveUrl]);
 
   const Header = (
     <View style={{ padding: 16, gap: 10 }}>
@@ -169,7 +242,10 @@ export default function DiaryScreen() {
         <Text style={{ color: TEXT_DIM }}>
           Friendly Yokosuka weather bot posts (generated daily by the backend + RAG).
         </Text>
-        <Text style={{ color: TEXT_DIM, fontSize: 12 }}>Feed: {RESOLVED_FEED_URL}</Text>
+        <Text style={{ color: TEXT_DIM, fontSize: 12 }}>Feed: {effectiveUrl}</Text>
+        {effectiveUrl !== RESOLVED_FEED_URL ? (
+          <Text style={{ color: TEXT_DIM, fontSize: 12 }}>Entry: {RESOLVED_FEED_URL}</Text>
+        ) : null}
       </View>
 
       <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
