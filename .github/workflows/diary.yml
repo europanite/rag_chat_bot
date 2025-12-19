@@ -74,7 +74,7 @@ jobs:
           WEATHER_TZ: "Asia/Tokyo"
           WEATHER_PLACE: "Yokosuka"
           OUT_DIR: frontend/app/public
-          FEED_PATH: frontend/app/public/weather_feed.json
+          FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
           # DEBUG: "1"
         run: |
