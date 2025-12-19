@@ -23,7 +23,7 @@ type Feed = {
 };
 
 const CARD_BG = "#111827"; // slate-900-ish
-const TEXT_DIM = "#383838ff"; // gray-400
+const TEXT_DIM = "#9ca3af"; // gray-400
 
 function safeJsonParse(raw: string): unknown | null {
   try {
