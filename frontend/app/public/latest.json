@@ -1,25 +1,25 @@
 {
   "date": "2025-12-19",
-  "generated_at": "2025-12-19T10:04:41Z",
-  "text": "Clear skies in Yokosuka today! Temp is a comfortable 12.1°C with gentle winds at 10.3km/h. Perfect day for a stroll or hike on the Miura Peninsula, with possibly even views of Mt. Fuji! #Yokosuka #Miura",
+  "generated_at": "2025-12-19T10:23:35Z",
+  "text": "Lovely day in Yokosuka! Currently 12.1°C with 69% humidity and 10% cloud cover. Perfect weather to enjoy the scenic views of Mt. Fuji from some of the spots around the Miura Peninsula! #Yokosuka #Miura #Yokohama",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-19T10:02:54Z",
+    "generated_at": "2025-12-19T10:21:47Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-19T19:00",
+      "time": "2025-12-19T19:15",
       "temp_c": 12.1,
-      "apparent_temp_c": 9.7,
-      "humidity_pct": 68,
+      "apparent_temp_c": 9.8,
+      "humidity_pct": 69,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": 10,
-      "wind_kmh": 10.3,
-      "wind_dir_deg": 25
+      "wind_kmh": 9.9,
+      "wind_dir_deg": 19
     },
     "today": {
       "date": "2025-12-19",
