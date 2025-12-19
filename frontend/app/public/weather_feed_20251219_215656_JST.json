@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-19T12:58:39Z",
+      "date": "2025-12-19",
+      "text": "Todays weather in Yokosuka: partly cloudy with a high of 11.9°C and a low of 7.2°C. Humidity is 66% and wind speed is 8.2km/h.",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-19T12:58:39Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-19T12:56:57Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-19T21:45",
+          "temp_c": 10.0,
+          "apparent_temp_c": 7.4,
+          "humidity_pct": 66,
+          "precip_mm": 0.0,
+          "weather_code": 0,
+          "cloud_cover_pct": 4,
+          "wind_kmh": 8.2,
+          "wind_dir_deg": 345
+        },
+        "today": {
+          "date": "2025-12-19",
+          "weather_code": 1,
+          "temp_max_c": 11.9,
+          "temp_min_c": 7.2,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 19.7
+        },
+        "tomorrow": {
+          "date": "2025-12-20",
+          "weather_code": 63,
+          "temp_max_c": 16.2,
+          "temp_min_c": 9.8,
+          "precip_sum_mm": 10.5,
+          "wind_max_kmh": 10.0
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-19T12:58:39Z",
+  "place": "Yokosuka"
+}
