@@ -1,25 +1,25 @@
 {
   "date": "2025-12-19",
-  "generated_at": "2025-12-19T13:53:40Z",
-  "text": "Nice evening in Yokosuka! Currently 10.2°C with partly cloudy skies and a gentle 7.3km/h breeze. Perfect for a stroll along the coast or a hike in the hills. #Yokosuka #Miura",
+  "generated_at": "2025-12-19T14:15:19Z",
+  "text": "Partly cloudy and chilly tonight in Yokosuka! Temp drops to 7.2°C, humidity stays at 67%. Perfect excuse to grab a warm cup of coffee and enjoy the stars. #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-19T13:51:51Z",
+    "generated_at": "2025-12-19T14:13:34Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-19T22:45",
-      "temp_c": 10.2,
-      "apparent_temp_c": 7.8,
+      "time": "2025-12-19T23:00",
+      "temp_c": 10.3,
+      "apparent_temp_c": 7.9,
       "humidity_pct": 67,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": 3,
-      "wind_kmh": 7.3,
-      "wind_dir_deg": 9
+      "wind_kmh": 7.1,
+      "wind_dir_deg": 15
     },
     "today": {
       "date": "2025-12-19",
