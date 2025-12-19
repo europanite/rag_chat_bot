@@ -220,6 +220,63 @@ PY
   sleep 3
 done
 
+curl_json() {
+  local url="$1"
+  local data="${2:-}"
+  local tmp_body tmp_hdr
+  tmp_body="$(mktemp)"
+  tmp_hdr="$(mktemp)"
+
+  # -sS は維持しつつ、HTTPコード/Content-Type/サイズを必ず取る
+  local http_code ct size
+  if [[ -n "$data" ]]; then
+    http_code="$(curl -sS -D "$tmp_hdr" -o "$tmp_body" \
+      -H 'Content-Type: application/json' \
+      -w '%{http_code}' \
+      --data "$data" \
+      "$url" || echo "curl_error")"
+  else
+    http_code="$(curl -sS -D "$tmp_hdr" -o "$tmp_body" \
+      -w '%{http_code}' \
+      "$url" || echo "curl_error")"
+  fi
+
+  ct="$(awk 'BEGIN{IGNORECASE=1} /^content-type:/ {sub(/\r$/,""); print $0}' "$tmp_hdr" | head -n 1)"
+  size="$(wc -c < "$tmp_body" | tr -d ' ')"
+
+  echo "---- HTTP DEBUG ----" >&2
+  echo "URL: $url" >&2
+  echo "HTTP: $http_code" >&2
+  echo "SIZE: ${size} bytes" >&2
+  echo "CT: ${ct:-"(no content-type)"}" >&2
+  echo "---- HEADERS ----" >&2
+  sed -n '1,40p' "$tmp_hdr" >&2
+  echo "---- BODY (first 200 bytes) ----" >&2
+  head -c 200 "$tmp_body" | cat -v >&2
+  echo >&2
+  echo "---- BODY (full) ----" >&2
+  cat "$tmp_body" >&2
+  echo >&2
+
+  if [[ "$http_code" =~ ^2 && "$size" -gt 0 ]]; then
+    cat "$tmp_body"
+    rm -f "$tmp_body" "$tmp_hdr"
+    return 0
+  fi
+
+  rm -f "$tmp_body" "$tmp_hdr"
+  return 1
+}
+
+resp="$(curl_json "http://localhost:8000/rag/query" "$payload")" || {
+  echo "ERROR: /rag/query failed (see HTTP DEBUG above)" >&2
+  exit 1
+}
+python - <<'PY'
+import json,sys
+print(json.loads(sys.stdin.read()))
+PY <<<"$resp"
+
 if [ "${ok_json}" -ne 1 ]; then
   echo "ERROR: /rag/query never returned valid JSON with non-empty 'answer'." >&2
   echo "---- raw response ----" >&2
