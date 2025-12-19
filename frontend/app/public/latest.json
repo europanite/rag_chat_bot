@@ -1,25 +1,25 @@
 {
   "date": "2025-12-19",
-  "generated_at": "2025-12-19T15:49:14Z",
-  "text": "A chilly start to the day in Yokosuka, with a temperature of 10.4°C! But don't worry, it'll rise to 16.2°C today with a slight chance of rain. #Yokosuka #Miura",
+  "generated_at": "2025-12-19T16:28:33Z",
+  "text": "Clear skies and chilly temps today in Yokosuka! 10.2°C with 70% humidity. Perfect day to enjoy the views of Mt. Fuji from a spot with a great vista! #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-19T15:47:27Z",
+    "generated_at": "2025-12-19T16:26:57Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-20T00:45",
-      "temp_c": 10.4,
-      "apparent_temp_c": 7.8,
+      "time": "2025-12-20T01:15",
+      "temp_c": 10.2,
+      "apparent_temp_c": 7.6,
       "humidity_pct": 70,
       "precip_mm": 0.0,
       "weather_code": 0,
-      "cloud_cover_pct": 4,
-      "wind_kmh": 9.5,
-      "wind_dir_deg": 9
+      "cloud_cover_pct": 6,
+      "wind_kmh": 9.8,
+      "wind_dir_deg": 6
     },
     "today": {
       "date": "2025-12-20",
