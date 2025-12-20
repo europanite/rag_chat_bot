@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-20T10:46:11Z",
+      "date": "2025-12-20",
+      "text": "Warm evening in Yokosuka! Temp's a cozy 15.1°C with 93% humidity. Perfect time to enjoy the sea view with a gentle 3.9km/h breeze. #Yokosuka #Miura",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-20T10:46:11Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-20T10:44:28Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-20T19:30",
+          "temp_c": 15.1,
+          "apparent_temp_c": 15.8,
+          "humidity_pct": 93,
+          "precip_mm": 0.1,
+          "weather_code": 51,
+          "cloud_cover_pct": 89,
+          "wind_kmh": 3.9,
+          "wind_dir_deg": 326
+        },
+        "today": {
+          "date": "2025-12-20",
+          "weather_code": 63,
+          "temp_max_c": 17.5,
+          "temp_min_c": 8.9,
+          "precip_sum_mm": 15.2,
+          "wind_max_kmh": 17.6
+        },
+        "tomorrow": {
+          "date": "2025-12-21",
+          "weather_code": 61,
+          "temp_max_c": 18.5,
+          "temp_min_c": 12.1,
+          "precip_sum_mm": 8.3,
+          "wind_max_kmh": 31.0
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-20T10:46:11Z",
+  "place": "Yokosuka"
+}
