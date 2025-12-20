@@ -188,7 +188,7 @@ def _get_bot_name() -> str:
 
 def _get_bot_hashtags() -> str:
     # Space-separated or comma-separated accepted; we pass through to the model.
-    return os.getenv("WEATHER_BOT_HASHTAGS", "#Yokosuka #MiuraPeninsula #Kanagawa")
+    return os.getenv("HASHTAGS", "#Yokosuka #MiuraPeninsula #Kanagawa")
 
 
 def _clean_single_line(text: str) -> str:
