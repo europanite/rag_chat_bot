@@ -1,25 +1,25 @@
 {
   "date": "2025-12-20",
-  "generated_at": "2025-12-20T13:47:47Z",
-  "text": "Warm evening in Yokosuka! 17.9°C, 86% humidity, with a chance of light rain (0.5mm). Clear skies allow for a glimpse of Mt. Fuji from some locations. #Yokosuka #Miura #Yokohama",
+  "generated_at": "2025-12-20T14:21:21Z",
+  "text": "Clear evening in Yokosuka! 17.9°C with 86% humidity and light precipitation. Perfect day to enjoy the scenic views of Mt. Fuji from nearby hills. #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-20T13:45:57Z",
+    "generated_at": "2025-12-20T14:19:33Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-20T22:45",
+      "time": "2025-12-20T23:15",
       "temp_c": 17.9,
-      "apparent_temp_c": 17.1,
+      "apparent_temp_c": 16.8,
       "humidity_pct": 86,
-      "precip_mm": 0.5,
-      "weather_code": 61,
-      "cloud_cover_pct": 85,
-      "wind_kmh": 18.7,
-      "wind_dir_deg": 199
+      "precip_mm": 1.1,
+      "weather_code": 63,
+      "cloud_cover_pct": 82,
+      "wind_kmh": 19.6,
+      "wind_dir_deg": 200
     },
     "today": {
       "date": "2025-12-20",
