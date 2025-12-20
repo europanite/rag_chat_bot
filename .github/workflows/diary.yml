@@ -2,7 +2,7 @@ name: Diary
 
 on:
   schedule:
-    - cron: '0/30 * * * *'
+    - cron: '0,30 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -75,6 +75,7 @@ jobs:
           WEATHER_LAT: "35.2810"
           WEATHER_LON: "139.6722"
           TZ_NAME: "Asia/Tokyo"
+          RAG_TOP_K: 6
           WEATHER_PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
