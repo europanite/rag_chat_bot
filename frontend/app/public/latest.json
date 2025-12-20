@@ -1,25 +1,25 @@
 {
   "date": "2025-12-20",
-  "generated_at": "2025-12-20T10:46:11Z",
-  "text": "Warm evening in Yokosuka! Temp's a cozy 15.1°C with 93% humidity. Perfect time to enjoy the sea view with a gentle 3.9km/h breeze. #Yokosuka #Miura",
+  "generated_at": "2025-12-20T11:19:05Z",
+  "text": "Clear skies over Yokosuka! Temp's mild at 15.2°C, humidity's 93%, and there's a gentle 3.5km/h breeze. Perfect day to enjoy the city or hike in Miura Peninsula! #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-20T10:44:28Z",
+    "generated_at": "2025-12-20T11:17:27Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-20T19:30",
-      "temp_c": 15.1,
-      "apparent_temp_c": 15.8,
+      "time": "2025-12-20T20:15",
+      "temp_c": 15.2,
+      "apparent_temp_c": 16.1,
       "humidity_pct": 93,
-      "precip_mm": 0.1,
-      "weather_code": 51,
-      "cloud_cover_pct": 89,
-      "wind_kmh": 3.9,
-      "wind_dir_deg": 326
+      "precip_mm": 1.7,
+      "weather_code": 63,
+      "cloud_cover_pct": 79,
+      "wind_kmh": 3.5,
+      "wind_dir_deg": 294
     },
     "today": {
       "date": "2025-12-20",
