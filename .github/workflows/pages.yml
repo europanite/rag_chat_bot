@@ -3,11 +3,9 @@ name: GitHub Pages
 on:
   workflow_call:
     inputs:
-      ref:
-        description: "Branch/ref to build & deploy"
-        required: false
+      feed_path:
+        required: true
         type: string
-        default: "main"
   workflow_dispatch:
     inputs:
       ref:
