@@ -1,0 +1,35 @@
+{
+  "source": "open-meteo",
+  "generated_at": "2025-12-20T16:06:27Z",
+  "place": "Yokosuka",
+  "latitude": 35.281,
+  "longitude": 139.6722,
+  "timezone": "Asia/Tokyo",
+  "current": {
+    "time": "2025-12-21T01:00",
+    "temp_c": 18.5,
+    "apparent_temp_c": 17.2,
+    "humidity_pct": 82,
+    "precip_mm": 0.0,
+    "weather_code": 3,
+    "cloud_cover_pct": 94,
+    "wind_kmh": 21.9,
+    "wind_dir_deg": 194
+  },
+  "today": {
+    "date": "2025-12-21",
+    "weather_code": 63,
+    "temp_max_c": 18.5,
+    "temp_min_c": 12.1,
+    "precip_sum_mm": 13.6,
+    "wind_max_kmh": 30.3
+  },
+  "tomorrow": {
+    "date": "2025-12-22",
+    "weather_code": 53,
+    "temp_max_c": 12.6,
+    "temp_min_c": 7.3,
+    "precip_sum_mm": 0.7,
+    "wind_max_kmh": 41.1
+  }
+}
