@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-20T19:17:42Z",
+      "date": "2025-12-20",
+      "text": "Warm and cloudy in Yokosuka today! Temp at 17.1°C, humidity at 92%, and a gentle breeze at 10.4km/h. Perfect day to explore the city! #Yokosuka",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-20T19:17:42Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-20T19:15:11Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-21T04:15",
+          "temp_c": 17.1,
+          "apparent_temp_c": 17.6,
+          "humidity_pct": 92,
+          "precip_mm": 0.0,
+          "weather_code": 1,
+          "cloud_cover_pct": 42,
+          "wind_kmh": 10.4,
+          "wind_dir_deg": 226
+        },
+        "today": {
+          "date": "2025-12-21",
+          "weather_code": 65,
+          "temp_max_c": 18.0,
+          "temp_min_c": 12.6,
+          "precip_sum_mm": 21.9,
+          "wind_max_kmh": 32.7
+        },
+        "tomorrow": {
+          "date": "2025-12-22",
+          "weather_code": 51,
+          "temp_max_c": 13.0,
+          "temp_min_c": 7.3,
+          "precip_sum_mm": 0.1,
+          "wind_max_kmh": 39.6
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-20T19:17:42Z",
+  "place": "Yokosuka"
+}
