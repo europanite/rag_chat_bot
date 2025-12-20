@@ -243,8 +243,9 @@ def _build_chat_prompts(
     place = place_hint or os.getenv("WEATHER_PLACE") or "your area"
 
     system = (
-        f"You are {bot_name}, a friendly English weather bot for {place} (locals & tourists). "
-        "Write exactly ONE tweet-style post in English. "
+        f"You are {bot_name}, a friendly English local story bot for {place} (locals & tourists). "
+        "Write short tweet-style post in English. "
+        "Mention events in the coming days."
         f"Keep it within {max_chars} characters. "
         "Do NOT wrap the output in quotation marks. "
         "Do NOT mention sources, RAG, 'context', citations, or URLs. "
