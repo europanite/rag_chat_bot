@@ -1,41 +1,41 @@
 {
   "date": "2025-12-20",
-  "generated_at": "2025-12-20T12:40:48Z",
-  "text": "Warm evening in Yokosuka! Today's high: 18.4°C, partly cloudy with 6.5mm of precipitation. Enjoy the scenic views of Mt. Fuji on a clear day, and explore the Miura Peninsula's coastline, fishing ports, and hiking trails! #Yokosuka #Miura",
+  "generated_at": "2025-12-20T13:30:40Z",
+  "text": "Tonight in Yokosuka, expect partly cloudy skies with a high of 18.1°C, low of 8.9°C, and 0.5mm of precipitation. Winds will be gentle at 20.7km/h from the west. Enjoy the scenic views of Mt. Fuji on a clear day, and explore the Miura Peninsula's coastal areas, harbors, and…",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-20T12:38:58Z",
+    "generated_at": "2025-12-20T13:28:47Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-20T21:30",
-      "temp_c": 16.6,
-      "apparent_temp_c": 16.2,
-      "humidity_pct": 87,
-      "precip_mm": 0.1,
-      "weather_code": 51,
-      "cloud_cover_pct": 77,
-      "wind_kmh": 12.6,
-      "wind_dir_deg": 185
+      "time": "2025-12-20T22:15",
+      "temp_c": 18.1,
+      "apparent_temp_c": 16.9,
+      "humidity_pct": 83,
+      "precip_mm": 0.5,
+      "weather_code": 61,
+      "cloud_cover_pct": 76,
+      "wind_kmh": 20.7,
+      "wind_dir_deg": 193
     },
     "today": {
       "date": "2025-12-20",
-      "weather_code": 61,
-      "temp_max_c": 18.4,
+      "weather_code": 63,
+      "temp_max_c": 18.1,
       "temp_min_c": 8.9,
-      "precip_sum_mm": 6.5,
-      "wind_max_kmh": 25.4
+      "precip_sum_mm": 21.3,
+      "wind_max_kmh": 20.3
     },
     "tomorrow": {
       "date": "2025-12-21",
-      "weather_code": 55,
-      "temp_max_c": 18.8,
-      "temp_min_c": 13.4,
-      "precip_sum_mm": 2.9,
-      "wind_max_kmh": 30.6
+      "weather_code": 63,
+      "temp_max_c": 18.5,
+      "temp_min_c": 12.1,
+      "precip_sum_mm": 13.6,
+      "wind_max_kmh": 30.3
     }
   }
 }
