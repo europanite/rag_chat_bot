@@ -24,13 +24,22 @@ jobs:
         with:
           python-version: "3.12"
 
+      # - name: Restore caches
+      #   id: cache_chroma
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: .ci_cache/chroma
+      #     key: ${{ runner.os }}-chroma-v1
+      #     restore-keys: |
+      #       ${{ runner.os }}-chroma-d
+
       - name: Start stack (db + ollama + backend)
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "true"
         run: |
-          # mkdir -p .ci_cache/ollama .ci_cache/chroma
+          mkdir -p .ci_cache/ollama .ci_cache/chroma
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
 
       - name: Wait for backend
@@ -67,10 +76,11 @@ jobs:
           LON: "139.6722"
           TZ_NAME: "Asia/Tokyo"
           RAG_TOP_K: 6
-          CURL_MAX_TIME: 1024
+          CURL_MAX_TIME: 32
           WEATHER_PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
+          MAX_CHARS: 512
           # DEBUG: "1"
         run: |
           chmod +x scripts/generate_diary.sh
@@ -86,10 +96,18 @@ jobs:
       - name: Free disk before cache save
         if: always()
         run: |
-          # rm -rf .ci_cache/ollama || true
+          rm -rf .ci_cache/ollama || true
           docker system prune -af --volumes || true
           df -h || true
-          # du -sh .ci_cache/chroma || true
+          du -sh .ci_cache/chroma || true
+
+      # - name: Save chroma cache (best-effort)
+      #   if: always() && steps.cache_chroma.outputs.cache-hit != 'true'
+      #   continue-on-error: true
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: .ci_cache/chroma
+      #     key: ${{ runner.os }}-chroma-v1
 
       - name: Commit & push if changed
         id: commit

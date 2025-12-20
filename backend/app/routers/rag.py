@@ -80,9 +80,9 @@ class QueryRequest(BaseModel):
     )
 
     max_chars: int = Field(
-        default=280,
+        default=512,
         ge=50,
-        le=400,
+        le=1024,
         description="Maximum characters for the generated post (tweet is 280).",
     )
 
