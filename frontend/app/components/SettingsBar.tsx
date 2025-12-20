@@ -56,7 +56,7 @@ export default function SettingsBar() {
                   }}
                   onPress={() => Linking.openURL(REPO_URL)}
                 >
-                  RAG Chat Bot
+                  Powered by RAG Chat Bot
                 </Text>
               </View>
             </View>
