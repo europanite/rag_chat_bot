@@ -1,25 +1,25 @@
 {
   "date": "2025-12-20",
-  "generated_at": "2025-12-20T19:43:39Z",
-  "text": "Warm morning in Yokosuka! 17°C with 92% humidity and a gentle 10.7km/h breeze. Enjoy the beautiful day and don't miss Yokosuka Winter Illumination at Verney Park, starting today until Jan 4th! #Yokosuka #Miura",
+  "generated_at": "2025-12-20T19:54:33Z",
+  "text": "Good morning Yokosuka! Today's weather is looking lovely with a high of 18°C and mostly cloudy skies. Don't miss the stunning views of Mt. Fuji on clear days! And, don't forget the Yokosuka Winter Illumination starting from October 31st to January 4th at Vellini Park. #Yokosuka…",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-20T19:40:37Z",
+    "generated_at": "2025-12-20T19:51:34Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-21T04:30",
+      "time": "2025-12-21T04:45",
       "temp_c": 17.0,
       "apparent_temp_c": 17.4,
       "humidity_pct": 92,
       "precip_mm": 0.0,
       "weather_code": 1,
-      "cloud_cover_pct": 42,
+      "cloud_cover_pct": 43,
       "wind_kmh": 10.7,
-      "wind_dir_deg": 225
+      "wind_dir_deg": 222
     },
     "today": {
       "date": "2025-12-21",
