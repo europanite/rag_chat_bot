@@ -65,7 +65,6 @@ services:
       - ./backend/app:/app
       - ./data/docs:/data/docs:ro
       - ./chroma_db:/chroma
-      - ./public:/public
       - ./scripts:/scripts
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
@@ -85,6 +84,7 @@ services:
       EXPO_PUBLIC_API_BASE: ${EXPO_PUBLIC_API_BASE:-http://127.0.0.1:8000}
       EXPO_PUBLIC_FEED_URL: ${EXPO_PUBLIC_FEED_URL:-./latest.json}
       REACT_NATIVE_PACKAGER_HOSTNAME: ${REACT_NATIVE_PACKAGER_HOSTNAME:-127.0.0.1}
+      EXPO_PUBLIC_FEEDBACK_FORM_URL: ${EXPO_PUBLIC_FEEDBACK_FORM_URL}
     ports:
       - "19000:19000"  # Expo dev server (Metro)
       - "19001:19001"  # React Native debugger(old)
