@@ -28,7 +28,6 @@ jobs:
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
-          # diary側では再構築しない（ingest.yml の役割）
           RAG_REINDEX_ENABLED: "false"
         run: |
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
@@ -58,8 +57,8 @@ jobs:
 
       - name: Fix permissions for feed dirs
         run: |
-          sudo chown -R "$USER:$USER" frontend/app/public public || true
-          chmod -R u+rwX frontend/app/public public || true
+          sudo chown -R "$USER:$USER" frontend/app/public  || true
+          chmod -R u+rwX frontend/app/public || true
 
       - name: Generate weather tweet post
         env:
