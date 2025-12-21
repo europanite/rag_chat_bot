@@ -14,6 +14,7 @@ type FeedItem = {
   date: string; // YYYY-MM-DD
   text: string;
   place?: string;
+  generated_at?: string; // ISO string (often Z)
 };
 
 type Feed = {
@@ -24,6 +25,47 @@ type Feed = {
 
 const CARD_BG = "#cccccc";
 const TEXT_DIM = "#333333";
+
+function parseTimeLike(input: string): Date | null {
+  const s = String(input ?? "").trim();
+  if (!s) return null;
+
+  // Has explicit timezone (Z or +09:00 etc.)
+  if (/(Z|[+-]\d{2}:\d{2})$/.test(s)) {
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  // "YYYY-MM-DDTHH:mm(:ss)?" without tz -> treat as JST
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(s)) {
+    const d = new Date(`${s}+09:00`);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  // Fallback
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatJst(isoLike: string, withSeconds = false): string {
+  const d = parseTimeLike(isoLike);
+  if (!d) return isoLike;
+
+  // Convert absolute time -> JST (UTC+9). JST has no DST, so this is safe.
+  const jstMs = d.getTime() + 9 * 60 * 60 * 1000;
+  const j = new Date(jstMs);
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  const yyyy = j.getUTCFullYear();
+  const mm = pad(j.getUTCMonth() + 1);
+  const dd = pad(j.getUTCDate());
+  const hh = pad(j.getUTCHours());
+  const mi = pad(j.getUTCMinutes());
+  const ss = pad(j.getUTCSeconds());
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}${withSeconds ? `:${ss}` : ""} JST`;
+}
+
+
 
 function safeJsonParse(raw: string): unknown | null {
   try {
@@ -54,7 +96,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
                 : date || String(idx);
           if (!date || !text) return null;
           const place = typeof it?.place === "string" && it.place ? it.place : undefined;
-          return { id, date, text, place };
+          const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
+          return { id, date, text, place, generated_at };
         })
         .filter(Boolean) as FeedItem[];
 
@@ -76,10 +119,11 @@ function normalizeFeed(parsed: unknown): Feed | null {
             ? obj.generated_at
             : date;
       const place = typeof obj.place === "string" && obj.place ? obj.place : undefined;
+      const generated_at = typeof obj.generated_at === "string" ? obj.generated_at : undefined;
       return {
         updated_at: typeof obj.generated_at === "string" ? obj.generated_at : undefined,
         place,
-        items: [{ id, date, text, place }],
+        items: [{ id, date, text, place, generated_at }],
       };
     }
   }
@@ -98,7 +142,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
               : date || String(idx);
         if (!date || !text) return null;
         const place = typeof it?.place === "string" && it.place ? it.place : undefined;
-        return { id, date, text, place };
+        const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
+        return { id, date, text, place, generated_at };
       })
       .filter(Boolean) as FeedItem[];
 
@@ -166,7 +211,12 @@ export default function HomeScreen() {
 
   const sortedItems = useMemo(() => {
     const items = feed?.items ?? [];
-    return [...items].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    // Prefer generated_at for stable ordering when multiple posts share the same date
+    return [...items].sort((a, b) => {
+      const ta = (a.generated_at || a.date || "").toString();
+      const tb = (b.generated_at || b.date || "").toString();
+      return ta < tb ? 1 : ta > tb ? -1 : 0;
+    });
   }, [feed]);
 
   const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
@@ -240,7 +290,9 @@ export default function HomeScreen() {
       </View>
 
       <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated: {feed.updated_at}</Text> : null}
+        {feed?.updated_at ? (
+          <Text style={{ color: TEXT_DIM }}>Updated (JST): {formatJst(feed.updated_at, true)}</Text>
+        ) : null}
       </View>
 
       {error ? (
@@ -285,6 +337,9 @@ export default function HomeScreen() {
             }}
           >
             <Text style={{ color: TEXT_DIM, fontWeight: "700" }}>{item.date}</Text>
+            {item.generated_at ? (
+              <Text style={{ color: TEXT_DIM, marginTop: 2 }}>{formatJst(item.generated_at)}</Text>
+            ) : null}
             {item.place ? <Text style={{ color: TEXT_DIM, marginTop: 4 }}>{item.place}</Text> : null}
             <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
           </View>
