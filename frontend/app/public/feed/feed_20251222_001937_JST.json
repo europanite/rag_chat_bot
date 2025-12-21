@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-21T15:26:11Z",
+      "date": "2025-12-21",
+      "text": "Good morning Yokosuka! It's a chilly 12.9°C with 69% humidity today! Perfect weather to grab a hot cup of coffee and enjoy the upcoming events! Don't miss the Yokosuka Countdown 2025 on Dec 31st to Jan 1st at Vernal Park! #Yokosuka #Miura #Yokohama",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-21T15:26:11Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-21T15:19:38Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-22T00:15",
+          "temp_c": 12.9,
+          "apparent_temp_c": 7.8,
+          "humidity_pct": 69,
+          "precip_mm": 0.0,
+          "weather_code": 1,
+          "cloud_cover_pct": 43,
+          "wind_kmh": 30.0,
+          "wind_dir_deg": 13
+        },
+        "today": {
+          "date": "2025-12-22",
+          "weather_code": 3,
+          "temp_max_c": 12.9,
+          "temp_min_c": 7.6,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 37.9
+        },
+        "tomorrow": {
+          "date": "2025-12-23",
+          "weather_code": 1,
+          "temp_max_c": 9.9,
+          "temp_min_c": 5.3,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 27.4
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-21T15:26:11Z",
+  "place": "Yokosuka"
+}
