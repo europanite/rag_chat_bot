@@ -59,6 +59,7 @@ jobs:
         working-directory: frontend/app
         env:
           EXPO_PUBLIC_FEED_URL: ./latest.json
+          EXPO_PUBLIC_FEEDBACK_FORM_URL: ${{ vars.FEEDBACK_FORM_URL }}
         run: |
           npx expo export --platform web --output-dir web-build
 
