@@ -13,7 +13,6 @@ export default function SettingsBar() {
   const nav = useNavigation<any>();
   const { width } = useWindowDimensions();
   const isNarrow = width < 420;
-  const NOT_SIGNED_COLOR = BAR_BG;
 
   const Btn = ({ title, onPress }: { title: string; onPress: () => void }) => (
     <TouchableOpacity
