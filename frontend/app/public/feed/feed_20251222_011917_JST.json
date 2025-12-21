@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-21T16:26:22Z",
+      "date": "2025-12-21",
+      "text": "Good morning Yokosuka! It's a chilly 12.9°C with 64% humidity and clear skies! Perfect weather for a stroll around the city. Don't miss the Yokosuka Countdown event on Dec 31st, with fireworks and illuminations at Vellini Park! #Yokosuka #Miura #Yokohama",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-21T16:26:22Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-21T16:19:19Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-22T01:15",
+          "temp_c": 12.9,
+          "apparent_temp_c": 7.9,
+          "humidity_pct": 64,
+          "precip_mm": 0.0,
+          "weather_code": 1,
+          "cloud_cover_pct": 37,
+          "wind_kmh": 28.0,
+          "wind_dir_deg": 16
+        },
+        "today": {
+          "date": "2025-12-22",
+          "weather_code": 3,
+          "temp_max_c": 12.9,
+          "temp_min_c": 7.6,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 37.9
+        },
+        "tomorrow": {
+          "date": "2025-12-23",
+          "weather_code": 1,
+          "temp_max_c": 9.9,
+          "temp_min_c": 5.3,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 27.4
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-21T16:26:22Z",
+  "place": "Yokosuka"
+}
