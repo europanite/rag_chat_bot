@@ -169,8 +169,6 @@ export default function HomeScreen() {
     return [...items].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   }, [feed]);
 
-  const latest = sortedItems[0] ?? null;
-
   const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
 
   useEffect(() => {
@@ -239,43 +237,11 @@ export default function HomeScreen() {
     <View style={{ padding: 16, gap: 10 }}>
       <View style={{ gap: 6 }}>
         <Text style={{ fontSize: 22, fontWeight: "800", color: "#000000ff" }}>Yokosuka Days</Text>
-        {/* <Text style={{ color: TEXT_DIM, fontSize: 12 }}>Feed: {effectiveUrl}</Text>
-        {effectiveUrl !== RESOLVED_FEED_URL ? (
-          <Text style={{ color: TEXT_DIM, fontSize: 12 }}>Entry: {RESOLVED_FEED_URL}</Text>
-        ) : null} */}
       </View>
 
       <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <TouchableOpacity
-          onPress={openFeed}
-          style={{
-            backgroundColor: "#fff",
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: 10,
-          }}
-        >
-          {/* <Text style={{ fontWeight: "800" }}>Open feed JSON</Text> */}
-        </TouchableOpacity>
-
         {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated: {feed.updated_at}</Text> : null}
       </View>
-
-      {latest ? (
-        <View
-          style={{
-            backgroundColor: CARD_BG,
-            borderRadius: 14,
-            padding: 14,
-            borderWidth: 1,
-            borderColor: "#000000",
-          }}
-        >
-          <Text style={{ color: "#000000", fontSize: 16, fontWeight: "800" }}>Latest ({latest.date})</Text>
-          {latest.place ? <Text style={{ color: TEXT_DIM, marginTop: 4 }}>{latest.place}</Text> : null}
-          <Text style={{ color: "#000000", marginTop: 10, fontSize: 16, lineHeight: 22 }}>{latest.text}</Text>
-        </View>
-      ) : null}
 
       {error ? (
         <View
@@ -307,6 +273,24 @@ export default function HomeScreen() {
       keyExtractor={(it) => it.id}
       ListHeaderComponent={Header}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      renderItem={({ item }) => (
+        <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+          <View
+            style={{
+              backgroundColor: CARD_BG,
+              padding: 12,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: "#000000",
+            }}
+          >
+            <Text style={{ color: TEXT_DIM, fontWeight: "700" }}>{item.date}</Text>
+            {item.place ? <Text style={{ color: TEXT_DIM, marginTop: 4 }}>{item.place}</Text> : null}
+            <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
+          </View>
+        </View>
+      )
+    }
       ListEmptyComponent={
         <View style={{ padding: 16 }}>
           <Text style={{ color: TEXT_DIM }}>No posts yet.</Text>
