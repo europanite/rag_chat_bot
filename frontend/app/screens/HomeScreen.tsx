@@ -307,23 +307,6 @@ export default function HomeScreen() {
       keyExtractor={(it) => it.id}
       ListHeaderComponent={Header}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      renderItem={({ item }) => (
-        <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
-          <View
-            style={{
-              backgroundColor: CARD_BG,
-              padding: 12,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: "#000000",
-            }}
-          >
-            <Text style={{ color: TEXT_DIM, fontWeight: "700" }}>{item.date}</Text>
-            {item.place ? <Text style={{ color: TEXT_DIM, marginTop: 4 }}>{item.place}</Text> : null}
-            <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
-          </View>
-        </View>
-      )}
       ListEmptyComponent={
         <View style={{ padding: 16 }}>
           <Text style={{ color: TEXT_DIM }}>No posts yet.</Text>
