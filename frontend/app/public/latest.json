@@ -1,25 +1,25 @@
 {
   "date": "2025-12-21",
-  "generated_at": "2025-12-21T13:54:06Z",
-  "text": "Good evening Yokosuka! It's a chilly 13.1°C with 75% humidity and 0.2mm of rain. Perfect weather to cozy up with friends and family! Don't miss the countdown event on Dec 31st at Verney Park, featuring live music, food trucks, and a stunning fireworks display #Yokosuka #Miura",
+  "generated_at": "2025-12-21T14:26:17Z",
+  "text": "Good evening Yokosuka! It's a chilly 13°C with 73% humidity and 7.6°C apparent temperature. Stay warm! Tonight's events: Join the Yokosuka Countdown at Vellini Park from 6pm to 1am on Dec 31st to 1st. Enjoy stage events, food trucks, and fireworks! #Yokosuka #Miura #Yokohama",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-21T13:46:58Z",
+    "generated_at": "2025-12-21T14:19:13Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-21T22:45",
-      "temp_c": 13.1,
-      "apparent_temp_c": 8.0,
-      "humidity_pct": 75,
-      "precip_mm": 0.2,
-      "weather_code": 53,
-      "cloud_cover_pct": 77,
-      "wind_kmh": 32.4,
-      "wind_dir_deg": 3
+      "time": "2025-12-21T23:15",
+      "temp_c": 13.0,
+      "apparent_temp_c": 7.6,
+      "humidity_pct": 73,
+      "precip_mm": 0.1,
+      "weather_code": 51,
+      "cloud_cover_pct": 75,
+      "wind_kmh": 33.7,
+      "wind_dir_deg": 7
     },
     "today": {
       "date": "2025-12-21",
