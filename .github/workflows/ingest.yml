@@ -23,6 +23,7 @@ jobs:
         run: |
           mkdir -p chroma_db
           rm -rf chroma_db/*
+          touch chroma_db/.gitkeep
 
       - name: Start stack (db + ollama + backend)
         env:
@@ -46,6 +47,7 @@ jobs:
           done
           if [ "$ok" != "1" ]; then
             echo "backend not ready"
+            docker compose logs --no-color backend || true
             exit 1
           fi
           curl -fsS http://localhost:8000/rag/status
@@ -55,15 +57,32 @@ jobs:
           curl -fsS -X POST http://localhost:8000/rag/reindex
           curl -fsS http://localhost:8000/rag/status
 
+      - name: Verify chroma_db written
+        run: |
+          echo "chroma_db file count:"
+          find chroma_db -type f | wc -l
+          echo "chroma_db size:"
+          du -sh chroma_db || true
+          echo "sample files:"
+          find chroma_db -maxdepth 2 -type f | head -n 30
+          n=$(find chroma_db -type f | wc -l)
+          if [ "$n" -lt 5 ]; then
+            echo "ERROR: chroma_db seems empty after reindex. Volume mapping is likely wrong."
+            exit 1
+          fi
+
       - name: Commit & push chroma_db
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull
-          git add chroma_db
+
+          git pull --rebase
+
+          git add -A chroma_db
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
+
           git commit -m "chore: update chroma_db index"
           git push
