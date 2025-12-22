@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  diary:
+  rag:
     runs-on: ubuntu-latest
 
     steps:
@@ -83,7 +83,7 @@ jobs:
           git push
 
   pages:
-    needs: run
+    needs: rag
     if: needs.run.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
     with:
