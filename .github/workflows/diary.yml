@@ -84,7 +84,6 @@ jobs:
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
           # DEBUG: "1"
         run: |
-          chmod +x scripts/generate_diary.sh
           python scripts/generate_diary.py
 
       - name: Stop stack
