@@ -203,12 +203,12 @@ def fetch_weather_snapshot(lat: str, lon: str, tz_name: str, place: str) -> Tupl
 def build_question(max_chars: str) -> str:
     # Mirror the bash multi-line QUESTION (including guidance)
     return (
-        "Write short tweet-style post starting with greeting on time.\\n"
-        "Use the live weather JSON for the weather facts.\\n"
-        "Mention upcoming events suitable for the datetime, weather and season from the RAG context.\\n"
+        "Write short tweet-style post starting with greeting on time.\n"
+        "Use the live weather JSON for the weather facts.\n"
+        "Mention upcoming events suitable for the datetime, weather and season from the RAG context.\n"
         "Show URLs if a topic includes them."
-        f"Keep this article within about {max_chars} characters.\\n"
-        "Use Emoji.\\n"
+        f"Keep this article within about {max_chars} characters.\n"
+        "Use Emoji.\n"
     )
 
 
@@ -301,7 +301,7 @@ def update_feed(feed_path: Path, entry: Dict[str, Any]) -> None:
     if not feed_obj.get("place"):
         feed_obj["place"] = entry.get("place", "")
 
-    feed_path.write_text(json.dumps(feed_obj, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    feed_path.write_text(json.dumps(feed_obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote: {feed_path} ({len(items)} entries)")
 
 
@@ -312,7 +312,7 @@ def write_outputs(feed_path: str, latest_path: str, entry: Dict[str, Any], snap_
     fp.parent.mkdir(parents=True, exist_ok=True)
     lp.parent.mkdir(parents=True, exist_ok=True)
 
-    entry_txt = json.dumps(entry, ensure_ascii=False, indent=2) + "\\n"
+    entry_txt = json.dumps(entry, ensure_ascii=False, indent=2) + "\n"
     lp.write_text(entry_txt, encoding="utf-8")
 
     update_feed(fp, entry)
@@ -320,7 +320,7 @@ def write_outputs(feed_path: str, latest_path: str, entry: Dict[str, Any], snap_
     # Also write weather snapshot next to latest (for debugging / transparency)
     snap_path = lp.parent / "snapshot" / f"snapshot_{now_local}.json"
     snap_path.parent.mkdir(parents=True, exist_ok=True)
-    snap_path.write_text(snap_json_raw.strip() + "\\n", encoding="utf-8")
+    snap_path.write_text(snap_json_raw.strip() + "\n", encoding="utf-8")
 
     print(f"Wrote: {lp}")
     print(f"Wrote: {snap_path}")
