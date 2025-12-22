@@ -367,7 +367,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated (JST): {formatJst(feed.updated_at, true)}</Text> : null}
+        {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated At: {formatJst(feed.updated_at, true)}</Text> : null}
       </View>
 
       {error ? (
