@@ -85,7 +85,7 @@ jobs:
           # DEBUG: "1"
         run: |
           chmod +x scripts/generate_diary.sh
-          scripts/generate_diary.sh
+          python scripts/generate_diary.py
 
       - name: Stop stack
         env:
@@ -102,13 +102,13 @@ jobs:
           df -h || true
           du -sh .ci_cache/chroma || true
 
-      # - name: Save chroma cache (best-effort) 
-      #   if: always() && steps.cache_chroma.outputs.cache-hit != 'true'
-      #   continue-on-error: true
-      #   uses: actions/cache/save@v4
-      #   with:
-      #     path: .ci_cache/chroma
-      #     key: ${{ runner.os }}-chroma-v1
+      - name: Save chroma cache (best-effort) 
+        if: always() && steps.cache_chroma.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: .ci_cache/chroma
+          key: ${{ runner.os }}-chroma-v1
 
       - name: Commit & push if changed
         id: commit
