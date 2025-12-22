@@ -59,6 +59,8 @@ jobs:
           TOP_K: 6
           MAX_CHARS: 1024
           RAG_REINDEX_ON_EMPTY: "0"
+          FEED_PATH: frontend/app/public
+          LATEST_PATH: frontend/app/public/latest.json
         run: |
           chmod +x scripts/generate_diary.sh
           scripts/generate_diary.sh
