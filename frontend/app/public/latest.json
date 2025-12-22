@@ -1,25 +1,25 @@
 {
   "date": "2025-12-22",
-  "generated_at": "2025-12-22T07:55:15Z",
-  "text": "🌞 Hey Yokosuka! 🌃 Current weather: 11.4°C, 50% humidity, and partly cloudy ☁️. Tomorrow's forecast: 10.1°C, sunny ☀️, and calm winds 🌊. Perfect for a hike on the Miura Peninsula 🏞️! Don't miss the Yokosuka Christmas Market 🎄 on Dec 22-24! #Yokosuka #Miura #Yokohama",
+  "generated_at": "2025-12-22T08:11:18Z",
+  "text": "🌅 Hey Yokosuka! 🌅 It's a chilly 11.4°C with sunshine today! 🌞 Tomorrow looks even clearer, perfect for a hike on the Miura Peninsula 🏞️ or a stroll along the coast 🏖️. Don't miss the upcoming Yokosuka Christmas Market on Dec 23-25 🎄! #Yokosuka #Miura #Yokohama",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-22T07:51:12Z",
+    "generated_at": "2025-12-22T08:07:10Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-22T16:45",
+      "time": "2025-12-22T17:00",
       "temp_c": 11.4,
-      "apparent_temp_c": 6.3,
+      "apparent_temp_c": 6.4,
       "humidity_pct": 50,
       "precip_mm": 0.0,
       "weather_code": 1,
-      "cloud_cover_pct": 40,
-      "wind_kmh": 21.6,
-      "wind_dir_deg": 24
+      "cloud_cover_pct": 38,
+      "wind_kmh": 21.1,
+      "wind_dir_deg": 23
     },
     "today": {
       "date": "2025-12-22",
