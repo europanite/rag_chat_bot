@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-22T07:39:17Z",
+      "date": "2025-12-22",
+      "text": "Hey Yokosuka! It's 16:30 on Dec 22nd. Today's weather is partly cloudy with a high of 12.6°C and low of 7.7°C. Tomorrow's forecast is looking sunny with a high of 10.1°C and low of 5.4°C! Don't miss out on the \"Rock Garden Bath\" event from 9:30 to 10:30 or 11:00 to 12:00. Book your spot 15 minutes in advance! #Yokosuka #Miura",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-22T07:39:17Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-22T07:34:37Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-22T16:30",
+          "temp_c": 11.4,
+          "apparent_temp_c": 6.3,
+          "humidity_pct": 50,
+          "precip_mm": 0.0,
+          "weather_code": 1,
+          "cloud_cover_pct": 43,
+          "wind_kmh": 22.2,
+          "wind_dir_deg": 25
+        },
+        "today": {
+          "date": "2025-12-22",
+          "weather_code": 3,
+          "temp_max_c": 12.6,
+          "temp_min_c": 7.7,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 41.0
+        },
+        "tomorrow": {
+          "date": "2025-12-23",
+          "weather_code": 1,
+          "temp_max_c": 10.1,
+          "temp_min_c": 5.4,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 27.2
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-22T07:39:17Z",
+  "place": "Yokosuka"
+}
