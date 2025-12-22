@@ -201,14 +201,14 @@ def fetch_weather_snapshot(lat: str, lon: str, tz_name: str, place: str) -> Tupl
 
 
 def build_question(max_chars: str) -> str:
-    # Mirror the bash multi-line QUESTION (including guidance)
     return (
-        "Write short tweet-style post starting with greeting on time.\n"
-        "Use the live weather JSON for the weather facts.\n"
-        "Mention upcoming events suitable for the datetime, weather and season from the RAG context.\n"
-        "Show URLs if a topic includes them."
-        f"Keep this article within about {max_chars} characters.\n"
-        "Use Emoji.\n"
+        "Write ONE short tweet in English (single line).\n"
+        "Decide the greeting using the local time in LIVE WEATHER JSON (current.time + timezone; assume Asia/Tokyo if missing).\n"
+        "Summarize the weather using ONLY LIVE WEATHER facts.\n"
+        "If RAG CONTEXT includes any upcoming event/contest, mention exactly ONE (prefer a photo contest if present).\n"
+        "You may include at most one official URL only if it exists in the event text.\n"
+        "Use emojis.\n"
+        f"Keep within {max_chars} characters.\n"
     )
 
 
