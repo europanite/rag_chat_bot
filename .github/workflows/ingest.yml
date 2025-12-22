@@ -76,7 +76,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull --rebase
+          git pull
 
           git add -A chroma_db
           if git diff --cached --quiet; then

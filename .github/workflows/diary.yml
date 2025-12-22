@@ -30,7 +30,6 @@ jobs:
           find chroma_db -type f | wc -l
           echo "chroma_db sample:"
           find chroma_db -maxdepth 2 -type f | head -n 20
-          # ほぼ空なら（.gitkeep しか無い等）失敗させて、ingest未実行を明確化
           n=$(find chroma_db -type f | wc -l)
           if [ "$n" -lt 5 ]; then
             echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
@@ -96,7 +95,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull --rebase
+          git pull
 
           git add frontend/app/public/feed/*.json || true
           git add frontend/app/public/latest.json || true
