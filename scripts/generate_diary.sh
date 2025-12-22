@@ -20,7 +20,7 @@ set -euo pipefail
 #   FEED_PATH / LATEST_PATH (single) OR FEED_PATHS / LATEST_PATHS (colon-separated)
 
 DEBUG="${DEBUG:-0}"
-CURL_MAX_TIME="${CURL_MAX_TIME:-16}" 
+CURL_MAX_TIME="${CURL_MAX_TIME:-512}" 
 CURL_RETRIES="${CURL_RETRIES:-2}"  
 
 API_BASE="${BACKEND_URL:-http://localhost:8000}"
@@ -37,7 +37,7 @@ PLACE="${PLACE:-}"
 
 # Tweet config
 TOP_K="${RAG_TOP_K:-3}"
-MAX_CHARS="${MAX_CHARS:-1024}"
+MAX_CHARS="${MAX_CHARS:-512}"
 HASHTAGS="${HASHTAGS:-}"
 
 echo ${TZ_NAME}
@@ -226,11 +226,9 @@ curl -fsS -X POST -H "Content-Type: application/json" \
 # 3) Query backend for today's tweet
 # -----------------------------------------------------------------------------
 
-QUESTION=$'Write short tweet-style post.\n'\
-$'Start with greeting on time.\n'\
-$'Mention TODAY\x27s weather with weather JSON for the facts.\n'\
-$'Mention upcoming events which are suitable for the time, weather and season from the RAG context.\n'\
-$'Show URL if a topic contains it.\n'\
+QUESTION=$'Start with greeting on time. Write short tweet-style post about TODAY\x27s weather and events.\n'\
+$'Use the live weather JSON for the weather facts.\n'\
+$'If RAG context contains events, mention upcoming events suitable for the weather and season.\n'\
 $'Keep it within about '"${MAX_CHARS}"' characters.\n'\
 $'Output ONLY the tweet text (no quotes, no markdown).\n'
 
