@@ -6,13 +6,6 @@ set -euo pipefail
 #
 # Required env (or defaults below):
 #   LAT, LON
-
-
-
-
-
-
-
 #
 # Optional env:
 #   BACKEND_URL (default: http://localhost:8000)
@@ -44,7 +37,7 @@ PLACE="${PLACE:-}"
 
 # Tweet config
 TOP_K="${RAG_TOP_K:-3}"
-MAX_CHARS="${MAX_CHARS:-512}"
+MAX_CHARS="${MAX_CHARS:-1024}"
 HASHTAGS="${HASHTAGS:-}"
 
 echo ${TZ_NAME}
@@ -63,9 +56,7 @@ if [[ -z "${FEED_PATHS//[[:space:]]/}" ]]; then FEED_PATHS="${FEED_PATH}"; fi
 LATEST_PATHS="${LATEST_PATHS:-}"
 if [[ -z "${LATEST_PATHS//[[:space:]]/}" ]]; then LATEST_PATHS="${LATEST_PATH}"; fi
 
-
 RAG_TOKEN="${RAG_TOKEN:-}"
-
 
 if [[ -z "${LAT}" || -z "${LON}" ]]; then
   echo "ERROR: LAT and LON must be set." >&2
@@ -110,7 +101,6 @@ curl_json() {
   local url="${1}"; shift
   local payload="${1}"; shift
 
-
   local auth_header=()
   if [[ -n "${RAG_TOKEN}" ]]; then
     auth_header=(-H "Authorization: Bearer ${RAG_TOKEN}")
@@ -134,10 +124,6 @@ curl_json() {
     fi
 
     if [[ "${code}" -eq 0 && -n "${body}" ]]; then
-
-
-
-
       break
     fi
     sleep 2
@@ -216,39 +202,18 @@ wait_for_backend
 
 status_json="$(curl -fsS "${API_BASE}/rag/status")"
 chunks_in_store="$(python - <<'PY' "${status_json}"
-
-
-
 import json,sys
 print(json.loads(sys.argv[1]).get("chunks_in_store", 0))
-
 PY
 )"
-
-
 if [[ "${chunks_in_store}" == "0" ]]; then
   echo "No chunks in store -> POST /rag/reindex"
   curl -fsS -X POST "${API_BASE}/rag/reindex" >/dev/null
-
 
   # Optional: re-check status for visibility
   if [[ "${DEBUG}" == "1" ]]; then
     status2="$(curl -fsS "${API_BASE}/rag/status" || true)"
     echo "DEBUG: status(after reindex)=${status2}"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   fi
 fi
 
@@ -263,11 +228,12 @@ curl -fsS -X POST -H "Content-Type: application/json" \
 
 QUESTION=$'Start with greeting on time.\n'\
 $'Write short tweet-style post.\n'\
+about TODAY\x27s weather and events.\n'\
 $'Use the live weather JSON for the weather facts.\n'\
-$'If time is daytime and weather is sunny, suggest going out.\n'\
-$'If RAG context contains upcoming events or spots, mention one suitable for the weather, season and time randomly.\n'\
-$'Use Emoji.\n'\
-$'Keep it within '"${MAX_CHARS}"' characters.\n'
+$'If RAG context contains events, mention upcoming events suitable for the weather and season.\n'\
+$'Show URL if a topic contains it.\n'\
+$'Keep it within about '"${MAX_CHARS}"' characters.\n'\
+$'Output ONLY the tweet text (no quotes, no markdown).\n'
 
 # THIS is the direct fix for your KeyError: export the bash var so Python can read it.
 export QUESTION
@@ -323,7 +289,6 @@ PY
   fi
 
   detail="$(python - <<'PY' "${resp}" 2>/dev/null || true
-
 import json,sys
 obj=json.loads(sys.argv[1])
 d=obj.get("detail")

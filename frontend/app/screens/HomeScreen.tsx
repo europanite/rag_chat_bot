@@ -7,7 +7,6 @@ import {
   Platform,
   RefreshControl,
   Text,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";

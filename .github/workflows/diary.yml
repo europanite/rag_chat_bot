@@ -10,82 +10,130 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: diary
-  cancel-in-progress: false
-
 jobs:
-  rag:
+  run:
     runs-on: ubuntu-latest
-
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify local index (chroma_db)
-        run: |
-          if [[ ! -d chroma_db ]]; then
-            echo "ERROR: ./chroma_db not found. Run the manual Ingest workflow once to create it." >&2
-            exit 1
-          fi
-          # Exclude placeholder files (like .gitkeep)
-          files="$(find chroma_db -type f ! -name '.gitkeep' 2>/dev/null | head -n 1 || true)"
-          if [[ -z "${files}" ]]; then
-            echo "ERROR: ./chroma_db is empty. Run the manual Ingest workflow to build the index." >&2
-            exit 1
-          fi
-          echo "chroma_db looks present. (showing up to 20 files)"
-          find chroma_db -maxdepth 2 -type f ! -name '.gitkeep' | head -n 20 || true
-          du -sh chroma_db || true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # - name: Restore caches
+      #   id: cache_chroma
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: .ci_cache/chroma
+      #     key: ${{ runner.os }}-chroma-v1
+      #     restore-keys: |
+      #       ${{ runner.os }}-chroma-d
 
       - name: Start stack (db + ollama + backend)
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
-          RAG_REINDEX_ENABLED: "false"
+          RAG_REINDEX_ENABLED: "true"
         run: |
+          mkdir -p .ci_cache/ollama .ci_cache/chroma
           docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
 
-      - name: Generate diary
+      - name: Wait for backend
         env:
-          TZ: Asia/Tokyo
-          API_BASE: http://localhost:8000
+          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
+        run: |
+          ok=0
+          for i in {1..600}; do
+            if curl -fsS http://localhost:8000/health >/dev/null; then
+              ok=$((ok+1))
+              [ "$ok" -ge 3 ] && break
+            else
+              ok=0
+            fi
+            sleep 2
+          done
+
+          if [ "$ok" -ge 3 ]; then
+            echo "backend is stable"
+          else
+            echo "Backend did not become ready in time"
+            docker compose logs --no-color backend || true
+            exit 1
+          fi
+
+      - name: Fix permissions for feed dirs
+        run: |
+          sudo chown -R "$USER:$USER" frontend/app/public public || true
+          chmod -R u+rwX frontend/app/public public || true
+
+      - name: Generate weather tweet post
+        env:
           LAT: "35.2810"
           LON: "139.6722"
+          TZ_NAME: "Asia/Tokyo"
+          RAG_TOP_K: 6
+          CURL_MAX_TIME: 32
           PLACE: "Yokosuka"
-          TOP_K: 6
-          MAX_CHARS: 512
-          RAG_REINDEX_ON_EMPTY: "0"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
+          MAX_CHARS: 512
+          # DEBUG: "1"
         run: |
           chmod +x scripts/generate_diary.sh
           scripts/generate_diary.sh
 
-      - name: Fix permissions for feed dirs
+      - name: Stop stack
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
+        if: always()
         run: |
-          sudo chown -R runner:runner frontend/app/public/feed || true
-          sudo chown -R runner:runner frontend/app/public || true
-          ls -la frontend/app/public/feed || true
+          docker compose down
 
-      - name: Commit and push changes
+      - name: Free disk before cache save
+        if: always()
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull
-          git add frontend/app/public/feed frontend/app/public/latest.json || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
+          rm -rf .ci_cache/ollama || true
+          docker system prune -af --volumes || true
+          df -h || true
+          du -sh .ci_cache/chroma || true
+
+      # - name: Save chroma cache (best-effort)
+      #   if: always() && steps.cache_chroma.outputs.cache-hit != 'true'
+      #   continue-on-error: true
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: .ci_cache/chroma
+      #     key: ${{ runner.os }}-chroma-v1
+
+      - name: Commit & push if changed
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "chore: update diary feed"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stage outputs deterministically
+          git pull
+          git add public || true
+          git add frontend/app/public/*.json || true
+          git add frontend/app/public/feed/*.json || true
+          git add frontend/app/public/snapshot/*.json || true
+
+          git commit -m "chore: tweet"
           git push
+          echo "changed=1" >> "$GITHUB_OUTPUT"
 
   pages:
-    needs: rag
+    needs: run
     if: needs.run.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
     with:
