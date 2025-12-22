@@ -30,7 +30,7 @@ jobs:
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "true"
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build
+          docker compose -f docker-compose.yml up -d --build
 
       - name: Wait for backend
         env:
