@@ -1,41 +1,41 @@
 {
-  "date": "2025-12-22",
-  "generated_at": "2025-12-22T17:10:38Z",
-  "text": "Good morning! ☀️ It's a chilly 6.9°C in Yokosuka with clear skies and 64% humidity. Check out the beautiful views of Mt. Fuji on a sunny day!",
+  "date": "2025-12-23",
+  "generated_at": "2025-12-23T01:11:13Z",
+  "text": "Good afternoon! 🌞️ In Yokosuka, it's 6.6°C with 71% humidity and 0mm of precipitation. Tomorrow's forecast is mixed with a high of 17.6°C. 📸 Don't miss the Yoksuka Countdown event on Dec 31st at Velliny Park! 🎉 https://www.cocoyoko.net/yoksuka-countdown/",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-22T17:08:02Z",
+    "generated_at": "2025-12-23T01:06:17Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-23T02:00",
-      "temp_c": 6.9,
-      "apparent_temp_c": 1.1,
-      "humidity_pct": 64,
+      "time": "2025-12-23T10:00",
+      "temp_c": 6.6,
+      "apparent_temp_c": 1.7,
+      "humidity_pct": 71,
       "precip_mm": 0.0,
       "weather_code": 0,
-      "cloud_cover_pct": 19,
-      "wind_kmh": 25.8,
+      "cloud_cover_pct": 0,
+      "wind_kmh": 20.9,
       "wind_dir_deg": 19
     },
     "today": {
       "date": "2025-12-23",
       "weather_code": 1,
-      "temp_max_c": 10.1,
+      "temp_max_c": 10.3,
       "temp_min_c": 5.6,
       "precip_sum_mm": 0.0,
-      "wind_max_kmh": 27.6
+      "wind_max_kmh": 26.1
     },
     "tomorrow": {
       "date": "2025-12-24",
-      "weather_code": 65,
+      "weather_code": 63,
       "temp_max_c": 17.6,
-      "temp_min_c": 7.2,
-      "precip_sum_mm": 64.9,
-      "wind_max_kmh": 22.5
+      "temp_min_c": 6.7,
+      "precip_sum_mm": 36.8,
+      "wind_max_kmh": 29.9
     }
   }
 }
