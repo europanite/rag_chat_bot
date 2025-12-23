@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-23T04:40:06Z",
+      "date": "2025-12-23",
+      "text": "Good afternoon! 🌞 The weather in Yokosuka is cool with 8.8°C and partly cloudy. Enjoy the rest of the day!",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-23T04:40:06Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-23T04:32:44Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-23T13:30",
+          "temp_c": 8.8,
+          "apparent_temp_c": 4.4,
+          "humidity_pct": 67,
+          "precip_mm": 0.0,
+          "weather_code": 0,
+          "cloud_cover_pct": 1,
+          "wind_kmh": 18.4,
+          "wind_dir_deg": 23
+        },
+        "today": {
+          "date": "2025-12-23",
+          "weather_code": 1,
+          "temp_max_c": 10.3,
+          "temp_min_c": 5.6,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 26.1
+        },
+        "tomorrow": {
+          "date": "2025-12-24",
+          "weather_code": 63,
+          "temp_max_c": 17.6,
+          "temp_min_c": 6.7,
+          "precip_sum_mm": 36.8,
+          "wind_max_kmh": 29.9
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-23T04:40:06Z",
+  "place": "Yokosuka"
+}
