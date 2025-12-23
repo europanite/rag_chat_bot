@@ -1,25 +1,25 @@
 {
   "date": "2025-12-23",
-  "generated_at": "2025-12-23T15:29:57Z",
-  "text": "Good morning 🌅! It's a chilly 7.6°C with 69% humidity and 87% cloud cover in Yokosuka today 🌫️. Check out the beautiful Yokosuka East Coast 🏖️, where you can enjoy the sea and the park, and don't miss the upcoming Yokosuka Countdown 2026 🎉! #Yokosuka #Miura",
+  "generated_at": "2025-12-23T16:21:58Z",
+  "text": "Good morning! 🌅 It's 7.4°C and 67% humidity in Yokosuka today! ☁️ Looking forward to the Yokosuka Countdown 2025-2026 on Dec 31st! 🎉 #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-23T15:24:17Z",
+    "generated_at": "2025-12-23T16:16:57Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-24T00:15",
-      "temp_c": 7.6,
+      "time": "2025-12-24T01:15",
+      "temp_c": 7.4,
       "apparent_temp_c": 3.2,
-      "humidity_pct": 69,
+      "humidity_pct": 67,
       "precip_mm": 0.0,
-      "weather_code": 3,
-      "cloud_cover_pct": 87,
-      "wind_kmh": 18.4,
-      "wind_dir_deg": 2
+      "weather_code": 2,
+      "cloud_cover_pct": 76,
+      "wind_kmh": 16.2,
+      "wind_dir_deg": 360
     },
     "today": {
       "date": "2025-12-24",
