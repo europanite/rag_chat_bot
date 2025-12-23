@@ -202,10 +202,10 @@ def fetch_weather_snapshot(lat: str, lon: str, tz_name: str, place: str) -> Tupl
 
 def build_question(max_chars: str) -> str:
     return (
-        "Write ONE short tweet in English (single line).\n"
+        "Write ONE short tweet in English.\n"
         "Decide the greeting using the local time in LIVE WEATHER JSON (current.time + timezone; assume Asia/Tokyo if missing).\n"
         "Summarize the weather using ONLY LIVE WEATHER facts.\n"
-        "If RAG CONTEXT includes any upcoming event/contest, mention exactly ONE (prefer a photo contest if present).\n"
+        "Choose randomly and mention one topic from upcoming events, spots, and extra in RAG Context.\n"
         "You may include at most one official URL only if it exists in the event text.\n"
         "Use emojis.\n"
         f"Keep within {max_chars} characters.\n"
