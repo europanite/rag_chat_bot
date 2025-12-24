@@ -1,25 +1,25 @@
 {
   "date": "2025-12-24",
-  "generated_at": "2025-12-24T16:20:25Z",
-  "text": "Merry Christmas! 🎄 Nighttime in Yokosuka! ☁️ 9.9°C, 94% humidity, and cloudy skies. Perfect excuse to grab a warm drink and cozy up with some curry or ramen at a local cafe 🍜☕️. Enjoy the city lights! 🌃",
+  "generated_at": "2025-12-24T17:16:44Z",
+  "text": "Good night Yokosuka! 🌃 Cloudy skies with 10°C tonight. 95% humidity and a gentle breeze. Perfect winter evening for the Yokosuka Countdown 2025 event 🎉 at Verney Park! 🎊 Learn more: https://www.cocoyoko.net/yoksuka-countdown/",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-24T16:16:36Z",
+    "generated_at": "2025-12-24T17:12:25Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-25T01:15",
-      "temp_c": 9.9,
-      "apparent_temp_c": 9.3,
-      "humidity_pct": 94,
+      "time": "2025-12-25T02:00",
+      "temp_c": 10.2,
+      "apparent_temp_c": 10.0,
+      "humidity_pct": 95,
       "precip_mm": 0.0,
       "weather_code": 3,
-      "cloud_cover_pct": 87,
-      "wind_kmh": 2.1,
-      "wind_dir_deg": 31
+      "cloud_cover_pct": 83,
+      "wind_kmh": 0.5,
+      "wind_dir_deg": 45
     },
     "today": {
       "date": "2025-12-25",
