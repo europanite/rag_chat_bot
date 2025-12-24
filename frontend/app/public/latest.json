@@ -1,41 +1,41 @@
 {
   "date": "2025-12-24",
-  "generated_at": "2025-12-24T04:33:11Z",
-  "text": "Merry Christmas Eve! ☕️🎄 It's a cloudy but mild winter afternoon in Yokosuka, perfect for a warm cup of curry ramen at a cozy cafe like \"夕日の丘\" 🍜🏙️. Enjoy the views of Mt. Fuji and the surrounding hills while you sip and savor! 🏃‍♀️ #Yokosuka",
+  "generated_at": "2025-12-24T05:22:36Z",
+  "text": "Merry Christmas Eve 🎄 in Yokosuka! 🎅️ Current weather: 8.4°C, rainy, and cloudy ☁️ with 95% humidity and 16.9 km/h winds 💨. Visit our local market fair today from 11:00-12:00 at ① (limited to 20 spots) ⏰ #Yokosuka #MiuraPeninsula",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-24T04:29:34Z",
+    "generated_at": "2025-12-24T05:18:49Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-24T13:15",
+      "time": "2025-12-24T14:15",
       "temp_c": 8.4,
-      "apparent_temp_c": 5.4,
-      "humidity_pct": 94,
-      "precip_mm": 0.1,
-      "weather_code": 51,
-      "cloud_cover_pct": 81,
-      "wind_kmh": 15.5,
-      "wind_dir_deg": 31
+      "apparent_temp_c": 5.3,
+      "humidity_pct": 95,
+      "precip_mm": 0.7,
+      "weather_code": 63,
+      "cloud_cover_pct": 73,
+      "wind_kmh": 16.9,
+      "wind_dir_deg": 12
     },
     "today": {
       "date": "2025-12-24",
-      "weather_code": 61,
-      "temp_max_c": 9.8,
+      "weather_code": 63,
+      "temp_max_c": 9.5,
       "temp_min_c": 6.7,
-      "precip_sum_mm": 9.4,
-      "wind_max_kmh": 19.2
+      "precip_sum_mm": 14.5,
+      "wind_max_kmh": 19.4
     },
     "tomorrow": {
       "date": "2025-12-25",
       "weather_code": 53,
-      "temp_max_c": 14.9,
-      "temp_min_c": 9.9,
-      "precip_sum_mm": 2.9,
-      "wind_max_kmh": 28.7
+      "temp_max_c": 11.0,
+      "temp_min_c": 10.0,
+      "precip_sum_mm": 3.2,
+      "wind_max_kmh": 21.3
     }
   }
 }
