@@ -251,7 +251,7 @@ def _build_chat_prompts(
         "\n"
         "TIME & GREETING (IMPORTANT):\n"
         "- Determine the local datetime from LIVE WEATHER JSON.\n"
-        "- Prefer LIVE WEATHER.current.time and LIVE WEATHER.timezone. If timezone is missing, assume Asia/Tokyo (JST).\n"
+        "- Prefer LIVE WEATHER.current.time and LIVE WEATHER.timezone.\n"
         "- HOLIDAY OVERRIDE (date-based, day-limited):\n"
         "  * 12-24 => 'Merry Christmas Eve'\n"
         "  * 12-25 => 'Merry Christmas'\n"
@@ -267,6 +267,7 @@ def _build_chat_prompts(
         "STYLE:\n"
         "- Warm, upbeat, practical.\n"
         "- Use emojis.\n"
+        "- Don't invent.\n"
         f"- If you add hashtags, pick 1-3 from: {hashtags}.\n"
     )
 
