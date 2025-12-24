@@ -1,25 +1,25 @@
 {
   "date": "2025-12-24",
-  "generated_at": "2025-12-24T06:12:23Z",
-  "text": "Merry Christmas Eve 🎄🏰! It's a cloudy afternoon in Yokosuka with 8.9°C and 95% humidity. Visit the beautiful shrine, like the famous Kannon-ji, and enjoy the winter scenery 🏯❄️ #Yokosuka #Miura",
+  "generated_at": "2025-12-24T06:25:11Z",
+  "text": "Merry Christmas Eve! ☁️ Cloudy with 8.9°C in Yokosuka today! 🏯 Visit the shrine and enjoy the winter scenery 📸: https://www.city.yokosuka.lg.jp/en/attractions/shrine/",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-24T06:09:14Z",
+    "generated_at": "2025-12-24T06:21:37Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-24T15:00",
+      "time": "2025-12-24T15:15",
       "temp_c": 8.9,
       "apparent_temp_c": 5.6,
       "humidity_pct": 95,
       "precip_mm": 0.1,
       "weather_code": 51,
-      "cloud_cover_pct": 93,
-      "wind_kmh": 19.4,
-      "wind_dir_deg": 18
+      "cloud_cover_pct": 96,
+      "wind_kmh": 18.9,
+      "wind_dir_deg": 14
     },
     "today": {
       "date": "2025-12-24",
