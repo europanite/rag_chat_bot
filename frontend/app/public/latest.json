@@ -1,25 +1,25 @@
 {
   "date": "2025-12-24",
-  "generated_at": "2025-12-24T01:02:27Z",
-  "text": "Good morning! ☀️ It's a chilly 7.6°C in Yokosuka today, with 92% humidity and light winds. ☁️ Make the most of the day and visit the Yokosuka East Coast 🏖️, where you can enjoy the beautiful ocean views and event updates! 📅 #Yokosuka #Miura",
+  "generated_at": "2025-12-24T03:20:30Z",
+  "text": "\"Merry Christmas Eve! 🎄 It's a chilly day in Yokosuka with 8.1°C and 94% humidity, perfect for a cozy evening at the countdown event festival at Velny Park! 🎅️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-24T00:57:16Z",
+    "generated_at": "2025-12-24T03:15:40Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-24T09:45",
-      "temp_c": 7.6,
-      "apparent_temp_c": 3.9,
-      "humidity_pct": 92,
-      "precip_mm": 0.0,
-      "weather_code": 2,
-      "cloud_cover_pct": 65,
-      "wind_kmh": 18.8,
-      "wind_dir_deg": 12
+      "time": "2025-12-24T12:15",
+      "temp_c": 8.1,
+      "apparent_temp_c": 4.7,
+      "humidity_pct": 94,
+      "precip_mm": 0.1,
+      "weather_code": 51,
+      "cloud_cover_pct": 70,
+      "wind_kmh": 18.0,
+      "wind_dir_deg": 29
     },
     "today": {
       "date": "2025-12-24",
