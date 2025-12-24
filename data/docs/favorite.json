@@ -29,5 +29,20 @@
     "text": "Food is delicious and reasonable in Kurihama. My favorite is a famous ramen restaurant \"Ohako\".",
     "source": "local-notes",
     "metadata": { "lang": "ja", "tags": ["miura", "Yokosuka" ,"Kurihama","kanagawa", "tourism"] }
+  }, {
+    "id": "0007",
+    "text": "I like to eat mochi and cheese sandwiched between nori seaweed and dipped in soy sauce in winter.",
+    "source": "local-notes",
+    "metadata": { "lang": "ja", "tags": ["Japan", "culture","kanagawa", "tourism"] }
+  }, {
+    "id": "0008",
+    "text": "Aside from Kaigun Curry, the curry at \"Bengal\" in front of Yokosuka Chuo Station was delicious.",
+    "source": "local-notes",
+    "metadata": { "lang": "ja", "tags": ["Yokosuka", "Curry","kanagawa", "tourism"] }
+  }, {
+    "id": "0009",
+    "text": "The sweets at Sakamotoya in front of Yokosuka Chuo Station were delicious.",
+    "source": "local-notes",
+    "metadata": { "lang": "ja", "tags": ["Yokosuka", "Sweets","kanagawa", "tourism"] }
   }
 ]

@@ -30,6 +30,8 @@ import os
 import re
 import sys
 import time
+import hashlib
+import random
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -200,13 +202,44 @@ def fetch_weather_snapshot(lat: str, lon: str, tz_name: str, place: str) -> Tupl
     return raw, snap
 
 
-def build_question(max_chars: str) -> str:
+
+
+def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> str:
+    cur = (snap_obj or {}).get("current") or {}
+    temp = cur.get("temp_c")
+    precip = cur.get("precip_mm")
+
+    topics = ["spot", "food", "trivia", "history", "activity", "event"]
+    weights = [30,     20,     20,       15,        10,        5]
+
+    if isinstance(precip, (int, float)) and precip > 0:
+        weights = [15, 30, 25, 15, 5, 10]
+    if isinstance(temp, (int, float)) and temp <= 8:
+        weights = [20, 30, 25, 10, 5, 10]
+
+    seed_str = f"{now_local.strftime('%Y-%m-%d-%H')}"
+    seed = int(hashlib.sha256(seed_str.encode("utf-8")).hexdigest()[:8], 16)
+    rng = random.Random(seed)
+    return rng.choices(topics, weights=weights, k=1)[0]
+
+
+def build_question(max_chars: str, topic: str) -> str:
+    topic_keywords = {
+        "spot": "viewpoint park coast walk scenery",
+        "food": "curry ramen cafe bakery warm drink",
+        "trivia": "fun fact local tip small story",
+        "history": "history navy port heritage museum",
+        "activity": "running fishing hike workout",
+        "event": "event festival illumination market",
+    }[topic]
+
     return (
         "Write ONE short tweet in English.\n"
         "Decide the greeting using the local time in LIVE WEATHER JSON (current.time + timezone; assume Asia/Tokyo if missing).\n"
         "Summarize the weather using ONLY LIVE WEATHER facts.\n"
-        "Choose randomly and mention one topic from upcoming events, spots, and extra in RAG Context.\n"
-        "You may include at most one official URL only if it exists in the event text.\n"
+        f"TOPIC MODE: {topic} (keywords: {topic_keywords}).\n"
+        "Pick ONE matching idea from RAG Context that fits the current weather/season.\n"
+        "You may include at most one official URL only if it exists in the chosen text.\n"
         "Use emojis.\n"
         f"Keep within {max_chars} characters.\n"
     )
@@ -418,7 +451,8 @@ def main() -> int:
         pass
 
     # 3) Query backend for today's tweet
-    question = build_question(max_chars=max_chars)
+    topic = pick_topic(now_local=now_local, snap_obj=snap_obj)
+    question = build_question(max_chars=max_chars, topic=topic)
     payload = build_payload(question=question, top_k=top_k, snap_json_raw=snap_json_raw)
 
     if debug:
