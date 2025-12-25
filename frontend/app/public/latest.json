@@ -1,25 +1,25 @@
 {
   "date": "2025-12-25",
-  "generated_at": "2025-12-25T05:22:23Z",
-  "text": "Merry Christmas! 🎄 It's a cloudy winter afternoon in Yokosuka 🌫️ with a mild 10.6°C. Perfect for a stroll to \"Yasumoto Hill\" 🏃‍♀️ to enjoy the evening lights and night view 🌃! 👉 https://www.city.yokosuka.lg.jp/en/park/yasumoto.html #Yokosuka #MiuraPeninsula",
+  "generated_at": "2025-12-25T06:24:48Z",
+  "text": "Merry Christmas! ☁️ 10.4°C and cloudy in Yokosuka today! 🌫️ Join us at \"Yuuhi no Oka\" for a festive view of Mt. Fuji and Mt. Tenrouen. 🏃‍♀️ #Yokosuka #Christmas",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-25T05:18:35Z",
+    "generated_at": "2025-12-25T06:21:05Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-25T14:15",
-      "temp_c": 10.6,
-      "apparent_temp_c": 8.8,
+      "time": "2025-12-25T15:15",
+      "temp_c": 10.4,
+      "apparent_temp_c": 8.6,
       "humidity_pct": 96,
       "precip_mm": 0.0,
       "weather_code": 3,
-      "cloud_cover_pct": 89,
-      "wind_kmh": 12.1,
-      "wind_dir_deg": 12
+      "cloud_cover_pct": 84,
+      "wind_kmh": 11.3,
+      "wind_dir_deg": 9
     },
     "today": {
       "date": "2025-12-25",
