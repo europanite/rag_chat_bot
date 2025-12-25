@@ -1,25 +1,25 @@
 {
   "date": "2025-12-25",
-  "generated_at": "2025-12-25T09:45:25Z",
-  "text": "Good evening from Yokosuka! 🌃🌅 It's a cloudy 10.5°C today, with a gentle 19.9 km/h breeze. Perfect weather for a stroll around the harbor, perhaps? 🏞️ Don't miss the Yokosuka Countdown event on Dec 31st at Vérénny Park! 🎉 https://www.cocoyoko.net/yoksuka-countdown/",
+  "generated_at": "2025-12-25T10:22:08Z",
+  "text": "Good evening Yokosuka! 🌃 It's a mild winter evening with a chance of rain 🌂 and wind 🌬. Tonight, enjoy the illumination lights at the harbor 🏖️ during the 11:00-12:00 tour 🚣‍♀️. Don't miss the stunning night-view! 📸 https://www.yokosuka-city.jp/en/illumination",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-25T09:39:21Z",
+    "generated_at": "2025-12-25T10:15:27Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-25T18:30",
-      "temp_c": 10.5,
-      "apparent_temp_c": 7.5,
-      "humidity_pct": 94,
-      "precip_mm": 0.1,
-      "weather_code": 51,
-      "cloud_cover_pct": 96,
-      "wind_kmh": 19.9,
-      "wind_dir_deg": 343
+      "time": "2025-12-25T19:15",
+      "temp_c": 10.9,
+      "apparent_temp_c": 7.7,
+      "humidity_pct": 92,
+      "precip_mm": 0.5,
+      "weather_code": 61,
+      "cloud_cover_pct": 89,
+      "wind_kmh": 22.1,
+      "wind_dir_deg": 344
     },
     "today": {
       "date": "2025-12-25",
