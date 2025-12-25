@@ -80,7 +80,7 @@ class QueryRequest(BaseModel):
         description="Controls output style. 'tweet_bot' produces a single friendly tweet-like post.",
     )
 
-    max_chars: int = Field(
+    max_words: int = Field(
         default=512,
         ge=50,
         le=1024,
@@ -211,10 +211,10 @@ def _strip_wrapping_quotes(text: str) -> str:
     return s
 
 
-def _enforce_max_chars(text: str, max_chars: int) -> str:
-    if max_chars <= 0 or len(text) <= max_chars:
+def _enforce_max_chars(text: str, max_words: int) -> str:
+    if max_words <= 0 or len(text) <= max_words:
         return text
-    cut = text[: max_chars - 1]
+    cut = text[: max_words - 1]
     if " " in cut:
         cut = cut.rsplit(" ", 1)[0]
     return cut.rstrip() + "…"
@@ -226,7 +226,7 @@ def _build_chat_prompts(
     rag_context: list[str],
     live_weather: str | None,
     output_style: str,
-    max_chars: int,
+    max_words: int,
     place_hint: str | None,
 ) -> tuple[str, str]:
     if output_style != "tweet_bot":
@@ -245,29 +245,12 @@ def _build_chat_prompts(
 
     system = (
         f"You are {bot_name}, a friendly English local story bot for {place} (locals & tourists). "
-        f"Write ONE tweet in English within {max_chars} characters. "
+        f"Write ONE tweet in English about {max_words} words. "
         "No markdown, no lists, no extra commentary, no quotes.\n"
-        "Never mention sources, retrieval, RAG, or the word 'context'.\n"
-        "\n"
-        "TIME & GREETING (IMPORTANT):\n"
-        "- Determine the local datetime from LIVE WEATHER JSON.\n"
-        "- Prefer LIVE WEATHER.current.time and LIVE WEATHER.timezone.\n"
-        "- HOLIDAY OVERRIDE (date-based, day-limited):\n"
-        "  * 12-24 => 'Merry Christmas Eve'\n"
-        "  * 12-25 => 'Merry Christmas'\n"
-        "  * 12-31 => \"Happy New Year's Eve\"\n"
-        "  * from 01-01  to 01-04 => 'Happy New Year'\n"
-        "  If today's local date matches one of these, start with that greeting and do NOT use the hour-based greetings.\n"
-        "- Otherwise, start with exactly one greeting based on local hour:\n"
-        "  * 05:00-10:59 => 'Good morning'\n"
-        "  * 11:00-16:59 => 'Good afternoon'\n"
-        "  * 17:00-21:59 => 'Good evening'\n"
-        "  * 22:00-04:59 => 'Good night'\n"
-        "\n"
+        "Show only real existing URLs.\n"
         "STYLE:\n"
         "- Warm, upbeat, practical.\n"
         "- Use emojis.\n"
-        "- Don't invent.\n"
         f"- If you add hashtags, pick 1-3 from: {hashtags}.\n"
     )
 
@@ -432,7 +415,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         rag_context=context_texts,
         live_weather=live_extra,
         output_style=payload.output_style,
-        max_chars=payload.max_chars,
+        max_words=payload.max_words,
         place_hint=place_hint,
     )
 
@@ -449,7 +432,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
             detail=str(exc),
         ) from exc
 
-    answer = _enforce_max_chars(_strip_wrapping_quotes(_clean_single_line(answer)), payload.max_chars)
+    answer = _enforce_max_chars(_strip_wrapping_quotes(_clean_single_line(answer)), payload.max_words)
 
     debug_context: list[str] | None = None
     debug_chunks: list[ChunkOut] | None = None

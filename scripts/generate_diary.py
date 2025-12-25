@@ -364,7 +364,7 @@ def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]
     return family, mode
 
 
-def build_question(max_chars: str, topic_family: str, topic_mode: str, now_local: datetime, snap_obj: Dict[str, Any]) -> str:
+def build_question(max_words: str, topic_family: str, topic_mode: str, now_local: datetime, snap_obj: Dict[str, Any]) -> str:
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
     season = _season_bucket(now_local.month)
@@ -403,7 +403,7 @@ def build_question(max_chars: str, topic_family: str, topic_mode: str, now_local
         "Pick ONE matching idea from RAG Context that fits the HINTS.\n"
         "You may include at most one official URL only if it exists in the chosen text.\n"
         "Use emojis.\n"
-        f"Keep within {max_chars} characters.\n"
+        f"Keep within {max_words} characters.\n"
     )
 
 
@@ -553,7 +553,7 @@ def main() -> int:
 
     # Tweet config
     top_k = int(env("RAG_TOP_K", "3") or "3")
-    max_chars = env("MAX_CHARS", "512") or "512"
+    max_words = env("MAX_WORDS", "128") or "128"
     hashtags = env("HASHTAGS", "")
 
     now_local = local_stamp(tz_name)
@@ -575,7 +575,7 @@ def main() -> int:
     print(tz_name)
     print(f"API_BASE: {api_base}")
     print(f"WEATHER: lat={lat} lon={lon} tz={tz_name} place='{place}'")
-    print(f"TOP_K={top_k} MAX_CHARS={max_chars}")
+    print(f"TOP_K={top_k} MAX_WORDS={max_words}")
     print(f"FEED_PATHS={feed_paths_raw}")
     print(f"LATEST_PATHS={latest_paths_raw}")
 
@@ -615,7 +615,7 @@ def main() -> int:
     # 3) Query backend for today's tweet
     now_dt_local = datetime.now(ZoneInfo(tz_name))
     topic_family, topic_mode = pick_topic(now_local=now_dt_local, snap_obj=snap_obj)
-    question = build_question(max_chars=max_chars, topic_family=topic_family, topic_mode=topic_mode, now_local=now_dt_local, snap_obj=snap_obj)
+    question = build_question(max_words=max_words, topic_family=topic_family, topic_mode=topic_mode, now_local=now_dt_local, snap_obj=snap_obj)
     payload = build_payload(question=question, top_k=top_k, snap_json_raw=snap_json_raw)
 
     if debug:
