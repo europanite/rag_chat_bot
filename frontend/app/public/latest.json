@@ -1,25 +1,25 @@
 {
   "date": "2025-12-25",
-  "generated_at": "2025-12-25T15:19:14Z",
-  "text": "Good morning! Mild winter weather awaits in Yokosuka! ☀️🌊 Today's forecast: 10.4°C, partly cloudy, and a gentle breeze. Don't miss the nostalgic \"IllumiYokosuka2025\" event from 9:30 to 10:30, 11:00 to 12:00, with a harbor cruise! 🚣‍♀️ #IllumiYokosuka2025 #Nostalgic",
+  "generated_at": "2025-12-25T16:21:00Z",
+  "text": "Good morning Yokosuka! ☀️ It's a mild winter morning with a pleasant 11.3°C temperature and 83% humidity. Don't miss the #IllumiYokosuka2025 festival parade tonight! 🎉🌃 #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-25T15:13:49Z",
+    "generated_at": "2025-12-25T16:16:02Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-26T00:00",
-      "temp_c": 10.4,
-      "apparent_temp_c": 9.7,
-      "humidity_pct": 87,
+      "time": "2025-12-26T01:15",
+      "temp_c": 11.3,
+      "apparent_temp_c": 9.0,
+      "humidity_pct": 83,
       "precip_mm": 0.0,
-      "weather_code": 1,
-      "cloud_cover_pct": 34,
-      "wind_kmh": 2.3,
-      "wind_dir_deg": 72
+      "weather_code": 0,
+      "cloud_cover_pct": 9,
+      "wind_kmh": 12.8,
+      "wind_dir_deg": 212
     },
     "today": {
       "date": "2025-12-26",
