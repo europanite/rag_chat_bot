@@ -67,8 +67,7 @@ jobs:
         working-directory: frontend/app
         run: |
           mkdir -p web-build
-          cp -v public/*.json web-build/ 2>/dev/null || true
-          cp -v public/.nojekyll web-build/ 2>/dev/null || true
+          cp -av public/. web-build/ 2>/dev/null || true
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
