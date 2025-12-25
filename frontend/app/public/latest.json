@@ -1,25 +1,25 @@
 {
   "date": "2025-12-25",
-  "generated_at": "2025-12-25T01:00:51Z",
-  "text": "Merry Christmas! ☀️ It's a cloudy winter morning in Yokosuka 🌫️ with a mild 10.5°C. Perfect for a stroll along the shopping street 🛍️ or a walk around the promenade 🌊. Come explore with us! 🏃‍♀️ #Yokosuka #Miura",
+  "generated_at": "2025-12-25T02:55:30Z",
+  "text": "Merry Christmas! 🎄 Good afternoon from Yokosuka! 🌞 It's a cloudy 10.2°C with 99% humidity. Perfect day for a warm cup of coffee and some delicious curry ramen at Cafe Bakery! ☕️🍜",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-25T00:57:07Z",
+    "generated_at": "2025-12-25T02:52:14Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-25T09:45",
-      "temp_c": 10.5,
-      "apparent_temp_c": 9.2,
+      "time": "2025-12-25T11:45",
+      "temp_c": 10.2,
+      "apparent_temp_c": 8.7,
       "humidity_pct": 99,
       "precip_mm": 0.0,
       "weather_code": 3,
-      "cloud_cover_pct": 97,
-      "wind_kmh": 9.7,
-      "wind_dir_deg": 42
+      "cloud_cover_pct": 91,
+      "wind_kmh": 10.6,
+      "wind_dir_deg": 28
     },
     "today": {
       "date": "2025-12-25",
