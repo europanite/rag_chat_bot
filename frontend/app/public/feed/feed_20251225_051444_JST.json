@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-24T20:20:07Z",
+      "date": "2025-12-24",
+      "text": "Merry Christmas Eve 🎄! Good morning in Yokosuka! ☀️ It's a cloudy winter morning with a mild 11.1°C and 96% humidity. Perfect day to grab a coffee and head to Verney Park 🏞️, where you can enjoy the festive atmosphere and watch the fireworks 🎇! https://www.cocoyoko.net/yoksuka-countdown/ #Yokosuka #Miura",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-24T20:20:07Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-24T20:14:45Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-25T05:00",
+          "temp_c": 11.1,
+          "apparent_temp_c": 10.6,
+          "humidity_pct": 96,
+          "precip_mm": 0.0,
+          "weather_code": 3,
+          "cloud_cover_pct": 81,
+          "wind_kmh": 4.1,
+          "wind_dir_deg": 15
+        },
+        "today": {
+          "date": "2025-12-25",
+          "weather_code": 63,
+          "temp_max_c": 11.3,
+          "temp_min_c": 9.8,
+          "precip_sum_mm": 11.8,
+          "wind_max_kmh": 29.1
+        },
+        "tomorrow": {
+          "date": "2025-12-26",
+          "weather_code": 2,
+          "temp_max_c": 12.7,
+          "temp_min_c": 4.2,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 34.0
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-24T20:20:07Z",
+  "place": "Yokosuka"
+}

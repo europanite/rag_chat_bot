@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-25T02:55:30Z",
+      "date": "2025-12-25",
+      "text": "Merry Christmas! 🎄 Good afternoon from Yokosuka! 🌞 It's a cloudy 10.2°C with 99% humidity. Perfect day for a warm cup of coffee and some delicious curry ramen at Cafe Bakery! ☕️🍜",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-25T02:55:30Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-25T02:52:14Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-25T11:45",
+          "temp_c": 10.2,
+          "apparent_temp_c": 8.7,
+          "humidity_pct": 99,
+          "precip_mm": 0.0,
+          "weather_code": 3,
+          "cloud_cover_pct": 91,
+          "wind_kmh": 10.6,
+          "wind_dir_deg": 28
+        },
+        "today": {
+          "date": "2025-12-25",
+          "weather_code": 61,
+          "temp_max_c": 10.8,
+          "temp_min_c": 9.6,
+          "precip_sum_mm": 5.4,
+          "wind_max_kmh": 24.6
+        },
+        "tomorrow": {
+          "date": "2025-12-26",
+          "weather_code": 2,
+          "temp_max_c": 12.9,
+          "temp_min_c": 4.2,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 34.7
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-25T02:55:30Z",
+  "place": "Yokosuka"
+}

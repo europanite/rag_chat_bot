@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "2025-12-24T09:21:15Z",
+      "date": "2025-12-24",
+      "text": "\"Merry Christmas Eve! 🎄️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-24T09:21:15Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-24T09:18:07Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-24T18:15",
+          "temp_c": 8.8,
+          "apparent_temp_c": 6.4,
+          "humidity_pct": 96,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": 75,
+          "wind_kmh": 13.3,
+          "wind_dir_deg": 357
+        },
+        "today": {
+          "date": "2025-12-24",
+          "weather_code": 61,
+          "temp_max_c": 9.5,
+          "temp_min_c": 6.7,
+          "precip_sum_mm": 13.2,
+          "wind_max_kmh": 19.2
+        },
+        "tomorrow": {
+          "date": "2025-12-25",
+          "weather_code": 63,
+          "temp_max_c": 12.3,
+          "temp_min_c": 9.4,
+          "precip_sum_mm": 14.2,
+          "wind_max_kmh": 24.0
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-24T09:21:15Z",
+  "place": "Yokosuka"
+}
