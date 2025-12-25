@@ -1,41 +1,41 @@
 {
   "date": "2025-12-25",
-  "generated_at": "2025-12-25T22:58:24Z",
-  "text": "Good morning from Yokosuka! It's a chilly winter morning with a temp of 10.1°C and a gentle breeze blowing at 20.3 km/h. Take a stroll along the coast and enjoy the scenic views! 🌊🌴 #IllumiYokosuka2025 #WinterCool",
+  "generated_at": "2025-12-25T23:18:35Z",
+  "text": "Good morning from Yokosuka! 😊 It's a windy winter morning with a mild 10.6°C, perfect for a harbor cruise! 🚣‍♀️ Don't miss the IllumiYokosuka2025 event and enjoy the views while learning some fun facts about our city! 📚 #IllumiYokosuka2025 #Nostalgic",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-25T22:52:22Z",
+    "generated_at": "2025-12-25T23:13:02Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-26T07:45",
-      "temp_c": 10.1,
-      "apparent_temp_c": 5.1,
-      "humidity_pct": 51,
+      "time": "2025-12-26T08:00",
+      "temp_c": 10.6,
+      "apparent_temp_c": 5.2,
+      "humidity_pct": 45,
       "precip_mm": 0.0,
       "weather_code": 0,
-      "cloud_cover_pct": 3,
-      "wind_kmh": 20.3,
-      "wind_dir_deg": 282
+      "cloud_cover_pct": 1,
+      "wind_kmh": 22.0,
+      "wind_dir_deg": 291
     },
     "today": {
       "date": "2025-12-26",
       "weather_code": 3,
-      "temp_max_c": 12.6,
+      "temp_max_c": 13.1,
       "temp_min_c": 4.1,
       "precip_sum_mm": 0.0,
-      "wind_max_kmh": 35.3
+      "wind_max_kmh": 34.4
     },
     "tomorrow": {
       "date": "2025-12-27",
       "weather_code": 1,
       "temp_max_c": 8.7,
-      "temp_min_c": 3.6,
+      "temp_min_c": 3.5,
       "precip_sum_mm": 0.0,
-      "wind_max_kmh": 26.3
+      "wind_max_kmh": 26.7
     }
   }
 }
