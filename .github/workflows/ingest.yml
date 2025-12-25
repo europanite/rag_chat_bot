@@ -1,6 +1,6 @@
 name: Ingest
 
-# Run manually after updating data/docs/**
+# Run manually after updating data/json/**
 
 on:
   workflow_dispatch:
