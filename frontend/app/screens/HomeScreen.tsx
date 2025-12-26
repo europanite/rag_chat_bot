@@ -251,7 +251,7 @@ function Slot() {
     <View
       style={{
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: APP_BG,
         borderWidth: 1,
         borderColor: BORDER,
         borderRadius: 12,
