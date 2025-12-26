@@ -584,6 +584,9 @@ def main() -> int:
 
     # Tweet config
     top_k = int(env("RAG_TOP_K", "16") or "16")
+    if top_k > 128:
+        print(f"ERROR: RAG_TOP_K={top_k} is invalid. Backend requires top_k <= 128.", file=sys.stderr)
+        return 1
     max_words = env("MAX_WORDS", "128") or "128"
     hashtags = env("HASHTAGS", "")
 
