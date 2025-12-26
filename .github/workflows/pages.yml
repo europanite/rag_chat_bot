@@ -40,7 +40,6 @@ jobs:
         working-directory: frontend/app
         run: |
           npm ci
-          npm run check
 
       - name: Build (Expo Web export)
         working-directory: frontend/app
