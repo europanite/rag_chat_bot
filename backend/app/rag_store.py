@@ -180,7 +180,7 @@ def _get_collection():
 # Chunking
 # -------------------------------------------------------------------
 
-_DEFAULT_CHUNK_SIZE=256
+_DEFAULT_CHUNK_SIZE=128
 
 
 def _get_chunk_size() -> int:
