@@ -1,25 +1,25 @@
 {
   "date": "2025-12-26",
-  "generated_at": "2025-12-26T16:59:56Z",
-  "text": "Good morning! 🌅 As of 01:40, Yokosuka's weather is mostly cloudy with a temperature of 2.6°C and a gentle breeze. Don't miss the New Year's events at Kurihama Tenjin Shrine, serving amazake and mandarins! 🎄 #Yokosuka #NewYear",
+  "generated_at": "2025-12-26T19:55:18Z",
+  "text": "Good evening Yokosuka! 🌃️❄️ Today's weather is partly cloudy with a low of 2.7°C and a high of 11°C tomorrow. Don't miss the Hatsumode at Kumura Otaki Shrine on New Year's Eve! 🎄️ https://kurihama.info/event/newyear/ #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-26T16:54:09.483783+00:00",
+    "generated_at": "2025-12-26T19:51:09.293662+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-27T01:40:00+09:00",
-      "temp_c": 2.6,
+      "time": "2025-12-27T04:40:00+09:00",
+      "temp_c": 2.7,
       "apparent_temp_c": null,
-      "humidity_pct": 46.0,
+      "humidity_pct": 47.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 6.84,
-      "wind_dir_deg": 45.0,
+      "wind_kmh": 9.72,
+      "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -36,18 +36,18 @@
     },
     "tomorrow": {
       "date": "2025-12-28",
-      "weather_code": 2,
+      "weather_code": 0,
       "precip_sum_mm": null,
       "wind_max_kmh": null,
       "temp_max_c": 11.0,
       "temp_min_c": 3.0,
-      "weather_text_ja": "晴れ　時々　くもり",
-      "jma_weather_code": "101",
-      "precip_prob_pct": null
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
     },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
-      "report_datetime": "2025-12-26T17:00:00+09:00",
+      "report_datetime": "2025-12-27T05:00:00+09:00",
       "office_code": "140000",
       "area_code": null,
       "temp_city_code": null
