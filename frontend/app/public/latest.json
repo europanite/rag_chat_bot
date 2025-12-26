@@ -1,25 +1,25 @@
 {
   "date": "2025-12-26",
-  "generated_at": "2025-12-26T01:06:25Z",
-  "text": "Good morning from Yokosuka! 🌅 It's a chilly winter morning with a temp of 9.9°C and a gentle breeze of 26.1 km/h. Warm up with a bowl of curry ramen or a warm drink at our cozy cafe! ❤️ #IllumiYokosuka2025 #WinterCool",
+  "generated_at": "2025-12-26T04:31:12Z",
+  "text": "Good afternoon from Yokosuka! 🌞 Winter weather is mild with a high of 10.4°C and a gentle breeze of 26.6km/h. Don't miss the Yokosuka Winter Illumination at Verny Park, lights on from 17:00! 🎄 #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-26T01:00:53Z",
+    "generated_at": "2025-12-26T04:23:06Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-26T10:00",
-      "temp_c": 9.9,
-      "apparent_temp_c": 3.6,
-      "humidity_pct": 42,
+      "time": "2025-12-26T13:15",
+      "temp_c": 10.4,
+      "apparent_temp_c": 4.0,
+      "humidity_pct": 38,
       "precip_mm": 0.0,
-      "weather_code": 0,
-      "cloud_cover_pct": 0,
-      "wind_kmh": 26.1,
-      "wind_dir_deg": 322
+      "weather_code": 1,
+      "cloud_cover_pct": 38,
+      "wind_kmh": 26.6,
+      "wind_dir_deg": 337
     },
     "today": {
       "date": "2025-12-26",
