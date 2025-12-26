@@ -35,7 +35,9 @@ async function openUrl(url: string) {
   }
 }
 
-export default function SettingsBar() {
+type Props = { title?: string };
+
+export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
   const { width } = useWindowDimensions();
   const isNarrow = width < 520;
 
@@ -48,31 +50,83 @@ export default function SettingsBar() {
         backgroundColor: "#333366",
       }}
     >
-      <View
-        style={{
-          flexDirection: isNarrow ? "column" : "row",
-          gap: 10,
-          alignItems: isNarrow ? "stretch" : "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <TouchableOpacity onPress={() => openUrl(REPO_URL)} accessibilityRole="link">
-          <Text style={{ fontSize: 8, color: "#fff" }}>
-            Powered by <Text style={{ textDecorationLine: "underline", fontWeight: "700" }}>RAG Chat Bot</Text>
+      {isNarrow ? (
+        // NARROW: stack (avoid overlap)
+        <View style={{ gap: 8, alignItems: "center" }}>
+          <Text style={{ 
+            fontSize: 32, 
+            fontWeight: "512", 
+            color: "#fff"
+            }}>
+              {title}
           </Text>
-        </TouchableOpacity>
 
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 8,
-            flexWrap: "wrap",
-            justifyContent: isNarrow ? "flex-start" : "flex-end",
-          }}
-        >
-          <Btn title="Contact" onPress={() => openUrl(CONTACT_URL)} />
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 8,
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
+            <Btn title="Contact" onPress={() => openUrl(CONTACT_URL)} />
+          </View>
+
+          {/* Powered by: small + low emphasis */}
+          <TouchableOpacity
+            onPress={() => openUrl(REPO_URL)}
+            accessibilityRole="link"
+            style={{ opacity: 0.6 }}
+          >
+            <Text style={{ fontSize: 9, color: "#fff" }}>
+              Powered by <Text style={{ fontWeight: "600" }}>RAG Chat Bot</Text>
+            </Text>
+          </TouchableOpacity>
         </View>
-      </View>
+      ) : (
+        // WIDE: title pinned to center (independent of button width)
+        <View style={{ position: "relative", justifyContent: "center", minHeight: 28 }}>
+          {/* Row content (left small label + right buttons) */}
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            {/* Powered by: unobtrusive (left) */}
+            <TouchableOpacity
+              onPress={() => openUrl(REPO_URL)}
+              accessibilityRole="link"
+              style={{ opacity: 0.55 }}
+            >
+              <Text style={{ fontSize: 9, color: "#fff" }}>
+                Powered by <Text style={{ fontWeight: "600" }}>RAG Chat Bot</Text>
+              </Text>
+            </TouchableOpacity>
+
+            {/* Buttons (right) */}
+            <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <Btn title="Contact" onPress={() => openUrl(CONTACT_URL)} />
+            </View>
+          </View>
+
+          {/* Center title (overlay) */}
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ 
+              fontSize: 32, 
+              fontWeight: "512", 
+              color: 
+              "#fff" 
+            }}>{title}</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

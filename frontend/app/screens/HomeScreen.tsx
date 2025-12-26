@@ -359,12 +359,6 @@ export default function HomeScreen() {
 
   const Header = (
     <View style={{ padding: 16, gap: 10 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-        <View style={{ gap: 2 }}>
-          <Text style={{ fontSize: 22, fontWeight: "800", color: "#000000ff" }}>GOODDAY YOKOSUKA</Text>
-        </View>
-      </View>
-
       <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated At: {formatJst(feed.updated_at, true)}</Text> : null}
       </View>

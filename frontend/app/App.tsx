@@ -9,6 +9,8 @@ import { AuthProvider } from "./context/Auth";
 import SettingsBar from "./components/SettingsBar";
 import HomeScreen from "./screens/HomeScreen";
 
+const APP_TITLE = "GOODDAY YOKOSUKA";
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -17,10 +19,10 @@ export default function App() {
       <StatusBar style="dark" />
       <AuthProvider>
         <NavigationContainer>
-          <SettingsBar />
+          <SettingsBar title={APP_TITLE}/>
           <View style={{ flex: 1 }}>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="GOODDAY YOKOSUKA" component={HomeScreen} />
+              <Stack.Screen name={APP_TITLE} component={HomeScreen} />
             </Stack.Navigator>
           </View>
         </NavigationContainer>
