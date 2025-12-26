@@ -250,16 +250,16 @@ function Slot() {
   return (
     <View
       style={{
-        backgroundColor: "#e5e5e5",
+        flex: 1,
+        backgroundColor: "#fff",
         borderWidth: 1,
         borderColor: BORDER,
         borderRadius: 12,
         padding: 12,
       }}
     >
-      <Text style={{ fontWeight: "800" }}>Slot</Text>
       <Text style={{ color: TEXT_DIM, marginTop: 6, lineHeight: 18 }}>
-        Reserved space.
+        Slot
       </Text>
     </View>
   );
@@ -476,13 +476,13 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, flexDirection: "row", justifyContent: "center", backgroundColor: APP_BG }}>
-      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingLeft: 12 }}>
+      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingLeft: 12, minHeight: 0 }}>
         <Slot />
       </View>
 
       <View style={{ flex: 1, maxWidth: CONTENT_MAX_W }}>{list}</View>
 
-      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingRight: 12 }}>
+      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingRight: 12, minHeight: 0 }}>
         <Slot />
       </View>
     </View>
