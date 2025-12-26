@@ -1,25 +1,25 @@
 {
   "date": "2025-12-26",
-  "generated_at": "2025-12-26T09:20:21Z",
-  "text": "Good evening from Yokosuka! 🌃❄️ Winter is here and the Yokosuka Winter Illumination at Verny Park is now on! 🎄️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️️",
+  "generated_at": "2025-12-26T10:45:42Z",
+  "text": "Good evening from Yokosuka! 5.7°C, windy and chilly. Perfect weather for a hatsumode visit to Kurihama Hachiman Shrine on New Year's Day! 🌃❄️🏯 #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-26T09:15:53Z",
+    "generated_at": "2025-12-26T10:38:36Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-26T18:15",
-      "temp_c": 6.4,
-      "apparent_temp_c": -0.9,
-      "humidity_pct": 47,
+      "time": "2025-12-26T19:30",
+      "temp_c": 5.7,
+      "apparent_temp_c": -1.1,
+      "humidity_pct": 46,
       "precip_mm": 0.0,
       "weather_code": 0,
-      "cloud_cover_pct": 17,
-      "wind_kmh": 32.0,
-      "wind_dir_deg": 352
+      "cloud_cover_pct": 18,
+      "wind_kmh": 27.0,
+      "wind_dir_deg": 351
     },
     "today": {
       "date": "2025-12-26",
