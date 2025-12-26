@@ -24,6 +24,7 @@ import json
 import math
 import os
 import sys
+from pathlib import Path
 import urllib.parse
 import urllib.request
 from typing import Any, Dict, Optional, Tuple
@@ -475,6 +476,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--lon", type=float, default=139.6720)
     p.add_argument("--tz", default="Asia/Tokyo")
 
+
+    # Compatibility with older fetch_weather_meteo.py interface
+    p.add_argument("--format", default="json", choices=["json"], help="(compat) only json is supported")
+    p.add_argument("--out", default=None, help="(compat) write JSON to this path; use '-' for stdout")
+
     p.add_argument("--provider", default=os.getenv("WEATHER_PROVIDER", "jma"), choices=["jma", "open-meteo"])
 
     # JMA knobs (optional but recommended for better forecast labeling)
@@ -505,7 +511,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         else:
             raise
 
-    print(json.dumps(snap, ensure_ascii=False, indent=2))
+    out = json.dumps(snap, ensure_ascii=False, indent=2)
+    if args.out and args.out != "-":
+        Path(args.out).write_text(out + "\n", encoding="utf-8")
+    else:
+        print(out)
     return 0
 
 
