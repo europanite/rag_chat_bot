@@ -1,40 +1,29 @@
 {
   "date": "2025-12-26",
-  "generated_at": "2025-12-26T14:19:47Z",
-  "text": "Good evening from Yokosuka! 🌃❄️ Current weather: 3°C, cloudy, and 47% humidity. Don't miss Yokosuka Winter Illumination at Verny Park, now until January 4th! 🎄 #Yokosuka #Winter #Illumination",
+  "generated_at": "2025-12-26T15:19:18Z",
+  "text": "Happy New Year's Eve! 🎉❄️ In Yokosuka, it's a cold and cloudy night with a low of 3°C. Head to Verny Park for the Winter Illumination, open till 22:00. #Yokosuka #NewYear",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-26T14:14:15.148448+00:00",
+    "generated_at": "2025-12-26T15:14:12.889210+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-26T23:00:00+09:00",
+      "time": "2025-12-27T00:00:00+09:00",
       "temp_c": 3.0,
       "apparent_temp_c": null,
-      "humidity_pct": 47.0,
+      "humidity_pct": 46.0,
       "precip_mm": 0.0,
-      "weather_code": 61,
+      "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 12.96,
+      "wind_kmh": 10.8,
       "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
     "today": {
-      "date": "2025-12-26",
-      "weather_code": 61,
-      "precip_sum_mm": null,
-      "wind_max_kmh": null,
-      "temp_max_c": null,
-      "temp_min_c": null,
-      "weather_text_ja": "くもり　夜　晴れ　所により　夕方　雨",
-      "jma_weather_code": "211",
-      "precip_prob_pct": 10
-    },
-    "tomorrow": {
       "date": "2025-12-27",
       "weather_code": 2,
       "precip_sum_mm": null,
@@ -44,6 +33,17 @@
       "weather_text_ja": "くもり　夕方　から　晴れ",
       "jma_weather_code": "211",
       "precip_prob_pct": 10
+    },
+    "tomorrow": {
+      "date": "2025-12-28",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 11.0,
+      "temp_min_c": 3.0,
+      "weather_text_ja": "晴れ　時々　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": null
     },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
