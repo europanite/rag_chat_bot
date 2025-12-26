@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from http import HTTPStatus
 from typing import Literal
 
@@ -99,6 +100,7 @@ class QueryResponse(BaseModel):
     answer: str
     context: list[str] | None = None
     chunks: list[ChunkOut] | None = None
+    removed_urls: list[str] | None = None
 
 
 class StatusResponse(BaseModel):
@@ -219,6 +221,135 @@ def _enforce_max_chars(text: str, max_words: int) -> str:
         cut = cut.rsplit(" ", 1)[0]
     return cut.rstrip() + "…"
 
+
+# -------------------------------------------------------------------
+# URL safety: only allow URLs that appear in retrieved context (or explicit allowlists)
+# -------------------------------------------------------------------
+
+_URL_RE = re.compile(r"https?://[^\s<>()\[\]"']+")
+_MD_LINK_RE = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
+
+_TRAILING_PUNCT_RE = re.compile(r"[\]\)\}\>,\.;:!\?\"']+$")
+
+
+def _normalize_url(url: str) -> str:
+    """Normalize URLs for comparison (strip common trailing punctuation)."""
+    u = url.strip()
+    # Remove common trailing punctuation that appears in prose.
+    u = _TRAILING_PUNCT_RE.sub("", u)
+    return u
+
+
+def _extract_urls_from_text(text: str) -> set[str]:
+    return { _normalize_url(m.group(0)) for m in _URL_RE.finditer(text or "") }
+
+
+def _get_extra_allowed_urls() -> set[str]:
+    raw = os.getenv("RAG_EXTRA_ALLOWED_URLS", "")
+    if not raw.strip():
+        return set()
+    parts = re.split(r"[\n,]+", raw)
+    return {_normalize_url(p) for p in parts if p.strip()}
+
+
+def _get_allowlist_regexes() -> list[re.Pattern[str]]:
+    raw = os.getenv("RAG_URL_ALLOWLIST_REGEXES", "")
+    if not raw.strip():
+        return []
+    patterns: list[re.Pattern[str]] = []
+    for p in re.split(r"[\n,]+", raw):
+        p = p.strip()
+        if not p:
+            continue
+        try:
+            patterns.append(re.compile(p))
+        except re.error:
+            logger.warning("Invalid URL allowlist regex ignored: %s", p)
+    return patterns
+
+
+def _is_allowed_url(url: str, *, allowed_urls: set[str], allowlist_regexes: list[re.Pattern[str]]) -> bool:
+    u = _normalize_url(url)
+    if u in allowed_urls:
+        return True
+    for rx in allowlist_regexes:
+        if rx.search(u):
+            return True
+    return False
+
+
+def _filter_answer_urls(
+    answer: str,
+    *,
+    allowed_urls: set[str],
+    allowlist_regexes: list[re.Pattern[str]],
+) -> tuple[str, list[str]]:
+    """Remove/harden URLs that are not allowed.
+
+    - Markdown links: keep the label, drop the URL if not allowed.
+    - Raw URLs: remove if not allowed.
+    """
+    removed: list[str] = []
+
+    def _md_repl(m: re.Match[str]) -> str:
+        label = m.group(1)
+        url = _normalize_url(m.group(2))
+        if _is_allowed_url(url, allowed_urls=allowed_urls, allowlist_regexes=allowlist_regexes):
+            return f"[{label}]({url})"
+        removed.append(url)
+        return label  # drop the link, keep text
+
+    out = _MD_LINK_RE.sub(_md_repl, answer or "")
+
+    def _raw_repl(m: re.Match[str]) -> str:
+        url = _normalize_url(m.group(0))
+        if _is_allowed_url(url, allowed_urls=allowed_urls, allowlist_regexes=allowlist_regexes):
+            return url
+        removed.append(url)
+        return ""
+
+    out = _URL_RE.sub(_raw_repl, out)
+
+    # Cleanup: collapse extra spaces created by URL removal.
+    out = re.sub(r"\s{2,}", " ", out).strip()
+    removed_dedup = sorted({u for u in removed if u})
+    return out, removed_dedup
+
+
+def _collect_allowed_urls(context_texts: list[str], live_extra: str | None) -> set[str]:
+    urls: set[str] = set()
+    for t in context_texts:
+        urls |= _extract_urls_from_text(t)
+    if live_extra:
+        urls |= _extract_urls_from_text(live_extra)
+    urls |= _get_extra_allowed_urls()
+    return {u for u in urls if u}
+
+
+def _augment_prompts_with_url_policy(
+    system_prompt: str,
+    user_prompt: str,
+    *,
+    allowed_urls: set[str],
+) -> tuple[str, str]:
+    policy = (
+        "\nURL POLICY:\n"
+        "- Do NOT invent or guess URLs.\n"
+        "- Only include URLs that appear in the 'Allowed URLs' list (verbatim).\n"
+        "- If the Allowed URLs list is empty, do not include any URLs.\n"
+    )
+    sys2 = (system_prompt or "") + policy
+
+    # Keep the list short to avoid bloating prompts.
+    max_urls = int(os.getenv("RAG_MAX_ALLOWED_URLS_IN_PROMPT", "25") or "25")
+    allowed_list = sorted(allowed_urls)[: max_urls if max_urls > 0 else 25]
+    if allowed_list:
+        urls_block = "\nAllowed URLs (copy/paste only):\n" + "\n".join(f"- {u}" for u in allowed_list) + "\n"
+    else:
+        urls_block = "\nAllowed URLs (copy/paste only):\n- (none)\n"
+
+    usr2 = (user_prompt or "") + urls_block
+    return sys2, usr2
 
 def _build_chat_prompts(
     *,
@@ -408,6 +539,8 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
                 detail=f"Live weather fetch failed: {exc}",
             ) from exc
 
+    allowed_urls = _collect_allowed_urls(context_texts, live_extra)
+
     place_hint = http_request.query_params.get("place") or os.getenv("PLACE")
 
     system_prompt, user_prompt = _build_chat_prompts(
@@ -417,6 +550,12 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         output_style=payload.output_style,
         max_words=payload.max_words,
         place_hint=place_hint,
+    )
+
+    system_prompt, user_prompt = _augment_prompts_with_url_policy(
+        system_prompt,
+        user_prompt,
+        allowed_urls=allowed_urls,
     )
 
     try:
@@ -432,7 +571,13 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
             detail=str(exc),
         ) from exc
 
-    answer = _enforce_max_chars(_strip_wrapping_quotes(_clean_single_line(answer)), payload.max_words)
+    answer = _strip_wrapping_quotes(_clean_single_line(answer))
+    answer, removed_urls = _filter_answer_urls(
+        answer,
+        allowed_urls=allowed_urls,
+        allowlist_regexes=_get_allowlist_regexes(),
+    )
+    answer = _enforce_max_chars(answer, payload.max_words)
 
     debug_context: list[str] | None = None
     debug_chunks: list[ChunkOut] | None = None
@@ -459,4 +604,5 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         answer=answer,
         context=debug_context,
         chunks=debug_chunks,
+        removed_urls=(removed_urls if payload.include_debug and removed_urls else None),
     )

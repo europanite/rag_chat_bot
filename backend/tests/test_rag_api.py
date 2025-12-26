@@ -60,8 +60,8 @@ def test_rag_query_success(
 
     monkeypatch.setattr(rag_store, "query_similar_chunks", fake_query_similar_chunks)
 
-    def fake_call_ollama_chat(*, question: str, context: str) -> str:
-        assert "Miura Peninsula" in context
+    def fake_call_ollama_chat(*, question: str, system_prompt: str, user_prompt: str) -> str:
+        assert "Miura Peninsula" in user_prompt
         return f"ANSWER to: {question}"
 
     monkeypatch.setattr(rag_router, "_call_ollama_chat", fake_call_ollama_chat)
@@ -88,7 +88,7 @@ def test_rag_query_uses_extra_context(client: TestClient, monkeypatch: pytest.Mo
 
     monkeypatch.setattr(rag_store, "query_similar_chunks", fake_query_similar_chunks)
 
-    def fake_call_ollama_chat(*, question: str, context: str) -> str:
+    def fake_call_ollama_chat(*, question: str, system_prompt: str, user_prompt: str) -> str:
         assert "Yokosuka is a coastal city" in context
         assert "[Live context]" in context
         assert "Current: 10°C" in context
@@ -135,7 +135,7 @@ def test_rag_query_ollama_failure_returns_502(
 
     monkeypatch.setattr(rag_store, "query_similar_chunks", fake_query_similar_chunks)
 
-    def fake_call_ollama_chat(*, question: str, context: str) -> str:
+    def fake_call_ollama_chat(*, question: str, system_prompt: str, user_prompt: str) -> str:
         raise RuntimeError("Ollama is down")
 
     monkeypatch.setattr(rag_router, "_call_ollama_chat", fake_call_ollama_chat)
@@ -144,3 +144,33 @@ def test_rag_query_ollama_failure_returns_502(
 
     assert r.status_code == HTTPStatus.BAD_GATEWAY
     assert "Ollama is down" in r.json().get("detail", "")
+
+def test_rag_query_filters_unknown_urls(client, monkeypatch):
+    # One URL appears in retrieved context => allowed.
+    allowed = "https://example.com/allowed"
+    chunk_text = f"Tourism info. Link: {allowed}"
+
+    monkeypatch.setattr(
+        rag_store,
+        "query_similar_chunks",
+        lambda query, top_k=3: [
+            rag_store.RAGChunk(
+                text=chunk_text,
+                distance=0.1,
+                metadata={"source": "test"},
+            )
+        ],
+    )
+
+    def fake_call_ollama_chat(*, question: str, system_prompt: str, user_prompt: str) -> str:
+        # Model tries to include a URL that is NOT in the retrieved context
+        return f"Use {allowed} and also https://example.com/NOT_ALLOWED"
+
+    monkeypatch.setattr(rag_router, "_call_ollama_chat", fake_call_ollama_chat)
+
+    r = client.post("/rag/query", json={"question": "hello"})
+    assert r.status_code == 200
+
+    data = r.json()
+    assert allowed in data["answer"]
+    assert "https://example.com/NOT_ALLOWED" not in data["answer"]
