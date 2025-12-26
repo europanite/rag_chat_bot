@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "2025-12-26T20:18:51Z",
+      "date": "2025-12-26",
+      "text": "Happy New Year's Eve! 🎉🕰️ Good morning in Yokosuka! ☀️ 2.6°C, mostly cloudy with a gentle 7km/h breeze. 🌫️ Perfect day for a Hatsumode at Kumura Otaki Shrine, starting around 23:30. #Yokosuka #NewYear #KumuraOtakiShrine",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-26T20:18:51Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-26T20:14:06.744597+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-27T05:00:00+09:00",
+          "temp_c": 2.6,
+          "apparent_temp_c": null,
+          "humidity_pct": 49.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 6.84,
+          "wind_dir_deg": 22.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-27",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　夕方　から　晴れ",
+          "jma_weather_code": "211",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2025-12-28",
+          "weather_code": 0,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": 11.0,
+          "temp_min_c": 3.0,
+          "weather_text_ja": "晴れ",
+          "jma_weather_code": "100",
+          "precip_prob_pct": 0
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-27T05:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-26T20:18:51Z",
+  "place": "Yokosuka"
+}
