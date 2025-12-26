@@ -1,25 +1,25 @@
 {
   "date": "2025-12-26",
-  "generated_at": "2025-12-26T07:21:39Z",
-  "text": "Good evening from Yokosuka! Mild winter weather with 8.6°C and 44% humidity. Perfect for a winter illumination stroll at Verny Park! 🌃🏃‍♀️ (https://)",
+  "generated_at": "2025-12-26T08:00:11Z",
+  "text": "Good evening from Yokosuka! 🌃💨 Winter is here and the Yokosuka Winter Illumination at Verny Park is on until January 4th! 🎄️❄️ Don't forget to bundle up as it's a bit chilly and windy outside 🌬️ #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "open-meteo",
-    "generated_at": "2025-12-26T07:16:58Z",
+    "generated_at": "2025-12-26T07:55:18Z",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-26T16:15",
-      "temp_c": 8.6,
-      "apparent_temp_c": 0.8,
-      "humidity_pct": 44,
+      "time": "2025-12-26T16:45",
+      "temp_c": 7.9,
+      "apparent_temp_c": -0.0,
+      "humidity_pct": 46,
       "precip_mm": 0.0,
       "weather_code": 0,
-      "cloud_cover_pct": 12,
-      "wind_kmh": 36.6,
-      "wind_dir_deg": 347
+      "cloud_cover_pct": 8,
+      "wind_kmh": 37.4,
+      "wind_dir_deg": 349
     },
     "today": {
       "date": "2025-12-26",
