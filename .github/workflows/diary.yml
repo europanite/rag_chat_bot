@@ -78,7 +78,7 @@ jobs:
           LON: "139.6722"
           TZ_NAME: "Asia/Tokyo"
           RAG_TOP_K: 16
-          CURL_MAX_TIME: 32
+          CURL_MAX_TIME: 64
           PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
