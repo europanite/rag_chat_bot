@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "2025-12-26T16:20:51Z",
+      "date": "2025-12-26",
+      "text": "Good evening from Yokosuka! It's a chilly 2.7°C with light wind and 46% humidity. Enjoy the winter illumination at Verny Park until 22:00 tonight! #Yokosuka #WinterIllumination",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-26T16:20:51Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-26T16:15:24.523464+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-27T01:00:00+09:00",
+          "temp_c": 2.7,
+          "apparent_temp_c": null,
+          "humidity_pct": 46.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 11.879999999999999,
+          "wind_dir_deg": 22.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-27",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　夕方　から　晴れ",
+          "jma_weather_code": "211",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2025-12-28",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": 11.0,
+          "temp_min_c": 3.0,
+          "weather_text_ja": "晴れ　時々　くもり",
+          "jma_weather_code": "101",
+          "precip_prob_pct": null
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-26T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-26T16:20:51Z",
+  "place": "Yokosuka"
+}
