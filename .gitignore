@@ -110,6 +110,8 @@ postgres-data/
 db-data/
 data/
 tmp/
+!data/md
+!local
 
 # ---- DB / vector store ----
 chroma_db/
