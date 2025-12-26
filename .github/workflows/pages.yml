@@ -60,6 +60,7 @@ jobs:
         env:
           EXPO_PUBLIC_FEED_URL: ./latest.json
           EXPO_PUBLIC_FEEDBACK_FORM_URL: ${{ vars.EXPO_PUBLIC_FEEDBACK_FORM_URL }}
+          EXPO_PUBLIC_USE_SLOT: 1
         run: |
           npx expo export --platform web --output-dir web-build
 

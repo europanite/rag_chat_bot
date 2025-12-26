@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "rag_chat_bot",
+    "name": "GOODDAY YOKOSUKA",
+    "description": "Local news and tourism tips for Yokosuka City.",
     "slug": "rag_chat_bot",
     "experiments": {
       "baseUrl": "/rag_chat_bot"

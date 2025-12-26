@@ -244,7 +244,7 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
 }
 
 function Slot() {
-  const enabled = process.env.EXPO_PUBLIC_SHOW_AD_SLOT === "1";
+  const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
   if (!enabled) return null;
 
   return (
@@ -257,7 +257,7 @@ function Slot() {
         padding: 12,
       }}
     >
-      <Text style={{ fontWeight: "800" }}>Ad / Promo</Text>
+      <Text style={{ fontWeight: "800" }}>Slot</Text>
       <Text style={{ color: TEXT_DIM, marginTop: 6, lineHeight: 18 }}>
         Reserved space.
       </Text>
@@ -362,7 +362,7 @@ export default function HomeScreen() {
     <View style={{ padding: 16, gap: 10 }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
         <View style={{ gap: 2 }}>
-          <Text style={{ fontSize: 22, fontWeight: "800", color: "#000000ff" }}>Good Morning Yokosuka</Text>
+          <Text style={{ fontSize: 22, fontWeight: "800", color: "#000000ff" }}>GOODDAY YOKOSUKA</Text>
         </View>
       </View>
 
