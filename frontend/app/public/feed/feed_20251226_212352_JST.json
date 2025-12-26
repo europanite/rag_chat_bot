@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "2025-12-26T12:29:06Z",
+      "date": "2025-12-26",
+      "text": "Good evening! 🌃🎄 It's a chilly 4.3°C in Yokosuka with partly cloudy skies and a gentle 17.28km/h breeze. Perfect night for the Yokosuka Winter Illumination at Verny Park! 🎅️ #Yokosuka #Miura",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-26T12:29:06Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-26T12:23:54.361715+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-26T21:10:00+09:00",
+          "temp_c": 4.3,
+          "apparent_temp_c": null,
+          "humidity_pct": 45.0,
+          "precip_mm": 0.0,
+          "weather_code": 61,
+          "cloud_cover_pct": null,
+          "wind_kmh": 17.28,
+          "wind_dir_deg": 22.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-26",
+          "weather_code": 61,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　夜　晴れ　所により　夕方　雨",
+          "jma_weather_code": "211",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2025-12-27",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　夕方　から　晴れ",
+          "jma_weather_code": "211",
+          "precip_prob_pct": 10
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-26T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-26T12:29:06Z",
+  "place": "Yokosuka"
+}
