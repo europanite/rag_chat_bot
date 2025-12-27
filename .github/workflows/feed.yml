@@ -1,4 +1,4 @@
-name: Feed
+name: Diary
 
 on:
   workflow_dispatch:
@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,31 +23,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-          key: ${{ runner.os }}-py312-pip-v1
-          restore-keys: |
-            ${{ runner.os }}-py312-pip-
-
-      - name: Cache Hugging Face + Torch
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/huggingface
-            ~/.cache/torch
-          key: ${{ runner.os }}-py312-hf-torch-sdturbo-v1
-          restore-keys: |
-            ${{ runner.os }}-py312-hf-torch-
-
       - name: Sanity check (repo chroma_db exists)
         run: |
           echo "chroma_db file count:"
           find chroma_db -type f | wc -l
-          echo "chroma_db sample:"
-          find chroma_db -maxdepth 2 -type f | head -n 20
           n=$(find chroma_db -type f | wc -l)
           if [ "$n" -lt 5 ]; then
             echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
@@ -101,7 +81,6 @@ jobs:
           LATEST_PATH: frontend/app/public/latest.json
           MAX_WORDS: 128
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-          # DEBUG: "1"
         run: |
           python scripts/generate_diary.py
 
@@ -111,6 +90,77 @@ jobs:
         if: always()
         run: |
           docker compose down
+
+      - name: Commit & push if changed
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull
+
+          git add frontend/app/public/feed/*.json || true
+          git add frontend/app/public/latest.json || true
+          git add frontend/app/public/snapshot/*.json || true
+
+          if git diff --cached --quiet; then
+            echo "No staged changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m "chore: diary feed"
+          git push
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  illustrate:
+    needs: rag
+    if: needs.rag.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Checkout (just-pushed commit)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.rag.outputs.sha }}
+          fetch-depth: 0
+
+      # ディスクを空ける（sd-turboのDL用）
+      - name: Free disk space
+        run: |
+          set -euo pipefail
+          df -h
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
+          sudo docker system prune -af --volumes 2>/dev/null || true
+          df -h
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache Hugging Face + Torch
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/torch
+          key: ${{ runner.os }}-hf-torch-sdturbo-v1
+          restore-keys: |
+            ${{ runner.os }}-hf-torch-sdturbo-
+            ${{ runner.os }}-hf-torch-
 
       - name: Install SD deps (CPU)
         run: |
@@ -124,9 +174,9 @@ jobs:
           FEED_DIR: frontend/app/public/feed
           OUT_DIR: frontend/app/public/diary
           MODEL_ID: stabilityai/sd-turbo
-          STEPS: "2"     # 1-4 recommended for turbo
-          BASE_SIZE: "512"
-          PAGE_W: "1200"
+          STEPS: "2"          # 1-4 recommended for turbo
+          BASE_SIZE: "512"    # turboはまず512が安定
+          PAGE_W: "1200"      # X向け横長カード（絵日記風）
           PAGE_H: "675"
           BRAND: "GOODDAY YOKOSUKA"
           PLACE_FALLBACK: "Yokosuka"
@@ -180,19 +230,19 @@ jobs:
             return ImageFont.load_default()
 
           def clean_for_prompt(text: str) -> str:
-            t = re.sub(r"https?://\\S+", "", text)
-            t = re.sub(r"#\\w+", "", t)
-            t = re.sub(r"\\s+", " ", t).strip()
+            t = re.sub(r"https?://\S+", "", text)
+            t = re.sub(r"#\w+", "", t)
+            t = re.sub(r"\s+", " ", t).strip()
             return t[:220]
 
           def slug(s: str) -> str:
-            s = re.sub(r"\\s+", "_", s.strip())
-            s = re.sub(r"[^0-9A-Za-z_\\-]", "", s)
+            s = re.sub(r"\s+", "_", s.strip())
+            s = re.sub(r"[^0-9A-Za-z_\-]", "", s)
             return s[:60] or "item"
 
           latest = load_json(LATEST_PATH)
           if not isinstance(latest, dict) or not latest.get("date") or not latest.get("text"):
-            print("latest.json is not in expected shape; skip.")
+            print("latest.json not in expected single-object shape (date/text). Skip.")
             raise SystemExit(0)
 
           date = str(latest.get("date", "")).strip()
@@ -200,28 +250,24 @@ jobs:
           place = str(latest.get("place", "") or PLACE_FALLBACK).strip()
           generated_at = str(latest.get("generated_at", "")).strip()
 
-          # Deterministic filename from date + text
           seed_hex8 = hashlib.sha1((date + "\n" + text).encode("utf-8", errors="ignore")).hexdigest()[:8]
           fn = f"{slug(date)}_{seed_hex8}.png"
           OUT_DIR.mkdir(parents=True, exist_ok=True)
           out_path = OUT_DIR / fn
-          rel_url = "/" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\\\", "/")
+          rel_url = "/" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\", "/")
 
-          # If already generated and linked, keep it idempotent
-          already = latest.get("image_url") == rel_url and out_path.exists()
-          if already:
-            print("Image already exists and latest.json already points to it; skip generation.")
+          # Idempotent
+          if latest.get("image_url") == rel_url and out_path.exists():
+            print("Already generated; skip.")
             raise SystemExit(0)
 
-          # ---- Build prompt for "絵日記風"
+          # Prompt: 絵日記風（やさしい、手描き、水彩/色鉛筆）
           core = clean_for_prompt(text)
-          # Avoid embedding hashtags/URLs; push to gentle diary illustration
           prompt = (
-            "Japanese illustrated diary, picture-diary style, "
+            "Japanese picture diary illustration, illustrated diary style, "
             "watercolor and colored pencil, soft warm light, cute and simple, "
             "hand-drawn, minimal details, friendly atmosphere, "
-            f"scene in {place}. "
-            f"Inspired by this diary message: {core}"
+            f"scene in {place}. Inspired by this diary message: {core}"
           )
           negative = (
             "nsfw, nude, sexual, gore, violence, hate, disturbing, "
@@ -233,8 +279,10 @@ jobs:
 
           pipe = DiffusionPipeline.from_pretrained(MODEL_ID, torch_dtype=dtype)
           pipe = pipe.to(device)
-
-          # Memory savers (CPUでも効くことがある)
+          try:
+            pipe.set_progress_bar_config(disable=True)
+          except Exception:
+            pass
           try:
             pipe.enable_attention_slicing()
           except Exception:
@@ -245,7 +293,6 @@ jobs:
             pass
 
           guidance_scale = 0.0  # turbo系は上げすぎない
-
           seed = int(seed_hex8, 16)
           g = torch.Generator(device=device).manual_seed(seed)
 
@@ -259,11 +306,10 @@ jobs:
             generator=g,
           ).images[0].convert("RGB")
 
-          # ---- Compose a "diary page" (1200x675): paper + photo + caption
-          page = Image.new("RGB", (PAGE_W, PAGE_H), (247, 242, 232))  # warm paper
+          # 絵日記ページ（横長）：紙 + 絵 + 本文
+          page = Image.new("RGB", (PAGE_W, PAGE_H), (247, 242, 232))
           d = ImageDraw.Draw(page)
 
-          # Header strip
           d.rectangle([0, 0, PAGE_W, 72], fill=(240, 232, 220))
           title_f = pick_font(34, bold=True)
           meta_f = pick_font(22, bold=False)
@@ -274,30 +320,26 @@ jobs:
             header += f"  |  {place}"
           d.text((36, 18), header, font=title_f, fill=(40, 40, 40))
 
-          # Photo frame (left)
+          # left: image frame
           frame_x, frame_y = 48, 110
           frame_w, frame_h = 520, 520
-          d.rounded_rectangle([frame_x-12, frame_y-12, frame_x+frame_w+12, frame_y+frame_h+12], radius=26, fill=(255, 255, 255))
-          d.rounded_rectangle([frame_x-14, frame_y-14, frame_x+frame_w+14, frame_y+frame_h+14], radius=28, outline=(210, 200, 185), width=3)
+          d.rounded_rectangle([frame_x-14, frame_y-14, frame_x+frame_w+14, frame_y+frame_h+14],
+                              radius=28, fill=(255, 255, 255), outline=(210, 200, 185), width=3)
+          page.paste(img.resize((frame_w, frame_h)), (frame_x, frame_y))
 
-          # Fit image into frame (cover)
-          img_resized = img.resize((frame_w, frame_h))
-          page.paste(img_resized, (frame_x, frame_y))
-
-          # Caption area (right)
+          # right: caption
           cap_x = frame_x + frame_w + 56
           cap_y = 110
           cap_w = PAGE_W - cap_x - 48
           cap_h = 520
-          d.rounded_rectangle([cap_x, cap_y, cap_x+cap_w, cap_y+cap_h], radius=22, fill=(255, 255, 255), outline=(220, 210, 196), width=2)
+          d.rounded_rectangle([cap_x, cap_y, cap_x+cap_w, cap_y+cap_h],
+                              radius=22, fill=(255, 255, 255), outline=(220, 210, 196), width=2)
 
-          # Wrap caption
-          caption = re.sub(r"\\s+", " ", text).strip()
-          # Keep it readable: cut very long
+          caption = re.sub(r"\s+", " ", text).strip()
           if len(caption) > 420:
             caption = caption[:420].rstrip() + "…"
 
-          # simple wrapping by character count
+          # simple word wrap
           max_chars = 32
           lines = []
           buf = ""
@@ -321,21 +363,19 @@ jobs:
             d.text((cap_x + 24, ty), ln, font=body_f, fill=(35, 35, 35))
             ty += int(body_f.size * 1.45)
 
-          # Footer meta
           now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
           d.text((cap_x + 24, cap_y + cap_h - 42), f"generated: {now_iso}", font=meta_f, fill=(110, 110, 110))
 
           page.save(out_path, format="PNG", optimize=True)
 
-          # ---- Patch latest.json
+          # Patch latest.json
           latest["image_url"] = rel_url
           latest["image_prompt"] = prompt
           latest["image_model"] = MODEL_ID
           latest["image_generated_at"] = now_iso
           dump_json(LATEST_PATH, latest)
 
-          # ---- Patch the newest feed file (best effort)
-          # Match by id == generated_at (common) OR date+text equality
+          # Patch newest feed file (best effort)
           def patch_feed_file(p: Path) -> bool:
             try:
               obj = load_json(p)
@@ -343,43 +383,40 @@ jobs:
               return False
             if not isinstance(obj, dict) or not isinstance(obj.get("items"), list):
               return False
+
             changed = False
             for it in obj["items"]:
               if not isinstance(it, dict):
                 continue
-              same_id = bool(generated_at) and str(it.get("id","")) == generated_at
-              same_dt = str(it.get("date","")) == date and str(it.get("text","")) == text
+              same_id = bool(generated_at) and str(it.get("id", "")) == generated_at
+              same_dt = str(it.get("date", "")) == date and str(it.get("text", "")) == text
               if same_id or same_dt:
                 it["image_url"] = rel_url
                 it["image_prompt"] = prompt
                 it["image_model"] = MODEL_ID
                 it["image_generated_at"] = now_iso
                 changed = True
+
             if changed:
               dump_json(p, obj)
             return changed
 
-          newest = None
           if FEED_DIR.exists():
-            candidates = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
-            if candidates:
-              newest = candidates[0]
-              patched = patch_feed_file(newest)
-              print("patched feed:", str(newest), "->", patched)
-            else:
-              print("No feed_*.json found to patch.")
-          else:
-            print("FEED_DIR does not exist:", FEED_DIR)
+            feeds = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
+            if feeds:
+              patched = patch_feed_file(feeds[0])
+              print("patched:", feeds[0], "->", patched)
 
-          print("Generated diary image:", out_path, "url:", rel_url)
+          print("Generated:", out_path, "url:", rel_url)
           PY
 
-      - name: Commit & push if changed
+      - name: Commit & push illustrated changes if any
         id: commit
         run: |
           if git diff --quiet; then
             echo "No changes"
             echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -388,23 +425,25 @@ jobs:
 
           git pull
 
-          git add frontend/app/public/feed/*.json || true
           git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
+          git add frontend/app/public/feed/*.json || true
           git add frontend/app/public/diary/*.png || true
 
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "No staged changes"
             echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          git commit -m "chore: diary + illustrated diary image"
+          git commit -m "chore: illustrated diary"
           git push
+
           echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   pages:
-    needs: rag
+    needs: [rag, illustrate]
     if: needs.rag.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
     with:
