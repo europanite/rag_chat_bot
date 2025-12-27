@@ -3,27 +3,21 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  Linking,
   Platform,
-  Pressable,
   RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
-
-const BG = "#efeff6";
-const NAVY = "#383960";
-const BORDER = "#2b2b2b";
 
 type FeedItem = {
   id: string;
   date: string; // YYYY-MM-DD
   text: string;
   place?: string;
-  generated_at?: string;
-  image?: string; // optional (absolute URL or /public path)
+  generated_at?: string; // ISO string (often Z)
+  image?: string; // local path or absolute URL
   image_prompt?: string; // optional (for matching)
 };
 
@@ -33,32 +27,94 @@ type Feed = {
   items: FeedItem[];
 };
 
-type Latest = {
-  date?: string;
-  place?: string;
-  text?: string;
-  generated_at?: string;
-  image_url?: string;
-  image_prompt?: string;
-  image_model?: string;
-  image_generated_at?: string;
-};
+const APP_BG = "#f6f4ff";
+const CARD_BG = "#ffffff";
+const TEXT_DIM = "#333333";
 
-function tryJsonParse(s: string): any | null {
+const BORDER = "#000000";
+const BUBBLE_RADIUS = 16;
+const BUBBLE_BORDER_W = 2;
+
+const CONTENT_MAX_W = 760;
+const MASCOT_COL_W = 128;
+const MASCOT_SIZE = 96;
+const MASCOT_RADIUS = 12;
+const MASCOT_BORDER_W = 2;
+const SIDEBAR_W = 240;
+
+const FEED_SCROLL_ID = "feed-scroll";
+
+function ensureWebScrollbarStyle() {
+  if (Platform.OS !== "web") return;
+
+  const STYLE_ID = "hide-scrollbar-style";
+  if (document.getElementById(STYLE_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = `
+    /* target only the FlatList scroll node */
+    #${FEED_SCROLL_ID} {
+      -ms-overflow-style: none;   /* IE/Edge legacy */
+      scrollbar-width: none;      /* Firefox */
+    }
+    #${FEED_SCROLL_ID}::-webkit-scrollbar {
+      width: 0px;
+      height: 0px;
+      display: none;              /* Chrome/Safari */
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function parseTimeLike(input: string): Date | null {
+  const s = String(input ?? "").trim();
+  if (!s) return null;
+
+  if (/(Z|[+-]\d{2}:\d{2})$/.test(s)) {
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(s)) {
+    const d = new Date(`${s}+09:00`);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatJst(isoLike: string, withSeconds = false): string {
+  const d = parseTimeLike(isoLike);
+  if (!d) return isoLike;
+
+  const jstMs = d.getTime() + 9 * 60 * 60 * 1000;
+  const j = new Date(jstMs);
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  const yyyy = j.getUTCFullYear();
+  const mm = pad(j.getUTCMonth() + 1);
+  const dd = pad(j.getUTCDate());
+  const hh = pad(j.getUTCHours());
+  const mi = pad(j.getUTCMinutes());
+  const ss = pad(j.getUTCSeconds());
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}${withSeconds ? `:${ss}` : ""} JST`;
+}
+
+function safeJsonParse(raw: string): unknown | null {
   try {
-    return JSON.parse(s);
+    return JSON.parse(raw) as unknown;
   } catch {
     return null;
   }
 }
 
-function parseFeedShape(raw: string): Feed | null {
-  const parsed = tryJsonParse(raw);
+function normalizeFeed(parsed: unknown): Feed | null {
   if (!parsed) return null;
 
-  // Shape A: { items: [...] }
-  if (typeof parsed === "object" && parsed && !Array.isArray(parsed)) {
-    const obj: any = parsed;
+  if (typeof parsed === "object" && !Array.isArray(parsed)) {
+    const obj = parsed as any;
 
     if (Array.isArray(obj.items)) {
       const items: FeedItem[] = obj.items
@@ -66,17 +122,9 @@ function parseFeedShape(raw: string): Feed | null {
           const date = typeof it?.date === "string" ? it.date : "";
           const text = typeof it?.text === "string" ? it.text : "";
           if (!date || !text) return null;
-
-          const id =
-            typeof it?.id === "string"
-              ? it.id
-              : typeof it?.generated_at === "string"
-              ? it.generated_at
-              : `${date}-${idx}`;
-
+          const id = typeof it?.id === "string" ? it.id : `${date}-${idx}`;
           const place = typeof it?.place === "string" ? it.place : undefined;
           const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
-
           const image =
             typeof it?.image === "string"
               ? it.image
@@ -85,9 +133,7 @@ function parseFeedShape(raw: string): Feed | null {
               : typeof it?.imageUri === "string"
               ? it.imageUri
               : undefined;
-
           const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
-
           return { id, date, text, place, generated_at, image, image_prompt };
         })
         .filter(Boolean) as FeedItem[];
@@ -99,7 +145,6 @@ function parseFeedShape(raw: string): Feed | null {
       };
     }
 
-    // Shape B: latest.json single object { date, text, ... }
     const date = typeof obj.date === "string" ? obj.date : "";
     const text = typeof obj.text === "string" ? obj.text : "";
     if (date && text) {
@@ -116,35 +161,29 @@ function parseFeedShape(raw: string): Feed | null {
           : undefined;
       const image_prompt = typeof obj?.image_prompt === "string" ? obj.image_prompt : undefined;
       const updated_at = generated_at;
-
       return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt }] };
     }
   }
 
-  // Shape C: plain array of items
   if (Array.isArray(parsed)) {
     const items: FeedItem[] = parsed
       .map((it: any, idx: number): FeedItem | null => {
         const date = typeof it?.date === "string" ? it.date : "";
         const text = typeof it?.text === "string" ? it.text : "";
         if (!date || !text) return null;
-
         const id = typeof it?.id === "string" ? it.id : `${date}-${idx}`;
         const place = typeof it?.place === "string" ? it.place : undefined;
         const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
-
-        const image =
-          typeof it?.image === "string"
-            ? it.image
-            : typeof it?.image_url === "string"
-            ? it.image_url
-            : typeof it?.imageUri === "string"
-            ? it.imageUri
-            : undefined;
-
-        const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
-
-        return { id, date, text, place, generated_at, image, image_prompt };
+          const image =
+            typeof it?.image === "string"
+              ? it.image
+              : typeof it?.image_url === "string"
+              ? it.image_url
+              : typeof it?.imageUri === "string"
+              ? it.imageUri
+              : undefined;
+          const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
+          return { id, date, text, place, generated_at, image, image_prompt };
       })
       .filter(Boolean) as FeedItem[];
 
@@ -157,6 +196,7 @@ function parseFeedShape(raw: string): Feed | null {
 
   return null;
 }
+
 
 type ShareSdItem = {
   date?: string;
@@ -171,48 +211,47 @@ type ShareSdIndex = {
 };
 
 function normalizeWebAssetPath(p: string): string {
-  const s = String(p ?? "").trim();
+  let s = String(p ?? "").trim();
   if (!s) return "";
   if (/^(https?:)?\/\//i.test(s) || s.startsWith("data:")) return s;
 
-  // GitHub Pages repo subpath safety: "/share_sd/..." should be treated as "./share_sd/..."
-  if (Platform.OS === "web" && s.startsWith("/")) return `.${s}`;
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    const baseSeg = window.location.pathname.split("/").filter(Boolean)[0] || "";
+    // If the path already includes the repo segment (e.g. "rag_chat_bot/..."),
+    // strip it to avoid double-prefixing when resolving relative URLs.
+    if (baseSeg) {
+      if (s.startsWith(`/${baseSeg}/`)) s = `./${s.slice(baseSeg.length + 2)}`;
+      else if (s.startsWith(`${baseSeg}/`)) s = `./${s.slice(baseSeg.length + 1)}`;
+    }
+    // Treat leading "/" as repo-relative on GitHub Pages.
+    if (s.startsWith("/")) return `.${s}`;
+  }
+
   return s;
 }
+
 
 function buildSharePrompt(text: string, place?: string): string {
   const t = String(text ?? "").replace(/\s+/g, " ").trim().slice(0, 240);
   const p = String(place ?? "").trim();
-  return p ? `cinematic illustration, ${p}, based on this short story: ${t}` : `cinematic illustration, based on this short story: ${t}`;
+  return p
+    ? `cinematic illustration, ${p}, based on this short story: ${t}`
+    : `cinematic illustration, based on this short story: ${t}`;
 }
 
-function resolveUrl(p: string, assetBase: string): string {
-  const s = String(p ?? "").trim();
-  if (!s) return "";
-  if (/^(https?:)?\/\//i.test(s) || s.startsWith("data:")) return s;
-
-  const base = String(assetBase ?? "").trim();
-  if (!base) return s;
-
-  // assetBase is expected to end with "/" or be a dir; keep it simple
-  if (s.startsWith("./")) return base.replace(/\/+$/, "/") + s.slice(2);
-  if (s.startsWith("/")) return base.replace(/\/+$/, "") + s;
-  return base.replace(/\/+$/, "/") + s;
-}
 
 const FeedBubbleImage: React.FC<{ uris?: string[] }> = ({ uris }) => {
   const [idx, setIdx] = useState(0);
   const [hidden, setHidden] = useState(false);
 
-  // Reset when the candidate list changes (e.g., new feed item).
+  const key = useMemo(() => (uris ?? []).join("|"), [uris]);
+
   useEffect(() => {
     setIdx(0);
     setHidden(false);
-  }, [uris?.join("|")]);
+  }, [key]);
 
   const uri = (uris ?? [])[idx] ?? "";
-
-  // If there's no image or all candidates failed to load (404 etc.), render nothing (text only).
   if (!uri || hidden) return null;
 
   return (
@@ -233,304 +272,589 @@ const FeedBubbleImage: React.FC<{ uris?: string[] }> = ({ uris }) => {
         resizeMode="cover"
         accessibilityLabel="Generated image"
         onError={() => {
-          if (uris && idx + 1 < uris.length) {
-            setIdx(idx + 1);
-          } else {
-            setHidden(true);
-          }
+          if (uris && idx + 1 < uris.length) setIdx(idx + 1);
+          else setHidden(true);
         }}
       />
     </View>
   );
 };
 
-export default function HomeScreen() {
-  const [feed, setFeed] = useState<Feed | null>(null);
-  const [shareSd, setShareSd] = useState<ShareSdIndex | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Compute an asset base for GitHub Pages if possible.
-  const assetBase = useMemo(() => {
-    if (Platform.OS !== "web") return "";
-    // Prefer <base href="..."> if present.
-    const baseEl = typeof document !== "undefined" ? document.querySelector("base") : null;
-    const baseHref = baseEl?.getAttribute("href") || "";
-    if (baseHref) return baseHref;
+function normalizeShareSdIndex(parsed: unknown): ShareSdIndex | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
 
-    // Fallback: use current path dir as base.
-    try {
-      const u = new URL(window.location.href);
-      const dir = u.pathname.replace(/[^/]*$/, ""); // strip filename
-      return `${u.origin}${dir}`;
-    } catch {
-      return "";
-    }
-  }, []);
+  if (!Array.isArray(obj.items)) return null;
 
-  const fetchText = useCallback(async (url: string) => {
-    const res = await fetch(url, { cache: "no-store" as any });
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    return await res.text();
-  }, []);
+  const items: ShareSdItem[] = obj.items
+    .map((it: any): ShareSdItem | null => {
+      const image = typeof it?.image === "string" ? it.image : "";
+      if (!image) return null;
 
-  const loadAll = useCallback(async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      // 1) feed/latest
-      const feedCandidates = [
-        "/feed/latest.json",
-        "/feed/output.json",
-        "/feed/feed.json",
-        "/latest.json",
-        "/feed/latest.md",
-      ].map((p) => resolveUrl(normalizeWebAssetPath(p), assetBase));
+      const date = typeof it?.date === "string" ? it.date : undefined;
+      const place = typeof it?.place === "string" ? it.place : undefined;
+      const prompt = typeof it?.prompt === "string" ? it.prompt : undefined;
 
-      let loadedFeed: Feed | null = null;
-      for (const u of feedCandidates) {
-        try {
-          const t = await fetchText(u);
-          loadedFeed = parseFeedShape(t);
-          if (loadedFeed?.items?.length) break;
-        } catch {
-          // ignore
-        }
-      }
+      return { image, date, place, prompt };
+    })
+    .filter(Boolean) as ShareSdItem[];
 
-      // 2) share_sd index (optional)
-      const shareCandidates = ["/share_sd/index.json"].map((p) => resolveUrl(normalizeWebAssetPath(p), assetBase));
-      let loadedShare: ShareSdIndex | null = null;
-      for (const u of shareCandidates) {
-        try {
-          const t = await fetchText(u);
-          const parsed = tryJsonParse(t);
-          if (parsed && typeof parsed === "object" && Array.isArray((parsed as any).items)) {
-            loadedShare = parsed as ShareSdIndex;
-            break;
-          }
-        } catch {
-          // ignore
-        }
-      }
+  return {
+    updated_at: typeof obj.updated_at === "string" ? obj.updated_at : undefined,
+    items,
+  };
+}
 
-      setFeed(loadedFeed);
-      setShareSd(loadedShare);
-    } catch (e: any) {
-      setError(e?.message || String(e));
-    } finally {
-      setLoading(false);
-    }
-  }, [assetBase, fetchText]);
 
-  useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+function getFeedPointer(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await loadAll();
-    } finally {
-      setRefreshing(false);
-    }
-  }, [loadAll]);
+  const cand =
+    typeof obj.feed_url === "string"
+      ? obj.feed_url
+      : typeof obj.feed_file === "string"
+        ? obj.feed_file
+        : typeof obj.feed_path === "string"
+          ? obj.feed_path
+          : null;
 
-  const sharePromptToImage = useMemo(() => {
-    const map = new Map<string, string>();
-    if (!shareSd?.items?.length) return map;
+  if (!cand) return null;
+  const s = String(cand).trim();
+  return s ? s : null;
+}
 
-    for (const it of shareSd.items) {
-      if (!it?.image) continue;
-      const img = resolveUrl(normalizeWebAssetPath(it.image), assetBase);
-      if (it.prompt) map.set(it.prompt, img);
-      if (it.date && it.place) map.set(`${it.date}|${it.place}`, img);
-    }
-    return map;
-  }, [assetBase, shareSd]);
+function getNextPointer(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
 
-  const getImageUrisForItem = useCallback(
-    (item: FeedItem): string[] => {
-      const out: string[] = [];
+  const cand =
+    typeof obj.next_url === "string"
+      ? obj.next_url
+      : typeof obj.next === "string"
+        ? obj.next
+        : typeof obj.nextPage === "string"
+          ? obj.nextPage
+          : typeof obj.next_page === "string"
+            ? obj.next_page
+            : null;
 
-      const push = (maybePath: string) => {
-        const s = String(maybePath ?? "").trim();
-        if (!s) return;
-        const resolved = resolveUrl(normalizeWebAssetPath(s), assetBase);
-        if (!out.includes(resolved)) out.push(resolved);
-      };
+  if (!cand) return null;
+  const s = String(cand).trim();
+  return s ? s : null;
+}
 
-      // 1) If the feed already contains an explicit image path, use it first.
-      if (item.image) push(item.image);
+function resolveUrl(maybeRelative: string, baseUrl: string): string {
+  try {
+    if (maybeRelative.startsWith("http://") || maybeRelative.startsWith("https://")) return maybeRelative;
+    if (typeof window !== "undefined") return new URL(maybeRelative, baseUrl).toString();
+  } catch {
+    // ignore
+  }
+  return maybeRelative;
+}
 
-      // 2) Deterministic: try "/image/<item.id>.png" (feed/image stem match).
-      const idStem = String(item.id ?? "").trim();
-      if (idStem) {
-        const lower = idStem.toLowerCase();
-        if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".webp")) {
-          push(`/image/${encodeURIComponent(idStem)}`);
-        } else {
-          push(`/image/${encodeURIComponent(idStem)}.png`);
-        }
-      }
+function addCacheBuster(url: string): string {
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${Date.now()}`;
+}
 
-      // 3) Fallback: try matching the Share SD index by prompt (deterministic) or by date+place.
-      const place = item.place || feed?.place;
-      const prompt = item.image_prompt || buildSharePrompt(item.text, place);
+function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
+  const [failed, setFailed] = useState(false);
+  const envUri = (process.env.EXPO_PUBLIC_MASCOT_URI || "").trim();
 
-      const fromPrompt = sharePromptToImage.get(prompt);
-      if (fromPrompt) push(fromPrompt);
+  const resolvedEnvUri = useMemo(() => {
+    if (!envUri) return "";
+    // Only use the env URI when it is clearly an absolute URL/data URI.
+    // (Relative strings like "avatar.png" often cause 404s on GitHub Pages.)
+    if (/^(https?:)?\/\//i.test(envUri) || envUri.startsWith("data:")) return envUri;
+    return "";
+  }, [envUri]);
 
-      if (item.date && place) {
-        const byKey = sharePromptToImage.get(`${item.date}|${place}`);
-        if (byKey) push(byKey);
-      }
-
-      return out;
-    },
-    [assetBase, feed?.place, sharePromptToImage],
+  const Frame = ({ children }: { children: React.ReactNode }) => (
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: MASCOT_RADIUS,
+        borderWidth: MASCOT_BORDER_W,
+        borderColor: BORDER,
+        overflow: "hidden",
+        backgroundColor: "#ffffff",
+      }}
+      accessibilityLabel="Mascot"
+    >
+      {children}
+    </View>
   );
 
-  const items = feed?.items ?? [];
+  if (!failed && resolvedEnvUri) {
+    return (
+      <Frame>
+        <Image
+          source={{ uri: resolvedEnvUri }}
+          style={{ width: "100%", height: "100%" }}
+          accessibilityLabel="Mascot"
+          onError={() => setFailed(true)}
+        />
+      </Frame>
+    );
+  }
 
-  const renderItem = useCallback(
-    ({ item }: { item: FeedItem }) => {
-      const when = item.generated_at || item.date;
-      const where = item.place || feed?.place;
-      const imageUris = getImageUrisForItem(item);
-
-      return (
-        <View style={{ flexDirection: "row", gap: 16, marginBottom: 18 }}>
-          <View style={{ width: 92, alignItems: "center" }}>
-            <Image
-              source={{ uri: resolveUrl(normalizeWebAssetPath("/images/avatar.png"), assetBase) }}
-              style={{ width: 72, height: 72, borderRadius: 18, borderWidth: 2, borderColor: BORDER, backgroundColor: "#fff" }}
-              onError={() => {}}
-            />
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <View style={styles.bubble}>
-              <Text style={styles.meta}>
-                {when}
-                {where ? `  ・  ${where}` : ""}
-              </Text>
-
-              {/* IMAGE: show above text inside the bubble, only if it exists */}
-              <FeedBubbleImage uris={imageUris} />
-
-              <Text style={styles.body}>{item.text}</Text>
-            </View>
-          </View>
-        </View>
-      );
-    },
-    [assetBase, feed?.place, getImageUrisForItem],
-  );
+  try {
+    const fallback = require("../assets/images/avatar.png");
+    return (
+      <Frame>
+        <Image source={fallback} style={{ width: "100%", height: "100%" }} accessibilityLabel="Mascot" />
+      </Frame>
+    );
+  } catch {
+    // ignore
+  }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: BG }}>
-      <View style={styles.header}>
-        <Text style={styles.title}>GOODDAY YOKOSUKA</Text>
-        <View style={styles.contactBtn}>
-          <Text style={{ fontWeight: "700" }}>Contact</Text>
-        </View>
+    <Frame>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
+        <Text style={{ color: "#ffffff", fontWeight: "900", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
       </View>
-
-      <View style={styles.container}>
-        <View style={styles.side} />
-        <View style={styles.main}>
-          <View style={{ paddingHorizontal: 18, paddingTop: 10, paddingBottom: 6 }}>
-            <Text style={{ color: "#111", fontWeight: "600" }}>
-              Updated At: {feed?.updated_at ? feed.updated_at : "—"}
-            </Text>
-          </View>
-
-          {error ? (
-            <View style={{ padding: 18 }}>
-              <Text style={{ color: "#c00", fontWeight: "700" }}>Error</Text>
-              <Text style={{ color: "#c00", marginTop: 6 }}>{error}</Text>
-            </View>
-          ) : null}
-
-          {loading && !items.length ? (
-            <View style={{ paddingTop: 40 }}>
-              <ActivityIndicator />
-            </View>
-          ) : (
-            <FlatList
-              data={items}
-              keyExtractor={(it) => it.id}
-              renderItem={renderItem}
-              contentContainerStyle={{ padding: 18 }}
-              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-            />
-          )}
-        </View>
-        <View style={styles.side} />
-      </View>
-    </SafeAreaView>
+    </Frame>
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    height: 62,
-    backgroundColor: NAVY,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 16,
+function Slot() {
+  const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
+  if (!enabled) return null;
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: APP_BG,
+        borderWidth: 1,
+        borderColor: BORDER,
+        borderRadius: 12,
+        padding: 12,
+      }}
+    >
+      <Text style={{ color: TEXT_DIM, marginTop: 6, lineHeight: 18 }}>
+      </Text>
+    </View>
+  );
+}
+
+export default function HomeScreen() {
+  const FEED_URL = (process.env.EXPO_PUBLIC_FEED_URL || "./latest.json").trim();
+  const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "").trim();
+  const { width } = useWindowDimensions();
+  const showSidebars = width >= 980;
+
+  const RESOLVED_FEED_URL = useMemo(() => {
+    try {
+      if (FEED_URL.startsWith("http://") || FEED_URL.startsWith("https://")) return FEED_URL;
+      if (typeof window !== "undefined") return new URL(FEED_URL, window.location.href).toString();
+    } catch {
+      // ignore
+    }
+    return FEED_URL;
+  }, [FEED_URL]);
+
+  const [feed, setFeed] = useState<Feed | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+
+  const [shareSdIndex, setShareSdIndex] = useState<ShareSdIndex | null>(null);
+
+  const fetchJson = useCallback(async (url: string): Promise<{ raw: string; parsed: unknown }> => {
+    const finalUrl = addCacheBuster(url);
+    const res = await fetch(finalUrl, { headers: { "Cache-Control": "no-cache" } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.text();
+    const parsed = safeJsonParse(raw);
+    return { raw, parsed };
+  }, []);
+  
+  const sortedItems = useMemo(() => {
+    const items = feed?.items ?? [];
+    return [...items].sort((a, b) => {
+      const ta = (a.generated_at || a.date || "").toString();
+      const tb = (b.generated_at || b.date || "").toString();
+      return ta < tb ? 1 : ta > tb ? -1 : 0;
+    });
+  }, [feed]);
+
+  const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
+
+
+useEffect(() => {
+  if (!SHARE_SD_INDEX_URL) return;
+
+  let cancelled = false;
+
+  (async () => {
+    try {
+      const base =
+        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
+
+      const resolved = resolveUrl(normalizeWebAssetPath(SHARE_SD_INDEX_URL), base);
+      const target = await fetchJson(resolved);
+      const normalized = normalizeShareSdIndex(target.parsed);
+
+      if (!cancelled) {
+        setShareSdIndex(normalized);
+      }
+    } catch {
+      // ignore (images are optional)
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [SHARE_SD_INDEX_URL, RESOLVED_FEED_URL, fetchJson]);
+
+const sharePromptToImage = useMemo(() => {
+  const m = new Map<string, string>();
+  for (const it of shareSdIndex?.items ?? []) {
+    if (it.prompt && it.image) {
+      m.set(it.prompt, it.image);
+      continue;
+    }
+    if (it.date && it.place && it.image) {
+      m.set(`${it.date}|${it.place}`, it.image);
+    }
+  }
+  return m;
+}, [shareSdIndex]);
+
+const assetBase = useMemo(() => {
+  if (Platform.OS === "web" && typeof window !== "undefined") return window.location.href;
+  return effectiveUrl || RESOLVED_FEED_URL;
+}, [effectiveUrl, RESOLVED_FEED_URL]);
+
+const getImageUrisForItem = useCallback(
+  (item: FeedItem): string[] => {
+    const uris: string[] = [];
+
+    const push = (p?: string) => {
+      const s = String(p ?? "").trim();
+      if (!s) return;
+      const resolved = resolveUrl(normalizeWebAssetPath(s), assetBase);
+      if (!uris.includes(resolved)) uris.push(resolved);
+    };
+
+    // 1) Direct field (best)
+    if (item.image) push(item.image);
+
+    // 2) Stem-match rule: if id looks like feed stem, try /image/<id>.png
+    const id = String(item.id ?? "").trim();
+    if (id && id.startsWith("feed_")) {
+      push(`/image/${encodeURIComponent(id)}.png`);
+    }
+
+    // 3) Optional: share_sd index match (if configured)
+    const place = item.place || feed?.place;
+    const prompt = item.image_prompt || buildSharePrompt(item.text, place);
+
+    const fromPrompt = sharePromptToImage.get(prompt);
+    if (fromPrompt) push(fromPrompt);
+
+    if (item.date && place) {
+      const byKey = sharePromptToImage.get(`${item.date}|${place}`);
+      if (byKey) push(byKey);
+    }
+
+    return uris;
   },
-  title: {
-    color: "white",
-    fontSize: 30,
-    fontWeight: "800",
-    letterSpacing: 1.5,
+  [assetBase, feed?.place, sharePromptToImage],
+);
+
+  useEffect(() => {
+    ensureWebScrollbarStyle();
+  }, []);
+
+  const load = useCallback(
+  async () => {
+    let currentEffectiveUrl = RESOLVED_FEED_URL;
+
+    try {
+      setError(null);
+      setNextUrl(null);
+
+      const base =
+        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
+
+      // Try the configured URL first, then common fallbacks (root and /feed/).
+      const candidates = Array.from(
+        new Set([
+          RESOLVED_FEED_URL,
+          resolveUrl("./latest.json", base),
+          resolveUrl("./feed/latest.json", base),
+          resolveUrl("./feed/feed.json", base),
+          resolveUrl("./feed.json", base),
+          resolveUrl("./output.json", base),
+          resolveUrl("./feed/output.json", base),
+        ]),
+      );
+
+      let firstUrl = "";
+      let first: { raw: string; parsed: unknown } | null = null;
+      let lastErr: any = null;
+
+      for (const u of candidates) {
+        try {
+          first = await fetchJson(u);
+          firstUrl = u;
+          break;
+        } catch (e: any) {
+          lastErr = e;
+        }
+      }
+
+      if (!first) throw lastErr ?? new Error("Failed to load feed");
+
+      setEffectiveUrl(firstUrl);
+
+      const pointer = getFeedPointer(first.parsed);
+      let target = first;
+      let baseForPointers = firstUrl;
+
+      if (pointer) {
+        currentEffectiveUrl = resolveUrl(pointer, baseForPointers);
+        setEffectiveUrl(currentEffectiveUrl);
+        target = await fetchJson(currentEffectiveUrl);
+        baseForPointers = currentEffectiveUrl;
+      }
+
+      const normalized = normalizeFeed(target.parsed);
+      if (!normalized) {
+        const preview = first.raw.slice(0, 180).replace(/\s+/g, " ").trim();
+        throw new Error(`Invalid feed JSON shape\nURL: ${currentEffectiveUrl}\nRAW: ${preview}`);
+      }
+
+      const nextPointer = getNextPointer(target.parsed);
+      setNextUrl(nextPointer ? resolveUrl(nextPointer, baseForPointers) : null);
+
+      setFeed(normalized);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to load feed");
+      setFeed(null);
+    } finally {
+      setLoading(false);
+    }
   },
-  contactBtn: {
-    position: "absolute",
-    right: 16,
-    top: 16,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: BORDER,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  container: {
-    flex: 1,
-    flexDirection: "row",
-  },
-  side: {
-    width: 260,
-    backgroundColor: BG,
-  },
-  main: {
-    flex: 1,
-    backgroundColor: BG,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: "#d0d0da",
-  },
-  bubble: {
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: BORDER,
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-  },
-  meta: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111",
-    marginBottom: 6,
-  },
-  body: {
-    fontSize: 18,
-    color: "#111",
-    lineHeight: 26,
-  },
-});
+  [RESOLVED_FEED_URL, fetchJson],
+);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
+    const loadMore = useCallback(async () => {
+      if (!nextUrl || loadingMore) return;
+  
+      const pageUrl = nextUrl;
+      setLoadingMore(true);
+  
+      try {
+        const target = await fetchJson(pageUrl);
+        const normalized = normalizeFeed(target.parsed);
+        if (!normalized) {
+          const preview = target.raw.slice(0, 180).replace(/\s+/g, " ").trim();
+          throw new Error(`Invalid feed JSON shape\nURL: ${pageUrl}\nRAW: ${preview}`);
+        }
+  
+        const nextPointer = getNextPointer(target.parsed);
+        setNextUrl(nextPointer ? resolveUrl(nextPointer, pageUrl) : null);
+  
+        setFeed((prev) => {
+          const prevItems = prev?.items ?? [];
+          const merged: FeedItem[] = [...prevItems];
+          const seen = new Set(prevItems.map((it) => it.id));
+  
+          for (const it of normalized.items) {
+            if (!seen.has(it.id)) {
+              merged.push(it);
+              seen.add(it.id);
+            }
+          }
+  
+          return {
+            updated_at: prev?.updated_at ?? normalized.updated_at,
+            place: prev?.place ?? normalized.place,
+            items: merged,
+          };
+        });
+      } catch (e: any) {
+        setError(e?.message ?? "Failed to load more");
+      } finally {
+        setLoadingMore(false);
+      }
+    }, [fetchJson, loadingMore, nextUrl]);
+
+  const openFeed = useCallback(() => {
+    if (!effectiveUrl) return;
+    if (Platform.OS !== "web") return;
+    void Linking.openURL(effectiveUrl);
+  }, [effectiveUrl]);
+
+  const Header = (
+    <View style={{ padding: 16, gap: 10 }}>
+      <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+        {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated At: {formatJst(feed.updated_at, true)}</Text> : null}
+      </View>
+
+      {error ? (
+        <View
+          style={{
+            backgroundColor: "#7f1d1d",
+            borderRadius: 14,
+            padding: 12,
+          }}
+        >
+          <Text style={{ color: "#000000", fontWeight: "800" }}>Error</Text>
+          <Text style={{ color: "#000000", marginTop: 6 }}>{error}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: APP_BG, alignItems: "center", justifyContent: "center", padding: 16 }}>
+        <ActivityIndicator />
+        <Text style={{ marginTop: 10, color: TEXT_DIM }}>Loading…</Text>
+      </View>
+    );
+  }
+
+  const list = (
+    <FlatList
+      nativeID={FEED_SCROLL_ID}
+      showsVerticalScrollIndicator={false}
+      style={{ flex: 1, backgroundColor: APP_BG }}
+      contentContainerStyle={{ paddingBottom: 18 }}
+      data={sortedItems}
+      keyExtractor={(it) => it.id}
+      ListHeaderComponent={Header}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loadingMore ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <ActivityIndicator />
+                  <Text style={{ marginTop: 8, color: TEXT_DIM }}>Loading older posts…</Text>
+                </View>
+              ) : nextUrl ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <Text style={{ color: TEXT_DIM }}>Scroll to load older posts…</Text>
+                </View>
+              ) : (feed?.items?.length ?? 0) > 0 ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <Text style={{ color: TEXT_DIM }}>No more posts.</Text>
+                </View>
+              ) : null
+            }
+      renderItem={({ item }) => {
+        const imageUris = getImageUrisForItem(item);
+        return (
+        <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+            <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
+              <View style={{ marginTop: 2 }}>
+                <Mascot />
+              </View>
+            </View>
+
+            <View style={{ flex: 1 }}>
+              {/* Speech-bubble wrapper */}
+              <View style={{ position: "relative", marginTop: 2 }}>
+                {/* ✅ 1) Bubble body FIRST */}
+                <View
+                  style={{
+                    backgroundColor: CARD_BG,
+                    padding: 12,
+                    borderRadius: BUBBLE_RADIUS,
+                    borderWidth: BUBBLE_BORDER_W,
+                    borderColor: BORDER,
+                    minHeight: MASCOT_SIZE,
+                    shadowColor: "#000000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.12,
+                    shadowRadius: 6,
+                    elevation: 2,
+                    zIndex: 1,
+                  }}
+                >
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                    {item.generated_at ? <Text style={{ color: TEXT_DIM }}>{formatJst(item.generated_at)}</Text> : null}
+                    {item.place ? <Text style={{ color: TEXT_DIM }}>• {item.place}</Text> : null}
+                  </View>
+
+                  
+<FeedBubbleImage uris={imageUris} />
+
+<Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
+                </View>
+
+                {/* ✅ 2) Tail AFTER (on top) to cover the bubble border line */}
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: "absolute",
+                    left: -7,
+                    top: 22,
+                    width: 14,
+                    height: 14,
+                    backgroundColor: CARD_BG,
+                    transform: [{ rotate: "45deg" }],
+                    borderLeftWidth: BUBBLE_BORDER_W,
+                    borderBottomWidth: BUBBLE_BORDER_W,
+                    borderColor: BORDER,
+                    zIndex: 10,
+                    elevation: 3,
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+        );
+      }}
+      ListEmptyComponent={
+        <View style={{ padding: 16 }}>
+          <Text style={{ color: TEXT_DIM }}>No posts yet.</Text>
+        </View>
+      }
+    />
+  );
+
+  if (!showSidebars) {
+    return list;
+  }
+
+  return (
+    <View style={{ flex: 1, flexDirection: "row", justifyContent: "center", backgroundColor: APP_BG }}>
+      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingLeft: 12, minHeight: 0 }}>
+        <Slot />
+      </View>
+
+      <View style={{ flex: 1, maxWidth: CONTENT_MAX_W }}>{list}</View>
+
+      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingRight: 12, minHeight: 0 }}>
+        <Slot />
+      </View>
+    </View>
+  );
+}
