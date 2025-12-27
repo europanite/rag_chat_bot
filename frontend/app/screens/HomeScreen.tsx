@@ -17,6 +17,8 @@ type FeedItem = {
   text: string;
   place?: string;
   generated_at?: string; // ISO string (often Z)
+  image?: string; // local path or absolute URL
+  image_prompt?: string; // optional (for matching)
 };
 
 type Feed = {
@@ -123,7 +125,16 @@ function normalizeFeed(parsed: unknown): Feed | null {
           const id = typeof it?.id === "string" ? it.id : `${date}-${idx}`;
           const place = typeof it?.place === "string" ? it.place : undefined;
           const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
-          return { id, date, text, place, generated_at };
+          const image =
+            typeof it?.image === "string"
+              ? it.image
+              : typeof it?.image_url === "string"
+              ? it.image_url
+              : typeof it?.imageUri === "string"
+              ? it.imageUri
+              : undefined;
+          const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
+          return { id, date, text, place, generated_at, image, image_prompt };
         })
         .filter(Boolean) as FeedItem[];
 
@@ -140,8 +151,17 @@ function normalizeFeed(parsed: unknown): Feed | null {
       const id = typeof obj.id === "string" ? obj.id : `${date}-0`;
       const place = typeof obj.place === "string" ? obj.place : undefined;
       const generated_at = typeof obj.generated_at === "string" ? obj.generated_at : undefined;
+      const image =
+        typeof obj?.image === "string"
+          ? obj.image
+          : typeof obj?.image_url === "string"
+          ? obj.image_url
+          : typeof obj?.imageUri === "string"
+          ? obj.imageUri
+          : undefined;
+      const image_prompt = typeof obj?.image_prompt === "string" ? obj.image_prompt : undefined;
       const updated_at = generated_at;
-      return { updated_at, place, items: [{ id, date, text, place, generated_at }] };
+      return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt }] };
     }
   }
 
@@ -154,7 +174,16 @@ function normalizeFeed(parsed: unknown): Feed | null {
         const id = typeof it?.id === "string" ? it.id : `${date}-${idx}`;
         const place = typeof it?.place === "string" ? it.place : undefined;
         const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
-        return { id, date, text, place, generated_at };
+          const image =
+            typeof it?.image === "string"
+              ? it.image
+              : typeof it?.image_url === "string"
+              ? it.image_url
+              : typeof it?.imageUri === "string"
+              ? it.imageUri
+              : undefined;
+          const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
+          return { id, date, text, place, generated_at, image, image_prompt };
       })
       .filter(Boolean) as FeedItem[];
 
@@ -167,6 +196,63 @@ function normalizeFeed(parsed: unknown): Feed | null {
 
   return null;
 }
+
+
+type ShareSdItem = {
+  date?: string;
+  place?: string;
+  image: string;
+  prompt?: string;
+};
+
+type ShareSdIndex = {
+  updated_at?: string;
+  items: ShareSdItem[];
+};
+
+function normalizeWebAssetPath(p: string): string {
+  const s = String(p ?? "").trim();
+  if (!s) return "";
+  if (/^(https?:)?\/\//i.test(s) || s.startsWith("data:")) return s;
+
+  // GitHub Pages repo subpath safety: "/share_sd/..." should be treated as "./share_sd/..."
+  if (Platform.OS === "web" && s.startsWith("/")) return `.${s}`;
+  return s;
+}
+
+function buildSharePrompt(text: string, place?: string): string {
+  const t = String(text ?? "").replace(/\s+/g, " ").trim().slice(0, 240);
+  const p = String(place ?? "").trim();
+  return p
+    ? `cinematic illustration, ${p}, based on this short story: ${t}`
+    : `cinematic illustration, based on this short story: ${t}`;
+}
+
+function normalizeShareSdIndex(parsed: unknown): ShareSdIndex | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
+
+  if (!Array.isArray(obj.items)) return null;
+
+  const items: ShareSdItem[] = obj.items
+    .map((it: any): ShareSdItem | null => {
+      const image = typeof it?.image === "string" ? it.image : "";
+      if (!image) return null;
+
+      const date = typeof it?.date === "string" ? it.date : undefined;
+      const place = typeof it?.place === "string" ? it.place : undefined;
+      const prompt = typeof it?.prompt === "string" ? it.prompt : undefined;
+
+      return { image, date, place, prompt };
+    })
+    .filter(Boolean) as ShareSdItem[];
+
+  return {
+    updated_at: typeof obj.updated_at === "string" ? obj.updated_at : undefined,
+    items,
+  };
+}
+
 
 function getFeedPointer(parsed: unknown): string | null {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
@@ -311,6 +397,7 @@ function Slot() {
 
 export default function HomeScreen() {
   const FEED_URL = process.env.EXPO_PUBLIC_FEED_URL || "./latest.json";
+  const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "./share_sd/index.json").trim();
   const { width } = useWindowDimensions();
   const showSidebars = width >= 980;
 
@@ -332,6 +419,8 @@ export default function HomeScreen() {
   const [nextUrl, setNextUrl] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
 
+  const [shareSdIndex, setShareSdIndex] = useState<ShareSdIndex | null>(null);
+
   const fetchJson = useCallback(async (url: string): Promise<{ raw: string; parsed: unknown }> => {
     const finalUrl = addCacheBuster(url);
     const res = await fetch(finalUrl, { headers: { "Cache-Control": "no-cache" } });
@@ -351,6 +440,76 @@ export default function HomeScreen() {
   }, [feed]);
 
   const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
+
+
+useEffect(() => {
+  if (!SHARE_SD_INDEX_URL) return;
+
+  let cancelled = false;
+
+  (async () => {
+    try {
+      const base =
+        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
+
+      const resolved = resolveUrl(normalizeWebAssetPath(SHARE_SD_INDEX_URL), base);
+      const target = await fetchJson(resolved);
+      const normalized = normalizeShareSdIndex(target.parsed);
+
+      if (!cancelled) {
+        setShareSdIndex(normalized);
+      }
+    } catch {
+      // ignore (images are optional)
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [SHARE_SD_INDEX_URL, RESOLVED_FEED_URL, fetchJson]);
+
+const sharePromptToImage = useMemo(() => {
+  const m = new Map<string, string>();
+  for (const it of shareSdIndex?.items ?? []) {
+    if (it.prompt && it.image) {
+      m.set(it.prompt, it.image);
+      continue;
+    }
+    if (it.date && it.place && it.image) {
+      m.set(`${it.date}|${it.place}`, it.image);
+    }
+  }
+  return m;
+}, [shareSdIndex]);
+
+const assetBase = useMemo(() => {
+  if (Platform.OS === "web" && typeof window !== "undefined") return window.location.href;
+  return effectiveUrl || RESOLVED_FEED_URL;
+}, [effectiveUrl, RESOLVED_FEED_URL]);
+
+const getImageUriForItem = useCallback(
+  (item: FeedItem): string => {
+    const direct = (item.image ?? "").trim();
+    if (direct) return resolveUrl(normalizeWebAssetPath(direct), assetBase);
+
+    // Fallback: try matching the Share SD index by prompt (deterministic) or by date+place.
+    const place = item.place || feed?.place;
+    const prompt = item.image_prompt || buildSharePrompt(item.text, place);
+
+    const fromPrompt = sharePromptToImage.get(prompt);
+    if (fromPrompt) return resolveUrl(normalizeWebAssetPath(fromPrompt), assetBase);
+
+    if (item.date && place) {
+      const byKey = sharePromptToImage.get(`${item.date}|${place}`);
+      if (byKey) return resolveUrl(normalizeWebAssetPath(byKey), assetBase);
+    }
+
+    return "";
+  },
+  [assetBase, feed?.place, sharePromptToImage],
+);
+
 
   useEffect(() => {
     setEffectiveUrl(RESOLVED_FEED_URL);
@@ -514,7 +673,9 @@ export default function HomeScreen() {
                 </View>
               ) : null
             }
-      renderItem={({ item }) => (
+      renderItem={({ item }) => {
+        const imageUri = getImageUriForItem(item);
+        return (
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
             <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
@@ -548,7 +709,28 @@ export default function HomeScreen() {
                     {item.place ? <Text style={{ color: TEXT_DIM }}>• {item.place}</Text> : null}
                   </View>
 
-                  <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
+                  
+{imageUri ? (
+  <View
+    style={{
+      marginTop: 10,
+      borderRadius: 12,
+      overflow: "hidden",
+      borderWidth: 1,
+      borderColor: BORDER,
+      backgroundColor: "#ffffff",
+    }}
+  >
+    <Image
+      source={{ uri: imageUri }}
+      style={{ width: "100%", aspectRatio: 16 / 9 }}
+      resizeMode="cover"
+      accessibilityLabel="Generated image"
+    />
+  </View>
+) : null}
+
+<Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
                 </View>
 
                 {/* ✅ 2) Tail AFTER (on top) to cover the bubble border line */}
@@ -573,7 +755,8 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-      )}
+        );
+      }}
       ListEmptyComponent={
         <View style={{ padding: 16 }}>
           <Text style={{ color: TEXT_DIM }}>No posts yet.</Text>
