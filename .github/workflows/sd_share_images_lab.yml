@@ -143,7 +143,13 @@ jobs:
               return f"cinematic illustration, {place}, based on this short story: {t}"
             return f"cinematic illustration, based on this short story: {t}"
 
-          OUT_DIR.mkdir(parents=True, exist_ok=True)
+                    NEGATIVE = (
+            "nsfw, nude, sexual, gore, violence, hate, disturbing, "
+            "text, watermark, logo, letters, words, typography, caption, subtitles, signature, "
+            "low quality, blurry"
+          )
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
           manifest = {"items":[]}
 
           for it in items:
@@ -159,15 +165,16 @@ jobs:
 
             image = pipe(
               prompt=prompt,
+              negative_prompt=NEGATIVE,
               guidance_scale=guidance_scale,
               num_inference_steps=max(1, min(4, STEPS)),
               width=W, height=H,
               generator=g,
-            ).images[0]
+            ).images[0].convert("RGB")
 
             fn = f"{slug(date)}_{hashlib.sha1((date+text).encode('utf-8', errors='ignore')).hexdigest()[:8]}.png"
             out_path = OUT_DIR / fn
-            image.save(out_path)
+            image.save(out_path, format="PNG", optimize=True)
 
             # Store path relative to frontend/app/public
             rel = "/" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\","/")

@@ -1,8 +1,6 @@
 name: Feed
 
 on:
-  schedule:
-    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -299,7 +297,8 @@ jobs:
           )
           negative = (
             "nsfw, nude, sexual, gore, violence, hate, disturbing, "
-            "text, watermark, logo, low quality, blurry"
+            "text, watermark, logo, letters, words, typography, caption, subtitles, signature, "
+            "low quality, blurry"
           )
 
           device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -333,67 +332,49 @@ jobs:
             generator=g,
           ).images[0].convert("RGB")
 
-          page = Image.new("RGB", (PAGE_W, PAGE_H), (247, 242, 232))
-          d = ImageDraw.Draw(page)
+          # Compose a 16:9 image WITHOUT any text overlay.
+          # - blurred background ("cover")
+          # - centered crisp illustration with a subtle rounded frame
+          from PIL import ImageFilter, ImageEnhance
 
-          d.rectangle([0, 0, PAGE_W, 72], fill=(240, 232, 220))
-          title_f = pick_font(34, bold=True)
-          meta_f = pick_font(22, bold=False)
-          body_f = pick_font(26, bold=False)
+          iw, ih = img.size
+          scale = max(PAGE_W / iw, PAGE_H / ih)
+          bw, bh = int(iw * scale), int(ih * scale)
 
-          header = f"{BRAND}  |  {date}"
-          if place:
-            header += f"  |  {place}"
-          d.text((36, 18), header, font=title_f, fill=(40, 40, 40))
+          bg = img.resize((bw, bh), Image.LANCZOS)
+          left = (bw - PAGE_W) // 2
+          top = (bh - PAGE_H) // 2
+          bg = bg.crop((left, top, left + PAGE_W, top + PAGE_H))
+          bg = bg.filter(ImageFilter.GaussianBlur(radius=28))
+          bg = ImageEnhance.Brightness(bg).enhance(0.92)
 
-          frame_x, frame_y = 48, 110
-          frame_w, frame_h = 520, 520
-          d.rounded_rectangle(
-            [frame_x-14, frame_y-14, frame_x+frame_w+14, frame_y+frame_h+14],
-            radius=28, fill=(255, 255, 255), outline=(210, 200, 185), width=3
+          page = bg.convert("RGBA")
+
+          margin = 64
+          fg_size = min(PAGE_H - 2 * margin, 560)
+          fg = img.resize((fg_size, fg_size), Image.LANCZOS).convert("RGBA")
+
+          fx = (PAGE_W - fg_size) // 2
+          fy = (PAGE_H - fg_size) // 2
+
+          frame_pad = 18
+          frame = Image.new("RGBA", (fg_size + frame_pad * 2, fg_size + frame_pad * 2), (0, 0, 0, 0))
+          fd = ImageDraw.Draw(frame)
+          fd.rounded_rectangle(
+            [0, 0, frame.size[0] - 1, frame.size[1] - 1],
+            radius=28,
+            fill=(255, 255, 255, 235),
+            outline=(220, 210, 196, 255),
+            width=3,
           )
-          page.paste(img.resize((frame_w, frame_h)), (frame_x, frame_y))
 
-          cap_x = frame_x + frame_w + 56
-          cap_y = 110
-          cap_w = PAGE_W - cap_x - 48
-          cap_h = 520
-          d.rounded_rectangle(
-            [cap_x, cap_y, cap_x+cap_w, cap_y+cap_h],
-            radius=22, fill=(255, 255, 255), outline=(220, 210, 196), width=2
-          )
+          page.alpha_composite(frame, (fx - frame_pad, fy - frame_pad))
+          page.alpha_composite(fg, (fx, fy))
 
-          caption = re.sub(r"\s+", " ", text).strip()
-          if len(caption) > 420:
-            caption = caption[:420].rstrip() + "…"
-
-          max_chars = 32
-          lines = []
-          buf = ""
-          for w in caption.split(" "):
-            trial = (buf + " " + w).strip()
-            if len(trial) <= max_chars:
-              buf = trial
-            else:
-              if buf:
-                lines.append(buf)
-              buf = w
-            if len(lines) >= 12:
-              break
-          if buf and len(lines) < 12:
-            lines.append(buf)
-          if len(lines) >= 12:
-            lines = lines[:11] + ["…"]
-
-          ty = cap_y + 24
-          for ln in lines:
-            d.text((cap_x + 24, ty), ln, font=body_f, fill=(35, 35, 35))
-            ty += int(body_f.size * 1.45)
-
+          page = page.convert("RGB")
           now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-          d.text((cap_x + 24, cap_y + cap_h - 42), f"generated: {now_iso}", font=meta_f, fill=(110, 110, 110))
-
           page.save(out_path, format="PNG", optimize=True)
+
 
           latest["image_url"] = rel_url
           latest["image_prompt"] = prompt

@@ -450,14 +450,18 @@ export default function HomeScreen() {
   const showSidebars = width >= 980;
 
   const RESOLVED_FEED_URL = useMemo(() => {
-    try {
-      if (FEED_URL.startsWith("http://") || FEED_URL.startsWith("https://")) return FEED_URL;
-      if (typeof window !== "undefined") return new URL(FEED_URL, window.location.href).toString();
-    } catch {
-      // ignore
-    }
-    return FEED_URL;
-  }, [FEED_URL]);
+  const normalized = normalizeWebAssetPath(FEED_URL);
+
+  try {
+    if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
+    if (typeof window !== "undefined") return new URL(normalized, window.location.href).toString();
+  } catch {
+    // ignore
+  }
+
+  return normalized;
+}, [FEED_URL]);
+
 
   const [feed, setFeed] = useState<Feed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
