@@ -1,25 +1,25 @@
 {
   "date": "2025-12-27",
-  "generated_at": "2025-12-27T15:52:00Z",
-  "text": "Good morning! Today's forecast in Yokosuka: clear sky, 3°C, and 79% humidity. Tomorrow's weather will be overcast with a high of 11°C. Don't miss the New Year events in Kurihama! 🎉 #Yokosuka",
+  "generated_at": "2025-12-27T16:05:14Z",
+  "text": "Good morning! It's a chilly winter morning in Yokosuka with a temp of 2.6°C and 79% humidity. Perfect excuse to grab a warm drink at a cozy cafe or bakery! 🍵🍰 Don't miss the New Year's events in Kurihama, including Dondo-yaki/Otakiage on January 11th! #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-27T15:47:36.985532+00:00",
+    "generated_at": "2025-12-27T16:00:29.714299+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-28T00:40:00+09:00",
-      "temp_c": 3.0,
+      "time": "2025-12-28T00:50:00+09:00",
+      "temp_c": 2.6,
       "apparent_temp_c": null,
       "humidity_pct": 79.0,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": null,
-      "wind_kmh": 6.84,
-      "wind_dir_deg": 0.0,
+      "wind_kmh": 7.2,
+      "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20251227_235347_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! Today's forecast in Yokosuka: clear sky, 3°C, and 79% humidity. Tomorrow's weather will be overcast with a high of 11°C. Don't miss the New Year events in Kurihama! 🎉",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-27T15:54:57.959032Z"
+  }
 }
