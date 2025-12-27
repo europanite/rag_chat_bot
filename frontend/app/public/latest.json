@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/2025-12-27_8b07bc61.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening! In Yokosuka, it's a chilly 4.7°C with partly cloudy skies. Perfect excuse to warm up with a hot drink at the Kurihama Curry Ramen Cafe!",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-27T11:29:35.353719Z"
 }
