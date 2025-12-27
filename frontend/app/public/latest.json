@@ -1,24 +1,24 @@
 {
   "date": "2025-12-27",
-  "generated_at": "2025-12-27T12:18:21Z",
-  "text": "Good evening! 🌃️☁️ Cold and cloudy tonight in Yokosuka, Kanagawa, with a temperature of 6°C. 🌫️ Don't miss Dondo-yaki / Otakiage at Kurihama Beach on January 11th! 🎄 #Yokosuka",
+  "generated_at": "2025-12-27T12:50:42Z",
+  "text": "Good evening! ☁️ Currently 6.4°C, partly cloudy, and windy in Yokosuka. Looking forward to the Dondo-yaki / Otakiage at Kurihama Beach on January 11th! 🎄 #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-27T12:13:49.615264+00:00",
+    "generated_at": "2025-12-27T12:46:20.641153+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-27T21:00:00+09:00",
-      "temp_c": 6.0,
+      "time": "2025-12-27T21:30:00+09:00",
+      "temp_c": 6.4,
       "apparent_temp_c": null,
-      "humidity_pct": 65.0,
+      "humidity_pct": 66.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 5.760000000000001,
+      "wind_kmh": 6.12,
       "wind_dir_deg": 157.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/2025-12-27_d97ae081.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening! 🌃️☁️ Cold and cloudy tonight in Yokosuka, Kanagawa, with a temperature of 6°C. 🌫️ Don't miss Dondo-yaki / Otakiage at Kurihama Beach on January 11th! 🎄",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-27T12:21:07.503599Z"
+  }
 }
