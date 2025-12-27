@@ -159,6 +159,27 @@ function getFeedPointer(parsed: unknown): string | null {
   if (!cand) return null;
   const s = String(cand).trim();
   return s ? s : null;
+
+
+function getNextPointer(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
+
+  const cand =
+    typeof obj.next_url === "string"
+      ? obj.next_url
+      : typeof obj.next === "string"
+        ? obj.next
+        : typeof obj.nextPage === "string"
+          ? obj.nextPage
+          : typeof obj.next_page === "string"
+            ? obj.next_page
+            : null;
+
+  if (!cand) return null;
+  const s = String(cand).trim();
+  return s ? s : null;
+}
 }
 
 function resolveUrl(maybeRelative: string, baseUrl: string): string {
@@ -284,6 +305,18 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+
+  const fetchJson = useCallback(async (url: string): Promise<{ raw: string; parsed: unknown }> => {
+    const finalUrl = addCacheBuster(url);
+    const res = await fetch(finalUrl, { headers: { "Cache-Control": "no-cache" } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.text();
+    const parsed = safeJsonParse(raw);
+    return { raw, parsed };
+  }, []);
+  
   const sortedItems = useMemo(() => {
     const items = feed?.items ?? [];
     return [...items].sort((a, b) => {
@@ -304,15 +337,8 @@ export default function HomeScreen() {
 
     try {
       setError(null);
+      setNextUrl(null);
 
-      const fetchJson = async (url: string): Promise<{ raw: string; parsed: unknown }> => {
-        const finalUrl = addCacheBuster(url);
-        const res = await fetch(finalUrl, { headers: { "Cache-Control": "no-cache" } });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const raw = await res.text();
-        const parsed = safeJsonParse(raw);
-        return { raw, parsed };
-      };
 
       setEffectiveUrl(RESOLVED_FEED_URL);
       const first = await fetchJson(RESOLVED_FEED_URL);
@@ -332,6 +358,9 @@ export default function HomeScreen() {
         throw new Error(`Invalid feed JSON shape\nURL: ${currentEffectiveUrl}\nRAW: ${preview}`);
       }
 
+      const nextPointer = getNextPointer(target.parsed);
+      setNextUrl(nextPointer ? resolveUrl(nextPointer, currentEffectiveUrl) : null);
+
       setFeed(normalized);
     } catch (e: any) {
       setError(e?.message ?? "Failed to load feed");
@@ -350,6 +379,48 @@ export default function HomeScreen() {
     await load();
     setRefreshing(false);
   }, [load]);
+
+    const loadMore = useCallback(async () => {
+      if (!nextUrl || loadingMore) return;
+  
+      const pageUrl = nextUrl;
+      setLoadingMore(true);
+  
+      try {
+        const target = await fetchJson(pageUrl);
+        const normalized = normalizeFeed(target.parsed);
+        if (!normalized) {
+          const preview = target.raw.slice(0, 180).replace(/\s+/g, " ").trim();
+          throw new Error(`Invalid feed JSON shape\nURL: ${pageUrl}\nRAW: ${preview}`);
+        }
+  
+        const nextPointer = getNextPointer(target.parsed);
+        setNextUrl(nextPointer ? resolveUrl(nextPointer, pageUrl) : null);
+  
+        setFeed((prev) => {
+          const prevItems = prev?.items ?? [];
+          const merged: FeedItem[] = [...prevItems];
+          const seen = new Set(prevItems.map((it) => it.id));
+  
+          for (const it of normalized.items) {
+            if (!seen.has(it.id)) {
+              merged.push(it);
+              seen.add(it.id);
+            }
+          }
+  
+          return {
+            updated_at: prev?.updated_at ?? normalized.updated_at,
+            place: prev?.place ?? normalized.place,
+            items: merged,
+          };
+        });
+      } catch (e: any) {
+        setError(e?.message ?? "Failed to load more");
+      } finally {
+        setLoadingMore(false);
+      }
+    }, [fetchJson, loadingMore, nextUrl]);
 
   const openFeed = useCallback(() => {
     if (!effectiveUrl) return;
@@ -395,6 +466,24 @@ export default function HomeScreen() {
       keyExtractor={(it) => it.id}
       ListHeaderComponent={Header}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            onEndReached={loadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loadingMore ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <ActivityIndicator />
+                  <Text style={{ marginTop: 8, color: TEXT_DIM }}>Loading older posts…</Text>
+                </View>
+              ) : nextUrl ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <Text style={{ color: TEXT_DIM }}>Scroll to load older posts…</Text>
+                </View>
+              ) : (feed?.items?.length ?? 0) > 0 ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <Text style={{ color: TEXT_DIM }}>No more posts.</Text>
+                </View>
+              ) : null
+            }
       renderItem={({ item }) => (
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "flex-start" }}>

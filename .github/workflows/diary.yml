@@ -88,6 +88,14 @@ jobs:
         run: |
           python scripts/generate_diary.py
 
+
+      - name: Build paged feed (for infinite scroll)
+        env:
+          FEED_PATH: frontend/app/public
+          LATEST_PATH: frontend/app/public/latest.json
+        run: |
+          python scripts/build_feed_pages.py
+
       - name: Stop stack
         env:
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
