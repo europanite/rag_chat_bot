@@ -269,6 +269,10 @@ jobs:
           place = str(latest.get("place", "") or PLACE_FALLBACK).strip()
           generated_at = str(latest.get("generated_at", "")).strip()
 
+          # Deterministic 8-hex seed derived from the feed content.
+          # Used for the Stable Diffusion seed and as a fallback stem when no feed file is found.
+          seed_src = f"{date}\n{place}\n{generated_at}\n{text}".encode("utf-8")
+          seed_hex8 = hashlib.sha1(seed_src).hexdigest()[:8]
 
           feeds = []
           if FEED_DIR.exists():
