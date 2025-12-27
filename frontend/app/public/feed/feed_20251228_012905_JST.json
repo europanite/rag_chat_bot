@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "2025-12-27T16:33:55Z",
+      "date": "2025-12-27",
+      "text": "Good morning! It's a chilly winter morning in Yokosuka with a temp of 3°C and partly cloudy skies. Perfect excuse to grab a warm drink and some delicious curry ramen at a cozy cafe! Don't miss the Dondo-yaki/Otakiage event at Kurihama Beach on Jan 11, details at https://kurihama.info/event/newyear/ #Yokosuka #Miura #Yokohama #Zushi #Hayama #MiuraPeninsula #Kanagawa",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-27T16:33:55Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-27T16:29:07.926836+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-28T01:20:00+09:00",
+          "temp_c": 3.0,
+          "apparent_temp_c": null,
+          "humidity_pct": 75.0,
+          "precip_mm": 0.0,
+          "weather_code": 0,
+          "cloud_cover_pct": null,
+          "wind_kmh": 4.32,
+          "wind_dir_deg": 22.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-28",
+          "weather_code": 0,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ",
+          "jma_weather_code": "100",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2025-12-29",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": 11.0,
+          "temp_min_c": 4.0,
+          "weather_text_ja": "くもり　時々　晴れ",
+          "jma_weather_code": "201",
+          "precip_prob_pct": null
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-27T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-27T16:33:55Z",
+  "place": "Yokosuka"
+}
