@@ -1,4 +1,4 @@
-name: Diary
+name: Feed
 
 on:
   schedule:
