@@ -1,0 +1,417 @@
+name: Diary
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  rag:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-py312-pip-v1
+          restore-keys: |
+            ${{ runner.os }}-py312-pip-
+
+      - name: Cache Hugging Face + Torch
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/torch
+          key: ${{ runner.os }}-py312-hf-torch-sdturbo-v1
+          restore-keys: |
+            ${{ runner.os }}-py312-hf-torch-
+
+      - name: Sanity check (repo chroma_db exists)
+        run: |
+          echo "chroma_db file count:"
+          find chroma_db -type f | wc -l
+          echo "chroma_db sample:"
+          find chroma_db -maxdepth 2 -type f | head -n 20
+          n=$(find chroma_db -type f | wc -l)
+          if [ "$n" -lt 5 ]; then
+            echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
+            exit 1
+          fi
+
+      - name: Start stack (db + ollama + backend)
+        env:
+          RAG_AUTO_INDEX: "false"
+          RAG_REBUILD_ON_START: "false"
+          RAG_REINDEX_ENABLED: "true"
+        run: |
+          docker compose -f docker-compose.yml up -d --build
+
+      - name: Wait for backend
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
+        run: |
+          ok=0
+          for i in {1..600}; do
+            if curl -fsS http://localhost:8000/health >/dev/null; then
+              ok=$((ok+1))
+              [ "$ok" -ge 3 ] && break
+            else
+              ok=0
+            fi
+            sleep 2
+          done
+
+          if [ "$ok" -ge 3 ]; then
+            echo "backend is stable"
+          else
+            echo "Backend did not become ready in time"
+            docker compose logs --no-color backend || true
+            exit 1
+          fi
+
+      - name: Fix permissions for feed dirs
+        run: |
+          sudo chown -R "$USER:$USER" frontend/app/public || true
+          chmod -R u+rwX frontend/app/public || true
+
+      - name: Generate weather tweet post
+        env:
+          LAT: "35.2810"
+          LON: "139.6722"
+          TZ_NAME: "Asia/Tokyo"
+          RAG_TOP_K: 16
+          CURL_MAX_TIME: 64
+          PLACE: "Yokosuka"
+          FEED_PATH: frontend/app/public
+          LATEST_PATH: frontend/app/public/latest.json
+          MAX_WORDS: 128
+          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
+          # DEBUG: "1"
+        run: |
+          python scripts/generate_diary.py
+
+      - name: Stop stack
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
+        if: always()
+        run: |
+          docker compose down
+
+      - name: Install SD deps (CPU)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install diffusers transformers accelerate safetensors pillow
+
+      - name: Generate illustrated diary image (sd-turbo) and patch feed
+        env:
+          LATEST_PATH: frontend/app/public/latest.json
+          FEED_DIR: frontend/app/public/feed
+          OUT_DIR: frontend/app/public/diary
+          MODEL_ID: stabilityai/sd-turbo
+          STEPS: "2"     # 1-4 recommended for turbo
+          BASE_SIZE: "512"
+          PAGE_W: "1200"
+          PAGE_H: "675"
+          BRAND: "GOODDAY YOKOSUKA"
+          PLACE_FALLBACK: "Yokosuka"
+        run: |
+          set -euo pipefail
+          test -f "$LATEST_PATH"
+
+          python - <<'PY'
+          import os, re, json, hashlib
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          import torch
+          from diffusers import DiffusionPipeline
+          from PIL import Image, ImageDraw, ImageFont
+
+          LATEST_PATH = Path(os.environ["LATEST_PATH"])
+          FEED_DIR = Path(os.environ.get("FEED_DIR", "frontend/app/public/feed"))
+          OUT_DIR = Path(os.environ.get("OUT_DIR", "frontend/app/public/diary"))
+          MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sd-turbo")
+          STEPS = int(os.environ.get("STEPS", "2"))
+          BASE_SIZE = int(os.environ.get("BASE_SIZE", "512"))
+          PAGE_W = int(os.environ.get("PAGE_W", "1200"))
+          PAGE_H = int(os.environ.get("PAGE_H", "675"))
+          BRAND = os.environ.get("BRAND", "GOODDAY YOKOSUKA")
+          PLACE_FALLBACK = os.environ.get("PLACE_FALLBACK", "")
+
+          def load_json(p: Path):
+            return json.loads(p.read_text(encoding="utf-8"))
+
+          def dump_json(p: Path, obj):
+            p.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+          def pick_font(size: int, bold: bool = False):
+            candidates = []
+            if bold:
+              candidates += [
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+              ]
+            else:
+              candidates += [
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf",
+              ]
+            for p in candidates:
+              try:
+                return ImageFont.truetype(p, size=size)
+              except Exception:
+                pass
+            return ImageFont.load_default()
+
+          def clean_for_prompt(text: str) -> str:
+            t = re.sub(r"https?://\\S+", "", text)
+            t = re.sub(r"#\\w+", "", t)
+            t = re.sub(r"\\s+", " ", t).strip()
+            return t[:220]
+
+          def slug(s: str) -> str:
+            s = re.sub(r"\\s+", "_", s.strip())
+            s = re.sub(r"[^0-9A-Za-z_\\-]", "", s)
+            return s[:60] or "item"
+
+          latest = load_json(LATEST_PATH)
+          if not isinstance(latest, dict) or not latest.get("date") or not latest.get("text"):
+            print("latest.json is not in expected shape; skip.")
+            raise SystemExit(0)
+
+          date = str(latest.get("date", "")).strip()
+          text = str(latest.get("text", "")).strip()
+          place = str(latest.get("place", "") or PLACE_FALLBACK).strip()
+          generated_at = str(latest.get("generated_at", "")).strip()
+
+          # Deterministic filename from date + text
+          seed_hex8 = hashlib.sha1((date + "\n" + text).encode("utf-8", errors="ignore")).hexdigest()[:8]
+          fn = f"{slug(date)}_{seed_hex8}.png"
+          OUT_DIR.mkdir(parents=True, exist_ok=True)
+          out_path = OUT_DIR / fn
+          rel_url = "/" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\\\", "/")
+
+          # If already generated and linked, keep it idempotent
+          already = latest.get("image_url") == rel_url and out_path.exists()
+          if already:
+            print("Image already exists and latest.json already points to it; skip generation.")
+            raise SystemExit(0)
+
+          # ---- Build prompt for "絵日記風"
+          core = clean_for_prompt(text)
+          # Avoid embedding hashtags/URLs; push to gentle diary illustration
+          prompt = (
+            "Japanese illustrated diary, picture-diary style, "
+            "watercolor and colored pencil, soft warm light, cute and simple, "
+            "hand-drawn, minimal details, friendly atmosphere, "
+            f"scene in {place}. "
+            f"Inspired by this diary message: {core}"
+          )
+          negative = (
+            "nsfw, nude, sexual, gore, violence, hate, disturbing, "
+            "text, watermark, logo, low quality, blurry"
+          )
+
+          device = "cuda" if torch.cuda.is_available() else "cpu"
+          dtype = torch.float16 if device == "cuda" else torch.float32
+
+          pipe = DiffusionPipeline.from_pretrained(MODEL_ID, torch_dtype=dtype)
+          pipe = pipe.to(device)
+
+          # Memory savers (CPUでも効くことがある)
+          try:
+            pipe.enable_attention_slicing()
+          except Exception:
+            pass
+          try:
+            pipe.enable_vae_slicing()
+          except Exception:
+            pass
+
+          guidance_scale = 0.0  # turbo系は上げすぎない
+
+          seed = int(seed_hex8, 16)
+          g = torch.Generator(device=device).manual_seed(seed)
+
+          img = pipe(
+            prompt=prompt,
+            negative_prompt=negative,
+            guidance_scale=guidance_scale,
+            num_inference_steps=max(1, min(4, STEPS)),
+            width=BASE_SIZE,
+            height=BASE_SIZE,
+            generator=g,
+          ).images[0].convert("RGB")
+
+          # ---- Compose a "diary page" (1200x675): paper + photo + caption
+          page = Image.new("RGB", (PAGE_W, PAGE_H), (247, 242, 232))  # warm paper
+          d = ImageDraw.Draw(page)
+
+          # Header strip
+          d.rectangle([0, 0, PAGE_W, 72], fill=(240, 232, 220))
+          title_f = pick_font(34, bold=True)
+          meta_f = pick_font(22, bold=False)
+          body_f = pick_font(26, bold=False)
+
+          header = f"{BRAND}  |  {date}"
+          if place:
+            header += f"  |  {place}"
+          d.text((36, 18), header, font=title_f, fill=(40, 40, 40))
+
+          # Photo frame (left)
+          frame_x, frame_y = 48, 110
+          frame_w, frame_h = 520, 520
+          d.rounded_rectangle([frame_x-12, frame_y-12, frame_x+frame_w+12, frame_y+frame_h+12], radius=26, fill=(255, 255, 255))
+          d.rounded_rectangle([frame_x-14, frame_y-14, frame_x+frame_w+14, frame_y+frame_h+14], radius=28, outline=(210, 200, 185), width=3)
+
+          # Fit image into frame (cover)
+          img_resized = img.resize((frame_w, frame_h))
+          page.paste(img_resized, (frame_x, frame_y))
+
+          # Caption area (right)
+          cap_x = frame_x + frame_w + 56
+          cap_y = 110
+          cap_w = PAGE_W - cap_x - 48
+          cap_h = 520
+          d.rounded_rectangle([cap_x, cap_y, cap_x+cap_w, cap_y+cap_h], radius=22, fill=(255, 255, 255), outline=(220, 210, 196), width=2)
+
+          # Wrap caption
+          caption = re.sub(r"\\s+", " ", text).strip()
+          # Keep it readable: cut very long
+          if len(caption) > 420:
+            caption = caption[:420].rstrip() + "…"
+
+          # simple wrapping by character count
+          max_chars = 32
+          lines = []
+          buf = ""
+          for w in caption.split(" "):
+            trial = (buf + " " + w).strip()
+            if len(trial) <= max_chars:
+              buf = trial
+            else:
+              if buf:
+                lines.append(buf)
+              buf = w
+            if len(lines) >= 12:
+              break
+          if buf and len(lines) < 12:
+            lines.append(buf)
+          if len(lines) >= 12:
+            lines = lines[:11] + ["…"]
+
+          ty = cap_y + 24
+          for ln in lines:
+            d.text((cap_x + 24, ty), ln, font=body_f, fill=(35, 35, 35))
+            ty += int(body_f.size * 1.45)
+
+          # Footer meta
+          now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+          d.text((cap_x + 24, cap_y + cap_h - 42), f"generated: {now_iso}", font=meta_f, fill=(110, 110, 110))
+
+          page.save(out_path, format="PNG", optimize=True)
+
+          # ---- Patch latest.json
+          latest["image_url"] = rel_url
+          latest["image_prompt"] = prompt
+          latest["image_model"] = MODEL_ID
+          latest["image_generated_at"] = now_iso
+          dump_json(LATEST_PATH, latest)
+
+          # ---- Patch the newest feed file (best effort)
+          # Match by id == generated_at (common) OR date+text equality
+          def patch_feed_file(p: Path) -> bool:
+            try:
+              obj = load_json(p)
+            except Exception:
+              return False
+            if not isinstance(obj, dict) or not isinstance(obj.get("items"), list):
+              return False
+            changed = False
+            for it in obj["items"]:
+              if not isinstance(it, dict):
+                continue
+              same_id = bool(generated_at) and str(it.get("id","")) == generated_at
+              same_dt = str(it.get("date","")) == date and str(it.get("text","")) == text
+              if same_id or same_dt:
+                it["image_url"] = rel_url
+                it["image_prompt"] = prompt
+                it["image_model"] = MODEL_ID
+                it["image_generated_at"] = now_iso
+                changed = True
+            if changed:
+              dump_json(p, obj)
+            return changed
+
+          newest = None
+          if FEED_DIR.exists():
+            candidates = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
+            if candidates:
+              newest = candidates[0]
+              patched = patch_feed_file(newest)
+              print("patched feed:", str(newest), "->", patched)
+            else:
+              print("No feed_*.json found to patch.")
+          else:
+            print("FEED_DIR does not exist:", FEED_DIR)
+
+          print("Generated diary image:", out_path, "url:", rel_url)
+          PY
+
+      - name: Commit & push if changed
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull
+
+          git add frontend/app/public/feed/*.json || true
+          git add frontend/app/public/latest.json || true
+          git add frontend/app/public/snapshot/*.json || true
+          git add frontend/app/public/diary/*.png || true
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m "chore: diary + illustrated diary image"
+          git push
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+
+  pages:
+    needs: rag
+    if: needs.rag.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    with:
+      ref: main
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
