@@ -1,6 +1,8 @@
 name: Diary
 
 on:
+  schedule:
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -17,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -104,7 +108,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull
+          git pull --ff-only origin main
 
           git add frontend/app/public/feed/*.json || true
           git add frontend/app/public/latest.json || true
@@ -118,7 +122,7 @@ jobs:
           fi
 
           git commit -m "chore: diary feed"
-          git push
+          git push origin HEAD:main
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -131,13 +135,33 @@ jobs:
       changed: ${{ steps.commit.outputs.changed }}
       sha: ${{ steps.commit.outputs.sha }}
     steps:
-      - name: Checkout (just-pushed commit)
+      # ★重要：sha checkout をやめて main を checkout（detached HEAD回避）
+      - name: Checkout (main)
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.rag.outputs.sha }}
+          ref: main
           fetch-depth: 0
 
-      # ディスクを空ける（sd-turboのDL用）
+      - name: Sync to latest main (ff-only)
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin main
+
+      # （任意）rag job が作った sha が HEAD に入ってるか確認
+      - name: Verify rag commit is included
+        env:
+          RAG_SHA: ${{ needs.rag.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "${RAG_SHA}" ]; then
+            git merge-base --is-ancestor "${RAG_SHA}" HEAD || {
+              echo "HEAD does not include rag sha yet; fetching and resetting."
+              git fetch origin "${RAG_SHA}"
+              git reset --hard "${RAG_SHA}"
+            }
+          fi
+
+      # ディスクを空ける（sd-turbo DL 用）
       - name: Free disk space
         run: |
           set -euo pipefail
@@ -174,9 +198,9 @@ jobs:
           FEED_DIR: frontend/app/public/feed
           OUT_DIR: frontend/app/public/diary
           MODEL_ID: stabilityai/sd-turbo
-          STEPS: "2"          # 1-4 recommended for turbo
-          BASE_SIZE: "512"    # turboはまず512が安定
-          PAGE_W: "1200"      # X向け横長カード（絵日記風）
+          STEPS: "2"
+          BASE_SIZE: "512"
+          PAGE_W: "1200"
           PAGE_H: "675"
           BRAND: "GOODDAY YOKOSUKA"
           PLACE_FALLBACK: "Yokosuka"
@@ -256,12 +280,10 @@ jobs:
           out_path = OUT_DIR / fn
           rel_url = "/" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\", "/")
 
-          # Idempotent
           if latest.get("image_url") == rel_url and out_path.exists():
             print("Already generated; skip.")
             raise SystemExit(0)
 
-          # Prompt: 絵日記風（やさしい、手描き、水彩/色鉛筆）
           core = clean_for_prompt(text)
           prompt = (
             "Japanese picture diary illustration, illustrated diary style, "
@@ -276,9 +298,8 @@ jobs:
 
           device = "cuda" if torch.cuda.is_available() else "cpu"
           dtype = torch.float16 if device == "cuda" else torch.float32
+          pipe = DiffusionPipeline.from_pretrained(MODEL_ID, torch_dtype=dtype).to(device)
 
-          pipe = DiffusionPipeline.from_pretrained(MODEL_ID, torch_dtype=dtype)
-          pipe = pipe.to(device)
           try:
             pipe.set_progress_bar_config(disable=True)
           except Exception:
@@ -292,7 +313,7 @@ jobs:
           except Exception:
             pass
 
-          guidance_scale = 0.0  # turbo系は上げすぎない
+          guidance_scale = 0.0
           seed = int(seed_hex8, 16)
           g = torch.Generator(device=device).manual_seed(seed)
 
@@ -306,7 +327,6 @@ jobs:
             generator=g,
           ).images[0].convert("RGB")
 
-          # 絵日記ページ（横長）：紙 + 絵 + 本文
           page = Image.new("RGB", (PAGE_W, PAGE_H), (247, 242, 232))
           d = ImageDraw.Draw(page)
 
@@ -320,26 +340,27 @@ jobs:
             header += f"  |  {place}"
           d.text((36, 18), header, font=title_f, fill=(40, 40, 40))
 
-          # left: image frame
           frame_x, frame_y = 48, 110
           frame_w, frame_h = 520, 520
-          d.rounded_rectangle([frame_x-14, frame_y-14, frame_x+frame_w+14, frame_y+frame_h+14],
-                              radius=28, fill=(255, 255, 255), outline=(210, 200, 185), width=3)
+          d.rounded_rectangle(
+            [frame_x-14, frame_y-14, frame_x+frame_w+14, frame_y+frame_h+14],
+            radius=28, fill=(255, 255, 255), outline=(210, 200, 185), width=3
+          )
           page.paste(img.resize((frame_w, frame_h)), (frame_x, frame_y))
 
-          # right: caption
           cap_x = frame_x + frame_w + 56
           cap_y = 110
           cap_w = PAGE_W - cap_x - 48
           cap_h = 520
-          d.rounded_rectangle([cap_x, cap_y, cap_x+cap_w, cap_y+cap_h],
-                              radius=22, fill=(255, 255, 255), outline=(220, 210, 196), width=2)
+          d.rounded_rectangle(
+            [cap_x, cap_y, cap_x+cap_w, cap_y+cap_h],
+            radius=22, fill=(255, 255, 255), outline=(220, 210, 196), width=2
+          )
 
           caption = re.sub(r"\s+", " ", text).strip()
           if len(caption) > 420:
             caption = caption[:420].rstrip() + "…"
 
-          # simple word wrap
           max_chars = 32
           lines = []
           buf = ""
@@ -368,14 +389,12 @@ jobs:
 
           page.save(out_path, format="PNG", optimize=True)
 
-          # Patch latest.json
           latest["image_url"] = rel_url
           latest["image_prompt"] = prompt
           latest["image_model"] = MODEL_ID
           latest["image_generated_at"] = now_iso
           dump_json(LATEST_PATH, latest)
 
-          # Patch newest feed file (best effort)
           def patch_feed_file(p: Path) -> bool:
             try:
               obj = load_json(p)
@@ -383,7 +402,6 @@ jobs:
               return False
             if not isinstance(obj, dict) or not isinstance(obj.get("items"), list):
               return False
-
             changed = False
             for it in obj["items"]:
               if not isinstance(it, dict):
@@ -396,7 +414,6 @@ jobs:
                 it["image_model"] = MODEL_ID
                 it["image_generated_at"] = now_iso
                 changed = True
-
             if changed:
               dump_json(p, obj)
             return changed
@@ -404,8 +421,7 @@ jobs:
           if FEED_DIR.exists():
             feeds = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
             if feeds:
-              patched = patch_feed_file(feeds[0])
-              print("patched:", feeds[0], "->", patched)
+              patch_feed_file(feeds[0])
 
           print("Generated:", out_path, "url:", rel_url)
           PY
@@ -423,7 +439,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull
+          git pull --ff-only origin main
 
           git add frontend/app/public/latest.json || true
           git add frontend/app/public/feed/*.json || true
@@ -437,7 +453,7 @@ jobs:
           fi
 
           git commit -m "chore: illustrated diary"
-          git push
+          git push origin HEAD:main
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
