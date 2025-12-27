@@ -1,24 +1,24 @@
 {
   "date": "2025-12-27",
-  "generated_at": "2025-12-27T13:44:12Z",
-  "text": "Good evening Yokosuka! 🌃❄️ It's a chilly winter evening with 4.8°C and light clouds. Don't miss the Dondo-yaki / Otakiage at Kurihama Beach on January 11th! 🎅️ #Yokosuka #NewYear #Otakiage",
+  "generated_at": "2025-12-27T14:13:50Z",
+  "text": "Good evening! It's a chilly winter night in Yokosuka, with a temperature of 4.8°C and a gentle breeze. Perfect weather to warm up with some hot curry or ramen at a cozy cafe! Don't miss the Dondo-yaki / Otakiage event at Kurihama Beach on January 11th! #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-27T13:39:38.239956+00:00",
+    "generated_at": "2025-12-27T14:09:11.996239+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-27T22:30:00+09:00",
+      "time": "2025-12-27T23:00:00+09:00",
       "temp_c": 4.8,
       "apparent_temp_c": null,
-      "humidity_pct": 71.0,
+      "humidity_pct": 70.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 3.6,
+      "wind_kmh": 5.760000000000001,
       "wind_dir_deg": 90.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251227_223936_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening! It's a chilly winter night in Yokosuka, with a temperature of 4.8°C and a gentle breeze. Perfect weather to warm up with some hot curry or ramen at a cozy cafe! Don't miss the Dondo-yaki / Otakiage event at",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-27T14:17:05.985961Z"
 }
