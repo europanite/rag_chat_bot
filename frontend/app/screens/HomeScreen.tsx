@@ -184,7 +184,7 @@ function getFeedPointer(parsed: unknown): string | null {
   if (!cand) return null;
   const s = String(cand).trim();
   return s ? s : null;
-
+}
 
 function getNextPointer(parsed: unknown): string | null {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
@@ -204,7 +204,6 @@ function getNextPointer(parsed: unknown): string | null {
   if (!cand) return null;
   const s = String(cand).trim();
   return s ? s : null;
-}
 }
 
 function resolveUrl(maybeRelative: string, baseUrl: string): string {
@@ -358,7 +357,7 @@ export default function HomeScreen() {
   }, [RESOLVED_FEED_URL]);
 
   useEffect(() => {
-  ensureWebScrollbarStyle();
+    ensureWebScrollbarStyle();
   }, []);
 
   const load = useCallback(async () => {
