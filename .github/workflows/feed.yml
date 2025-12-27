@@ -119,7 +119,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: diary feed"
+          git commit -m "chore: image feed"
           git push origin HEAD:main
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
@@ -133,7 +133,6 @@ jobs:
       changed: ${{ steps.commit.outputs.changed }}
       sha: ${{ steps.commit.outputs.sha }}
     steps:
-      # ★重要：sha checkout をやめて main を checkout（detached HEAD回避）
       - name: Checkout (main)
         uses: actions/checkout@v4
         with:
@@ -145,7 +144,6 @@ jobs:
           set -euo pipefail
           git pull --ff-only origin main
 
-      # （任意）rag job が作った sha が HEAD に入ってるか確認
       - name: Verify rag commit is included
         env:
           RAG_SHA: ${{ needs.rag.outputs.sha }}
@@ -159,7 +157,6 @@ jobs:
             }
           fi
 
-      # ディスクを空ける（sd-turbo DL 用）
       - name: Free disk space
         run: |
           set -euo pipefail
@@ -190,11 +187,11 @@ jobs:
           python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install diffusers transformers accelerate safetensors pillow
 
-      - name: Generate illustrated diary image (sd-turbo) and patch feed
+      - name: Generate illustrated image (sd-turbo) and patch feed
         env:
           LATEST_PATH: frontend/app/public/latest.json
           FEED_DIR: frontend/app/public/feed
-          OUT_DIR: frontend/app/public/diary
+          OUT_DIR: frontend/app/public/image
           MODEL_ID: stabilityai/sd-turbo
           STEPS: "2"
           BASE_SIZE: "512"
@@ -217,7 +214,7 @@ jobs:
 
           LATEST_PATH = Path(os.environ["LATEST_PATH"])
           FEED_DIR = Path(os.environ.get("FEED_DIR", "frontend/app/public/feed"))
-          OUT_DIR = Path(os.environ.get("OUT_DIR", "frontend/app/public/diary"))
+          OUT_DIR = Path(os.environ.get("OUT_DIR", "frontend/app/public/image"))
           MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sd-turbo")
           STEPS = int(os.environ.get("STEPS", "2"))
           BASE_SIZE = int(os.environ.get("BASE_SIZE", "512"))
@@ -284,10 +281,10 @@ jobs:
 
           core = clean_for_prompt(text)
           prompt = (
-            "Japanese picture diary illustration, illustrated diary style, "
+            "Japanese picture illustration, illustrated image style, "
             "watercolor and colored pencil, soft warm light, cute and simple, "
             "hand-drawn, minimal details, friendly atmosphere, "
-            f"scene in {place}. Inspired by this diary message: {core}"
+            f"scene in {place}. Inspired by this message: {core}"
           )
           negative = (
             "nsfw, nude, sexual, gore, violence, hate, disturbing, "
@@ -441,7 +438,7 @@ jobs:
 
           git add frontend/app/public/latest.json || true
           git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/diary/*.png || true
+          git add frontend/app/public/image/*.png || true
 
           if git diff --cached --quiet; then
             echo "No staged changes"
@@ -450,7 +447,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: illustrated diary"
+          git commit -m "chore: illustrated image"
           git push origin HEAD:main
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
