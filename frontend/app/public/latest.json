@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251228_022115_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning!🌞 Yokosuka's weather today is partly cloudy with a low of 3.4°C. Perfect day for a winter hike or otakiage at Iwato 4-chome Park! 🏞️",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-27T22:30:55.338895Z"
 }
