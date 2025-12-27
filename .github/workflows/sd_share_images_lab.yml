@@ -1,0 +1,164 @@
+name: SD Share Images Lab (build-time)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch/ref to read latest.json from"
+        required: false
+        default: "main"
+        type: string
+      max_items:
+        description: "How many feed items to generate"
+        required: false
+        default: "1"
+        type: string
+      steps:
+        description: "Diffusion steps (Turbo: 1-4 recommended)"
+        required: false
+        default: "2"
+        type: string
+      width:
+        description: "Generation width (Turbo best at 512)"
+        required: false
+        default: "512"
+        type: string
+      height:
+        description: "Generation height (Turbo best at 512)"
+        required: false
+        default: "512"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "sd-share-images-lab"
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (ref)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache Hugging Face + Torch
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/torch
+          key: ${{ runner.os }}-hf-torch-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-hf-torch-
+
+      - name: Install deps (CPU)
+        run: |
+          python -m pip install --upgrade pip
+          # CPU torch (smaller than CUDA wheels)
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install diffusers transformers accelerate safetensors pillow
+
+      - name: Generate images from latest.json with SD-Turbo
+        env:
+          FEED_JSON: frontend/app/public/latest.json
+          OUT_DIR: frontend/app/public/share_sd
+          MODEL_ID: stabilityai/sd-turbo
+          MAX_ITEMS: ${{ inputs.max_items }}
+          STEPS: ${{ inputs.steps }}
+          WIDTH: ${{ inputs.width }}
+          HEIGHT: ${{ inputs.height }}
+        run: |
+          set -euo pipefail
+          test -f "$FEED_JSON"
+
+          python - <<'PY'
+          import os, json, hashlib, re, textwrap
+          from pathlib import Path
+
+          import torch
+          from diffusers import DiffusionPipeline
+
+          FEED_JSON = Path(os.environ["FEED_JSON"])
+          OUT_DIR = Path(os.environ["OUT_DIR"])
+          MODEL_ID = os.environ.get("MODEL_ID","stabilityai/sd-turbo")
+          MAX_ITEMS = int(os.environ.get("MAX_ITEMS","1"))
+          STEPS = int(os.environ.get("STEPS","2"))
+          W = int(os.environ.get("WIDTH","512"))
+          H = int(os.environ.get("HEIGHT","512"))
+
+          data = json.loads(FEED_JSON.read_text(encoding="utf-8"))
+          items = data.get("items", []) if isinstance(data, dict) else []
+          items = [it for it in items if isinstance(it, dict) and it.get("date") and it.get("text")]
+          items = items[: max(1, MAX_ITEMS)]
+
+          device = "cuda" if torch.cuda.is_available() else "cpu"
+          dtype = torch.float16 if device == "cuda" else torch.float32
+
+          pipe = DiffusionPipeline.from_pretrained(MODEL_ID, torch_dtype=dtype)
+          pipe = pipe.to(device)
+
+          # Turbo guidance  SDXL-Turbo guidance_scale=0.0 :contentReference[oaicite:5]{index=5}
+          guidance_scale = 0.0
+
+          def slug(s: str) -> str:
+            s = re.sub(r"\s+","_", s.strip())
+            s = re.sub(r"[^0-9A-Za-z_\-]","", s)
+            return s[:60] or "item"
+
+          def build_prompt(text: str, place: str) -> str:
+            t = re.sub(r"\s+"," ", text).strip()
+            t = t[:240]
+            if place:
+              return f"cinematic illustration, {place}, based on this short story: {t}"
+            return f"cinematic illustration, based on this short story: {t}"
+
+          OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+          manifest = {"items":[]}
+
+          for it in items:
+            date = str(it.get("date",""))
+            place = str(it.get("place","") or "")
+            text = str(it.get("text",""))
+
+            seed = int(hashlib.sha1((date+"\n"+text).encode("utf-8", errors="ignore")).hexdigest()[:8], 16)
+            g = torch.Generator(device=device).manual_seed(seed)
+
+            prompt = build_prompt(text, place)
+
+            image = pipe(
+              prompt=prompt,
+              guidance_scale=guidance_scale,
+              num_inference_steps=max(1, min(4, STEPS)),
+              width=W, height=H,
+              generator=g,
+            ).images[0]
+
+            fn = f"{slug(date)}_{hashlib.sha1((date+text).encode('utf-8', errors='ignore')).hexdigest()[:8]}.png"
+            out_path = OUT_DIR / fn
+            image.save(out_path)
+
+            rel = "/" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\","/")
+            manifest["items"].append({"date": date, "place": place, "image": rel, "prompt": prompt})
+
+          (OUT_DIR / "index.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+          print("generated:", len(manifest["items"]), "images ->", OUT_DIR)
+          PY
+
+      - name: Upload artifact (generated images)
+        uses: actions/upload-artifact@v4
+        with:
+          name: share-sd-images
+          path: |
+            frontend/app/public/share_sd
+          if-no-files-found: error
+          retention-days: 7
