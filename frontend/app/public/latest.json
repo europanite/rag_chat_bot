@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/2025-12-27_c92992be.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening from Yokosuka! Partly cloudy with a chill at 4.7°C. Perfect excuse to grab a warm drink and head to Kumura Otaki Shrine for Hatsumode and toshikoshi soba on New Year's Eve! 🍜🎄",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-27T10:30:41.923096Z"
 }
