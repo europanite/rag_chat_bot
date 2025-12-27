@@ -228,6 +228,37 @@ function buildSharePrompt(text: string, place?: string): string {
     : `cinematic illustration, based on this short story: ${t}`;
 }
 
+
+const FeedBubbleImage: React.FC<{ uri?: string }> = ({ uri }) => {
+  const [hidden, setHidden] = useState(false);
+
+  // If there's no image or it failed to load (404 etc.), render nothing (text only).
+  if (!uri || hidden) return null;
+
+  return (
+    <View
+      style={{
+        marginTop: 10,
+        marginBottom: 0,
+        borderRadius: 12,
+        overflow: "hidden",
+        borderWidth: 1,
+        borderColor: BORDER,
+        backgroundColor: "#ffffff",
+      }}
+    >
+      <Image
+        source={{ uri }}
+        style={{ width: "100%", aspectRatio: 16 / 9 }}
+        resizeMode="cover"
+        accessibilityLabel="Generated image"
+        onError={() => setHidden(true)}
+      />
+    </View>
+  );
+};
+
+
 function normalizeShareSdIndex(parsed: unknown): ShareSdIndex | null {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
   const obj = parsed as any;
@@ -704,28 +735,13 @@ const getImageUriForItem = useCallback(
                     zIndex: 1,
                   }}
                 >
-
-                  {imageUri ? (
-                    <View
-                      style={{
-                        marginBottom: 10,
-                        borderRadius: 12,
-                        overflow: "hidden",
-                      }}
-                    >
-                      <Image
-                        source={{ uri: imageUri }}
-                        style={{ width: "100%", aspectRatio: 16 / 9 }}
-                        resizeMode="cover"
-                        accessibilityLabel="Generated image"
-                      />
-                    </View>
-                  ) : null}
-
                   <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
                     {item.generated_at ? <Text style={{ color: TEXT_DIM }}>{formatJst(item.generated_at)}</Text> : null}
                     {item.place ? <Text style={{ color: TEXT_DIM }}>• {item.place}</Text> : null}
                   </View>
+
+                  
+<FeedBubbleImage uri={imageUri} />
 
 <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
                 </View>
