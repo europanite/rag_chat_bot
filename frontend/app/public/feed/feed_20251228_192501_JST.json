@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "2025-12-28T10:29:44Z",
+      "date": "2025-12-28",
+      "text": "Good evening Yokosuka! 🌃️ As of 19:10, it's a chilly 6.5°C with clear skies ☀️ and a gentle breeze. Looking forward to celebrating the New Year at Kumura Otaki Shrine on Dec 31st around 23:30! 🎉 #Yokosuka",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-28T10:29:44Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-28T10:25:03.206829+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-28T19:10:00+09:00",
+          "temp_c": 6.5,
+          "apparent_temp_c": null,
+          "humidity_pct": 56.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 5.760000000000001,
+          "wind_dir_deg": 90.0,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-28",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ　夜遅く　くもり",
+          "jma_weather_code": "111",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2025-12-29",
+          "weather_code": 71,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　昼過ぎ　から　晴れ　所により　朝　まで　雨か雪",
+          "jma_weather_code": "211",
+          "precip_prob_pct": 20
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-28T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-28T10:29:44Z",
+  "place": "Yokosuka"
+}
