@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251228_214619_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening Yokosuka! As we bid farewell to winter, don't miss Dondo-yaki / Otakiage at Kurihama Beach on Jan 11th. Enjoy traditional otakiage and refreshments, even if it's a bit chilly 🌃❄️",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-28T12:53:58.470579Z"
 }
