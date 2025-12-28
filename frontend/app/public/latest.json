@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251228_192501_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening Yokosuka! 🌃️ As of 19:10, it's a chilly 6.5°C with clear skies ☀️ and a gentle breeze. Looking forward to celebrating the New Year at Kumura Otaki Shrine on Dec 31st around 23:30! 🎉",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-28T10:33:32.737824Z"
 }
