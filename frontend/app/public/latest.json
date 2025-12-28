@@ -1,25 +1,25 @@
 {
   "date": "2025-12-28",
-  "generated_at": "2025-12-28T13:41:45Z",
-  "text": "Good evening from Yokosuka! 🌃🏃‍♀️ According to JMA, it's a clear night with 7.2°C and 63% humidity. Tomorrow, expect cloudy weather with a chance of rain or snow. Don't miss the Hatsumode at Kumura Otaki Shrine on New Year's Eve, starting around 23:30! 🎉 #Yokosuka #NewYear",
+  "generated_at": "2025-12-28T14:29:04Z",
+  "text": "Good night! Current weather is clear with a temperature of 7.2°C and humidity at 66%. Looking forward to Hatsumode at Kumura Otaki Shrine on New Year's Eve, starting around 23:30. Don't forget to arrive early for parking! #Yokosuka #NewYear",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-28T13:35:36.008547+00:00",
+    "generated_at": "2025-12-28T14:23:13.751732+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-28T22:20:00+09:00",
+      "time": "2025-12-28T23:10:00+09:00",
       "temp_c": 7.2,
       "apparent_temp_c": null,
-      "humidity_pct": 63.0,
+      "humidity_pct": 66.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 2.8800000000000003,
-      "wind_dir_deg": 67.5,
+      "wind_kmh": 4.680000000000001,
+      "wind_dir_deg": 0.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20251228_223533_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening from Yokosuka! 🌃🏃‍♀️ According to JMA, it's a clear night with 7.2°C and 63% humidity. Tomorrow, expect cloudy weather with a chance of rain or snow. Don't miss the Hatsumode at Kumura Otaki Shrine on New Ye",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-28T13:44:20.237675Z"
+  }
 }
