@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState,useRef } from "react";
 import {
   ActivityIndicator,
+  Animated,
   FlatList,
   Image,
   Linking,
@@ -9,7 +10,10 @@ import {
   Text,
   useWindowDimensions,
   View,
+  Pressable,
 } from "react-native";
+
+const RAW_CONTACT_URL = (process.env.EXPO_PUBLIC_FEEDBACK_FORM_URL ?? "").trim();
 
 type FeedItem = {
   id: string;
@@ -27,6 +31,24 @@ type Feed = {
   items: FeedItem[];
 };
 
+type SlotItem = {
+  kind: "ad";
+  id: string;
+  title: string;
+  body: string;
+  cta?: string;
+  url?: string;
+  sponsor?: string;
+  disclaimer?: string;
+  emoji?: string;
+};
+
+type TimelineItem = FeedItem | SlotItem;
+
+function isSlotItem(it: TimelineItem): it is SlotItem {
+  return (it as any)?.kind === "ad";
+}
+
 const APP_BG = "#f6f4ff";
 const CARD_BG = "#ffffff";
 const TEXT_DIM = "#333333";
@@ -43,6 +65,178 @@ const MASCOT_BORDER_W = 2;
 const SIDEBAR_W = 240;
 
 const FEED_SCROLL_ID = "feed-scroll";
+
+const ITEM_EVERY_N = Math.max(2, Number((process.env.EXPO_PUBLIC_ITEM_EVERY_N || "5").trim()) || 5); // 1 ad per N items
+const ITEM_BG = "#fff7ed";
+const ITEM_BADGE_BG = "#fb923c";
+
+const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+];
+
+type SlotBanner = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  url: string;
+  imageUri: string;
+  sponsor?: string;
+  disclaimer?: string;
+};
+
+const SLOT_ROTATE_MS = Math.max(2500, Number((process.env.EXPO_PUBLIC_SLOT_ROTATE_MS || "6500").trim()) || 6500);
+const SLOT_FADE_MS = Math.max(200, Number((process.env.EXPO_PUBLIC_SLOT_FADE_MS || "800").trim()) || 800);
+
+const SLOT_BANNERS: SlotBanner[] = [
+  {
+    id: "slot-0",
+    title: "Ocean view, zero effort",
+    body: "",
+    cta: "Open demo",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_ocean/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-1",
+    title: "Coffee & quiet time",
+    body: "",
+    cta: "See more",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_coffee/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-2",
+    title: "Weekend micro trip",
+    body: "",
+    cta: "View route",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_trip/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-3",
+    title: "Sunset soundtrack",
+    body: "",
+    cta: "Play",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_sunset/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-4",
+    title: "Mountain air",
+    body: "",
+    cta: "Learn more",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_mountain/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-5",
+    title: "City lights",
+    body: "",
+    cta: "Open",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_city/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+];
+
+function hashString(s: string): number {
+  // Simple deterministic hash (for stable rotation per anchor id)
+  let h = 0;
+  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function makeAnchor(anchorId: string): SlotItem {
+  const idx = FAKE_ITEM_TEMPLATES.length ? hashString(anchorId) % FAKE_ITEM_TEMPLATES.length : 0;
+  const t = FAKE_ITEM_TEMPLATES[idx] ?? FAKE_ITEM_TEMPLATES[0];
+  return {
+    kind: "ad",
+    id: `ad|${anchorId}`,
+    title: t?.title ?? "Sponsored",
+    body: t?.body ?? "Demo ad",
+    cta: t?.cta,
+    url: t?.url,
+    sponsor: t?.sponsor,
+    disclaimer: t?.disclaimer,
+    emoji: t?.emoji,
+  };
+}
+
+function interleaveAds(posts: FeedItem[]): TimelineItem[] {
+  // "5件に1件" = every Nth item is an ad (i.e. after N-1 posts)
+  const n = ITEM_EVERY_N;
+  const afterPosts = Math.max(1, n - 1);
+
+  const out: TimelineItem[] = [];
+  let count = 0;
+
+  for (const p of posts) {
+    out.push(p);
+    count += 1;
+
+    if (count % afterPosts === 0) {
+      out.push(makeAnchor(p.id));
+    }
+  }
+
+  return out;
+}
 
 function ensureWebScrollbarStyle() {
   if (Platform.OS !== "web") return;
@@ -211,27 +405,25 @@ type ShareSdIndex = {
 };
 
 function normalizeWebAssetPath(p: string): string {
-  const s = String(p ?? "").trim();
+  let s = String(p ?? "").trim();
   if (!s) return "";
   if (/^(https?:)?\/\//i.test(s) || s.startsWith("data:")) return s;
 
-  // GitHub Pages repo subpath safety: "/share_sd/..." should be treated as "./share_sd/..."
-  if (Platform.OS === "web" && s.startsWith("/")) return `.${s}`;
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    const baseSeg = window.location.pathname.split("/").filter(Boolean)[0] || "";
+    // If the path already includes the repo segment (e.g. "rag_chat_bot/..."),
+    // strip it to avoid double-prefixing when resolving relative URLs.
+    if (baseSeg) {
+      if (s.startsWith(`/${baseSeg}/`)) s = `./${s.slice(baseSeg.length + 2)}`;
+      else if (s.startsWith(`${baseSeg}/`)) s = `./${s.slice(baseSeg.length + 1)}`;
+    }
+    // Treat leading "/" as repo-relative on GitHub Pages.
+    if (s.startsWith("/")) return `.${s}`;
+  }
+
   return s;
 }
 
-function uniqueNonEmptyStrings(list: string[]): string[] {
-  const out: string[] = [];
-  const seen = new Set<string>();
-  for (const raw of list) {
-    const s = (raw ?? "").trim();
-    if (!s) continue;
-    if (seen.has(s)) continue;
-    seen.add(s);
-    out.push(s);
-  }
-  return out;
-}
 
 function buildSharePrompt(text: string, place?: string): string {
   const t = String(text ?? "").replace(/\s+/g, " ").trim().slice(0, 240);
@@ -243,37 +435,42 @@ function buildSharePrompt(text: string, place?: string): string {
 
 
 const FeedBubbleImage: React.FC<{ uris?: string[] }> = ({ uris }) => {
-  const uriKey = (uris ?? []).join("||");
   const [idx, setIdx] = useState(0);
   const [hidden, setHidden] = useState(false);
+
+  const key = useMemo(() => (uris ?? []).join("|"), [uris]);
 
   useEffect(() => {
     setIdx(0);
     setHidden(false);
-  }, [uriKey]);
+  }, [key]);
 
-  const uri = (uris ?? [])[idx];
-
+  const uri = (uris ?? [])[idx] ?? "";
   if (!uri || hidden) return null;
 
   return (
-    <Image
-      source={{ uri }}
+    <View
       style={{
-        width: "100%",
-        aspectRatio: 1,
-        borderRadius: 12,
         marginTop: 10,
-        marginBottom: 6,
-        backgroundColor: "#f2f2f2",
+        marginBottom: 0,
+        borderRadius: 12,
+        overflow: "hidden",
+        borderWidth: 1,
+        borderColor: BORDER,
+        backgroundColor: "#ffffff",
       }}
-      resizeMode="cover"
-      onError={() => {
-        const next = idx + 1;
-        if (uris && next < uris.length) setIdx(next);
-        else setHidden(true);
-      }}
-    />
+    >
+      <Image
+        source={{ uri }}
+        style={{ width: "100%", aspectRatio: 4 / 3 }}
+        resizeMode="cover"
+        accessibilityLabel="Generated image"
+        onError={() => {
+          if (uris && idx + 1 < uris.length) setIdx(idx + 1);
+          else setHidden(true);
+        }}
+      />
+    </View>
   );
 };
 
@@ -363,14 +560,9 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
 
   const resolvedEnvUri = useMemo(() => {
     if (!envUri) return "";
+    // Only use the env URI when it is clearly an absolute URL/data URI.
+    // (Relative strings like "avatar.png" often cause 404s on GitHub Pages.)
     if (/^(https?:)?\/\//i.test(envUri) || envUri.startsWith("data:")) return envUri;
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      try {
-        return new URL(envUri, window.location.href).toString();
-      } catch {
-        return envUri;
-      }
-    }
     return "";
   }, [envUri]);
 
@@ -400,6 +592,7 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
           accessibilityLabel="Mascot"
           onError={() => setFailed(true)}
         />
+        />
       </Frame>
     );
   }
@@ -418,48 +611,266 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
   return (
     <Frame>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
-        <Text style={{ color: "#ffffff", fontWeight: "900", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
+        <Text style={{ color: "#ffffff", fontWeight: "512", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
       </View>
     </Frame>
   );
 }
 
-function Slot() {
-  const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
-  if (!enabled) return null;
+type SlotCardVariant = "sidebar" | "inline";
+
+function SlotCard({
+  banners,
+  startIndex,
+  sticky = false,
+  variant = "sidebar",
+}: {
+  banners: SlotBanner[];
+  startIndex: number;
+  sticky?: boolean;
+  variant?: SlotCardVariant;
+}) {
+  const len = Math.max(1, banners.length);
+  const safeStart = ((startIndex % len) + len) % len;
+
+  const [active, setActive] = useState(safeStart);
+  const [next, setNext] = useState((safeStart + 1) % len);
+
+  // Cross-fade progress: 0 → show "active", 1 → show "next"
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // If banners length changes (it shouldn't), clamp indices.
+    if (active >= len) setActive(0);
+    if (next >= len) setNext((active + 1) % len);
+  }, [active, next, len]);
+
+  useEffect(() => {
+    if (len <= 1) return;
+
+    let cancelled = false;
+
+    const interval = setInterval(() => {
+      const n = (active + 1) % len;
+      setNext(n);
+
+      progress.stopAnimation();
+      progress.setValue(0);
+
+      Animated.timing(progress, {
+        toValue: 1,
+        duration: SLOT_FADE_MS,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (!finished || cancelled) return;
+        setActive(n);
+        // Snap back to the stable state (active fully visible).
+        progress.setValue(0);
+      });
+    }, SLOT_ROTATE_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      progress.stopAnimation();
+    };
+  }, [active, len, progress]);
+
+  const activeOpacity =
+    len <= 1
+      ? 1
+      : progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0],
+        });
+
+  const nextOpacity = len <= 1 ? 0 : progress;
+
+  const activeBanner = banners[active] ?? banners[0];
+  const nextBanner = banners[next] ?? banners[0];
+
+  const onPress = useCallback(() => {
+    const url = activeBanner?.url;
+    if (!url) return;
+    void Linking.openURL(url).catch(() => {
+      // ignore
+    });
+  }, [activeBanner?.url]);
+
+  const imageAreaStyle =
+    variant === "sidebar"
+      ? ({ flex: 1, minHeight: 0, backgroundColor: "#e5e7eb" } as const)
+      : ({ height: 200, backgroundColor: "#e5e7eb" } as const);
+
+  const shellStyle = {
+    ...(variant === "sidebar" ? ({ flex: 1 } as const) : ({ width: "100%" } as const)),
+    backgroundColor: APP_BG,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 12,
+    padding: 12,
+    ...(sticky && Platform.OS === "web" ? ({ position: "sticky", top: 16 } as any) : null),
+  };
+
+  const cardStyle = {
+    ...(variant === "sidebar" ? ({ flex: 1, minHeight: 0 } as const) : null),
+    backgroundColor: CARD_BG,
+    borderWidth: 2,
+    borderColor: BORDER,
+    borderRadius: 12,
+    overflow: "hidden",
+  };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: APP_BG,
-        borderWidth: 1,
-        borderColor: BORDER,
-        borderRadius: 12,
-        padding: 12,
-      }}
-    >
-      <Text style={{ color: TEXT_DIM, marginTop: 6, lineHeight: 18 }}>
-      </Text>
+    <View style={shellStyle}>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`Sponsored: ${activeBanner?.title ?? "Ad"}`}
+        onPress={onPress}
+        style={({ pressed }) => ({
+          ...(variant === "sidebar" ? ({ flex: 1 } as const) : null),
+          opacity: pressed ? 0.92 : 1,
+          ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : null),
+        })}
+      >
+        <View style={cardStyle}>
+          {/* Image area */}
+          <View style={imageAreaStyle}>
+            <Animated.Image
+              source={{ uri: activeBanner?.imageUri }}
+              resizeMode="cover"
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                opacity: activeOpacity as any,
+              }}
+            />
+            {len > 1 ? (
+              <Animated.Image
+                source={{ uri: nextBanner?.imageUri }}
+                resizeMode="cover"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  opacity: nextOpacity as any,
+                }}
+              />
+            ) : null}
+
+            {/* badge */}
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 999,
+                backgroundColor: "rgba(0,0,0,0.55)",
+              }}
+            >
+              <Text style={{ color: "#ffffff", fontSize: 10, fontWeight: "800", letterSpacing: 0.4 }}>AD</Text>
+            </View>
+          </View>
+
+          {/* Copy */}
+          <View style={{ padding: 12, gap: 6 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>{activeBanner?.sponsor ?? "Sponsored"}</Text>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
+            </View>
+
+            <Text style={{ color: "#000000", fontSize: 14, fontWeight: "800", lineHeight: 18 }}>
+              {activeBanner?.title ?? "Sponsored"}
+            </Text>
+
+            <Text style={{ color: TEXT_DIM, fontSize: 12, lineHeight: 16 }}>{activeBanner?.body ?? ""}</Text>
+
+            <View
+              style={{
+                marginTop: 6,
+                alignSelf: "flex-start",
+                borderWidth: 2,
+                borderColor: BORDER,
+                borderRadius: 999,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Text style={{ color: "#000000", fontSize: 12, fontWeight: "800" }}>{activeBanner?.cta ?? "Open"}</Text>
+            </View>
+
+            {/* Dots */}
+            {len > 1 ? (
+              <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 8 }}>
+                {banners.map((b, i) => (
+                  <View
+                    key={b.id}
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 999,
+                      backgroundColor: i === active ? "#111827" : "#d1d5db",
+                    }}
+                  />
+                ))}
+              </View>
+            ) : null}
+
+            {activeBanner?.disclaimer ? (
+              <Text style={{ color: TEXT_DIM, fontSize: 10, marginTop: 8, lineHeight: 14 }}>
+                {activeBanner.disclaimer}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      </Pressable>
     </View>
   );
 }
 
+function Slot({ side }: { side: "left" | "right" }) {
+  const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
+  if (!enabled) return null;
+
+  const banners = SLOT_BANNERS;
+  if (!banners.length) return null;
+
+  // Offset the starting banner so L/R columns don't look identical.
+  const startIndex = useMemo(() => {
+    if (banners.length <= 1) return 0;
+    const base = side === "right" ? 2 : 0;
+    return base % banners.length;
+  }, [banners.length, side]);
+
+  return <SlotCard banners={banners} startIndex={startIndex} sticky variant="sidebar" />;
+}
 export default function HomeScreen() {
-  const FEED_URL = process.env.EXPO_PUBLIC_FEED_URL || "./latest.json";
-  const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "./share_sd/index.json").trim();
+  const FEED_URL = (process.env.EXPO_PUBLIC_FEED_URL || "./latest.json").trim();
+  const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "").trim();
   const { width } = useWindowDimensions();
   const showSidebars = width >= 980;
 
   const RESOLVED_FEED_URL = useMemo(() => {
-    try {
-      if (FEED_URL.startsWith("http://") || FEED_URL.startsWith("https://")) return FEED_URL;
-      if (typeof window !== "undefined") return new URL(FEED_URL, window.location.href).toString();
-    } catch {
-      // ignore
-    }
-    return FEED_URL;
-  }, [FEED_URL]);
+  const normalized = normalizeWebAssetPath(FEED_URL);
+
+  try {
+    if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
+    if (typeof window !== "undefined") return new URL(normalized, window.location.href).toString();
+  } catch {
+    // ignore
+  }
+
+  return normalized;
+}, [FEED_URL]);
+
 
   const [feed, setFeed] = useState<Feed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -488,6 +899,8 @@ export default function HomeScreen() {
       return ta < tb ? 1 : ta > tb ? -1 : 0;
     });
   }, [feed]);
+
+  const timelineItems = useMemo(() => interleaveAds(sortedItems), [sortedItems]);
 
   const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
 
@@ -540,77 +953,107 @@ const assetBase = useMemo(() => {
 
 const getImageUrisForItem = useCallback(
   (item: FeedItem): string[] => {
-    if (!item) return [];
+    const uris: string[] = [];
 
-    const candidates: string[] = [];
+    const push = (p?: string) => {
+      const s = String(p ?? "").trim();
+      if (!s) return;
+      const resolved = resolveUrl(normalizeWebAssetPath(s), assetBase);
+      if (!uris.includes(resolved)) uris.push(resolved);
+    };
 
-    // 1) Directly specified on the item (preferred)
-    const direct = (item.image ?? "").trim();
-    if (direct) candidates.push(resolveUrl(normalizeWebAssetPath(direct), assetBase));
+    // 1) Direct field (best)
+    if (item.image) push(item.image);
 
-    // 2) Legacy/prompt-based lookup (share_sd)
-    if (shareIndex && shareIndex.items.length > 0) {
-      const prompt = item.image_prompt || buildSharePrompt(item.text ?? "", item.place);
-      const byPrompt = prompt ? sharePromptToImage.get(prompt) : undefined;
-      if (byPrompt) {
-        candidates.push(resolveUrl(normalizeWebAssetPath(byPrompt), assetBase));
-      } else {
-        const dateKey = `${item.date}|${item.place}`;
-        const placeKey = `${item.date}|${item.place ?? ""}`;
-        const byKey = sharePromptToImage.get(dateKey) ?? sharePromptToImage.get(placeKey);
-        if (byKey) candidates.push(resolveUrl(normalizeWebAssetPath(byKey), assetBase));
-      }
+    // 2) Stem-match rule: if id looks like feed stem, try /image/<id>.png
+    const id = String(item.id ?? "").trim();
+    if (id && id.startsWith("feed_")) {
+      push(`/image/${encodeURIComponent(id)}.png`);
     }
 
-    // 3) Deterministic mapping: item.id -> /image/<stem>.png (and /share_sd/<stem>.png)
-    const stem = (item.id ?? "").trim();
-    if (stem) {
-      candidates.push(resolveUrl(normalizeWebAssetPath(`/image/${stem}.png`), assetBase));
-      candidates.push(resolveUrl(normalizeWebAssetPath(`/share_sd/${stem}.png`), assetBase));
+    // 3) Optional: share_sd index match (if configured)
+    const place = item.place || feed?.place;
+    const prompt = item.image_prompt || buildSharePrompt(item.text, place);
+
+    const fromPrompt = sharePromptToImage.get(prompt);
+    if (fromPrompt) push(fromPrompt);
+
+    if (item.date && place) {
+      const byKey = sharePromptToImage.get(`${item.date}|${place}`);
+      if (byKey) push(byKey);
     }
 
-    return uniqueNonEmptyStrings(candidates);
+    return uris;
   },
-  [assetBase, shareIndex, sharePromptToImage]
+  [assetBase, feed?.place, sharePromptToImage],
 );
-
-
-  useEffect(() => {
-    setEffectiveUrl(RESOLVED_FEED_URL);
-  }, [RESOLVED_FEED_URL]);
 
   useEffect(() => {
     ensureWebScrollbarStyle();
   }, []);
 
-  const load = useCallback(async () => {
+  const load = useCallback(
+  async () => {
     let currentEffectiveUrl = RESOLVED_FEED_URL;
 
     try {
       setError(null);
       setNextUrl(null);
 
+      const base =
+        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
 
-      setEffectiveUrl(RESOLVED_FEED_URL);
-      const first = await fetchJson(RESOLVED_FEED_URL);
+      // Try the configured URL first, then common fallbacks (root and /feed/).
+      const candidates = Array.from(
+        new Set([
+          RESOLVED_FEED_URL,
+          resolveUrl("./latest.json", base),
+          resolveUrl("./feed/latest.json", base),
+          resolveUrl("./feed/latest.json", base),
+          resolveUrl("./feed/feed.json", base),
+          resolveUrl("./feed.json", base),
+          resolveUrl("./output.json", base),
+          resolveUrl("./feed/output.json", base),
+        ]),
+      );
+
+      let firstUrl = "";
+      let first: { raw: string; parsed: unknown } | null = null;
+      let lastErr: any = null;
+
+      for (const u of candidates) {
+        try {
+          first = await fetchJson(u);
+          firstUrl = u;
+          break;
+        } catch (e: any) {
+          lastErr = e;
+        }
+      }
+
+      if (!first) throw lastErr ?? new Error("Failed to load feed");
+
+      setEffectiveUrl(firstUrl);
 
       const pointer = getFeedPointer(first.parsed);
       let target = first;
+      let baseForPointers = firstUrl;
 
       if (pointer) {
-        currentEffectiveUrl = resolveUrl(pointer, RESOLVED_FEED_URL);
+        currentEffectiveUrl = resolveUrl(pointer, baseForPointers);
         setEffectiveUrl(currentEffectiveUrl);
         target = await fetchJson(currentEffectiveUrl);
+        baseForPointers = currentEffectiveUrl;
       }
 
       const normalized = normalizeFeed(target.parsed);
       if (!normalized) {
-        const preview = target.raw.slice(0, 180).replace(/\s+/g, " ").trim();
+        const preview = first.raw.slice(0, 180).replace(/\s+/g, " ").trim();
         throw new Error(`Invalid feed JSON shape\nURL: ${currentEffectiveUrl}\nRAW: ${preview}`);
       }
 
       const nextPointer = getNextPointer(target.parsed);
-      setNextUrl(nextPointer ? resolveUrl(nextPointer, currentEffectiveUrl) : null);
+      setNextUrl(nextPointer ? resolveUrl(nextPointer, baseForPointers) : null);
 
       setFeed(normalized);
     } catch (e: any) {
@@ -619,7 +1062,9 @@ const getImageUrisForItem = useCallback(
     } finally {
       setLoading(false);
     }
-  }, [RESOLVED_FEED_URL]);
+  },
+  [RESOLVED_FEED_URL, fetchJson],
+);
 
   useEffect(() => {
     void load();
@@ -715,7 +1160,7 @@ const getImageUrisForItem = useCallback(
       showsVerticalScrollIndicator={false}
       style={{ flex: 1, backgroundColor: APP_BG }}
       contentContainerStyle={{ paddingBottom: 18 }}
-      data={sortedItems}
+      data={timelineItems}
       keyExtractor={(it) => it.id}
       ListHeaderComponent={Header}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -738,6 +1183,73 @@ const getImageUrisForItem = useCallback(
               ) : null
             }
       renderItem={({ item }) => {
+        if (isSlotItem(item)) {
+          const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
+          const banners = SLOT_BANNERS;
+
+          if (enabled && banners.length) {
+            const startIndex = hashString(item.id) % banners.length;
+
+            return (
+              <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+                <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                  {/* keep alignment with the mascot column */}
+                  <View style={{ width: MASCOT_COL_W }} />
+                  <View style={{ flex: 1 }}>
+                    <SlotCard banners={banners} startIndex={startIndex} variant="inline" />
+                  </View>
+                </View>
+              </View>
+            );
+          }
+
+          const open = () => {
+            if (!item.url) return;
+            void Linking.openURL(item.url);
+          };
+
+          return (
+            <Pressable onPress={open}>
+              <View 
+                style={{ 
+                  paddingHorizontal: 16, 
+                  paddingBottom: 12 
+                  }}>
+                <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                  <View style={{ flex: 1 }}>
+                    {/* Speech-bubble wrapper */}
+                    <View style={{ position: "relative", marginTop: 2 }}>
+                      {/* ✅ 1) Bubble body FIRST */}
+                      <View
+                        style={{
+                          backgroundColor: ITEM_BG,
+                          padding: 12,
+                          borderRadius: BUBBLE_RADIUS,
+                          borderWidth: BUBBLE_BORDER_W,
+                          borderColor: BORDER,
+                          minHeight: MASCOT_SIZE,
+                          shadowColor: "#000000",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.12,
+                          shadowRadius: 6,
+                          elevation: 2,
+                          zIndex: 1,
+                        }}
+                      >
+                        <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                          <Text style={{ color: "#000000", fontWeight: "800" }}>{item.title}</Text>
+                          {item.sponsor ? <Text style={{ color: TEXT_DIM }}>• {item.sponsor}</Text> : null}
+                        </View>
+                        <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.body}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </Pressable>
+          );
+        }
+
         const imageUris = getImageUrisForItem(item);
         return (
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
@@ -817,15 +1329,17 @@ const getImageUrisForItem = useCallback(
 
   return (
     <View style={{ flex: 1, flexDirection: "row", justifyContent: "center", backgroundColor: APP_BG }}>
+
       <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingLeft: 12, minHeight: 0 }}>
-        <Slot />
+        <Slot side="left" />
       </View>
 
       <View style={{ flex: 1, maxWidth: CONTENT_MAX_W }}>{list}</View>
 
-      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingRight: 12, minHeight: 0 }}>
-        <Slot />
+      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingLeft: 12, minHeight: 0 }}>
+        <Slot side="right" />
       </View>
+
     </View>
   );
 }
