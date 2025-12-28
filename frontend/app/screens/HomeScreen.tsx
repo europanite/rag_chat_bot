@@ -27,7 +27,7 @@ type Feed = {
   items: FeedItem[];
 };
 
-type AdItem = {
+type SlotItem = {
   kind: "ad";
   id: string;
   title: string;
@@ -39,9 +39,9 @@ type AdItem = {
   emoji?: string;
 };
 
-type TimelineItem = FeedItem | AdItem;
+type TimelineItem = FeedItem | SlotItem;
 
-function isAdItem(it: TimelineItem): it is AdItem {
+function isSlotItem(it: TimelineItem): it is SlotItem {
   return (it as any)?.kind === "ad";
 }
 
@@ -62,11 +62,11 @@ const SIDEBAR_W = 240;
 
 const FEED_SCROLL_ID = "feed-scroll";
 
-const AD_EVERY_N = Math.max(2, Number((process.env.EXPO_PUBLIC_AD_EVERY_N || "5").trim()) || 5); // 1 ad per N items
-const AD_BG = "#fff7ed";
-const AD_BADGE_BG = "#fb923c";
+const ITEM_EVERY_N = Math.max(2, Number((process.env.EXPO_PUBLIC_ITEM_EVERY_N || "5").trim()) || 5); // 1 ad per N items
+const ITEM_BG = "#fff7ed";
+const ITEM_BADGE_BG = "#fb923c";
 
-const FAKE_AD_TEMPLATES: Omit<AdItem, "id" | "kind">[] = [
+const FAKE_AD_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
   {
     title: "demo1",
     body: "demo1",
@@ -115,13 +115,13 @@ const FAKE_AD_TEMPLATES: Omit<AdItem, "id" | "kind">[] = [
 ];
 
 function hashString(s: string): number {
-  // Simple deterministic hash (for stable ad rotation per anchor id)
+  // Simple deterministic hash (for stable rotation per anchor id)
   let h = 0;
   for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
   return Math.abs(h);
 }
 
-function makeAdForAnchor(anchorId: string): AdItem {
+function makeAnchor(anchorId: string): SlotItem {
   const idx = FAKE_AD_TEMPLATES.length ? hashString(anchorId) % FAKE_AD_TEMPLATES.length : 0;
   const t = FAKE_AD_TEMPLATES[idx] ?? FAKE_AD_TEMPLATES[0];
   return {
@@ -139,7 +139,7 @@ function makeAdForAnchor(anchorId: string): AdItem {
 
 function interleaveAds(posts: FeedItem[]): TimelineItem[] {
   // "5件に1件" = every Nth item is an ad (i.e. after N-1 posts)
-  const n = AD_EVERY_N;
+  const n = ITEM_EVERY_N;
   const afterPosts = Math.max(1, n - 1);
 
   const out: TimelineItem[] = [];
@@ -150,7 +150,7 @@ function interleaveAds(posts: FeedItem[]): TimelineItem[] {
     count += 1;
 
     if (count % afterPosts === 0) {
-      out.push(makeAdForAnchor(p.id));
+      out.push(makeAnchor(p.id));
     }
   }
 
@@ -888,7 +888,7 @@ const getImageUrisForItem = useCallback(
               ) : null
             }
       renderItem={({ item }) => {
-        if (isAdItem(item)) {
+        if (isSlotItem(item)) {
           const open = () => {
             if (!item.url) return;
             void Linking.openURL(item.url);
@@ -909,7 +909,7 @@ const getImageUrisForItem = useCallback(
                     {/* ✅ 1) Bubble body FIRST */}
                     <View
                       style={{
-                        backgroundColor: AD_BG,
+                        backgroundColor: ITEM_BG,
                         padding: 12,
                         borderRadius: BUBBLE_RADIUS,
                         borderWidth: BUBBLE_BORDER_W,
@@ -926,7 +926,7 @@ const getImageUrisForItem = useCallback(
                       <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
                         <View
                           style={{
-                            backgroundColor: AD_BADGE_BG,
+                            backgroundColor: ITEM_BADGE_BG,
                             borderRadius: 999,
                             paddingHorizontal: 8,
                             paddingVertical: 2,
@@ -934,7 +934,7 @@ const getImageUrisForItem = useCallback(
                             borderColor: BORDER,
                           }}
                         >
-                          <Text style={{ color: "#000000", fontWeight: "900", fontSize: 12 }}>AD</Text>
+                          <Text style={{ color: "#000000", fontWeight: "900", fontSize: 12 }}>Slot</Text>
                         </View>
 
                         {item.emoji ? <Text style={{ color: "#000000" }}>{item.emoji}</Text> : null}
@@ -959,10 +959,10 @@ const getImageUrisForItem = useCallback(
                             opacity: item.url ? 1 : 0.6,
                           }}
                         >
-                          {item.cta ?? "Learn more"}
+                          {/* {item.cta ?? "Learn more"} */}
                         </Text>
 
-                        <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{item.disclaimer ?? "架空の広告（デモ）です。"}</Text>
+                        <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{item.disclaimer ?? "demo"}</Text>
                       </View>
                     </View>
 
@@ -975,7 +975,7 @@ const getImageUrisForItem = useCallback(
                         top: 22,
                         width: 14,
                         height: 14,
-                        backgroundColor: AD_BG,
+                        backgroundColor: ITEM_BG,
                         transform: [{ rotate: "45deg" }],
                         borderLeftWidth: BUBBLE_BORDER_W,
                         borderBottomWidth: BUBBLE_BORDER_W,
