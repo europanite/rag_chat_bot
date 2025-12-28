@@ -464,7 +464,7 @@ const FeedBubbleImage: React.FC<{ uris?: string[] }> = ({ uris }) => {
         source={{ uri }}
         style={{ width: "100%", aspectRatio: 4 / 3 }}
         resizeMode="cover"
-        accessibilityLabel="Generated image"
+        accessibilityLabel="image"
         onError={() => {
           if (uris && idx + 1 < uris.length) setIdx(idx + 1);
           else setHidden(true);
@@ -1284,11 +1284,9 @@ const getImageUrisForItem = useCallback(
                     {item.generated_at ? <Text style={{ color: TEXT_DIM }}>{formatJst(item.generated_at)}</Text> : null}
                     {item.place ? <Text style={{ color: TEXT_DIM }}>• {item.place}</Text> : null}
                   </View>
-
                   
-<FeedBubbleImage uris={imageUris} />
-
-<Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
+                  <FeedBubbleImage uris={imageUris} />
+                  <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
                 </View>
 
                 {/* ✅ 2) Tail AFTER (on top) to cover the bubble border line */}
@@ -1344,7 +1342,9 @@ const getImageUrisForItem = useCallback(
       <View style={{ 
         flex: 1, 
         maxWidth: CONTENT_MAX_W,
-        borderRadius: BUBBLE_RADIUS,
+        borderRadius: MASCOT_RADIUS,
+        borderWidth: MASCOT_BORDER_W,
+        borderColor: BORDER,
       }}>
         {list}
       </View>
