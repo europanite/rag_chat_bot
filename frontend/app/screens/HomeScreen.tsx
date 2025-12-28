@@ -1,731 +1,1356 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState,useRef } from "react";
 import {
   ActivityIndicator,
+  Animated,
   FlatList,
   Image,
   Linking,
   Platform,
-  Pressable,
   RefreshControl,
   Text,
-  TextInput,
-  TouchableOpacity,
   useWindowDimensions,
   View,
+  Pressable,
 } from "react-native";
+
+const RAW_CONTACT_URL = (process.env.EXPO_PUBLIC_FEEDBACK_FORM_URL ?? "").trim();
 
 type FeedItem = {
   id: string;
-  createdAt: string; // ISO string
-  place?: string;
+  date: string; // YYYY-MM-DD
   text: string;
-  imageUrl?: string; // relative or absolute
-  tags?: string[];
+  place?: string;
+  generated_at?: string; // ISO string (often Z)
+  image?: string; // local path or absolute URL
+  image_prompt?: string; // optional (for matching)
 };
 
-type AdItem = {
-  id: string;
-  kind: "ad";
-  createdAt: string;
+type Feed = {
+  updated_at?: string;
   place?: string;
-  title: string;
-  detail: string;
-  imageUrl?: string;
-  ctaLabel?: string;
-  ctaUrl?: string;
-  tags?: string[];
+  items: FeedItem[];
 };
 
 type SlotItem = {
+  kind: "ad";
   id: string;
-  kind: "slot";
+  title: string;
+  body: string;
+  cta?: string;
+  url?: string;
+  sponsor?: string;
+  disclaimer?: string;
+  emoji?: string;
 };
 
-type TimelineItem = FeedItem | AdItem | SlotItem;
+type TimelineItem = FeedItem | SlotItem;
+
+function isSlotItem(it: TimelineItem): it is SlotItem {
+  return (it as any)?.kind === "ad";
+}
 
 const APP_BG = "#f6f4ff";
 const CARD_BG = "#ffffff";
+const TEXT_DIM = "#333333";
 
-const TEXT_MAIN = "#0f172a";
-const TEXT_DIM = "#475569";
+const BORDER = "#000000";
+const BUBBLE_RADIUS = 16;
+const BUBBLE_BORDER_W = 2;
 
-const BORDER = "#111111";
-const OUTLINE_W = 1;
-const BUBBLE_RADIUS = 18;
-const BUBBLE_BORDER_W = OUTLINE_W;
-
-const CONTENT_MAX_W = 780;
+const CONTENT_MAX_W = 760;
 const MASCOT_COL_W = 128;
 const MASCOT_SIZE = 96;
 const MASCOT_RADIUS = 12;
-const MASCOT_BORDER_W = OUTLINE_W;
+const MASCOT_BORDER_W = 2;
 const SIDEBAR_W = 240;
-
-const SURFACE_SHADOW: any =
-  Platform.OS === "web"
-    ? { boxShadow: "0px 10px 28px rgba(15, 23, 42, 0.12)" }
-    : {
-        shadowColor: "#000000",
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.12,
-        shadowRadius: 14,
-        elevation: 3,
-      };
 
 const FEED_SCROLL_ID = "feed-scroll";
 
+const ITEM_EVERY_N = Math.max(2, Number((process.env.EXPO_PUBLIC_ITEM_EVERY_N || "5").trim()) || 5); // 1 ad per N items
 const ITEM_BG = "#fff7ed";
-const ITEM_BADGE_BG = "#000000";
-const ITEM_BADGE_FG = "#ffffff";
-const SLOT_ROTATE_MS = 5500;
+const ITEM_BADGE_BG = "#fb923c";
 
-type SlotBanner = {
-  id: string;
-  label: string; // top left
-  title: string;
-  subtitle: string;
-  buttonLabel?: string;
-  buttonKind?: "link" | "play";
-  href?: string;
-  imageUrl: string;
-  footnote?: string;
-};
-
-const DEMO_BANNERS: SlotBanner[] = [
+const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
   {
-    id: "demo-1",
-    label: "AD",
-    title: "Coffee & quiet time",
-    subtitle: "GOODDAY (demo)",
-    buttonLabel: "See more",
-    buttonKind: "link",
-    href: "https://example.com/",
-    imageUrl:
-      "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?auto=format&fit=crop&w=1200&q=60",
-    footnote: "Demo ad slot — not a real promotion.",
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
   },
   {
-    id: "demo-2",
-    label: "AD",
-    title: "Sunset soundtrack",
-    subtitle: "GOODDAY (demo)",
-    buttonLabel: "Play",
-    buttonKind: "play",
-    href: "https://example.com/",
-    imageUrl:
-      "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=60",
-    footnote: "Demo ad slot — not a real promotion.",
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
   },
   {
-    id: "demo-3",
-    label: "AD",
-    title: "Weekend walk",
-    subtitle: "GOODDAY (demo)",
-    buttonLabel: "See more",
-    buttonKind: "link",
-    href: "https://example.com/",
-    imageUrl:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=60",
-    footnote: "Demo ad slot — not a real promotion.",
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: RAW_CONTACT_URL,
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
   },
 ];
 
-function isAdItem(x: TimelineItem): x is AdItem {
-  return (x as any).kind === "ad";
-}
-function isSlotItem(x: TimelineItem): x is SlotItem {
-  return (x as any).kind === "slot";
+type SlotBanner = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  url: string;
+  imageUri: string;
+  sponsor?: string;
+  disclaimer?: string;
+};
+
+const SLOT_ROTATE_MS = Math.max(2500, Number((process.env.EXPO_PUBLIC_SLOT_ROTATE_MS || "6500").trim()) || 6500);
+const SLOT_FADE_MS = Math.max(200, Number((process.env.EXPO_PUBLIC_SLOT_FADE_MS || "800").trim()) || 800);
+
+const SLOT_BANNERS: SlotBanner[] = [
+  {
+    id: "slot-0",
+    title: "Ocean view, zero effort",
+    body: "",
+    cta: "Open demo",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_ocean/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-1",
+    title: "Coffee & quiet time",
+    body: "",
+    cta: "See more",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_coffee/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-2",
+    title: "Weekend micro trip",
+    body: "",
+    cta: "View route",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_trip/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-3",
+    title: "Sunset soundtrack",
+    body: "",
+    cta: "Play",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_sunset/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-4",
+    title: "Mountain air",
+    body: "",
+    cta: "Learn more",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_mountain/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+  {
+    id: "slot-5",
+    title: "City lights",
+    body: "",
+    cta: "Open",
+    url: RAW_CONTACT_URL,
+    imageUri: "https://picsum.photos/seed/goodday_city/900/650",
+    sponsor: "GOODDAY (demo)",
+    disclaimer: "Demo ad slot — not a real promotion.",
+  },
+];
+
+function hashString(s: string): number {
+  // Simple deterministic hash (for stable rotation per anchor id)
+  let h = 0;
+  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
 }
 
-function safeOpenUrl(url?: string) {
-  if (!url) return;
+function makeAnchor(anchorId: string): SlotItem {
+  const idx = FAKE_ITEM_TEMPLATES.length ? hashString(anchorId) % FAKE_ITEM_TEMPLATES.length : 0;
+  const t = FAKE_ITEM_TEMPLATES[idx] ?? FAKE_ITEM_TEMPLATES[0];
+  return {
+    kind: "ad",
+    id: `ad|${anchorId}`,
+    title: t?.title ?? "Sponsored",
+    body: t?.body ?? "Demo ad",
+    cta: t?.cta,
+    url: t?.url,
+    sponsor: t?.sponsor,
+    disclaimer: t?.disclaimer,
+    emoji: t?.emoji,
+  };
+}
+
+function interleaveAds(posts: FeedItem[]): TimelineItem[] {
+  // "5件に1件" = every Nth item is an ad (i.e. after N-1 posts)
+  const n = ITEM_EVERY_N;
+  const afterPosts = Math.max(1, n - 1);
+
+  const out: TimelineItem[] = [];
+  let count = 0;
+
+  for (const p of posts) {
+    out.push(p);
+    count += 1;
+
+    if (count % afterPosts === 0) {
+      out.push(makeAnchor(p.id));
+    }
+  }
+
+  return out;
+}
+
+function ensureWebScrollbarStyle() {
+  if (Platform.OS !== "web") return;
+
+  const STYLE_ID = "hide-scrollbar-style";
+  if (document.getElementById(STYLE_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = `
+    /* target only the FlatList scroll node */
+    #${FEED_SCROLL_ID} {
+      -ms-overflow-style: none;   /* IE/Edge legacy */
+      scrollbar-width: none;      /* Firefox */
+    }
+    #${FEED_SCROLL_ID}::-webkit-scrollbar {
+      width: 0px;
+      height: 0px;
+      display: none;              /* Chrome/Safari */
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function parseTimeLike(input: string): Date | null {
+  const s = String(input ?? "").trim();
+  if (!s) return null;
+
+  if (/(Z|[+-]\d{2}:\d{2})$/.test(s)) {
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(s)) {
+    const d = new Date(`${s}+09:00`);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatJst(isoLike: string, withSeconds = false): string {
+  const d = parseTimeLike(isoLike);
+  if (!d) return isoLike;
+
+  const jstMs = d.getTime() + 9 * 60 * 60 * 1000;
+  const j = new Date(jstMs);
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  const yyyy = j.getUTCFullYear();
+  const mm = pad(j.getUTCMonth() + 1);
+  const dd = pad(j.getUTCDate());
+  const hh = pad(j.getUTCHours());
+  const mi = pad(j.getUTCMinutes());
+  const ss = pad(j.getUTCSeconds());
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}${withSeconds ? `:${ss}` : ""} JST`;
+}
+
+function safeJsonParse(raw: string): unknown | null {
   try {
-    Linking.openURL(url);
+    return JSON.parse(raw) as unknown;
   } catch {
-    // ignore
+    return null;
   }
 }
 
-function Mascot() {
-  const src =
-    "https://raw.githubusercontent.com/europanite/rag_chat_bot/main/frontend/assets/mascot.png";
+function normalizeFeed(parsed: unknown): Feed | null {
+  if (!parsed) return null;
+
+  if (typeof parsed === "object" && !Array.isArray(parsed)) {
+    const obj = parsed as any;
+
+    if (Array.isArray(obj.items)) {
+      const items: FeedItem[] = obj.items
+        .map((it: any, idx: number): FeedItem | null => {
+          const date = typeof it?.date === "string" ? it.date : "";
+          const text = typeof it?.text === "string" ? it.text : "";
+          if (!date || !text) return null;
+          const id = typeof it?.id === "string" ? it.id : `${date}-${idx}`;
+          const place = typeof it?.place === "string" ? it.place : undefined;
+          const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
+          const image =
+            typeof it?.image === "string"
+              ? it.image
+              : typeof it?.image_url === "string"
+              ? it.image_url
+              : typeof it?.imageUri === "string"
+              ? it.imageUri
+              : undefined;
+          const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
+          return { id, date, text, place, generated_at, image, image_prompt };
+        })
+        .filter(Boolean) as FeedItem[];
+
+      return {
+        updated_at: typeof obj.updated_at === "string" ? obj.updated_at : undefined,
+        place: typeof obj.place === "string" ? obj.place : undefined,
+        items,
+      };
+    }
+
+    const date = typeof obj.date === "string" ? obj.date : "";
+    const text = typeof obj.text === "string" ? obj.text : "";
+    if (date && text) {
+      const id = typeof obj.id === "string" ? obj.id : `${date}-0`;
+      const place = typeof obj.place === "string" ? obj.place : undefined;
+      const generated_at = typeof obj.generated_at === "string" ? obj.generated_at : undefined;
+      const image =
+        typeof obj?.image === "string"
+          ? obj.image
+          : typeof obj?.image_url === "string"
+          ? obj.image_url
+          : typeof obj?.imageUri === "string"
+          ? obj.imageUri
+          : undefined;
+      const image_prompt = typeof obj?.image_prompt === "string" ? obj.image_prompt : undefined;
+      const updated_at = generated_at;
+      return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt }] };
+    }
+  }
+
+  if (Array.isArray(parsed)) {
+    const items: FeedItem[] = parsed
+      .map((it: any, idx: number): FeedItem | null => {
+        const date = typeof it?.date === "string" ? it.date : "";
+        const text = typeof it?.text === "string" ? it.text : "";
+        if (!date || !text) return null;
+        const id = typeof it?.id === "string" ? it.id : `${date}-${idx}`;
+        const place = typeof it?.place === "string" ? it.place : undefined;
+        const generated_at = typeof it?.generated_at === "string" ? it.generated_at : undefined;
+          const image =
+            typeof it?.image === "string"
+              ? it.image
+              : typeof it?.image_url === "string"
+              ? it.image_url
+              : typeof it?.imageUri === "string"
+              ? it.imageUri
+              : undefined;
+          const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
+          return { id, date, text, place, generated_at, image, image_prompt };
+      })
+      .filter(Boolean) as FeedItem[];
+
+    const last = parsed.length > 0 ? (parsed[parsed.length - 1] as any) : null;
+    const updated_at = typeof last?.generated_at === "string" ? last.generated_at : undefined;
+    const place = typeof last?.place === "string" ? last.place : undefined;
+
+    return { updated_at, place, items };
+  }
+
+  return null;
+}
+
+
+type ShareSdItem = {
+  date?: string;
+  place?: string;
+  image: string;
+  prompt?: string;
+};
+
+type ShareSdIndex = {
+  updated_at?: string;
+  items: ShareSdItem[];
+};
+
+function normalizeWebAssetPath(p: string): string {
+  let s = String(p ?? "").trim();
+  if (!s) return "";
+  if (/^(https?:)?\/\//i.test(s) || s.startsWith("data:")) return s;
+
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    const baseSeg = window.location.pathname.split("/").filter(Boolean)[0] || "";
+    // If the path already includes the repo segment (e.g. "rag_chat_bot/..."),
+    // strip it to avoid double-prefixing when resolving relative URLs.
+    if (baseSeg) {
+      if (s.startsWith(`/${baseSeg}/`)) s = `./${s.slice(baseSeg.length + 2)}`;
+      else if (s.startsWith(`${baseSeg}/`)) s = `./${s.slice(baseSeg.length + 1)}`;
+    }
+    // Treat leading "/" as repo-relative on GitHub Pages.
+    if (s.startsWith("/")) return `.${s}`;
+  }
+
+  return s;
+}
+
+
+function buildSharePrompt(text: string, place?: string): string {
+  const t = String(text ?? "").replace(/\s+/g, " ").trim().slice(0, 240);
+  const p = String(place ?? "").trim();
+  return p
+    ? `cinematic illustration, ${p}, based on this short story: ${t}`
+    : `cinematic illustration, based on this short story: ${t}`;
+}
+
+
+const FeedBubbleImage: React.FC<{ uris?: string[] }> = ({ uris }) => {
+  const [idx, setIdx] = useState(0);
+  const [hidden, setHidden] = useState(false);
+
+  const key = useMemo(() => (uris ?? []).join("|"), [uris]);
+
+  useEffect(() => {
+    setIdx(0);
+    setHidden(false);
+  }, [key]);
+
+  const uri = (uris ?? [])[idx] ?? "";
+  if (!uri || hidden) return null;
 
   return (
-    <View style={{ alignItems: "center", paddingTop: 10 }}>
-      <View
-        style={{
-          width: MASCOT_SIZE,
-          height: MASCOT_SIZE,
-          borderRadius: MASCOT_RADIUS,
-          borderWidth: MASCOT_BORDER_W,
-          borderColor: BORDER,
-          backgroundColor: CARD_BG,
-          overflow: "hidden",
-          ...SURFACE_SHADOW,
+    <View
+      style={{
+        marginTop: 10,
+        marginBottom: 0,
+        borderRadius: 12,
+        overflow: "hidden",
+        borderWidth: 1,
+        borderColor: BORDER,
+        backgroundColor: "#ffffff",
+      }}
+    >
+      <Image
+        source={{ uri }}
+        style={{ width: "100%", aspectRatio: 4 / 3 }}
+        resizeMode="cover"
+        accessibilityLabel="image"
+        onError={() => {
+          if (uris && idx + 1 < uris.length) setIdx(idx + 1);
+          else setHidden(true);
         }}
-      >
-        <Image
-          source={{ uri: src }}
-          style={{ width: "100%", height: "100%" }}
-          resizeMode="cover"
-          onError={() => {
-            // ignore
-          }}
-        />
-      </View>
+      />
     </View>
+  );
+};
+
+
+function normalizeShareSdIndex(parsed: unknown): ShareSdIndex | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
+
+  if (!Array.isArray(obj.items)) return null;
+
+  const items: ShareSdItem[] = obj.items
+    .map((it: any): ShareSdItem | null => {
+      const image = typeof it?.image === "string" ? it.image : "";
+      if (!image) return null;
+
+      const date = typeof it?.date === "string" ? it.date : undefined;
+      const place = typeof it?.place === "string" ? it.place : undefined;
+      const prompt = typeof it?.prompt === "string" ? it.prompt : undefined;
+
+      return { image, date, place, prompt };
+    })
+    .filter(Boolean) as ShareSdItem[];
+
+  return {
+    updated_at: typeof obj.updated_at === "string" ? obj.updated_at : undefined,
+    items,
+  };
+}
+
+
+function getFeedPointer(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
+
+  const cand =
+    typeof obj.feed_url === "string"
+      ? obj.feed_url
+      : typeof obj.feed_file === "string"
+        ? obj.feed_file
+        : typeof obj.feed_path === "string"
+          ? obj.feed_path
+          : null;
+
+  if (!cand) return null;
+  const s = String(cand).trim();
+  return s ? s : null;
+}
+
+function getNextPointer(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
+
+  const cand =
+    typeof obj.next_url === "string"
+      ? obj.next_url
+      : typeof obj.next === "string"
+        ? obj.next
+        : typeof obj.nextPage === "string"
+          ? obj.nextPage
+          : typeof obj.next_page === "string"
+            ? obj.next_page
+            : null;
+
+  if (!cand) return null;
+  const s = String(cand).trim();
+  return s ? s : null;
+}
+
+function resolveUrl(maybeRelative: string, baseUrl: string): string {
+  try {
+    if (maybeRelative.startsWith("http://") || maybeRelative.startsWith("https://")) return maybeRelative;
+    if (typeof window !== "undefined") return new URL(maybeRelative, baseUrl).toString();
+  } catch {
+    // ignore
+  }
+  return maybeRelative;
+}
+
+function addCacheBuster(url: string): string {
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${Date.now()}`;
+}
+
+function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
+  const [failed, setFailed] = useState(false);
+  const envUri = (process.env.EXPO_PUBLIC_MASCOT_URI || "").trim();
+
+  const resolvedEnvUri = useMemo(() => {
+    if (!envUri) return "";
+    // Only use the env URI when it is clearly an absolute URL/data URI.
+    // (Relative strings like "avatar.png" often cause 404s on GitHub Pages.)
+    if (/^(https?:)?\/\//i.test(envUri) || envUri.startsWith("data:")) return envUri;
+    return "";
+  }, [envUri]);
+
+  const Frame = ({ children }: { children: React.ReactNode }) => (
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: MASCOT_RADIUS,
+        borderWidth: MASCOT_BORDER_W,
+        borderColor: BORDER,
+        overflow: "hidden",
+        backgroundColor: "#ffffff",
+      }}
+      accessibilityLabel="Mascot"
+    >
+      {children}
+    </View>
+  );
+
+  if (!failed && resolvedEnvUri) {
+    return (
+      <Frame>
+        <Image
+          source={{ uri: resolvedEnvUri }}
+          style={{ width: "100%", height: "100%" }}
+          accessibilityLabel="Mascot"
+          onError={() => setFailed(true)}
+        />
+        />
+      </Frame>
+    );
+  }
+
+  try {
+    const fallback = require("../assets/images/avatar.png");
+    return (
+      <Frame>
+        <Image source={fallback} style={{ width: "100%", height: "100%" }} accessibilityLabel="Mascot" />
+      </Frame>
+    );
+  } catch {
+    // ignore
+  }
+
+  return (
+    <Frame>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
+        <Text style={{ color: "#ffffff", fontWeight: "512", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
+      </View>
+    </Frame>
   );
 }
 
+type SlotCardVariant = "sidebar" | "inline";
+
 function SlotCard({
-  variant,
   banners,
-  startIndex = 0,
-  sticky,
+  startIndex,
+  sticky = false,
+  variant = "sidebar",
 }: {
-  variant: "inline" | "sidebar";
   banners: SlotBanner[];
-  startIndex?: number;
+  startIndex: number;
   sticky?: boolean;
+  variant?: SlotCardVariant;
 }) {
-  const [idx, setIdx] = useState(startIndex);
+  const len = Math.max(1, banners.length);
+  const safeStart = ((startIndex % len) + len) % len;
+
+  const [active, setActive] = useState(safeStart);
+  const [next, setNext] = useState((safeStart + 1) % len);
+
+  // Cross-fade progress: 0 → show "active", 1 → show "next"
+  const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!banners.length) return;
-    const t = setInterval(() => {
-      setIdx((x) => (x + 1) % banners.length);
-    }, SLOT_ROTATE_MS);
-    return () => clearInterval(t);
-  }, [banners.length]);
+    // If banners length changes (it shouldn't), clamp indices.
+    if (active >= len) setActive(0);
+    if (next >= len) setNext((active + 1) % len);
+  }, [active, next, len]);
 
-  const current = banners.length ? banners[idx % banners.length] : null;
+  useEffect(() => {
+    if (len <= 1) return;
+
+    let cancelled = false;
+
+    const interval = setInterval(() => {
+      const n = (active + 1) % len;
+      setNext(n);
+
+      progress.stopAnimation();
+      progress.setValue(0);
+
+      Animated.timing(progress, {
+        toValue: 1,
+        duration: SLOT_FADE_MS,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (!finished || cancelled) return;
+        setActive(n);
+        // Snap back to the stable state (active fully visible).
+        progress.setValue(0);
+      });
+    }, SLOT_ROTATE_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      progress.stopAnimation();
+    };
+  }, [active, len, progress]);
+
+  const activeOpacity =
+    len <= 1
+      ? 1
+      : progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0],
+        });
+
+  const nextOpacity = len <= 1 ? 0 : progress;
+
+  const activeBanner = banners[active] ?? banners[0];
+  const nextBanner = banners[next] ?? banners[0];
+
+  const onPress = useCallback(() => {
+    const url = activeBanner?.url;
+    if (!url) return;
+    void Linking.openURL(url).catch(() => {
+      // ignore
+    });
+  }, [activeBanner?.url]);
+
+  const imageAreaStyle =
+    variant === "sidebar"
+      ? ({ flex: 1, minHeight: 0, backgroundColor: "#e5e7eb" } as const)
+      : ({ height: 200, backgroundColor: "#e5e7eb" } as const);
 
   const shellStyle = {
     ...(variant === "sidebar" ? ({ flex: 1 } as const) : ({ width: "100%" } as const)),
-    backgroundColor: "transparent",
-    borderRadius: 16,
+    backgroundColor: APP_BG,
+    borderRadius: 12,
     ...(sticky && Platform.OS === "web" ? ({ position: "sticky", top: 16 } as any) : null),
   };
 
   const cardStyle = {
     ...(variant === "sidebar" ? ({ flex: 1, minHeight: 0 } as const) : null),
     backgroundColor: CARD_BG,
-    borderWidth: OUTLINE_W,
+    borderWidth: 2,
     borderColor: BORDER,
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: "hidden",
-    ...SURFACE_SHADOW,
   };
-
-  const imgStyle = {
-    width: "100%",
-    height: variant === "sidebar" ? "100%" : 240,
-    flex: variant === "sidebar" ? 1 : undefined,
-  } as const;
-
-  const overlayStyle = {
-    position: "absolute" as const,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    borderTopWidth: OUTLINE_W,
-    borderTopColor: BORDER,
-  };
-
-  const badgeStyle = {
-    position: "absolute" as const,
-    left: 10,
-    top: 10,
-    backgroundColor: "#000",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  };
-
-  const dotsWrapStyle = {
-    position: "absolute" as const,
-    bottom: 10,
-    left: 0,
-    right: 0,
-    alignItems: "center" as const,
-  };
-
-  const dotsStyle = {
-    flexDirection: "row" as const,
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.65)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: OUTLINE_W,
-    borderColor: "rgba(0,0,0,0.25)",
-  };
-
-  const dot = (active: boolean) => ({
-    width: 8,
-    height: 8,
-    borderRadius: 99,
-    backgroundColor: active ? "rgba(0,0,0,0.95)" : "rgba(0,0,0,0.25)",
-  });
-
-  if (!current) {
-    return (
-      <View style={shellStyle}>
-        <View style={cardStyle}>
-          <View style={{ padding: 14 }}>
-            <Text style={{ color: TEXT_DIM }}>No demo banner</Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={shellStyle}>
-      <View style={cardStyle}>
-        <Pressable
-          onPress={() => safeOpenUrl(current.href)}
-          style={{ flex: 1 }}
-        >
-          <Image source={{ uri: current.imageUrl }} style={imgStyle} resizeMode="cover" />
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`Sponsored: ${activeBanner?.title ?? "Ad"}`}
+        onPress={onPress}
+        style={({ pressed }) => ({
+          ...(variant === "sidebar" ? ({ flex: 1 } as const) : null),
+          opacity: pressed ? 0.92 : 1,
+          ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : null),
+        })}
+      >
+        <View style={cardStyle}>
+          {/* Image area */}
+          <View style={imageAreaStyle}>
+            <Animated.Image
+              source={{ uri: activeBanner?.imageUri }}
+              resizeMode="cover"
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                opacity: activeOpacity as any,
+              }}
+            />
+            {len > 1 ? (
+              <Animated.Image
+                source={{ uri: nextBanner?.imageUri }}
+                resizeMode="cover"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  opacity: nextOpacity as any,
+                }}
+              />
+            ) : null}
 
-          <View style={badgeStyle}>
-            <Text style={{ color: "#fff", fontWeight: "700", fontSize: 12 }}>{current.label}</Text>
+            {/* badge */}
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 999,
+                backgroundColor: "rgba(0,0,0,0.55)",
+              }}
+            >
+              <Text style={{ color: "#ffffff", fontSize: 10, fontWeight: "800", letterSpacing: 0.4 }}>AD</Text>
+            </View>
           </View>
 
-          {variant === "inline" ? (
-            <View style={overlayStyle}>
-              <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{current.subtitle}</Text>
-              <Text style={{ color: TEXT_MAIN, fontWeight: "800", fontSize: 18, marginTop: 2 }}>
-                {current.title}
-              </Text>
-
-              {!!current.buttonLabel && (
-                <View
-                  style={{
-                    marginTop: 10,
-                    alignSelf: "flex-start",
-                    paddingVertical: 8,
-                    paddingHorizontal: 12,
-                    borderWidth: OUTLINE_W,
-                    borderColor: BORDER,
-                    borderRadius: 999,
-                    backgroundColor: CARD_BG,
-                  }}
-                >
-                  <Text style={{ fontWeight: "800" }}>{current.buttonLabel}</Text>
-                </View>
-              )}
-
-              {!!current.footnote && (
-                <Text style={{ color: "rgba(0,0,0,0.55)", fontSize: 12, marginTop: 10 }}>
-                  {current.footnote}
-                </Text>
-              )}
+          {/* Copy */}
+          <View style={{ padding: 12, gap: 6 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>{activeBanner?.sponsor ?? "Sponsored"}</Text>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
             </View>
-          ) : (
-            <View style={{ position: "absolute", left: 12, right: 12, bottom: 12 }}>
-              <View
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.92)",
-                  borderWidth: OUTLINE_W,
-                  borderColor: BORDER,
-                  borderRadius: 16,
-                  padding: 12,
-                }}
-              >
-                <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{current.subtitle}</Text>
-                <Text style={{ color: TEXT_MAIN, fontWeight: "800", fontSize: 18, marginTop: 2 }}>
-                  {current.title}
-                </Text>
 
-                {!!current.buttonLabel && (
-                  <View
-                    style={{
-                      marginTop: 10,
-                      alignSelf: "flex-start",
-                      paddingVertical: 8,
-                      paddingHorizontal: 12,
-                      borderWidth: OUTLINE_W,
-                      borderColor: BORDER,
-                      borderRadius: 999,
-                      backgroundColor: CARD_BG,
-                    }}
-                  >
-                    <Text style={{ fontWeight: "800" }}>{current.buttonLabel}</Text>
-                  </View>
-                )}
+            <Text style={{ color: "#000000", fontSize: 14, fontWeight: "800", lineHeight: 18 }}>
+              {activeBanner?.title ?? "Sponsored"}
+            </Text>
 
-                {!!current.footnote && (
-                  <Text style={{ color: "rgba(0,0,0,0.55)", fontSize: 12, marginTop: 10 }}>
-                    {current.footnote}
-                  </Text>
-                )}
-              </View>
+            <Text style={{ color: TEXT_DIM, fontSize: 12, lineHeight: 16 }}>{activeBanner?.body ?? ""}</Text>
 
-              <View style={dotsWrapStyle}>
-                <View style={dotsStyle}>
-                  {banners.map((b, i) => (
-                    <View key={b.id} style={dot(i === idx)} />
-                  ))}
-                </View>
-              </View>
+            <View
+              style={{
+                marginTop: 6,
+                alignSelf: "flex-start",
+                borderWidth: 2,
+                borderColor: BORDER,
+                borderRadius: 999,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Text style={{ color: "#000000", fontSize: 12, fontWeight: "800" }}>{activeBanner?.cta ?? "Open"}</Text>
             </View>
-          )}
 
-          {variant === "inline" && (
-            <View style={dotsWrapStyle}>
-              <View style={dotsStyle}>
+            {/* Dots */}
+            {len > 1 ? (
+              <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 8 }}>
                 {banners.map((b, i) => (
-                  <View key={b.id} style={dot(i === idx)} />
+                  <View
+                    key={b.id}
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 999,
+                      backgroundColor: i === active ? "#111827" : "#d1d5db",
+                    }}
+                  />
                 ))}
               </View>
-            </View>
-          )}
-        </Pressable>
-      </View>
+            ) : null}
+
+            {activeBanner?.disclaimer ? (
+              <Text style={{ color: TEXT_DIM, fontSize: 10, marginTop: 8, lineHeight: 14 }}>
+                {activeBanner.disclaimer}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      </Pressable>
     </View>
   );
 }
 
-function Slot({ banners, sticky }: { banners: SlotBanner[]; sticky?: boolean }) {
-  return <SlotCard variant="sidebar" banners={banners} sticky={sticky} />;
-}
+function Slot({ side }: { side: "left" | "right" }) {
+  const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
+  if (!enabled) return null;
 
+  const banners = SLOT_BANNERS;
+  if (!banners.length) return null;
+
+  // Offset the starting banner so L/R columns don't look identical.
+  const startIndex = useMemo(() => {
+    if (banners.length <= 1) return 0;
+    const base = side === "right" ? 2 : 0;
+    return base % banners.length;
+  }, [banners.length, side]);
+
+  return <SlotCard 
+    banners={banners} 
+    startIndex={startIndex} 
+    sticky variant="sidebar" />;
+}
 export default function HomeScreen() {
+  const FEED_URL = (process.env.EXPO_PUBLIC_FEED_URL || "./latest.json").trim();
+  const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "").trim();
   const { width } = useWindowDimensions();
   const showSidebars = width >= 980;
 
-  const [feed, setFeed] = useState<TimelineItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const RESOLVED_FEED_URL = useMemo(() => {
+  const normalized = normalizeWebAssetPath(FEED_URL);
 
-  const [query, setQuery] = useState("");
-  const [filtered, setFiltered] = useState<TimelineItem[]>([]);
+  try {
+    if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
+    if (typeof window !== "undefined") return new URL(normalized, window.location.href).toString();
+  } catch {
+    // ignore
+  }
 
-  const listRef = useRef<FlatList<TimelineItem> | null>(null);
+  return normalized;
+}, [FEED_URL]);
 
-  const loadFeed = useCallback(async () => {
+
+  const [feed, setFeed] = useState<Feed | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+
+  const [shareSdIndex, setShareSdIndex] = useState<ShareSdIndex | null>(null);
+
+  const fetchJson = useCallback(async (url: string): Promise<{ raw: string; parsed: unknown }> => {
+    const finalUrl = addCacheBuster(url);
+    const res = await fetch(finalUrl, { headers: { "Cache-Control": "no-cache" } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.text();
+    const parsed = safeJsonParse(raw);
+    return { raw, parsed };
+  }, []);
+  
+  const sortedItems = useMemo(() => {
+    const items = feed?.items ?? [];
+    return [...items].sort((a, b) => {
+      const ta = (a.generated_at || a.date || "").toString();
+      const tb = (b.generated_at || b.date || "").toString();
+      return ta < tb ? 1 : ta > tb ? -1 : 0;
+    });
+  }, [feed]);
+
+  const timelineItems = useMemo(() => interleaveAds(sortedItems), [sortedItems]);
+
+  const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
+
+
+useEffect(() => {
+  if (!SHARE_SD_INDEX_URL) return;
+
+  let cancelled = false;
+
+  (async () => {
     try {
-      setLoading(true);
-      // You likely fetch local JSON here; keeping the existing behavior.
-      // For this exported snapshot, we keep placeholders if fetch fails.
-      // Replace with your actual fetch logic.
-      const res = await fetch("./feed/latest.json?ts=" + Date.now());
-      if (!res.ok) throw new Error("feed fetch failed");
-      const data = (await res.json()) as FeedItem[];
-      // Example: insert a demo slot every N items + allow ad items
-      const timeline: TimelineItem[] = [];
-      data.forEach((x, i) => {
-        timeline.push(x);
-        if (i === 1) timeline.push({ id: "slot-inline-1", kind: "slot" });
-      });
-      setFeed(timeline);
+      const base =
+        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
+
+      const resolved = resolveUrl(normalizeWebAssetPath(SHARE_SD_INDEX_URL), base);
+      const target = await fetchJson(resolved);
+      const normalized = normalizeShareSdIndex(target.parsed);
+
+      if (!cancelled) {
+        setShareSdIndex(normalized);
+      }
     } catch {
-      // fallback demo
-      setFeed([
-        {
-          id: "demo-feed-1",
-          createdAt: new Date().toISOString(),
-          place: "Yokosuka",
-          text: "Good evening! Winter weather's chill sets in, with a temp of 6°C and cloudy skies. Stay cozy and plan ahead for Dondo-yaki/Otakiage at Iwato 4-chome Park on Jan 11! 🧣❄️ #Yokosuka",
-          imageUrl:
-            "https://images.unsplash.com/photo-1544986581-efac024faf62?auto=format&fit=crop&w=1200&q=60",
-          tags: ["Yokosuka", "winter"],
-        },
-        { id: "slot-inline-1", kind: "slot" },
-        {
-          id: "demo-feed-2",
-          createdAt: new Date().toISOString(),
-          place: "Yokosuka",
-          text: "A calm night by the water. If you want a quiet place, try a short walk after dinner.",
-          tags: ["night", "walk"],
-        },
-      ]);
+      // ignore (images are optional)
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [SHARE_SD_INDEX_URL, RESOLVED_FEED_URL, fetchJson]);
+
+const sharePromptToImage = useMemo(() => {
+  const m = new Map<string, string>();
+  for (const it of shareSdIndex?.items ?? []) {
+    if (it.prompt && it.image) {
+      m.set(it.prompt, it.image);
+      continue;
+    }
+    if (it.date && it.place && it.image) {
+      m.set(`${it.date}|${it.place}`, it.image);
+    }
+  }
+  return m;
+}, [shareSdIndex]);
+
+const assetBase = useMemo(() => {
+  if (Platform.OS === "web" && typeof window !== "undefined") return window.location.href;
+  return effectiveUrl || RESOLVED_FEED_URL;
+}, [effectiveUrl, RESOLVED_FEED_URL]);
+
+const getImageUrisForItem = useCallback(
+  (item: FeedItem): string[] => {
+    const uris: string[] = [];
+
+    const push = (p?: string) => {
+      const s = String(p ?? "").trim();
+      if (!s) return;
+      const resolved = resolveUrl(normalizeWebAssetPath(s), assetBase);
+      if (!uris.includes(resolved)) uris.push(resolved);
+    };
+
+    // 1) Direct field (best)
+    if (item.image) push(item.image);
+
+    // 2) Stem-match rule: if id looks like feed stem, try /image/<id>.png
+    const id = String(item.id ?? "").trim();
+    if (id && id.startsWith("feed_")) {
+      push(`/image/${encodeURIComponent(id)}.png`);
+    }
+
+    // 3) Optional: share_sd index match (if configured)
+    const place = item.place || feed?.place;
+    const prompt = item.image_prompt || buildSharePrompt(item.text, place);
+
+    const fromPrompt = sharePromptToImage.get(prompt);
+    if (fromPrompt) push(fromPrompt);
+
+    if (item.date && place) {
+      const byKey = sharePromptToImage.get(`${item.date}|${place}`);
+      if (byKey) push(byKey);
+    }
+
+    return uris;
+  },
+  [assetBase, feed?.place, sharePromptToImage],
+);
+
+  useEffect(() => {
+    ensureWebScrollbarStyle();
+  }, []);
+
+  const load = useCallback(
+  async () => {
+    let currentEffectiveUrl = RESOLVED_FEED_URL;
+
+    try {
+      setError(null);
+      setNextUrl(null);
+
+      const base =
+        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
+
+      // Try the configured URL first, then common fallbacks (root and /feed/).
+      const candidates = Array.from(
+        new Set([
+          RESOLVED_FEED_URL,
+          resolveUrl("./latest.json", base),
+          resolveUrl("./feed/latest.json", base),
+          resolveUrl("./feed/latest.json", base),
+          resolveUrl("./feed/feed.json", base),
+          resolveUrl("./feed.json", base),
+          resolveUrl("./output.json", base),
+          resolveUrl("./feed/output.json", base),
+        ]),
+      );
+
+      let firstUrl = "";
+      let first: { raw: string; parsed: unknown } | null = null;
+      let lastErr: any = null;
+
+      for (const u of candidates) {
+        try {
+          first = await fetchJson(u);
+          firstUrl = u;
+          break;
+        } catch (e: any) {
+          lastErr = e;
+        }
+      }
+
+      if (!first) throw lastErr ?? new Error("Failed to load feed");
+
+      setEffectiveUrl(firstUrl);
+
+      const pointer = getFeedPointer(first.parsed);
+      let target = first;
+      let baseForPointers = firstUrl;
+
+      if (pointer) {
+        currentEffectiveUrl = resolveUrl(pointer, baseForPointers);
+        setEffectiveUrl(currentEffectiveUrl);
+        target = await fetchJson(currentEffectiveUrl);
+        baseForPointers = currentEffectiveUrl;
+      }
+
+      const normalized = normalizeFeed(target.parsed);
+      if (!normalized) {
+        const preview = first.raw.slice(0, 180).replace(/\s+/g, " ").trim();
+        throw new Error(`Invalid feed JSON shape\nURL: ${currentEffectiveUrl}\nRAW: ${preview}`);
+      }
+
+      const nextPointer = getNextPointer(target.parsed);
+      setNextUrl(nextPointer ? resolveUrl(nextPointer, baseForPointers) : null);
+
+      setFeed(normalized);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to load feed");
+      setFeed(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  },
+  [RESOLVED_FEED_URL, fetchJson],
+);
 
   useEffect(() => {
-    loadFeed();
-  }, [loadFeed]);
-
-  useEffect(() => {
-    if (!query.trim()) {
-      setFiltered(feed);
-      return;
-    }
-    const q = query.trim().toLowerCase();
-    setFiltered(
-      feed.filter((x) => {
-        if (isSlotItem(x)) return true;
-        if (isAdItem(x)) return [x.title, x.detail, x.place, ...(x.tags || [])].join(" ").toLowerCase().includes(q);
-        const f = x as FeedItem;
-        return [f.text, f.place, ...(f.tags || [])].join(" ").toLowerCase().includes(q);
-      })
-    );
-  }, [query, feed]);
+    void load();
+  }, [load]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadFeed();
+    await load();
     setRefreshing(false);
-  }, [loadFeed]);
+  }, [load]);
 
-  const renderItem = useCallback(({ item }: { item: TimelineItem }) => {
-    if (isSlotItem(item)) {
-      return (
-        <View style={{ paddingHorizontal: 14, paddingVertical: 10 }}>
-          <SlotCard variant="inline" banners={DEMO_BANNERS} />
-        </View>
-      );
-    }
+    const loadMore = useCallback(async () => {
+      if (!nextUrl || loadingMore) return;
+  
+      const pageUrl = nextUrl;
+      setLoadingMore(true);
+  
+      try {
+        const target = await fetchJson(pageUrl);
+        const normalized = normalizeFeed(target.parsed);
+        if (!normalized) {
+          const preview = target.raw.slice(0, 180).replace(/\s+/g, " ").trim();
+          throw new Error(`Invalid feed JSON shape\nURL: ${pageUrl}\nRAW: ${preview}`);
+        }
+  
+        const nextPointer = getNextPointer(target.parsed);
+        setNextUrl(nextPointer ? resolveUrl(nextPointer, pageUrl) : null);
+  
+        setFeed((prev) => {
+          const prevItems = prev?.items ?? [];
+          const merged: FeedItem[] = [...prevItems];
+          const seen = new Set(prevItems.map((it) => it.id));
+  
+          for (const it of normalized.items) {
+            if (!seen.has(it.id)) {
+              merged.push(it);
+              seen.add(it.id);
+            }
+          }
+  
+          return {
+            updated_at: prev?.updated_at ?? normalized.updated_at,
+            place: prev?.place ?? normalized.place,
+            items: merged,
+          };
+        });
+      } catch (e: any) {
+        setError(e?.message ?? "Failed to load more");
+      } finally {
+        setLoadingMore(false);
+      }
+    }, [fetchJson, loadingMore, nextUrl]);
 
-    if (isAdItem(item)) {
-      const bubbleBg = ITEM_BG;
-      return (
-        <View style={{ paddingHorizontal: 14, paddingVertical: 10 }}>
-          <Pressable onPress={() => safeOpenUrl(item.ctaUrl)} style={{ flexDirection: "row" }}>
-            <View style={{ width: MASCOT_COL_W }}>
-              <Mascot />
-            </View>
+  const openFeed = useCallback(() => {
+    if (!effectiveUrl) return;
+    if (Platform.OS !== "web") return;
+    void Linking.openURL(effectiveUrl);
+  }, [effectiveUrl]);
 
-            <View style={{ flex: 1, position: "relative" }}>
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: bubbleBg,
-                  borderWidth: BUBBLE_BORDER_W,
-                  borderColor: BORDER,
-                  borderRadius: BUBBLE_RADIUS,
-                  paddingHorizontal: 14,
-                  paddingVertical: 12,
-                  ...SURFACE_SHADOW,
-                  zIndex: 1,
-                }}
-              >
-                {!!item.imageUrl && (
-                  <Image
-                    source={{ uri: item.imageUrl }}
-                    style={{
-                      width: "100%",
-                      height: 220,
-                      borderRadius: 14,
-                      borderWidth: OUTLINE_W,
-                      borderColor: "rgba(0,0,0,0.18)",
-                      marginBottom: 10,
-                    }}
-                    resizeMode="cover"
-                  />
-                )}
-
-                <View
-                  style={{
-                    alignSelf: "flex-start",
-                    backgroundColor: ITEM_BADGE_BG,
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                    borderRadius: 999,
-                    marginBottom: 8,
-                  }}
-                >
-                  <Text style={{ color: ITEM_BADGE_FG, fontWeight: "800", fontSize: 12 }}>AD</Text>
-                </View>
-
-                <Text style={{ fontSize: 18, fontWeight: "800", color: TEXT_MAIN }}>{item.title}</Text>
-                <Text style={{ marginTop: 6, color: TEXT_MAIN, lineHeight: 20 }}>{item.detail}</Text>
-
-                {!!item.ctaLabel && (
-                  <View
-                    style={{
-                      marginTop: 10,
-                      alignSelf: "flex-start",
-                      paddingVertical: 8,
-                      paddingHorizontal: 12,
-                      borderWidth: OUTLINE_W,
-                      borderColor: BORDER,
-                      borderRadius: 999,
-                      backgroundColor: CARD_BG,
-                    }}
-                  >
-                    <Text style={{ fontWeight: "800", color: TEXT_MAIN }}>{item.ctaLabel}</Text>
-                  </View>
-                )}
-              </View>
-            </View>
-          </Pressable>
-        </View>
-      );
-    }
-
-    const f = item as FeedItem;
-
-    return (
-      <View style={{ paddingHorizontal: 14, paddingVertical: 10 }}>
-        <View style={{ flexDirection: "row" }}>
-          <View style={{ width: MASCOT_COL_W }}>
-            <Mascot />
-          </View>
-
-          <View style={{ flex: 1, position: "relative" }}>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: CARD_BG,
-                borderWidth: BUBBLE_BORDER_W,
-                borderColor: BORDER,
-                borderRadius: BUBBLE_RADIUS,
-                paddingHorizontal: 14,
-                paddingVertical: 12,
-                ...SURFACE_SHADOW,
-                zIndex: 1,
-                gap: 8,
-              }}
-            >
-              <Text style={{ color: TEXT_DIM, fontSize: 12 }}>
-                {new Date(f.createdAt).toLocaleString("ja-JP")} {f.place ? ` • ${f.place}` : ""}
-              </Text>
-
-              {!!f.imageUrl && (
-                <View style={{ borderRadius: 16, overflow: "hidden", borderWidth: OUTLINE_W, borderColor: "rgba(0,0,0,0.18)" }}>
-                  <Image source={{ uri: f.imageUrl }} style={{ width: "100%", height: 360 }} resizeMode="cover" />
-                </View>
-              )}
-
-              <Text style={{ color: TEXT_MAIN, lineHeight: 20 }}>{f.text}</Text>
-
-              {!!f.tags?.length && (
-                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
-                  {f.tags.map((t) => (
-                    <View
-                      key={t}
-                      style={{
-                        paddingHorizontal: 10,
-                        paddingVertical: 5,
-                        borderWidth: OUTLINE_W,
-                        borderColor: "rgba(0,0,0,0.18)",
-                        borderRadius: 999,
-                        backgroundColor: "rgba(255,255,255,0.9)",
-                      }}
-                    >
-                      <Text style={{ fontSize: 12, color: TEXT_DIM }}>#{t}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Tail AFTER (on top) */}
-            <View
-              style={{
-                position: "absolute",
-                left: -7,
-                top: 22,
-                width: 14,
-                height: 14,
-                backgroundColor: CARD_BG,
-                transform: [{ rotate: "45deg" }],
-                borderLeftWidth: BUBBLE_BORDER_W,
-                borderTopWidth: BUBBLE_BORDER_W,
-                borderColor: BORDER,
-                zIndex: 2,
-              }}
-            />
-          </View>
-        </View>
+  const Header = (
+    <View style={{ padding: 16, gap: 10 }}>
+      <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+        {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated At: {formatJst(feed.updated_at, true)}</Text> : null}
       </View>
-    );
-  }, []);
 
-  const keyExtractor = useCallback((item: TimelineItem) => item.id, []);
+      {error ? (
+        <View
+          style={{
+            backgroundColor: "#7f1d1d",
+            borderRadius: 14,
+            padding: 12,
+          }}
+        >
+          <Text style={{ color: "#000000", fontWeight: "800" }}>Error</Text>
+          <Text style={{ color: "#000000", marginTop: 6 }}>{error}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: APP_BG, alignItems: "center", justifyContent: "center" }}>
+      <View style={{ flex: 1, backgroundColor: APP_BG, alignItems: "center", justifyContent: "center", padding: 16 }}>
         <ActivityIndicator />
         <Text style={{ marginTop: 10, color: TEXT_DIM }}>Loading…</Text>
       </View>
     );
   }
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        padding: 14,
-        backgroundColor: APP_BG,
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "stretch",
+  const list = (
+    <FlatList
+      nativeID={FEED_SCROLL_ID}
+      showsVerticalScrollIndicator={false}
+      style={{ flex: 1, backgroundColor: APP_BG }}
+      contentContainerStyle={{ paddingBottom: 18 }}
+      data={timelineItems}
+      keyExtractor={(it) => it.id}
+      ListHeaderComponent={Header}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loadingMore ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <ActivityIndicator />
+                  <Text style={{ marginTop: 8, color: TEXT_DIM }}>Loading older posts…</Text>
+                </View>
+              ) : nextUrl ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <Text style={{ color: TEXT_DIM }}>Scroll to load older posts…</Text>
+                </View>
+              ) : (feed?.items?.length ?? 0) > 0 ? (
+                <View style={{ padding: 16, alignItems: "center" }}>
+                  <Text style={{ color: TEXT_DIM }}>No more posts.</Text>
+                </View>
+              ) : null
+            }
+      renderItem={({ item }) => {
+        if (isSlotItem(item)) {
+          const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
+          const banners = SLOT_BANNERS;
+
+          if (enabled && banners.length) {
+            const startIndex = hashString(item.id) % banners.length;
+
+            return (
+              <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+                <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                  {/* keep alignment with the mascot column */}
+                  <View style={{ flex: 1 }}>
+                    <SlotCard banners={banners} startIndex={startIndex} variant="inline" />
+                  </View>
+                </View>
+              </View>
+            );
+          }
+
+          const open = () => {
+            if (!item.url) return;
+            void Linking.openURL(item.url);
+          };
+
+          return (
+            <Pressable onPress={open}>
+              <View 
+                style={{ 
+                  paddingHorizontal: 16, 
+                  paddingBottom: 12 
+                  }}>
+                <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                  <View style={{ flex: 1 }}>
+                    {/* Speech-bubble wrapper */}
+                    <View style={{ position: "relative", marginTop: 2 }}>
+                      {/* ✅ 1) Bubble body FIRST */}
+                      <View
+                        style={{
+                          backgroundColor: ITEM_BG,
+                          padding: 12,
+                          borderRadius: BUBBLE_RADIUS,
+                          borderWidth: BUBBLE_BORDER_W,
+                          borderColor: BORDER,
+                          minHeight: MASCOT_SIZE,
+                          shadowColor: "#000000",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.12,
+                          shadowRadius: 6,
+                          elevation: 2,
+                          zIndex: 1,
+                        }}
+                      >
+                        <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                          <Text style={{ color: "#000000", fontWeight: "800" }}>{item.title}</Text>
+                          {item.sponsor ? <Text style={{ color: TEXT_DIM }}>• {item.sponsor}</Text> : null}
+                        </View>
+                        <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.body}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </Pressable>
+          );
+        }
+
+        const imageUris = getImageUrisForItem(item);
+        return (
+        <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+            <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
+              <View style={{ marginTop: 2 }}>
+                <Mascot />
+              </View>
+            </View>
+
+            <View style={{ flex: 1 }}>
+              {/* Speech-bubble wrapper */}
+              <View style={{ position: "relative", marginTop: 2 }}>
+                {/* ✅ 1) Bubble body FIRST */}
+                <View
+                  style={{
+                    backgroundColor: CARD_BG,
+                    padding: 12,
+                    borderRadius: BUBBLE_RADIUS,
+                    borderWidth: BUBBLE_BORDER_W,
+                    borderColor: BORDER,
+                    minHeight: MASCOT_SIZE,
+                    shadowColor: "#000000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.12,
+                    shadowRadius: 6,
+                    elevation: 2,
+                    zIndex: 1,
+                  }}
+                >
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                    {item.generated_at ? <Text style={{ color: TEXT_DIM }}>{formatJst(item.generated_at)}</Text> : null}
+                    {item.place ? <Text style={{ color: TEXT_DIM }}>• {item.place}</Text> : null}
+                  </View>
+                  
+                  <FeedBubbleImage uris={imageUris} />
+                  <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
+                </View>
+
+                {/* ✅ 2) Tail AFTER (on top) to cover the bubble border line */}
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: "absolute",
+                    left: -7,
+                    top: 22,
+                    width: 14,
+                    height: 14,
+                    backgroundColor: CARD_BG,
+                    transform: [{ rotate: "45deg" }],
+                    borderLeftWidth: BUBBLE_BORDER_W,
+                    borderBottomWidth: BUBBLE_BORDER_W,
+                    borderColor: BORDER,
+                    zIndex: 10,
+                    elevation: 3,
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+        );
       }}
-    >
-      {showSidebars && (
-        <View
-          style={{
-            width: SIDEBAR_W,
-            minHeight: 0,
-            marginRight: 14,
-          }}
-        >
-          <Slot banners={DEMO_BANNERS} sticky />
+      ListEmptyComponent={
+        <View style={{ padding: 16 }}>
+          <Text style={{ color: TEXT_DIM }}>No posts yet.</Text>
         </View>
-      )}
+      }
+    />
+  );
 
-      <View style={{ flex: 1, maxWidth: CONTENT_MAX_W, minWidth: 0 }}>
-        <View
-          style={{
-            backgroundColor: CARD_BG,
-            borderWidth: OUTLINE_W,
-            borderColor: BORDER,
-            borderRadius: 16,
-            paddingHorizontal: 12,
-            paddingVertical: 10,
-            marginBottom: 10,
-            ...SURFACE_SHADOW,
-          }}
-        >
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Search…"
-            placeholderTextColor="rgba(0,0,0,0.35)"
-            style={{
-              paddingVertical: 8,
-              paddingHorizontal: 10,
-              borderWidth: OUTLINE_W,
-              borderColor: "rgba(0,0,0,0.18)",
-              borderRadius: 12,
-              backgroundColor: "rgba(255,255,255,0.95)",
-            }}
-          />
-        </View>
+  if (!showSidebars) {
+    return list;
+  }
 
-        <FlatList
-          ref={(r) => (listRef.current = r)}
-          data={filtered}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          contentContainerStyle={{ paddingBottom: 80 }}
-          {...(Platform.OS === "web" ? ({ id: FEED_SCROLL_ID } as any) : null)}
-        />
+  return (
+    <View style={{ 
+      flex: 1, 
+      padding: 6,
+      flexDirection: "row", 
+      justifyContent: "center", 
+      backgroundColor: APP_BG }}>
+
+      <View style={{ 
+        width: SIDEBAR_W, 
+        minHeight: 0 }}>
+        <Slot side="left" />
       </View>
 
-      {showSidebars && (
-        <View
-          style={{
-            width: SIDEBAR_W,
-            minHeight: 0,
-            marginLeft: 14,
-          }}
-        >
-          <Slot banners={DEMO_BANNERS} sticky />
-        </View>
-      )}
+      <View style={{ 
+        flex: 1, 
+        maxWidth: CONTENT_MAX_W,
+      }}>
+        {list}
+      </View>
+
+      <View style={{ 
+        width: SIDEBAR_W, 
+        minHeight: 0 }}>
+        <Slot side="right" />
+      </View>
+
     </View>
   );
 }
