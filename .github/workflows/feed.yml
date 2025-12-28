@@ -197,8 +197,8 @@ jobs:
           MODEL_ID: stabilityai/sd-turbo
           STEPS: "2"
           BASE_SIZE: "512"
-          PAGE_W: "1200"
-          PAGE_H: "900"
+          PAGE_W: "1024"
+          PAGE_H: "768"
           BRAND: "GOODDAY YOKOSUKA"
           PLACE_FALLBACK: "Yokosuka"
         run: |
@@ -220,7 +220,7 @@ jobs:
           MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sd-turbo")
           STEPS = int(os.environ.get("STEPS", "2"))
           BASE_SIZE = int(os.environ.get("BASE_SIZE", "512"))
-          PAGE_W = int(os.environ.get("PAGE_W", "1200"))
+          PAGE_W = int(os.environ.get("PAGE_W", "1024"))
           PAGE_H = int(os.environ.get("PAGE_H", "900"))
           BRAND = os.environ.get("BRAND", "GOODDAY YOKOSUKA")
           PLACE_FALLBACK = os.environ.get("PLACE_FALLBACK", "")

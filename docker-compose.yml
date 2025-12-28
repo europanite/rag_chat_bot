@@ -98,7 +98,7 @@ services:
     command: ["npx", "expo", "start", "--tunnel"]
 
   ollama:
-    image: ollama/ollama:0.13.4-rc1-rocm
+    image: ollama/ollama:latest
     container_name: ollama
     ports:
       - "11434:11434"
