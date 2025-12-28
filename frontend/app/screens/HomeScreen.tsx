@@ -140,7 +140,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     cta: "Open demo",
     url: RAW_CONTACT_URL,
     imageUri: "https://picsum.photos/seed/goodday_ocean/900/650",
-    sponsor: "GOODDAY (demo)",
+    sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
   },
   {
@@ -150,7 +150,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     cta: "See more",
     url: RAW_CONTACT_URL,
     imageUri: "https://picsum.photos/seed/goodday_coffee/900/650",
-    sponsor: "GOODDAY (demo)",
+    sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
   },
   {
@@ -160,7 +160,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     cta: "View route",
     url: RAW_CONTACT_URL,
     imageUri: "https://picsum.photos/seed/goodday_trip/900/650",
-    sponsor: "GOODDAY (demo)",
+    sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
   },
   {
@@ -170,7 +170,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     cta: "Play",
     url: RAW_CONTACT_URL,
     imageUri: "https://picsum.photos/seed/goodday_sunset/900/650",
-    sponsor: "GOODDAY (demo)",
+    sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
   },
   {
@@ -180,7 +180,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     cta: "Learn more",
     url: RAW_CONTACT_URL,
     imageUri: "https://picsum.photos/seed/goodday_mountain/900/650",
-    sponsor: "GOODDAY (demo)",
+    sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
   },
   {
@@ -190,7 +190,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     cta: "Open",
     url: RAW_CONTACT_URL,
     imageUri: "https://picsum.photos/seed/goodday_city/900/650",
-    sponsor: "GOODDAY (demo)",
+    sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
   },
 ];
