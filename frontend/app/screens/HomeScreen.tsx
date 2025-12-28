@@ -897,6 +897,7 @@ const getImageUrisForItem = useCallback(
           return (
             <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
               <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+
                 <View style={{ flex: 1 }}>
                   {/* Speech-bubble wrapper */}
                   <View style={{ position: "relative", marginTop: 2 }}>
@@ -959,25 +960,6 @@ const getImageUrisForItem = useCallback(
                         <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{item.disclaimer ?? "demo"}</Text>
                       </View>
                     </View>
-
-                    {/* ✅ 2) Tail AFTER (on top) to cover the bubble border line */}
-                    <View
-                      pointerEvents="none"
-                      style={{
-                        position: "absolute",
-                        left: -7,
-                        top: 22,
-                        width: 14,
-                        height: 14,
-                        backgroundColor: ITEM_BG,
-                        transform: [{ rotate: "45deg" }],
-                        borderLeftWidth: BUBBLE_BORDER_W,
-                        borderBottomWidth: BUBBLE_BORDER_W,
-                        borderColor: BORDER,
-                        zIndex: 10,
-                        elevation: 3,
-                      }}
-                    />
                   </View>
                 </View>
               </View>
