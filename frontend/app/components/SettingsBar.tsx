@@ -61,7 +61,7 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
               {title}
           </Text>
           <Text style={{ 
-            fontWeight: "12" 
+            fontWeight: "12",
             color: "#fff"
             }}
           >
@@ -133,7 +133,7 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
               "#fff" 
             }}>{title}</Text>
             <Text style={{ 
-              fontWeight: "12" 
+              fontWeight: "12",
               color: "#fff"
               }}
             >
