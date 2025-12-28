@@ -1,0 +1,33 @@
+name: Snapshot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install yt-dlp
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Capture 1 frame
+        run: |
+          python scripts/snapshot.py \
+            --url "https://www.youtube.com/watch?v=_s_M1EPmWuI" \
+            --out "snapshot.jpg"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot
+          path: snapshot.jpg
