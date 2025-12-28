@@ -705,8 +705,6 @@ function SlotCard({
   const shellStyle = {
     ...(variant === "sidebar" ? ({ flex: 1 } as const) : ({ width: "100%" } as const)),
     backgroundColor: APP_BG,
-    borderWidth: 1,
-    borderColor: BORDER,
     borderRadius: 12,
     padding: 12,
     ...(sticky && Platform.OS === "web" ? ({ position: "sticky", top: 16 } as any) : null),
@@ -796,6 +794,8 @@ function SlotCard({
               style={{
                 marginTop: 6,
                 alignSelf: "flex-start",
+                borderWidth: 2,
+                borderColor: BORDER,
                 borderRadius: 999,
                 paddingHorizontal: 12,
                 paddingVertical: 6,
