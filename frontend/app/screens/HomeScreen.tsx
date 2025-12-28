@@ -1341,6 +1341,7 @@ const getImageUrisForItem = useCallback(
 
       <View style={{ 
         flex: 1, 
+        padding: 6, 
         maxWidth: CONTENT_MAX_W,
         borderRadius: MASCOT_RADIUS,
         borderWidth: MASCOT_BORDER_W,
