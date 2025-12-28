@@ -959,7 +959,7 @@ const getImageUrisForItem = useCallback(
                             opacity: item.url ? 1 : 0.6,
                           }}
                         >
-                          {/* {item.cta ?? "Learn more"} */}
+                          {item.cta ?? "Learn more"}
                         </Text>
 
                         <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{item.disclaimer ?? "demo"}</Text>
@@ -995,11 +995,7 @@ const getImageUrisForItem = useCallback(
         return (
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-            <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
-              <View style={{ marginTop: 2 }}>
-                <Mascot />
-              </View>
-            </View>
+            <View style={{ width: MASCOT_COL_W }} />
 
             <View style={{ flex: 1 }}>
               {/* Speech-bubble wrapper */}
