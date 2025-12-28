@@ -1,24 +1,24 @@
 {
   "date": "2025-12-28",
-  "generated_at": "2025-12-28T15:29:58Z",
-  "text": "Happy New Year's Eve! 🎉 As of NOW, Yokosuka weather is cloudy with a chance of rain. Current temperature is 6.5°C and humidity is 73%. Join us at Kumura Otaki Shrine starting around 23:30 for Hatsumode celebrations and toshikoshi soba serving! #Yokosuka #NewYear",
+  "generated_at": "2025-12-28T15:49:52Z",
+  "text": "\"Happy New Year's Eve! Tonight, from 05:30 at Kumura Otaki Shrine, celebrate the year transition with toshikosi soba. Don't forget parking fee and arrive early! #Yokosuka #NewYear #Hatsumode - https://kurihama.info/event/newyear/",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-28T15:23:47.672929+00:00",
+    "generated_at": "2025-12-28T15:43:42.987736+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-29T00:10:00+09:00",
-      "temp_c": 6.5,
+      "time": "2025-12-29T00:30:00+09:00",
+      "temp_c": 6.6,
       "apparent_temp_c": null,
-      "humidity_pct": 73.0,
+      "humidity_pct": 75.0,
       "precip_mm": 0.0,
       "weather_code": 71,
       "cloud_cover_pct": null,
-      "wind_kmh": 5.4,
+      "wind_kmh": 6.12,
       "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20251229_002345_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve! 🎉 As of NOW, Yokosuka weather is cloudy with a chance of rain. Current temperature is 6.5°C and humidity is 73%. Join us at Kumura Otaki Shrine starting around 23:30 for Hatsumode celebrations and t",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-28T15:32:53.420465Z"
+  }
 }
