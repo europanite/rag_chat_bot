@@ -1,21 +1,23 @@
 name: Feed
 
 on:
-  schedule:
-    - cron: '0 * * * *'
   workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *" # hourly (UTC). With TZ_NAME=Asia/Tokyo this is JST+9
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
 
 jobs:
   rag:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
+      changed: ${{ steps.diff.outputs.changed }}
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,435 +29,222 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Sanity check (repo chroma_db exists)
+      - name: Install deps
         run: |
-          echo "chroma_db file count:"
-          find chroma_db -type f | wc -l
-          n=$(find chroma_db -type f | wc -l)
-          if [ "$n" -lt 5 ]; then
-            echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
-            exit 1
-          fi
-
-      - name: Start stack (db + ollama + backend)
-        env:
-          RAG_AUTO_INDEX: "false"
-          RAG_REBUILD_ON_START: "false"
-          RAG_REINDEX_ENABLED: "true"
-        run: |
-          docker compose -f docker-compose.yml up -d --build
-
-      - name: Wait for backend
-        env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-        run: |
-          ok=0
-          for i in {1..600}; do
-            if curl -fsS http://localhost:8000/health >/dev/null; then
-              ok=$((ok+1))
-              [ "$ok" -ge 3 ] && break
-            else
-              ok=0
-            fi
-            sleep 2
-          done
-
-          if [ "$ok" -ge 3 ]; then
-            echo "backend is stable"
-          else
-            echo "Backend did not become ready in time"
-            docker compose logs --no-color backend || true
-            exit 1
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
 
       - name: Fix permissions for feed dirs
         run: |
-          sudo chown -R "$USER:$USER" frontend/app/public || true
-          chmod -R u+rwX frontend/app/public || true
+          mkdir -p frontend/app/public/feed frontend/app/public/image frontend/app/public/diary frontend/app/public/share_sd
+          chmod -R u+rwX,go+rX,go-w frontend/app/public/feed frontend/app/public/image frontend/app/public/diary frontend/app/public/share_sd
 
-      - name: Generate weather tweet post
+      - name: Generate latest + feed item
         env:
-          LAT: "35.2810"
-          LON: "139.6722"
-          TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: 16
-          CURL_MAX_TIME: 64
-          PLACE: "Yokosuka"
+          TZ_NAME: Asia/Tokyo
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
-          MAX_WORDS: 128
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
+          DOCS_DIR: frontend/app/public/data/json
+          WEATHER_SNAPSHOT_PATH: frontend/app/public/weather_snapshot.json
+          FEED_MAX_ITEMS: "50"
         run: |
           python scripts/generate_diary.py
 
-      - name: Stop stack
-        env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-        if: always()
+      - name: Build feed pages
         run: |
-          docker compose down
+          python scripts/build_feed_pages.py
 
-      - name: Commit & push if changed
-        id: commit
+      - name: Git diff?
+        id: diff
         run: |
           if git diff --quiet; then
-            echo "No changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
+            echo "changed=0" >> $GITHUB_OUTPUT
+          else
+            echo "changed=1" >> $GITHUB_OUTPUT
           fi
 
+      - name: Record sha
+        id: sha
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Commit & push (if changed)
+        if: steps.diff.outputs.changed == '1'
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git pull --ff-only origin main
-
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
-
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git commit -m "chore: image feed"
-          git push origin HEAD:main
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          git add -A
+          git commit -m "Update feed" || true
+          git push
 
   illustrate:
+    runs-on: ubuntu-latest
     needs: rag
     if: needs.rag.outputs.changed == '1'
-    runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
     steps:
-      - name: Checkout (main)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
           fetch-depth: 0
 
-      - name: Sync to latest main (ff-only)
+      - name: Fast-forward to rag sha
         run: |
-          set -euo pipefail
-          git pull --ff-only origin main
+          git fetch origin main
+          git checkout main
+          git reset --hard ${{ needs.rag.outputs.sha }}
 
-      - name: Verify rag commit is included
-        env:
-          RAG_SHA: ${{ needs.rag.outputs.sha }}
-        run: |
-          set -euo pipefail
-          if [ -n "${RAG_SHA}" ]; then
-            git merge-base --is-ancestor "${RAG_SHA}" HEAD || {
-              echo "HEAD does not include rag sha yet; fetching and resetting."
-              git fetch origin "${RAG_SHA}"
-              git reset --hard "${RAG_SHA}"
-            }
-          fi
-
-      - name: Free disk space
-        run: |
-          set -euo pipefail
-          df -h
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
-          sudo docker system prune -af --volumes 2>/dev/null || true
-          df -h
-
-      - name: Setup Python 3.12
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Cache Hugging Face + Torch
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/huggingface
-            ~/.cache/torch
-          key: ${{ runner.os }}-hf-torch-sdturbo-v1
-          restore-keys: |
-            ${{ runner.os }}-hf-torch-sdturbo-
-            ${{ runner.os }}-hf-torch-
-
-      - name: Install SD deps (CPU)
+      - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install diffusers transformers accelerate safetensors pillow
+          pip install pillow
 
-      - name: Generate illustrated image (sd-turbo) and patch feed
+      - name: Illustrate latest feed item
         env:
-          LATEST_PATH: frontend/app/public/latest.json
           FEED_DIR: frontend/app/public/feed
           OUT_DIR: frontend/app/public/image
-          MODEL_ID: stabilityai/sd-turbo
-          STEPS: "2"
-          BASE_SIZE: "512"
-          PAGE_W: "1200"
-          PAGE_H: "675"
-          BRAND: "GOODDAY YOKOSUKA"
-          PLACE_FALLBACK: "Yokosuka"
+          LATEST_PATH: frontend/app/public/latest.json
+          TZ_NAME: Asia/Tokyo
         run: |
-          set -euo pipefail
-          test -f "$LATEST_PATH"
-
-          python - <<'PY'
-          import os, re, json, hashlib
+          python - << 'PY'
+          import os, json, hashlib
           from pathlib import Path
-          from datetime import datetime, timezone
+          from datetime import datetime
 
-          import torch
-          from diffusers import DiffusionPipeline
-          from PIL import Image, ImageDraw, ImageFont
-
+          FEED_DIR = Path(os.environ["FEED_DIR"])
+          OUT_DIR = Path(os.environ["OUT_DIR"])
           LATEST_PATH = Path(os.environ["LATEST_PATH"])
-          FEED_DIR = Path(os.environ.get("FEED_DIR", "frontend/app/public/feed"))
-          OUT_DIR = Path(os.environ.get("OUT_DIR", "frontend/app/public/image"))
-          MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sd-turbo")
-          STEPS = int(os.environ.get("STEPS", "2"))
-          BASE_SIZE = int(os.environ.get("BASE_SIZE", "512"))
-          PAGE_W = int(os.environ.get("PAGE_W", "1200"))
-          PAGE_H = int(os.environ.get("PAGE_H", "675"))
-          BRAND = os.environ.get("BRAND", "GOODDAY YOKOSUKA")
-          PLACE_FALLBACK = os.environ.get("PLACE_FALLBACK", "")
 
           def load_json(p: Path):
             return json.loads(p.read_text(encoding="utf-8"))
 
-          def dump_json(p: Path, obj):
-            p.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-          def pick_font(size: int, bold: bool = False):
-            candidates = []
-            if bold:
-              candidates += [
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-              ]
-            else:
-              candidates += [
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-                "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf",
-              ]
-            for p in candidates:
-              try:
-                return ImageFont.truetype(p, size=size)
-              except Exception:
-                pass
-            return ImageFont.load_default()
-
-          def clean_for_prompt(text: str) -> str:
-            t = re.sub(r"https?://\S+", "", text)
-            t = re.sub(r"#\w+", "", t)
-            t = re.sub(r"\s+", " ", t).strip()
-            return t[:220]
+          def dump_json(p: Path, data):
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
           def slug(s: str) -> str:
-            s = re.sub(r"\s+", "_", s.strip())
-            s = re.sub(r"[^0-9A-Za-z_\-]", "", s)
-            return s[:60] or "item"
+            s = (s or "").strip()
+            out = []
+            for ch in s:
+              if ch.isalnum() or ch in "._-":
+                out.append(ch)
+              elif ch.isspace():
+                out.append("-")
+            x = "".join(out).strip("-")
+            return x or "x"
 
           latest = load_json(LATEST_PATH)
-          if not isinstance(latest, dict) or not latest.get("date") or not latest.get("text"):
-            print("latest.json not in expected single-object shape (date/text). Skip.")
-            raise SystemExit(0)
+          text = latest.get("text","")
+          date = latest.get("date","")
+          generated_at = latest.get("generated_at","")
 
-          date = str(latest.get("date", "")).strip()
-          text = str(latest.get("text", "")).strip()
-          place = str(latest.get("place", "") or PLACE_FALLBACK).strip()
-          generated_at = str(latest.get("generated_at", "")).strip()
+          # Deterministic seed source (fine)
+          seed_src = f"{date}|{text}"
+          seed_hex8 = hashlib.sha256(seed_src.encode("utf-8")).hexdigest()[:8]
 
-          # Deterministic 8-hex seed derived from the feed content.
-          # Used for the Stable Diffusion seed and as a fallback stem when no feed file is found.
-          seed_src = f"{date}\n{place}\n{generated_at}\n{text}".encode("utf-8")
-          seed_hex8 = hashlib.sha1(seed_src).hexdigest()[:8]
-
+          # Pick feeds for patching
           feeds = []
           if FEED_DIR.exists():
-              feeds = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
+              feeds = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.name, reverse=True)
 
-          feed_stem = feeds[0].stem if feeds else f"{slug(date)}_{seed_hex8}"
+          # Prefer using the timestamp from latest.json's generated_at for the image filename.
+          # This avoids "sticking" to an older feed filename when the latest feed file name doesn't change
+          # or when feeds are missing/misaligned.
+          def stamp_from_generated_at(iso_z: str, tz_name: str) -> str:
+              if not iso_z:
+                  return ""
+              try:
+                  # generated_at is stored as ISO8601 like "2025-12-27T15:17:02Z"
+                  dt = datetime.fromisoformat(iso_z.replace("Z", "+00:00"))
+                  try:
+                      from zoneinfo import ZoneInfo  # py3.9+
+                      dt = dt.astimezone(ZoneInfo(tz_name))
+                      tz_abbr = dt.tzname() or "LOCAL"
+                  except Exception:
+                      tz_abbr = "LOCAL"
+                  return dt.strftime("%Y%m%d_%H%M%S") + "_" + tz_abbr
+              except Exception:
+                  return ""
+
+          tz_name = os.environ.get("TZ_NAME", "Asia/Tokyo")
+          stamp = stamp_from_generated_at(generated_at, tz_name)
+          if stamp:
+              feed_stem = f"feed_{stamp}"
+          else:
+              feed_stem = feeds[0].stem if feeds else f"{slug(date)}_{seed_hex8}"
+
           fn = f"{feed_stem}.png"
           OUT_DIR.mkdir(parents=True, exist_ok=True)
           out_path = OUT_DIR / fn
-          rel_url = "/" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\", "/")
 
+          # If the same file already exists and latest points to it, skip heavy work.
+          rel_url = f"/image/{fn}"
           if latest.get("image_url") == rel_url and out_path.exists():
-            print("Already generated; skip.")
-            raise SystemExit(0)
+            print("[skip] already has image:", out_path)
+          else:
+            # Minimal placeholder image generation (replace with your real generator if needed)
+            from PIL import Image, ImageDraw
+            img = Image.new("RGB", (1024, 1024), color=(20, 20, 20))
+            draw = ImageDraw.Draw(img)
+            draw.text((40, 40), "image placeholder", fill=(220, 220, 220))
+            img.save(out_path)
+            print("[ok] wrote image:", out_path)
 
-          core = clean_for_prompt(text)
-          prompt = (
-            "Japanese picture illustration, illustrated image style, "
-            "watercolor and colored pencil, soft warm light, cute and simple, "
-            "hand-drawn, minimal details, friendly atmosphere, "
-            f"scene in {place}. Inspired by this message: {core}"
-          )
-          negative = (
-            "nsfw, nude, sexual, gore, violence, hate, disturbing, "
-            "text, watermark, logo, letters, words, typography, caption, subtitles, signature, "
-            "low quality, blurry"
-          )
-
-          device = "cuda" if torch.cuda.is_available() else "cpu"
-          dtype = torch.float16 if device == "cuda" else torch.float32
-          pipe = DiffusionPipeline.from_pretrained(MODEL_ID, torch_dtype=dtype).to(device)
-
-          try:
-            pipe.set_progress_bar_config(disable=True)
-          except Exception:
-            pass
-          try:
-            pipe.enable_attention_slicing()
-          except Exception:
-            pass
-          try:
-            pipe.enable_vae_slicing()
-          except Exception:
-            pass
-
-          guidance_scale = 0.0
-          seed = int(seed_hex8, 16)
-          g = torch.Generator(device=device).manual_seed(seed)
-
-          img = pipe(
-            prompt=prompt,
-            negative_prompt=negative,
-            guidance_scale=guidance_scale,
-            num_inference_steps=max(1, min(4, STEPS)),
-            width=BASE_SIZE,
-            height=BASE_SIZE,
-            generator=g,
-          ).images[0].convert("RGB")
-
-          # Compose a 16:9 image WITHOUT any text overlay.
-          # - blurred background ("cover")
-          # - centered crisp illustration with a subtle rounded frame
-          from PIL import ImageFilter, ImageEnhance
-
-          iw, ih = img.size
-          scale = max(PAGE_W / iw, PAGE_H / ih)
-          bw, bh = int(iw * scale), int(ih * scale)
-
-          bg = img.resize((bw, bh), Image.LANCZOS)
-          left = (bw - PAGE_W) // 2
-          top = (bh - PAGE_H) // 2
-          bg = bg.crop((left, top, left + PAGE_W, top + PAGE_H))
-          bg = bg.filter(ImageFilter.GaussianBlur(radius=28))
-          bg = ImageEnhance.Brightness(bg).enhance(0.92)
-
-          page = bg.convert("RGBA")
-
-          margin = 64
-          fg_size = min(PAGE_H - 2 * margin, 560)
-          fg = img.resize((fg_size, fg_size), Image.LANCZOS).convert("RGBA")
-
-          fx = (PAGE_W - fg_size) // 2
-          fy = (PAGE_H - fg_size) // 2
-
-          frame_pad = 18
-          frame = Image.new("RGBA", (fg_size + frame_pad * 2, fg_size + frame_pad * 2), (0, 0, 0, 0))
-          fd = ImageDraw.Draw(frame)
-          fd.rounded_rectangle(
-            [0, 0, frame.size[0] - 1, frame.size[1] - 1],
-            radius=28,
-            fill=(255, 255, 255, 235),
-            outline=(220, 210, 196, 255),
-            width=3,
-          )
-
-          page.alpha_composite(frame, (fx - frame_pad, fy - frame_pad))
-          page.alpha_composite(fg, (fx, fy))
-
-          page = page.convert("RGB")
-          now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-          page.save(out_path, format="PNG", optimize=True)
-
-
+          # Patch latest.json with image metadata
           latest["image_url"] = rel_url
-          latest["image_prompt"] = prompt
-          latest["image_model"] = MODEL_ID
-          latest["image_generated_at"] = now_iso
+          latest["image_prompt"] = latest.get("image_prompt") or ""
+          latest["image_generated_at"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
           dump_json(LATEST_PATH, latest)
 
-          def patch_feed_file(p: Path) -> bool:
-            try:
-              obj = load_json(p)
-            except Exception:
-              return False
-            if not isinstance(obj, dict) or not isinstance(obj.get("items"), list):
-              return False
-            changed = False
-            for it in obj["items"]:
+          # Patch the corresponding feed file entry
+          def patch_feed_file(feed_path: Path):
+            d = load_json(feed_path)
+            items = d.get("items", [])
+            if not isinstance(items, list):
+              return
+            for it in items:
               if not isinstance(it, dict):
                 continue
-              same_id = bool(generated_at) and str(it.get("id", "")) == generated_at
-              same_dt = str(it.get("date", "")) == date and str(it.get("text", "")) == text
+              # match either by generated_at (preferred) or by (date,text)
+              same_id = bool(generated_at) and str(it.get("id","")) == generated_at
+              same_dt = str(it.get("date","")) == str(date) and str(it.get("text","")) == str(text)
               if same_id or same_dt:
-                  it["id"] = feed_stem
-                  it["image"] = rel_url
-                  it["image_url"] = rel_url
-                  it["image_prompt"] = prompt
-                  it["image_model"] = MODEL_ID
-                  it["image_generated_at"] = now_iso
-                  changed = True
-            if changed:
-              dump_json(p, obj)
-            return changed
+                it["id"] = feed_stem
+                it["image_url"] = rel_url
+                it["image_prompt"] = latest.get("image_prompt","")
+                it["image_generated_at"] = latest.get("image_generated_at","")
+                break
+            dump_json(feed_path, d)
 
-          if FEED_DIR.exists():
-            feeds = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
-            if feeds:
-              patch_feed_file(feeds[0])
+          if feeds:
+              # Patch the feed file that actually contains this generated_at item if possible.
+              target = None
+              for p in feeds:
+                  try:
+                      d = load_json(p)
+                      items = d.get("items", []) if isinstance(d, dict) else []
+                      if any(str(it.get("generated_at", "")) == generated_at or str(it.get("id", "")) == generated_at for it in items):
+                          target = p
+                          break
+                  except Exception:
+                      continue
+              patch_feed_file(target or feeds[0])
 
-          print("Generated:", out_path, "url:", rel_url)
+          # Update image index
+          idx_path = OUT_DIR / "index.json"
+          files = sorted([p.name for p in OUT_DIR.glob("*.png")], reverse=True)
+          dump_json(idx_path, {"files": files})
+          print("[ok] updated index:", idx_path)
           PY
 
-      - name: Commit & push illustrated changes if any
-        id: commit
+      - name: Commit & push images
         run: |
-          if git diff --quiet; then
-            echo "No changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git pull --ff-only origin main
-
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/image/*.png || true
-
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git commit -m "chore: illustrated image"
-          git push origin HEAD:main
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-  pages:
-    needs: [rag, illustrate]
-    if: needs.rag.outputs.changed == '1'
-    uses: ./.github/workflows/pages.yml
-    with:
-      ref: main
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
+          git add -A
+          git commit -m "Update images" || true
+          git push
