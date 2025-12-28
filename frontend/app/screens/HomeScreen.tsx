@@ -27,6 +27,24 @@ type Feed = {
   items: FeedItem[];
 };
 
+type AdItem = {
+  kind: "ad";
+  id: string;
+  title: string;
+  body: string;
+  cta?: string;
+  url?: string;
+  sponsor?: string;
+  disclaimer?: string;
+  emoji?: string;
+};
+
+type TimelineItem = FeedItem | AdItem;
+
+function isAdItem(it: TimelineItem): it is AdItem {
+  return (it as any)?.kind === "ad";
+}
+
 const APP_BG = "#f6f4ff";
 const CARD_BG = "#ffffff";
 const TEXT_DIM = "#333333";
@@ -43,6 +61,101 @@ const MASCOT_BORDER_W = 2;
 const SIDEBAR_W = 240;
 
 const FEED_SCROLL_ID = "feed-scroll";
+
+const AD_EVERY_N = Math.max(2, Number((process.env.EXPO_PUBLIC_AD_EVERY_N || "5").trim()) || 5); // 1 ad per N items
+const AD_BG = "#fff7ed";
+const AD_BADGE_BG = "#fb923c";
+
+const FAKE_AD_TEMPLATES: Omit<AdItem, "id" | "kind">[] = [
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: "https://example.com/demo1",
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: "https://example.com/demo1",
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: "https://example.com/demo1",
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: "https://example.com/demo1",
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+  {
+    title: "demo1",
+    body: "demo1",
+    cta: "check",
+    url: "https://example.com/demo1",
+    sponsor: "demo1",
+    disclaimer: "demo1",
+    emoji: "🧜‍♀️",
+  },
+];
+
+function hashString(s: string): number {
+  // Simple deterministic hash (for stable ad rotation per anchor id)
+  let h = 0;
+  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function makeAdForAnchor(anchorId: string): AdItem {
+  const idx = FAKE_AD_TEMPLATES.length ? hashString(anchorId) % FAKE_AD_TEMPLATES.length : 0;
+  const t = FAKE_AD_TEMPLATES[idx] ?? FAKE_AD_TEMPLATES[0];
+  return {
+    kind: "ad",
+    id: `ad|${anchorId}`,
+    title: t?.title ?? "Sponsored",
+    body: t?.body ?? "Demo ad",
+    cta: t?.cta,
+    url: t?.url,
+    sponsor: t?.sponsor,
+    disclaimer: t?.disclaimer,
+    emoji: t?.emoji,
+  };
+}
+
+function interleaveAds(posts: FeedItem[]): TimelineItem[] {
+  // "5件に1件" = every Nth item is an ad (i.e. after N-1 posts)
+  const n = AD_EVERY_N;
+  const afterPosts = Math.max(1, n - 1);
+
+  const out: TimelineItem[] = [];
+  let count = 0;
+
+  for (const p of posts) {
+    out.push(p);
+    count += 1;
+
+    if (count % afterPosts === 0) {
+      out.push(makeAdForAnchor(p.id));
+    }
+  }
+
+  return out;
+}
 
 function ensureWebScrollbarStyle() {
   if (Platform.OS !== "web") return;
@@ -398,6 +511,7 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
           accessibilityLabel="Mascot"
           onError={() => setFailed(true)}
         />
+        />
       </Frame>
     );
   }
@@ -490,6 +604,8 @@ export default function HomeScreen() {
       return ta < tb ? 1 : ta > tb ? -1 : 0;
     });
   }, [feed]);
+
+  const timelineItems = useMemo(() => interleaveAds(sortedItems), [sortedItems]);
 
   const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
 
@@ -597,6 +713,7 @@ const getImageUrisForItem = useCallback(
         new Set([
           RESOLVED_FEED_URL,
           resolveUrl("./latest.json", base),
+          resolveUrl("./feed/latest.json", base),
           resolveUrl("./feed/latest.json", base),
           resolveUrl("./feed/feed.json", base),
           resolveUrl("./feed.json", base),
@@ -748,7 +865,7 @@ const getImageUrisForItem = useCallback(
       showsVerticalScrollIndicator={false}
       style={{ flex: 1, backgroundColor: APP_BG }}
       contentContainerStyle={{ paddingBottom: 18 }}
-      data={sortedItems}
+      data={timelineItems}
       keyExtractor={(it) => it.id}
       ListHeaderComponent={Header}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -771,6 +888,109 @@ const getImageUrisForItem = useCallback(
               ) : null
             }
       renderItem={({ item }) => {
+        if (isAdItem(item)) {
+          const open = () => {
+            if (!item.url) return;
+            void Linking.openURL(item.url);
+          };
+
+          return (
+            <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+              <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
+                  <View style={{ marginTop: 2 }}>
+                    <Mascot />
+                  </View>
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  {/* Speech-bubble wrapper */}
+                  <View style={{ position: "relative", marginTop: 2 }}>
+                    {/* ✅ 1) Bubble body FIRST */}
+                    <View
+                      style={{
+                        backgroundColor: AD_BG,
+                        padding: 12,
+                        borderRadius: BUBBLE_RADIUS,
+                        borderWidth: BUBBLE_BORDER_W,
+                        borderColor: BORDER,
+                        minHeight: MASCOT_SIZE,
+                        shadowColor: "#000000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.12,
+                        shadowRadius: 6,
+                        elevation: 2,
+                        zIndex: 1,
+                      }}
+                    >
+                      <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                        <View
+                          style={{
+                            backgroundColor: AD_BADGE_BG,
+                            borderRadius: 999,
+                            paddingHorizontal: 8,
+                            paddingVertical: 2,
+                            borderWidth: 2,
+                            borderColor: BORDER,
+                          }}
+                        >
+                          <Text style={{ color: "#000000", fontWeight: "900", fontSize: 12 }}>AD</Text>
+                        </View>
+
+                        {item.emoji ? <Text style={{ color: "#000000" }}>{item.emoji}</Text> : null}
+                        <Text style={{ color: "#000000", fontWeight: "800" }}>{item.title}</Text>
+                        {item.sponsor ? <Text style={{ color: TEXT_DIM }}>• {item.sponsor}</Text> : null}
+                      </View>
+
+                      <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.body}</Text>
+
+                      <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 10, marginTop: 10 }}>
+                        <Text
+                          onPress={open}
+                          style={{
+                            backgroundColor: "#ffffff",
+                            borderWidth: 2,
+                            borderColor: BORDER,
+                            borderRadius: 999,
+                            paddingHorizontal: 12,
+                            paddingVertical: 6,
+                            fontWeight: "900",
+                            color: "#000000",
+                            opacity: item.url ? 1 : 0.6,
+                          }}
+                        >
+                          {item.cta ?? "Learn more"}
+                        </Text>
+
+                        <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{item.disclaimer ?? "架空の広告（デモ）です。"}</Text>
+                      </View>
+                    </View>
+
+                    {/* ✅ 2) Tail AFTER (on top) to cover the bubble border line */}
+                    <View
+                      pointerEvents="none"
+                      style={{
+                        position: "absolute",
+                        left: -7,
+                        top: 22,
+                        width: 14,
+                        height: 14,
+                        backgroundColor: AD_BG,
+                        transform: [{ rotate: "45deg" }],
+                        borderLeftWidth: BUBBLE_BORDER_W,
+                        borderBottomWidth: BUBBLE_BORDER_W,
+                        borderColor: BORDER,
+                        zIndex: 10,
+                        elevation: 3,
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+          );
+        }
+
         const imageUris = getImageUrisForItem(item);
         return (
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
