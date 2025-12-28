@@ -895,9 +895,12 @@ const getImageUrisForItem = useCallback(
           };
 
           return (
-            <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+            <View style={{ 
+              paddingHorizontal: 16, 
+              paddingBottom: 12 
+              onPress={open}
+              }}>
               <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-
                 <View style={{ flex: 1 }}>
                   {/* Speech-bubble wrapper */}
                   <View style={{ position: "relative", marginTop: 2 }}>
@@ -919,46 +922,10 @@ const getImageUrisForItem = useCallback(
                       }}
                     >
                       <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-                        <View
-                          style={{
-                            backgroundColor: ITEM_BADGE_BG,
-                            borderRadius: 999,
-                            paddingHorizontal: 8,
-                            paddingVertical: 2,
-                            borderWidth: 2,
-                            borderColor: BORDER,
-                          }}
-                        >
-                          <Text style={{ color: "#000000", fontWeight: "900", fontSize: 12 }}></Text>
-                        </View>
-
-                        {item.emoji ? <Text style={{ color: "#000000" }}>{item.emoji}</Text> : null}
                         <Text style={{ color: "#000000", fontWeight: "800" }}>{item.title}</Text>
                         {item.sponsor ? <Text style={{ color: TEXT_DIM }}>• {item.sponsor}</Text> : null}
                       </View>
-
                       <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.body}</Text>
-
-                      <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 10, marginTop: 10 }}>
-                        <Text
-                          onPress={open}
-                          style={{
-                            backgroundColor: "#ffffff",
-                            borderWidth: 2,
-                            borderColor: BORDER,
-                            borderRadius: 999,
-                            paddingHorizontal: 12,
-                            paddingVertical: 6,
-                            fontWeight: "900",
-                            color: "#000000",
-                            opacity: item.url ? 1 : 0.6,
-                          }}
-                        >
-                          {item.cta ?? "Learn more"}
-                        </Text>
-
-                        <Text style={{ color: TEXT_DIM, fontSize: 12 }}>{item.disclaimer ?? "demo"}</Text>
-                      </View>
                     </View>
                   </View>
                 </View>
