@@ -1,25 +1,25 @@
 {
   "date": "2025-12-28",
-  "generated_at": "2025-12-28T07:40:30Z",
-  "text": "Good evening from Yokosuka! Today's weather is mild with a high of 9.4°C and clear skies. Don't miss Hatsumode at Kumura Otaki Shrine on New Year's Eve, starting around 23:30! #Yokosuka #Miura #Yokohama",
+  "generated_at": "2025-12-28T08:36:33Z",
+  "text": "Good evening!🌃 In Yokosuka, it's a chilly 8°C with light winds. Tomorrow, expect cloudy skies and a 20% chance of rain. Perfect weather to cozy up at the Dondo-yaki / Otakiage event on Kurihama Beach! 🏖️🎉 #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-28T07:35:53.091792+00:00",
+    "generated_at": "2025-12-28T08:31:51.037619+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-28T16:20:00+09:00",
-      "temp_c": 9.4,
+      "time": "2025-12-28T17:20:00+09:00",
+      "temp_c": 8.0,
       "apparent_temp_c": null,
-      "humidity_pct": 40.0,
+      "humidity_pct": 43.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 6.84,
-      "wind_dir_deg": 45.0,
+      "wind_kmh": 5.760000000000001,
+      "wind_dir_deg": 67.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -30,31 +30,31 @@
       "wind_max_kmh": null,
       "temp_max_c": null,
       "temp_min_c": null,
-      "weather_text_ja": "晴れ　夜　くもり",
+      "weather_text_ja": "晴れ　夜遅く　くもり",
       "jma_weather_code": "111",
       "precip_prob_pct": 10
     },
     "tomorrow": {
       "date": "2025-12-29",
-      "weather_code": 61,
+      "weather_code": 71,
       "precip_sum_mm": null,
       "wind_max_kmh": null,
       "temp_max_c": null,
       "temp_min_c": null,
-      "weather_text_ja": "くもり　昼過ぎ　から　晴れ　所により　明け方　まで　雨",
+      "weather_text_ja": "くもり　昼過ぎ　から　晴れ　所により　朝　まで　雨か雪",
       "jma_weather_code": "211",
       "precip_prob_pct": 20
     },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
-      "report_datetime": "2025-12-28T11:00:00+09:00",
+      "report_datetime": "2025-12-28T17:00:00+09:00",
       "office_code": "140000",
       "area_code": null,
       "temp_city_code": null
     }
   },
-  "image_url": "/image/feed_20251228_163550_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening from Yokosuka! Today's weather is mild with a high of 9.4°C and clear skies. Don't miss Hatsumode at Kumura Otaki Shrine on New Year's Eve, starting around 23:30!",
+  "image_url": "/image/feed_20251228_173148_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening!🌃 In Yokosuka, it's a chilly 8°C with light winds. Tomorrow, expect cloudy skies and a 20% chance of rain. Perfect weather to cozy up at the Dondo-yaki / Otakiage event on Kurihama Beach! 🏖️🎉",
   "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-28T07:44:20.694031Z"
+  "image_generated_at": "2025-12-28T08:39:56.632788Z"
 }
