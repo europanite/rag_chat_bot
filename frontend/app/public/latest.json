@@ -1,25 +1,25 @@
 {
   "date": "2025-12-28",
-  "generated_at": "2025-12-28T22:30:36Z",
-  "text": "Good morning! ☀️ The current weather in Yokosuka is cloudy with a temperature of 4.7°C and humidity of 72%. There's no precipitation expected today, but tomorrow it will be sunny with a high of 14°C and low of 6°C! 🌞 Don't miss the Hatsumode at Kumura Otaki Shrine on New Year's Eve for toshikoshi soba! 🍜 #Yokosuka",
+  "generated_at": "2025-12-28T23:29:52Z",
+  "text": "Good morning! ☀️ Currently, it's cloudy with a high of 6.5°C and humidity at 67%. The forecast for today is mostly cloudy with a slight chance of rain. Don't forget to attend the Hatsumode at Kumura Otaki Shrine on New Year's Eve, starting from around 23:30! 🎉 #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-28T22:23:53.449655+00:00",
+    "generated_at": "2025-12-28T23:23:43.659328+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-29T07:10:00+09:00",
-      "temp_c": 4.7,
+      "time": "2025-12-29T08:10:00+09:00",
+      "temp_c": 6.5,
       "apparent_temp_c": null,
-      "humidity_pct": 72.0,
+      "humidity_pct": 67.0,
       "precip_mm": 0.0,
       "weather_code": 61,
       "cloud_cover_pct": null,
-      "wind_kmh": 5.4,
-      "wind_dir_deg": 45.0,
+      "wind_kmh": 11.16,
+      "wind_dir_deg": 67.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20251229_072351_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! ☀️ The current weather in Yokosuka is cloudy with a temperature of 4.7°C and humidity of 72%. There's no precipitation expected today, but tomorrow it will be sunny with a high of 14°C and low of 6°C! 🌞 Don",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-28T22:33:48.500972Z"
+  }
 }
