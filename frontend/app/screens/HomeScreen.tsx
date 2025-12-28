@@ -1125,11 +1125,7 @@ const getImageUrisForItem = useCallback(
   }, [effectiveUrl]);
 
   const Header = (
-    <View style={{ padding: 16, gap: 10 }}>
-      <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        {feed?.updated_at ? <Text style={{ color: TEXT_DIM }}>Updated At: {formatJst(feed.updated_at, true)}</Text> : null}
-      </View>
-
+    <View style={{ padding: 0, gap: 0 }}>
       {error ? (
         <View
           style={{
