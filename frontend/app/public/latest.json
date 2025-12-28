@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251227_235347_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! 🌅 In Yokosuka, it's a mild winter morning with 9.2°C and 44% humidity. Tomorrow's forecast is mostly cloudy with a 20% chance of rain. Join the Hatsumode celebration at Kumura Otaki Shrine on New Year's Eve",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-28T02:11:05.659890Z"
 }
