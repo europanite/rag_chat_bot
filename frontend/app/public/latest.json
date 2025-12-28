@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251229_072351_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! ☀️ The current weather in Yokosuka is cloudy with a temperature of 4.7°C and humidity of 72%. There's no precipitation expected today, but tomorrow it will be sunny with a high of 14°C and low of 6°C! 🌞 Don",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-28T22:33:48.500972Z"
 }
