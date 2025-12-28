@@ -1,11 +1,53 @@
 {
-  "updated_at": "2025-12-24T04:00:43Z",
+  "updated_at": "2025-12-24T04:33:11Z",
   "place": "Yokosuka",
   "page": 6,
   "page_size": 20,
-  "total_items": 266,
+  "total_items": 267,
   "next_url": "page_007.json",
   "items": [
+    {
+      "id": "2025-12-24T04:33:11Z",
+      "date": "2025-12-24",
+      "text": "Merry Christmas Eve! ☕️🎄 It's a cloudy but mild winter afternoon in Yokosuka, perfect for a warm cup of curry ramen at a cozy cafe like \"夕日の丘\" 🍜🏙️. Enjoy the views of Mt. Fuji and the surrounding hills while you sip and savor! 🏃‍♀️ #Yokosuka",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-24T04:33:11Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-24T04:29:34Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-24T13:15",
+          "temp_c": 8.4,
+          "apparent_temp_c": 5.4,
+          "humidity_pct": 94,
+          "precip_mm": 0.1,
+          "weather_code": 51,
+          "cloud_cover_pct": 81,
+          "wind_kmh": 15.5,
+          "wind_dir_deg": 31
+        },
+        "today": {
+          "date": "2025-12-24",
+          "weather_code": 61,
+          "temp_max_c": 9.8,
+          "temp_min_c": 6.7,
+          "precip_sum_mm": 9.4,
+          "wind_max_kmh": 19.2
+        },
+        "tomorrow": {
+          "date": "2025-12-25",
+          "weather_code": 53,
+          "temp_max_c": 14.9,
+          "temp_min_c": 9.9,
+          "precip_sum_mm": 2.9,
+          "wind_max_kmh": 28.7
+        }
+      }
+    },
     {
       "id": "2025-12-24T04:00:43Z",
       "date": "2025-12-24",
@@ -801,48 +843,6 @@
           "temp_min_c": 6.5,
           "precip_sum_mm": 30.4,
           "wind_max_kmh": 20.1
-        }
-      }
-    },
-    {
-      "id": "2025-12-23T10:20:32Z",
-      "date": "2025-12-23",
-      "text": "Good evening! 🌃 In Yokosuka, it's a chilly 10°C with 62% humidity and 0mm of precipitation. Tomorrow's weather looks gloomy, but let's look forward to the Yokosuka Countdown on December 31st! 🎉 https://www.cocoyoko.net/yoksuka-countdown/",
-      "place": "Yokosuka",
-      "generated_at": "2025-12-23T10:20:32Z",
-      "weather": {
-        "source": "open-meteo",
-        "generated_at": "2025-12-23T10:15:17Z",
-        "place": "Yokosuka",
-        "latitude": 35.281,
-        "longitude": 139.6722,
-        "timezone": "Asia/Tokyo",
-        "current": {
-          "time": "2025-12-23T19:15",
-          "temp_c": 10.0,
-          "apparent_temp_c": 6.9,
-          "humidity_pct": 62,
-          "precip_mm": 0.0,
-          "weather_code": 0,
-          "cloud_cover_pct": 10,
-          "wind_kmh": 10.4,
-          "wind_dir_deg": 34
-        },
-        "today": {
-          "date": "2025-12-23",
-          "weather_code": 2,
-          "temp_max_c": 10.6,
-          "temp_min_c": 5.6,
-          "precip_sum_mm": 0.0,
-          "wind_max_kmh": 26.9
-        },
-        "tomorrow": {
-          "date": "2025-12-24",
-          "weather_code": 63,
-          "temp_max_c": 9.6,
-          "temp_min_c": 6.8,
-          "precip_sum_mm": 28.5,
-          "wind_max_kmh": 20.8
         }
       }
     }
