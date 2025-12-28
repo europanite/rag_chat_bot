@@ -1328,20 +1328,19 @@ const getImageUrisForItem = useCallback(
   return (
     <View style={{ 
       flex: 1, 
+      padding: 6,
       flexDirection: "row", 
       justifyContent: "center", 
       backgroundColor: APP_BG }}>
 
       <View style={{ 
         width: SIDEBAR_W, 
-        padding: 6, 
         minHeight: 0 }}>
         <Slot side="left" />
       </View>
 
       <View style={{ 
         flex: 1, 
-        padding: 6, 
         maxWidth: CONTENT_MAX_W,
         borderRadius: MASCOT_RADIUS,
         borderWidth: MASCOT_BORDER_W,
@@ -1352,7 +1351,6 @@ const getImageUrisForItem = useCallback(
 
       <View style={{ 
         width: SIDEBAR_W, 
-        padding: 6, 
         minHeight: 0 }}>
         <Slot side="right" />
       </View>
