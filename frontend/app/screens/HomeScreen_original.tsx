@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState,useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
   FlatList,
   Image,
   Linking,
@@ -10,7 +9,6 @@ import {
   Text,
   useWindowDimensions,
   View,
-  Pressable,
 } from "react-native";
 
 type FeedItem = {
@@ -29,24 +27,6 @@ type Feed = {
   items: FeedItem[];
 };
 
-type SlotItem = {
-  kind: "ad";
-  id: string;
-  title: string;
-  body: string;
-  cta?: string;
-  url?: string;
-  sponsor?: string;
-  disclaimer?: string;
-  emoji?: string;
-};
-
-type TimelineItem = FeedItem | SlotItem;
-
-function isSlotItem(it: TimelineItem): it is SlotItem {
-  return (it as any)?.kind === "ad";
-}
-
 const APP_BG = "#f6f4ff";
 const CARD_BG = "#ffffff";
 const TEXT_DIM = "#333333";
@@ -63,178 +43,6 @@ const MASCOT_BORDER_W = 2;
 const SIDEBAR_W = 240;
 
 const FEED_SCROLL_ID = "feed-scroll";
-
-const ITEM_EVERY_N = Math.max(2, Number((process.env.EXPO_PUBLIC_ITEM_EVERY_N || "5").trim()) || 5); // 1 ad per N items
-const ITEM_BG = "#fff7ed";
-const ITEM_BADGE_BG = "#fb923c";
-
-const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
-  {
-    title: "demo1",
-    body: "demo1",
-    cta: "check",
-    url: "https://example.com/demo1",
-    sponsor: "demo1",
-    disclaimer: "demo1",
-    emoji: "🧜‍♀️",
-  },
-  {
-    title: "demo1",
-    body: "demo1",
-    cta: "check",
-    url: "https://example.com/demo1",
-    sponsor: "demo1",
-    disclaimer: "demo1",
-    emoji: "🧜‍♀️",
-  },
-  {
-    title: "demo1",
-    body: "demo1",
-    cta: "check",
-    url: "https://example.com/demo1",
-    sponsor: "demo1",
-    disclaimer: "demo1",
-    emoji: "🧜‍♀️",
-  },
-  {
-    title: "demo1",
-    body: "demo1",
-    cta: "check",
-    url: "https://example.com/demo1",
-    sponsor: "demo1",
-    disclaimer: "demo1",
-    emoji: "🧜‍♀️",
-  },
-  {
-    title: "demo1",
-    body: "demo1",
-    cta: "check",
-    url: "https://example.com/demo1",
-    sponsor: "demo1",
-    disclaimer: "demo1",
-    emoji: "🧜‍♀️",
-  },
-];
-
-type SlotBanner = {
-  id: string;
-  title: string;
-  body: string;
-  cta: string;
-  url: string;
-  imageUri: string;
-  sponsor?: string;
-  disclaimer?: string;
-};
-
-const SLOT_ROTATE_MS = Math.max(2500, Number((process.env.EXPO_PUBLIC_SLOT_ROTATE_MS || "6500").trim()) || 6500);
-const SLOT_FADE_MS = Math.max(200, Number((process.env.EXPO_PUBLIC_SLOT_FADE_MS || "800").trim()) || 800);
-
-const SLOT_BANNERS: SlotBanner[] = [
-  {
-    id: "slot-0",
-    title: "Ocean view, zero effort",
-    body: "A postcard-style feed that rotates through beautiful photos.",
-    cta: "Open demo",
-    url: "https://example.com/slot/ocean",
-    imageUri: "https://picsum.photos/seed/goodday_ocean/900/650",
-    sponsor: "GOODDAY (demo)",
-    disclaimer: "Demo ad slot — not a real promotion.",
-  },
-  {
-    id: "slot-1",
-    title: "Coffee & quiet time",
-    body: "One click to a calm corner. (Yes, this is just a dummy.)",
-    cta: "See more",
-    url: "https://example.com/slot/coffee",
-    imageUri: "https://picsum.photos/seed/goodday_coffee/900/650",
-    sponsor: "GOODDAY (demo)",
-    disclaimer: "Demo ad slot — not a real promotion.",
-  },
-  {
-    id: "slot-2",
-    title: "Weekend micro trip",
-    body: "Short trips, big reset. Rotate → click → pretend you’re traveling.",
-    cta: "View route",
-    url: "https://example.com/slot/trip",
-    imageUri: "https://picsum.photos/seed/goodday_trip/900/650",
-    sponsor: "GOODDAY (demo)",
-    disclaimer: "Demo ad slot — not a real promotion.",
-  },
-  {
-    id: "slot-3",
-    title: "Sunset soundtrack",
-    body: "Fade-in photos like a real banner ad, but harmless.",
-    cta: "Play",
-    url: "https://example.com/slot/sunset",
-    imageUri: "https://picsum.photos/seed/goodday_sunset/900/650",
-    sponsor: "GOODDAY (demo)",
-    disclaimer: "Demo ad slot — not a real promotion.",
-  },
-  {
-    id: "slot-4",
-    title: "Mountain air",
-    body: "Another pretty photo. Another click. Another fake CTA.",
-    cta: "Learn more",
-    url: "https://example.com/slot/mountain",
-    imageUri: "https://picsum.photos/seed/goodday_mountain/900/650",
-    sponsor: "GOODDAY (demo)",
-    disclaimer: "Demo ad slot — not a real promotion.",
-  },
-  {
-    id: "slot-5",
-    title: "City lights",
-    body: "This exists only to make the sidebar look like a real service.",
-    cta: "Open",
-    url: "https://example.com/slot/city",
-    imageUri: "https://picsum.photos/seed/goodday_city/900/650",
-    sponsor: "GOODDAY (demo)",
-    disclaimer: "Demo ad slot — not a real promotion.",
-  },
-];
-
-function hashString(s: string): number {
-  // Simple deterministic hash (for stable rotation per anchor id)
-  let h = 0;
-  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
-function makeAnchor(anchorId: string): SlotItem {
-  const idx = FAKE_ITEM_TEMPLATES.length ? hashString(anchorId) % FAKE_ITEM_TEMPLATES.length : 0;
-  const t = FAKE_ITEM_TEMPLATES[idx] ?? FAKE_ITEM_TEMPLATES[0];
-  return {
-    kind: "ad",
-    id: `ad|${anchorId}`,
-    title: t?.title ?? "Sponsored",
-    body: t?.body ?? "Demo ad",
-    cta: t?.cta,
-    url: t?.url,
-    sponsor: t?.sponsor,
-    disclaimer: t?.disclaimer,
-    emoji: t?.emoji,
-  };
-}
-
-function interleaveAds(posts: FeedItem[]): TimelineItem[] {
-  // "5件に1件" = every Nth item is an ad (i.e. after N-1 posts)
-  const n = ITEM_EVERY_N;
-  const afterPosts = Math.max(1, n - 1);
-
-  const out: TimelineItem[] = [];
-  let count = 0;
-
-  for (const p of posts) {
-    out.push(p);
-    count += 1;
-
-    if (count % afterPosts === 0) {
-      out.push(makeAnchor(p.id));
-    }
-  }
-
-  return out;
-}
 
 function ensureWebScrollbarStyle() {
   if (Platform.OS !== "web") return;
@@ -590,7 +398,6 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
           accessibilityLabel="Mascot"
           onError={() => setFailed(true)}
         />
-        />
       </Frame>
     );
   }
@@ -615,83 +422,9 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
   );
 }
 
-function Slot({ side }: { side: "left" | "right" }) {
+function Slot() {
   const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
   if (!enabled) return null;
-
-  const banners = SLOT_BANNERS;
-  if (!banners.length) return null;
-
-  // Offset the starting banner so L/R columns don't look identical.
-  const startIndex = useMemo(() => {
-    if (banners.length <= 1) return 0;
-    const base = side === "right" ? 2 : 0;
-    return base % banners.length;
-  }, [banners.length, side]);
-
-  const [active, setActive] = useState(startIndex);
-  const [next, setNext] = useState((startIndex + 1) % banners.length);
-
-  // Cross-fade progress: 0 → show "active", 1 → show "next"
-  const progress = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    // If banners length changes (it shouldn't), clamp indices.
-    if (active >= banners.length) setActive(0);
-    if (next >= banners.length) setNext((active + 1) % Math.max(1, banners.length));
-  }, [active, next, banners.length]);
-
-  useEffect(() => {
-    if (banners.length <= 1) return;
-
-    let cancelled = false;
-
-    const interval = setInterval(() => {
-      const n = (active + 1) % banners.length;
-      setNext(n);
-
-      progress.stopAnimation();
-      progress.setValue(0);
-
-      Animated.timing(progress, {
-        toValue: 1,
-        duration: SLOT_FADE_MS,
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (!finished || cancelled) return;
-        setActive(n);
-        // Snap back to the stable state (active fully visible).
-        progress.setValue(0);
-      });
-    }, SLOT_ROTATE_MS);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-      progress.stopAnimation();
-    };
-  }, [active, banners.length, progress]);
-
-  const activeOpacity =
-    banners.length <= 1
-      ? 1
-      : progress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [1, 0],
-        });
-
-  const nextOpacity = banners.length <= 1 ? 0 : progress;
-
-  const activeBanner = banners[active] ?? banners[0];
-  const nextBanner = banners[next] ?? banners[0];
-
-  const onPress = useCallback(() => {
-    const url = activeBanner.url;
-    if (!url) return;
-    void Linking.openURL(url).catch(() => {
-      // ignore
-    });
-  }, [activeBanner.url]);
 
   return (
     <View
@@ -702,127 +435,10 @@ function Slot({ side }: { side: "left" | "right" }) {
         borderColor: BORDER,
         borderRadius: 12,
         padding: 12,
-
-        // On desktop web, keep the slot visible while scrolling.
-        ...(Platform.OS === "web" ? ({ position: "sticky", top: 16 } as any) : null),
       }}
     >
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel={`Sponsored: ${activeBanner.title}`}
-        onPress={onPress}
-        style={({ pressed }) => ({
-          opacity: pressed ? 0.92 : 1,
-          ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : null),
-        })}
-      >
-        <View
-          style={{
-            backgroundColor: CARD_BG,
-            borderWidth: 2,
-            borderColor: BORDER,
-            borderRadius: 12,
-            overflow: "hidden",
-          }}
-        >
-          {/* Image area */}
-          <View style={{ width: "100%", aspectRatio: 4 / 3, backgroundColor: "#e5e7eb" }}>
-            <Animated.Image
-              source={{ uri: activeBanner.imageUri }}
-              resizeMode="cover"
-              style={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                bottom: 0,
-                left: 0,
-                opacity: activeOpacity as any,
-              }}
-            />
-            {banners.length > 1 ? (
-              <Animated.Image
-                source={{ uri: nextBanner.imageUri }}
-                resizeMode="cover"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  left: 0,
-                  opacity: nextOpacity as any,
-                }}
-              />
-            ) : null}
-
-            {/* AD badge */}
-            <View
-              style={{
-                position: "absolute",
-                top: 10,
-                left: 10,
-                paddingHorizontal: 8,
-                paddingVertical: 4,
-                borderRadius: 999,
-                backgroundColor: "rgba(0,0,0,0.55)",
-              }}
-            >
-              <Text style={{ color: "#ffffff", fontSize: 10, fontWeight: "800", letterSpacing: 0.4 }}>AD</Text>
-            </View>
-          </View>
-
-          {/* Copy */}
-          <View style={{ padding: 12, gap: 6 }}>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>{activeBanner.sponsor ?? "Sponsored"}</Text>
-              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
-            </View>
-
-            <Text style={{ color: "#000000", fontSize: 14, fontWeight: "800", lineHeight: 18 }}>
-              {activeBanner.title}
-            </Text>
-
-            <Text style={{ color: TEXT_DIM, fontSize: 12, lineHeight: 16 }}>{activeBanner.body}</Text>
-
-            <View
-              style={{
-                marginTop: 6,
-                alignSelf: "flex-start",
-                borderWidth: 2,
-                borderColor: BORDER,
-                borderRadius: 999,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                backgroundColor: "#ffffff",
-              }}
-            >
-              <Text style={{ color: "#000000", fontSize: 12, fontWeight: "800" }}>{activeBanner.cta}</Text>
-            </View>
-
-            {/* Dots */}
-            {banners.length > 1 ? (
-              <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 8 }}>
-                {banners.map((b, i) => (
-                  <View
-                    key={b.id}
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: 999,
-                      backgroundColor: i === active ? "#111827" : "#d1d5db",
-                    }}
-                  />
-                ))}
-              </View>
-            ) : null}
-
-            {activeBanner.disclaimer ? (
-              <Text style={{ color: TEXT_DIM, fontSize: 10, marginTop: 8, lineHeight: 14 }}>
-                {activeBanner.disclaimer}
-              </Text>
-            ) : null}
-          </View>
-        </View>
-      </Pressable>
+      <Text style={{ color: TEXT_DIM, marginTop: 6, lineHeight: 18 }}>
+      </Text>
     </View>
   );
 }
@@ -874,8 +490,6 @@ export default function HomeScreen() {
       return ta < tb ? 1 : ta > tb ? -1 : 0;
     });
   }, [feed]);
-
-  const timelineItems = useMemo(() => interleaveAds(sortedItems), [sortedItems]);
 
   const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
 
@@ -983,7 +597,6 @@ const getImageUrisForItem = useCallback(
         new Set([
           RESOLVED_FEED_URL,
           resolveUrl("./latest.json", base),
-          resolveUrl("./feed/latest.json", base),
           resolveUrl("./feed/latest.json", base),
           resolveUrl("./feed/feed.json", base),
           resolveUrl("./feed.json", base),
@@ -1135,7 +748,7 @@ const getImageUrisForItem = useCallback(
       showsVerticalScrollIndicator={false}
       style={{ flex: 1, backgroundColor: APP_BG }}
       contentContainerStyle={{ paddingBottom: 18 }}
-      data={timelineItems}
+      data={sortedItems}
       keyExtractor={(it) => it.id}
       ListHeaderComponent={Header}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -1158,54 +771,6 @@ const getImageUrisForItem = useCallback(
               ) : null
             }
       renderItem={({ item }) => {
-        if (isSlotItem(item)) {
-          const open = () => {
-            if (!item.url) return;
-            void Linking.openURL(item.url);
-          };
-
-          return (
-            <Pressable onPress={open}>
-              <View 
-                style={{ 
-                  paddingHorizontal: 16, 
-                  paddingBottom: 12 
-                  }}>
-                <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-                  <View style={{ flex: 1 }}>
-                    {/* Speech-bubble wrapper */}
-                    <View style={{ position: "relative", marginTop: 2 }}>
-                      {/* ✅ 1) Bubble body FIRST */}
-                      <View
-                        style={{
-                          backgroundColor: ITEM_BG,
-                          padding: 12,
-                          borderRadius: BUBBLE_RADIUS,
-                          borderWidth: BUBBLE_BORDER_W,
-                          borderColor: BORDER,
-                          minHeight: MASCOT_SIZE,
-                          shadowColor: "#000000",
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.12,
-                          shadowRadius: 6,
-                          elevation: 2,
-                          zIndex: 1,
-                        }}
-                      >
-                        <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-                          <Text style={{ color: "#000000", fontWeight: "800" }}>{item.title}</Text>
-                          {item.sponsor ? <Text style={{ color: TEXT_DIM }}>• {item.sponsor}</Text> : null}
-                        </View>
-                        <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.body}</Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </Pressable>
-          );
-        }
-
         const imageUris = getImageUrisForItem(item);
         return (
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
@@ -1285,17 +850,15 @@ const getImageUrisForItem = useCallback(
 
   return (
     <View style={{ flex: 1, flexDirection: "row", justifyContent: "center", backgroundColor: APP_BG }}>
-
       <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingLeft: 12, minHeight: 0 }}>
-        <Slot side="left" />
+        <Slot />
       </View>
 
       <View style={{ flex: 1, maxWidth: CONTENT_MAX_W }}>{list}</View>
 
-      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingLeft: 12, minHeight: 0 }}>
-        <Slot side="right" />
+      <View style={{ width: SIDEBAR_W, paddingTop: 16, paddingRight: 12, minHeight: 0 }}>
+        <Slot />
       </View>
-
     </View>
   );
 }
