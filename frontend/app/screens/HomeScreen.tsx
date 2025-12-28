@@ -1280,7 +1280,7 @@ const getImageUrisForItem = useCallback(
                   }}
                 >
                   <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-                    {item.generated_at ? <Text style={{ color: TEXT_DIM }}>{formatJst(item.generated_at)}</Text> : null}
+                    {item.generated_at ? <Text style={{ color: TEXT_DIM }}>{formatJst(item.generated_at, true)}</Text> : null}
                     {item.place ? <Text style={{ color: TEXT_DIM }}>• {item.place}</Text> : null}
                   </View>
                   
