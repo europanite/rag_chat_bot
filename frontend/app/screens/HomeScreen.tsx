@@ -895,43 +895,44 @@ const getImageUrisForItem = useCallback(
           };
 
           return (
-            <View 
-              onPress={open}
-              style={{ 
-                paddingHorizontal: 16, 
-                paddingBottom: 12 
-                }}>
-              <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-                <View style={{ flex: 1 }}>
-                  {/* Speech-bubble wrapper */}
-                  <View style={{ position: "relative", marginTop: 2 }}>
-                    {/* ✅ 1) Bubble body FIRST */}
-                    <View
-                      style={{
-                        backgroundColor: ITEM_BG,
-                        padding: 12,
-                        borderRadius: BUBBLE_RADIUS,
-                        borderWidth: BUBBLE_BORDER_W,
-                        borderColor: BORDER,
-                        minHeight: MASCOT_SIZE,
-                        shadowColor: "#000000",
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.12,
-                        shadowRadius: 6,
-                        elevation: 2,
-                        zIndex: 1,
-                      }}
-                    >
-                      <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-                        <Text style={{ color: "#000000", fontWeight: "800" }}>{item.title}</Text>
-                        {item.sponsor ? <Text style={{ color: TEXT_DIM }}>• {item.sponsor}</Text> : null}
+            <Pressable onPress={open}>
+              <View 
+                style={{ 
+                  paddingHorizontal: 16, 
+                  paddingBottom: 12 
+                  }}>
+                <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+                  <View style={{ flex: 1 }}>
+                    {/* Speech-bubble wrapper */}
+                    <View style={{ position: "relative", marginTop: 2 }}>
+                      {/* ✅ 1) Bubble body FIRST */}
+                      <View
+                        style={{
+                          backgroundColor: ITEM_BG,
+                          padding: 12,
+                          borderRadius: BUBBLE_RADIUS,
+                          borderWidth: BUBBLE_BORDER_W,
+                          borderColor: BORDER,
+                          minHeight: MASCOT_SIZE,
+                          shadowColor: "#000000",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.12,
+                          shadowRadius: 6,
+                          elevation: 2,
+                          zIndex: 1,
+                        }}
+                      >
+                        <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                          <Text style={{ color: "#000000", fontWeight: "800" }}>{item.title}</Text>
+                          {item.sponsor ? <Text style={{ color: TEXT_DIM }}>• {item.sponsor}</Text> : null}
+                        </View>
+                        <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.body}</Text>
                       </View>
-                      <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.body}</Text>
                     </View>
                   </View>
                 </View>
               </View>
-            </View>
+            </Pressable>
           );
         }
 
