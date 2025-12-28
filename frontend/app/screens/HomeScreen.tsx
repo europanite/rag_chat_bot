@@ -934,7 +934,7 @@ const getImageUrisForItem = useCallback(
                             borderColor: BORDER,
                           }}
                         >
-                          <Text style={{ color: "#000000", fontWeight: "900", fontSize: 12 }}>Slot</Text>
+                          <Text style={{ color: "#000000", fontWeight: "900", fontSize: 12 }}></Text>
                         </View>
 
                         {item.emoji ? <Text style={{ color: "#000000" }}>{item.emoji}</Text> : null}
@@ -995,6 +995,12 @@ const getImageUrisForItem = useCallback(
         return (
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+            <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
+              <View style={{ marginTop: 2 }}>
+                <Mascot />
+              </View>
+            </View>
+
             <View style={{ flex: 1 }}>
               {/* Speech-bubble wrapper */}
               <View style={{ position: "relative", marginTop: 2 }}>
