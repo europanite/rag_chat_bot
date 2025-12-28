@@ -334,56 +334,8 @@ jobs:
             generator=g,
           ).images[0].convert("RGB")
 
-          # Compose a 16:9 image WITHOUT any text overlay.
-          # - blurred background ("cover")
-          # - centered crisp illustration with a subtle rounded frame
-          from PIL import ImageFilter, ImageEnhance
-
-          iw, ih = img.size
-          scale = max(PAGE_W / iw, PAGE_H / ih)
-          bw, bh = int(iw * scale), int(ih * scale)
-
-          bg = img.resize((bw, bh), Image.LANCZOS)
-          left = (bw - PAGE_W) // 2
-          top = (bh - PAGE_H) // 2
-          bg = bg.crop((left, top, left + PAGE_W, top + PAGE_H))
-          bg = bg.filter(ImageFilter.GaussianBlur(radius=28))
-          bg = ImageEnhance.Brightness(bg).enhance(0.92)
-
-          page = bg.convert("RGBA")
-
-          margin = 64
-          iw, ih = img.size
-          avail_w = max(64, PAGE_W - 2 * margin)
-          avail_h = max(64, PAGE_H - 2 * margin)
-          # avoid extreme upscaling (keeps it crisp on CPU gen)
-          max_upscale = 1.25
-          fg_scale = min(avail_w / iw, avail_h / ih, max_upscale)
-          fg_w = max(64, int(iw * fg_scale))
-          fg_h = max(64, int(ih * fg_scale))
-          fg = img.resize((fg_w, fg_h), Image.LANCZOS).convert("RGBA")
-
-          fx = (PAGE_W - fg_w) // 2
-          fy = (PAGE_H - fg_h) // 2
-
-          frame_pad = 18
-          frame = Image.new("RGBA", (fg_w + frame_pad * 2, fg_h + frame_pad * 2), (0, 0, 0, 0))
-          fd = ImageDraw.Draw(frame)
-          fd.rounded_rectangle(
-            [0, 0, frame.size[0] - 1, frame.size[1] - 1],
-            radius=28,
-            fill=(255, 255, 255, 235),
-            outline=(220, 210, 196, 255),
-            width=3,
-          )
-
-          page.alpha_composite(frame, (fx - frame_pad, fy - frame_pad))
-          page.alpha_composite(fg, (fx, fy))
-
-          page = page.convert("RGB")
-          now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+          page = img.convert("RGB")
           page.save(out_path, format="PNG", optimize=True)
-
 
           latest["image_url"] = rel_url
           latest["image_prompt"] = prompt
