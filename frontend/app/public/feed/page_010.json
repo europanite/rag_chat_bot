@@ -1,11 +1,53 @@
 {
-  "updated_at": "2025-12-20T22:49:39Z",
+  "updated_at": "2025-12-20T23:25:58Z",
   "place": "Yokosuka",
   "page": 10,
   "page_size": 20,
-  "total_items": 265,
+  "total_items": 266,
   "next_url": "page_011.json",
   "items": [
+    {
+      "id": "2025-12-20T23:25:58Z",
+      "date": "2025-12-20",
+      "text": "Good morning Yokosuka! It's a lovely 17.4°C with 79% humidity and a gentle 17.9km/h breeze today! Perfect weather to explore the city or attend one of the upcoming events! Don't miss the Yoksuka Countdown on Dec 31st to Jan 1st at Vellini Park! #Yokosuka #Miura #Yokohama #Zushi",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-20T23:25:58Z",
+      "weather": {
+        "source": "open-meteo",
+        "generated_at": "2025-12-20T23:19:25Z",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-21T08:15",
+          "temp_c": 17.4,
+          "apparent_temp_c": 16.0,
+          "humidity_pct": 79,
+          "precip_mm": 0.0,
+          "weather_code": 1,
+          "cloud_cover_pct": 45,
+          "wind_kmh": 17.9,
+          "wind_dir_deg": 202
+        },
+        "today": {
+          "date": "2025-12-21",
+          "weather_code": 65,
+          "temp_max_c": 18.0,
+          "temp_min_c": 12.9,
+          "precip_sum_mm": 21.7,
+          "wind_max_kmh": 32.9
+        },
+        "tomorrow": {
+          "date": "2025-12-22",
+          "weather_code": 2,
+          "temp_max_c": 13.2,
+          "temp_min_c": 7.3,
+          "precip_sum_mm": 0.0,
+          "wind_max_kmh": 39.4
+        }
+      }
+    },
     {
       "id": "2025-12-20T22:49:39Z",
       "date": "2025-12-20",
@@ -783,48 +825,6 @@
           "precip_mm": 0.0,
           "weather_code": 3,
           "cloud_cover_pct": 97,
-          "wind_kmh": 21.9,
-          "wind_dir_deg": 194
-        },
-        "today": {
-          "date": "2025-12-21",
-          "weather_code": 63,
-          "temp_max_c": 18.5,
-          "temp_min_c": 12.1,
-          "precip_sum_mm": 13.6,
-          "wind_max_kmh": 30.3
-        },
-        "tomorrow": {
-          "date": "2025-12-22",
-          "weather_code": 53,
-          "temp_max_c": 12.6,
-          "temp_min_c": 7.3,
-          "precip_sum_mm": 0.7,
-          "wind_max_kmh": 41.1
-        }
-      }
-    },
-    {
-      "id": "2025-12-20T16:08:11Z",
-      "date": "2025-12-20",
-      "text": "Tropical feel in Yokosuka today! Cloudy skies with 18.5°C, 82% humidity, and a gentle breeze at 21.9km/h. Perfect weather for a stroll along the Miura Peninsula coast! #Yokosuka #Miura",
-      "place": "Yokosuka",
-      "generated_at": "2025-12-20T16:08:11Z",
-      "weather": {
-        "source": "open-meteo",
-        "generated_at": "2025-12-20T16:06:27Z",
-        "place": "Yokosuka",
-        "latitude": 35.281,
-        "longitude": 139.6722,
-        "timezone": "Asia/Tokyo",
-        "current": {
-          "time": "2025-12-21T01:00",
-          "temp_c": 18.5,
-          "apparent_temp_c": 17.2,
-          "humidity_pct": 82,
-          "precip_mm": 0.0,
-          "weather_code": 3,
-          "cloud_cover_pct": 94,
           "wind_kmh": 21.9,
           "wind_dir_deg": 194
         },
