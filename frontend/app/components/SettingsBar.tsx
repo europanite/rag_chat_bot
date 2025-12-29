@@ -65,7 +65,7 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
             color: "#fff"
             }}
           >
-            provides news with local and visitors.
+            provides news for local and visitors.
           </Text>
 
           <View
@@ -137,7 +137,7 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
               color: "#fff"
               }}
             >
-              provides news with local and visitors.
+              provides news for local and visitors.
             </Text>
           </View>
         </View>
