@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "id": "2025-12-29T05:07:43Z",
+      "id": "feed_20251229_140212_JST",
       "date": "2025-12-29",
       "text": "Good morning Yokosuka! Today's forecast calls for a mild winter day with clear skies and a high of 13°C. Don't miss the Yokosuka Countdown 2026 on Dec 31st at 18:00, an event perfect for a winter hike or workout 🏃‍♀️🌲 #Yokosuka",
       "place": "Yokosuka",
@@ -55,7 +55,12 @@
           "area_code": null,
           "temp_city_code": null
         }
-      }
+      },
+      "image": "/image/feed_20251229_140212_JST.png",
+      "image_url": "/image/feed_20251229_140212_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning Yokosuka! Today's forecast calls for a mild winter day with clear skies and a high of 13°C. Don't miss the Yokosuka Countdown 2026 on Dec 31st at 18:00, an event perfect for a winter hike or workout 🏃‍♀️🌲",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-29T05:10:24.647645Z"
     }
   ],
   "updated_at": "2025-12-29T05:07:43Z",
