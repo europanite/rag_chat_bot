@@ -1,0 +1,50 @@
+{
+  "source": "jma",
+  "generated_at": "2025-12-29T08:37:10.428847+00:00",
+  "place": "Yokosuka",
+  "latitude": 35.281,
+  "longitude": 139.6722,
+  "timezone": "Asia/Tokyo",
+  "current": {
+    "time": "2025-12-29T17:30:00+09:00",
+    "temp_c": 13.0,
+    "apparent_temp_c": null,
+    "humidity_pct": 54.0,
+    "precip_mm": 0.0,
+    "weather_code": 0,
+    "cloud_cover_pct": null,
+    "wind_kmh": 18.720000000000002,
+    "wind_dir_deg": 202.5,
+    "amedas_station": "46211",
+    "jma_weather_obs_code": null
+  },
+  "today": {
+    "date": "2025-12-29",
+    "weather_code": 0,
+    "precip_sum_mm": null,
+    "wind_max_kmh": null,
+    "temp_max_c": null,
+    "temp_min_c": null,
+    "weather_text_ja": "晴れ",
+    "jma_weather_code": "100",
+    "precip_prob_pct": 0
+  },
+  "tomorrow": {
+    "date": "2025-12-30",
+    "weather_code": 2,
+    "precip_sum_mm": null,
+    "wind_max_kmh": null,
+    "temp_max_c": null,
+    "temp_min_c": null,
+    "weather_text_ja": "晴れ　昼過ぎ　から　夕方　くもり",
+    "jma_weather_code": "100",
+    "precip_prob_pct": 0
+  },
+  "jma_meta": {
+    "publishing_office": "横浜地方気象台",
+    "report_datetime": "2025-12-29T17:00:00+09:00",
+    "office_code": "140000",
+    "area_code": null,
+    "temp_city_code": null
+  }
+}
