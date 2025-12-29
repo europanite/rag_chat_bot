@@ -1,25 +1,25 @@
 {
   "date": "2025-12-29",
-  "generated_at": "2025-12-29T02:07:49Z",
-  "text": "Good morning! 🌞️ The weather in Yokosuka is mild and sunny, with a temp of 10.7°C. Get ready for Hatsumode at Kumura Otaki Shrine on Dec 31st from 18:00 to Jan 1st 01:00! 👉️ https://kurihama.info/event/newyear/ #Yokosuka #Miura #NewYear",
+  "generated_at": "2025-12-29T03:56:48Z",
+  "text": "Happy New Year's Eve! 🎉 As of NOW, it's a mild winter day with 12.6°C and 62% humidity in Yokosuka. Tomorrow's forecast is mostly sunny with a high chance of sunshine. Don't miss the Hatsumode at Kumura Otaki Shrine on New Year's Eve starting around 23:30! 🕰️ #Yokosuka #NewYear",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-29T02:01:49.978656+00:00",
+    "generated_at": "2025-12-29T03:50:51.772866+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-29T10:50:00+09:00",
-      "temp_c": 10.7,
+      "time": "2025-12-29T12:40:00+09:00",
+      "temp_c": 12.6,
       "apparent_temp_c": null,
-      "humidity_pct": 60.0,
+      "humidity_pct": 62.0,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": null,
-      "wind_kmh": 3.9600000000000004,
-      "wind_dir_deg": 90.0,
+      "wind_kmh": 8.64,
+      "wind_dir_deg": 225.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20251229_110148_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! 🌞️ The weather in Yokosuka is mild and sunny, with a temp of 10.7°C. Get ready for Hatsumode at Kumura Otaki Shrine on Dec 31st from 18:00 to Jan 1st 01:00! 👉️",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-29T02:10:43.755983Z"
+  }
 }
