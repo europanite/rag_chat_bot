@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "id": "2025-12-30T03:46:31Z",
+      "id": "feed_20251230_124129_JST",
       "date": "2025-12-30",
       "text": "Happy New Year's Eve from Yokosuka! 🎉 Currently enjoying mild weather with a high of 16.1°C and sunny skies ☀️. Don't miss our Kurihama events: Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki! 🎊 Learn more: [none]",
       "place": "Yokosuka",
@@ -55,7 +55,12 @@
           "area_code": null,
           "temp_city_code": null
         }
-      }
+      },
+      "image": "/image/feed_20251230_124129_JST.png",
+      "image_url": "/image/feed_20251230_124129_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎉 Currently enjoying mild weather with a high of 16.1°C and sunny skies ☀️. Don't miss our Kurihama events: Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki! 🎊 Learn more: [none]",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-30T03:49:48.898372Z"
     }
   ],
   "updated_at": "2025-12-30T03:46:31Z",
