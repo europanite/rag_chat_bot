@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "id": "2025-12-30T16:37:55Z",
+      "date": "2025-12-30",
+      "text": "Happy New Year's Eve! 🎄❄️ Yokosuka Countdown 2026 😊 The weather is quite chilly tonight, with a temperature of 7.8°C and clear skies ☀️. Enjoy the winter evening night-view with the city's beautiful illumination lights! 🏙️🔥",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-30T16:37:55Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-30T16:32:54.646362+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-31T01:20:00+09:00",
+          "temp_c": 7.8,
+          "apparent_temp_c": null,
+          "humidity_pct": 56.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 7.2,
+          "wind_dir_deg": 0.0,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-31",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ　夕方　から　くもり",
+          "jma_weather_code": "111",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2026-01-01",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": 9.0,
+          "temp_min_c": 3.0,
+          "weather_text_ja": "晴れ　後　くもり",
+          "jma_weather_code": "111",
+          "precip_prob_pct": null
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-30T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      }
+    }
+  ],
+  "updated_at": "2025-12-30T16:37:55Z",
+  "place": "Yokosuka"
+}
