@@ -426,6 +426,8 @@ def build_question(max_words: str, topic_family: str, topic_mode: str, now_local
         "\n"
         "Decide the greeting using the local time in LIVE WEATHER JSON (current.time + timezone; assume Asia/Tokyo if missing).\n"
         "Summarize the weather using ONLY LIVE WEATHER facts.\n"
+        "If you use words like 'tonight', 'this evening', 'later tonight', 'later today', they must match NOW.\n"
+        "If the event date is not today, say “tomorrow” or include an explicit date (e.g., Dec 31).\n"
         f"TOPIC FAMILY: {topic_family} (event/place/chat).\n"
         f"SUBTOPIC: {topic_mode} (keywords: {topic_keywords}).\n"
         f"HINTS: time_of_day={tod}, season={season}, weather_hint={hint}.\n"
