@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251230_142828_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve! 🎉 Mild winter weather awaits us tomorrow. Enjoy a warm drink at Yokosuka's cozy cafes, like Curry Ramen Cafe or Bakery & More. Let's make some unforgettable memories in this lovely town before the c",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-30T05:36:21.579469Z"
 }
