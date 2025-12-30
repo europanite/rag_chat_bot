@@ -601,7 +601,29 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
 
     # Compat: accept `context` / `user_context` as aliases for `extra_context`
     extra_ctx: str | None = payload.extra_context or payload.context or payload.user_context
-    live_extra: str | None = extra_ctx
+
+    def _looks_like_weather_json(s: str) -> bool:
+        try:
+            obj = json.loads(s)
+        except Exception:
+            return False
+        if not isinstance(obj, dict):
+            return False
+        cur = obj.get("current")
+        return (
+            isinstance(cur, dict)
+            and isinstance(cur.get("time"), str)
+            and bool(cur.get("time"))
+        )
+
+    live_extra: str | None = None
+    user_extra: str | None = None
+    if isinstance(extra_ctx, str) and extra_ctx.strip():
+        if _looks_like_weather_json(extra_ctx):
+            live_extra = extra_ctx
+        else:
+            user_extra = extra_ctx
+
     if (live_extra is None or not live_extra.strip()) and payload.use_live_weather:
         try:
             live_extra = weather_service.get_live_weather_context(
@@ -618,6 +640,10 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
     allowed_urls = _collect_allowed_urls(context_texts, live_extra)
 
     place_hint = http_request.query_params.get("place") or os.getenv("PLACE")
+
+    # If caller provided non-weather extra context, keep it, but don't poison LIVE WEATHER.
+    if user_extra:
+        context_texts = context_texts + [f"EXTRA CONTEXT:\n{user_extra}"]
 
     system_prompt, user_prompt = _build_chat_prompts(
         question=payload.question,
