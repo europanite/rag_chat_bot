@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "id": "2025-12-30T09:51:19Z",
+      "id": "feed_20251230_184617_JST",
       "date": "2025-12-30",
       "text": "Happy New Year's Eve from Yokosuka! 🎉🕰️ Tonight's mild winter weather is perfect for a evening stroll around town, maybe visit the Yokosuka Art Museum or Yokosuka Gallery before the big countdown to 2026. See you there! 🎊",
       "place": "Yokosuka",
@@ -55,7 +55,12 @@
           "area_code": null,
           "temp_city_code": null
         }
-      }
+      },
+      "image": "/image/feed_20251230_184617_JST.png",
+      "image_url": "/image/feed_20251230_184617_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎉🕰️ Tonight's mild winter weather is perfect for a evening stroll around town, maybe visit the Yokosuka Art Museum or Yokosuka Gallery before the big countdown to 2026. See you there! ",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-30T09:54:11.573335Z"
     }
   ],
   "updated_at": "2025-12-30T09:51:19Z",
