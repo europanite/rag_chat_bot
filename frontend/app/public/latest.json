@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20251231_062442_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎊️ The weather is chilly, with a temperature of 6.7°C and 73% humidity. Clear skies expected tonight until the morning. Don't miss the \"Winter Wonderland\" exhibition at the Yokosuka Mu",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2025-12-30T21:31:21.527751Z"
 }
