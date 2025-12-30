@@ -1,25 +1,25 @@
 {
   "date": "2025-12-30",
-  "generated_at": "2025-12-30T10:42:35Z",
-  "text": "Happy New Year's Eve from Yokosuka! 🎉🕰️ As we count down to 2026, the weather is mild and pleasant with a high of 10.8°C and partly cloudy skies ☁️ Check out the new exhibition at Yokosuka Museum of Art & History this evening!",
+  "generated_at": "2025-12-30T11:29:09Z",
+  "text": "Good evening Yokosuka! 🌃 As we count down to the new year, don't miss the Yokosuka Countdown 2026 market fair on Dec 31st & Jan 1st at Enjoy mild winter weather and shop local vendors' treasures! 🎄 #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-30T10:37:30.966076+00:00",
+    "generated_at": "2025-12-30T11:23:33.216770+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-30T19:30:00+09:00",
-      "temp_c": 10.8,
+      "time": "2025-12-30T20:10:00+09:00",
+      "temp_c": 12.1,
       "apparent_temp_c": null,
-      "humidity_pct": 68.0,
+      "humidity_pct": 67.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 6.12,
-      "wind_dir_deg": 0.0,
+      "wind_kmh": 10.08,
+      "wind_dir_deg": 270.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20251230_193729_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎉🕰️ As we count down to 2026, the weather is mild and pleasant with a high of 10.8°C and partly cloudy skies ☁️ Check out the new exhibition at Yokosuka Museum of Art & History this ev",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-30T10:46:03.259998Z"
+  }
 }
