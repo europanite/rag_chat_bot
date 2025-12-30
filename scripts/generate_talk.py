@@ -431,7 +431,7 @@ def build_question(max_words: str, topic_family: str, topic_mode: str, now_local
         f"TOPIC FAMILY: {topic_family} (event/place/chat).\n"
         f"SUBTOPIC: {topic_mode} (keywords: {topic_keywords}).\n"
         f"HINTS: time_of_day={tod}, season={season}, weather_hint={hint}.\n"
-        "Pick up ONE topic from RAG Context that fits the HINTS.\n"
+        "Pick up ONE topic and mention only that one from RAG Context that fits the HINTS.\n"
         "You may include at most one official URL only if it exists in the chosen text.\n"
         f"Keep within {max_words} characters.\n"
     )
