@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "id": "2025-12-30T11:29:09Z",
+      "id": "feed_20251230_202331_JST",
       "date": "2025-12-30",
       "text": "Good evening Yokosuka! 🌃 As we count down to the new year, don't miss the Yokosuka Countdown 2026 market fair on Dec 31st & Jan 1st at Enjoy mild winter weather and shop local vendors' treasures! 🎄 #Yokosuka #Miura",
       "place": "Yokosuka",
@@ -55,7 +55,12 @@
           "area_code": null,
           "temp_city_code": null
         }
-      }
+      },
+      "image": "/image/feed_20251230_202331_JST.png",
+      "image_url": "/image/feed_20251230_202331_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening Yokosuka! 🌃 As we count down to the new year, don't miss the Yokosuka Countdown 2026 market fair on Dec 31st & Jan 1st at Enjoy mild winter weather and shop local vendors' treasures! 🎄",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-30T11:32:04.248616Z"
     }
   ],
   "updated_at": "2025-12-30T11:29:09Z",
