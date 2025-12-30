@@ -123,14 +123,6 @@ class QueryRequest(BaseModel):
     context: str | None = Field(default=None, description="Alias for extra_context")
     user_context: str | None = Field(default=None, description="Alias for extra_context")
 
-    use_live_weather: bool = Field(
-        default=False,
-        description=(
-            "If true and extra_context is not provided, the backend fetches the "
-            "current weather for the requester and appends it as live context."
-        ),
-    )
-
     include_debug: bool = Field(
         default=False,
         description="If true, include retrieved RAG context and chunk metadata in the response.",
@@ -624,7 +616,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         else:
             user_extra = extra_ctx
 
-    if (live_extra is None or not live_extra.strip()) and payload.use_live_weather:
+    if (live_extra is None or not live_extra.strip()):
         try:
             live_extra = weather_service.get_live_weather_context(
                 http_request=http_request,

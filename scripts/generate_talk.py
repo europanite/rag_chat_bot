@@ -436,12 +436,11 @@ def build_question(max_words: str, topic_family: str, topic_mode: str, now_local
 
 
 def build_payload(question: str, top_k: int, snap_json_raw: str) -> Dict[str, Any]:
-    # Keep current bash behavior: send snapshot as extra_context string; use_live_weather=False
+    # Keep current bash behavior: send snapshot as extra_context string;
     return {
         "question": question,
         "top_k": int(top_k),
         "extra_context": snap_json_raw,
-        "use_live_weather": False,
     }
 
 
@@ -637,7 +636,7 @@ def main() -> int:
         _ = http_json(
             "POST",
             f"{api_base}/rag/query",
-            {"question": "ping", "top_k": 1, "extra_context": "{}", "use_live_weather": False},
+            {"question": "ping", "top_k": 1, "extra_context": "{}"},
             cfg,
         )
     except Exception:
