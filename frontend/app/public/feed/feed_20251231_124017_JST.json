@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "feed_20251231_124017_JST",
+      "date": "2025-12-31",
+      "text": "Happy New Year's Eve from Yokosuka! 🎉 As we count down to 2026, enjoy a mild winter day with temperatures at 11.8°C and sunshine ☀️ in the park! 🏞️ Visit Yokosuka Park Garden for a stroll on this lovely afternoon 👣 #Yokosuka",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-31T03:44:36Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-31T03:40:18.886272+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-31T12:30:00+09:00",
+          "temp_c": 11.8,
+          "apparent_temp_c": null,
+          "humidity_pct": 44.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 13.32,
+          "wind_dir_deg": 67.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-31",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ　夕方　から　くもり",
+          "jma_weather_code": "111",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2026-01-01",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ　昼過ぎ　から　くもり",
+          "jma_weather_code": "111",
+          "precip_prob_pct": 10
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-31T11:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20251231_124017_JST.png",
+      "image_url": "/image/feed_20251231_124017_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎉 As we count down to 2026, enjoy a mild winter day with temperatures at 11.8°C and sunshine ☀️ in the park! 🏞️ Visit Yokosuka Park Garden for a stroll on this lovely afternoon 👣",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-31T03:47:13.000896Z"
+    }
+  ],
+  "updated_at": "2025-12-31T03:44:36Z",
+  "place": "Yokosuka"
+}
