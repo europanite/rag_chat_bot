@@ -1,24 +1,24 @@
 {
   "date": "2025-12-31",
-  "generated_at": "2025-12-31T21:27:04Z",
-  "text": "Happy New Year! 🎉 It's a chilly morning in Yokosuka, with a temperature of 6.1°C and cloudy skies ☁️. Later today, it'll be partly sunny with a high of 9°C and a low of 2°C. Explore the city's rich naval history at the Yokosuka Museum 🚀 #Yokosuka",
+  "generated_at": "2025-12-31T22:29:13Z",
+  "text": "Happy New Year! 🎉 It's a chilly morning in Yokosuka, with a temp of 6.1°C and humidity at 77%! ☕️ Warm up with some hot curry or ramen at a cozy cafe like Kuramae Curry Cafe 🍜👌 #Yokosuka",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-31T21:22:44.865731+00:00",
+    "generated_at": "2025-12-31T22:24:59.007231+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-01T06:10:00+09:00",
+      "time": "2026-01-01T07:10:00+09:00",
       "temp_c": 6.1,
       "apparent_temp_c": null,
-      "humidity_pct": 78.0,
+      "humidity_pct": 77.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 11.16,
+      "wind_kmh": 10.08,
       "wind_dir_deg": 45.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20260101_062242_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year! 🎉 It's a chilly morning in Yokosuka, with a temperature of 6.1°C and cloudy skies ☁️. Later today, it'll be partly sunny with a high of 9°C and a low of 2°C. Explore the city's rich naval history at the Y",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-31T21:30:07.723787Z"
+  }
 }
