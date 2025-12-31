@@ -1,4 +1,4 @@
-name: Arrange Experiment
+name: Arrange
 
 on:
   workflow_dispatch:
