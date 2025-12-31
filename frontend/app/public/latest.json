@@ -1,25 +1,25 @@
 {
   "date": "2025-12-31",
-  "generated_at": "2025-12-31T07:31:59Z",
-  "text": "Happy New Year's Eve from Yokosuka! 🎉🕰️ Tonight, expect a mild winter evening with partly cloudy skies and a gentle wind. Head to the market fair at Yokosuka Countdown 2026 for some festive fun! ⏰",
+  "generated_at": "2025-12-31T08:39:02Z",
+  "text": "Happy New Year's Eve from Yokosuka! 🎉🕰️ The countdown to 2026 begins! Enjoy the mild winter evening and picturesque night-view illumination at our harbor. Tonight, weather will be cloudy with a high of 9.5°C and gentle winds. #Yokosuka #Miura",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2025-12-31T07:27:42.074303+00:00",
+    "generated_at": "2025-12-31T08:34:44.398318+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2025-12-31T16:20:00+09:00",
-      "temp_c": 10.3,
+      "time": "2025-12-31T17:20:00+09:00",
+      "temp_c": 9.5,
       "apparent_temp_c": null,
-      "humidity_pct": 51.0,
+      "humidity_pct": 54.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 6.12,
-      "wind_dir_deg": 67.5,
+      "wind_kmh": 4.680000000000001,
+      "wind_dir_deg": 45.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -30,8 +30,8 @@
       "wind_max_kmh": null,
       "temp_max_c": null,
       "temp_min_c": null,
-      "weather_text_ja": "晴れ　夕方　から　くもり",
-      "jma_weather_code": "111",
+      "weather_text_ja": "くもり　夜のはじめ頃　晴れ",
+      "jma_weather_code": "201",
       "precip_prob_pct": 10
     },
     "tomorrow": {
@@ -41,20 +41,16 @@
       "wind_max_kmh": null,
       "temp_max_c": null,
       "temp_min_c": null,
-      "weather_text_ja": "晴れ　昼過ぎ　から　くもり",
-      "jma_weather_code": "111",
+      "weather_text_ja": "くもり　朝　から　昼過ぎ　晴れ",
+      "jma_weather_code": "201",
       "precip_prob_pct": 10
     },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
-      "report_datetime": "2025-12-31T11:00:00+09:00",
+      "report_datetime": "2025-12-31T17:00:00+09:00",
       "office_code": "140000",
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20251231_162739_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎉🕰️ Tonight, expect a mild winter evening with partly cloudy skies and a gentle wind. Head to the market fair at Yokosuka Countdown 2026 for some festive fun! ⏰",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2025-12-31T07:34:54.258727Z"
+  }
 }
