@@ -1,0 +1,175 @@
+name: Arrange Experiment
+
+on:
+  workflow_dispatch:
+    inputs:
+      cam:
+        description: "Select snapshot source (or custom)"
+        required: true
+        type: choice
+        default: "coastcam_cam2_yokosuka"
+        options:
+          - coastcam_cam2_yokosuka
+          - coastcam_cam1_hayama
+          - coastcam_cam3_miura
+          - custom
+      url:
+        description: "If cam=custom, direct image URL (jpg/png)"
+        required: false
+        default: ""
+      mode:
+        description: "pillow (fast) or img2img (sd-turbo)"
+        required: true
+        type: choice
+        default: "pillow"
+        options:
+          - pillow
+          - img2img
+      style:
+        description: "pillow style (ignored in img2img)"
+        required: true
+        type: choice
+        default: "grade"
+        options:
+          - grade
+          - oil
+          - watercolor
+          - photo
+      steps:
+        description: "img2img steps (1-4 recommended)"
+        required: false
+        default: "2"
+      strength:
+        description: "img2img strength (0.2-0.6 recommended)"
+        required: false
+        default: "0.45"
+      prompt:
+        description: "Optional prompt override (img2img)"
+        required: false
+        default: ""
+      negative:
+        description: "Optional negative override (img2img)"
+        required: false
+        default: ""
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps (base)
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pillow
+
+      - name: Free disk space (img2img only)
+        if: ${{ github.event.inputs.mode == 'img2img' }}
+        run: |
+          set -euo pipefail
+          df -h
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
+          sudo docker system prune -af --volumes 2>/dev/null || true
+          df -h
+
+      - name: Cache Hugging Face + Torch (img2img only)
+        if: ${{ github.event.inputs.mode == 'img2img' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/torch
+          key: ${{ runner.os }}-hf-torch-sdturbo-v1
+          restore-keys: |
+            ${{ runner.os }}-hf-torch-sdturbo-
+            ${{ runner.os }}-hf-torch-
+
+      - name: Install SD deps (CPU) (img2img only)
+        if: ${{ github.event.inputs.mode == 'img2img' }}
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install diffusers transformers accelerate safetensors
+
+      - name: Resolve snapshot URL
+        id: resolve
+        env:
+          CAM: ${{ github.event.inputs.cam }}
+          CUSTOM_URL: ${{ github.event.inputs.url }}
+        run: |
+          set -euo pipefail
+          case "$CAM" in
+            coastcam_cam2_yokosuka) URL="https://coast-cam.com/images/cam2.jpg" ;;
+            coastcam_cam1_hayama)   URL="https://coast-cam.com/images/cam1.jpg" ;;
+            coastcam_cam3_miura)    URL="https://coast-cam.com/images/cam3.jpg" ;;
+            custom)
+              if [ -z "${CUSTOM_URL:-}" ]; then
+                echo "ERROR: cam=custom requires inputs.url"
+                exit 1
+              fi
+              URL="${CUSTOM_URL}"
+              ;;
+            *) echo "ERROR: unknown cam: $CAM"; exit 1 ;;
+          esac
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Resolved URL: $URL"
+
+      - name: Capture snapshot
+        env:
+          SNAP_URL: ${{ steps.resolve.outputs.url }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os, time, requests
+          url = os.environ["SNAP_URL"].strip()
+          sep = "&" if "?" in url else "?"
+          url2 = f"{url}{sep}t={int(time.time())}"
+          headers = {
+            "User-Agent": "snapshot-safe-http/1.0 (+github-actions)",
+            "Accept": "image/*",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+          }
+          r = requests.get(url2, headers=headers, timeout=30)
+          r.raise_for_status()
+          ctype = (r.headers.get("Content-Type","") or "").lower()
+          if "image" not in ctype:
+            raise RuntimeError(f"Non-image response: Content-Type={ctype}")
+          with open("snapshot.jpg","wb") as f:
+            f.write(r.content)
+          print("OK snapshot.jpg", len(r.content), ctype)
+          PY
+
+      - name: Arrange (no patch)
+        env:
+          INPUT_IMAGE: snapshot.jpg
+          OUT_DIR: out
+          OUT_NAME: arranged.png
+          PATCH_JSON: "0"
+          MODE: ${{ github.event.inputs.mode }}
+          STYLE: ${{ github.event.inputs.style }}
+          MODEL_ID: stabilityai/sd-turbo
+          STEPS: ${{ github.event.inputs.steps }}
+          STRENGTH: ${{ github.event.inputs.strength }}
+          GUIDANCE_SCALE: "0.0"
+          PAGE_W: "640"
+          PAGE_H: "480"
+          PLACE: "Yokosuka"
+          PROMPT: ${{ github.event.inputs.prompt }}
+          NEGATIVE: ${{ github.event.inputs.negative }}
+        run: |
+          set -euo pipefail
+          python scripts/arrange.py
+          ls -la out
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: arrange_experiment
+          path: |
+            snapshot.jpg
+            out/arranged.png
