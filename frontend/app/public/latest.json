@@ -1,24 +1,24 @@
 {
   "date": "2026-01-01",
-  "generated_at": "2026-01-01T02:08:26Z",
-  "text": "Good morning! 🌞 Yokosuka is expecting a mild winter day with clear skies and 8.3°C temperatures today, January 1st! ✨ Don't miss the city's winter illumination event at 46211 Amedas Station - it starts tonight! 🎄 #Yokosuka",
+  "generated_at": "2026-01-01T04:16:19Z",
+  "text": "Happy New Year! 🎉 It's a mild afternoon in Yokosuka with clear skies and a temp of 9.2°C. Great day for a hike or workout! 😊",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-01T02:04:16.103701+00:00",
+    "generated_at": "2026-01-01T04:12:14.489978+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-01T10:50:00+09:00",
-      "temp_c": 8.3,
+      "time": "2026-01-01T13:00:00+09:00",
+      "temp_c": 9.2,
       "apparent_temp_c": null,
-      "humidity_pct": 54.0,
+      "humidity_pct": 48.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 16.2,
+      "wind_kmh": 15.840000000000002,
       "wind_dir_deg": 45.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20260101_110414_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! 🌞 Yokosuka is expecting a mild winter day with clear skies and 8.3°C temperatures today, January 1st! ✨ Don't miss the city's winter illumination event at 46211 Amedas Station - it starts tonight! 🎄",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2026-01-01T02:11:28.808410Z"
+  }
 }
