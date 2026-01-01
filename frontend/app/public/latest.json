@@ -1,25 +1,25 @@
 {
   "date": "2026-01-01",
-  "generated_at": "2026-01-01T05:35:38Z",
-  "text": "\"Happy New Year! In Yokosuka, we're strolling along the winter-promenade with mild weather 🏃‍♀️❄️. Today's forecast: 9°C, cloudy skies ☁️ and gentle breeze 💨.\" #Yokosuka",
+  "generated_at": "2026-01-01T06:42:52Z",
+  "text": "Happy New Year! 🎉🎊 It's a lovely afternoon in Yokosuka with mild weather, perfect for a stroll through the beautiful Hayama Park & Garden 🏞️💚 Enjoy the scenic views and nature trails! #Yokosuka #Hayama #NewYear",
   "place": "Yokosuka",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-01T05:31:35.553665+00:00",
+    "generated_at": "2026-01-01T06:38:45.020271+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-01T14:20:00+09:00",
-      "temp_c": 9.0,
+      "time": "2026-01-01T15:30:00+09:00",
+      "temp_c": 9.4,
       "apparent_temp_c": null,
       "humidity_pct": 42.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 12.24,
-      "wind_dir_deg": 67.5,
+      "wind_kmh": 7.5600000000000005,
+      "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -52,9 +52,5 @@
       "area_code": null,
       "temp_city_code": null
     }
-  },
-  "image_url": "/image/feed_20260101_143133_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: \"Happy New Year! In Yokosuka, we're strolling along the winter-promenade with mild weather 🏃‍♀️❄️. Today's forecast: 9°C, cloudy skies ☁️ and gentle breeze 💨.\"",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2026-01-01T05:38:43.304471Z"
+  }
 }
