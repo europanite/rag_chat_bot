@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "id": "2026-01-01T16:36:04Z",
+      "id": "feed_20260102_013143_JST",
       "date": "2026-01-01",
       "text": "Good morning! ☀️ Today's forecast in Yokosuka says cloudy with a chance of rain and thunderstorms by evening. Enjoy the winter night-view illumination tonight at the Yokosuka Countdown 2026 event, happening now until December 31st!",
       "place": "Yokosuka",
@@ -55,7 +55,12 @@
           "area_code": null,
           "temp_city_code": null
         }
-      }
+      },
+      "image": "/image/feed_20260102_013143_JST.png",
+      "image_url": "/image/feed_20260102_013143_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! ☀️ Today's forecast in Yokosuka says cloudy with a chance of rain and thunderstorms by evening. Enjoy the winter night-view illumination tonight at the Yokosuka Countdown 2026 event, happening now until Dec",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-01T16:39:02.907708Z"
     }
   ],
   "updated_at": "2026-01-01T16:36:04Z",
