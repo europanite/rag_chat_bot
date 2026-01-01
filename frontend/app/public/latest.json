@@ -52,5 +52,9 @@
       "area_code": null,
       "temp_city_code": null
     }
-  }
+  },
+  "image_url": "/image/feed_20260101_173429_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year! Enjoy the cold winter evening in Yokosuka with a visit to the Yokosuka Museum of Art's new exhibition, now open until January 31st. Current weather: partly cloudy with a low of 6.6°C and light winds 🌃❄️",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-01T08:41:56.950859Z"
 }
