@@ -55,5 +55,9 @@
   },
   "links": "",
   "id": "feed_20260103_002640_JST",
-  "permalink": "./?post=feed_20260103_002640_JST"
+  "permalink": "./?post=feed_20260103_002640_JST",
+  "image_url": "/image/feed_20260103_002640_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good night Yokosuka! 😊 Current weather is calm with a temp of 2.5°C and humidity at 82%. Looking forward to warm food like…",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-02T15:35:25.194826Z"
 }
