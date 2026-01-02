@@ -4,7 +4,7 @@ import logging
 import os
 import re
 from http import HTTPStatus
-from typing import Literal
+from typing import Any, Literal
 import json
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -185,6 +185,7 @@ class AuditResult(BaseModel):
 
 class QueryResponse(BaseModel):
     answer: str
+    links: list[str] | None = None
     context: list[str] | None = None
     chunks: list[ChunkOut] | None = None
     removed_urls: list[str] | None = None
@@ -833,7 +834,13 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
             detail="No relevant context found for the given question.",
         )
 
-    context_texts = [c.text for c in chunks]
+    context_texts: list[str] = []
+    doc_links: set[str] = set()
+    for c in chunks:
+        meta = c.metadata if isinstance(c.metadata, dict) else {}
+        enriched, links = _enrich_context_text_with_links(c.text, meta)
+        context_texts.append(enriched)
+        doc_links |= links
 
     # Compat: accept `context` / `user_context` as aliases for `extra_context`
     extra_ctx: str | None = payload.extra_context or payload.context or payload.user_context
@@ -987,6 +994,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
 
     return QueryResponse(
         answer=answer,
+        links=(sorted(doc_links) if doc_links else None),
         context=debug_context,
         chunks=debug_chunks,
         removed_urls=(removed_urls if payload.include_debug and removed_urls else None),

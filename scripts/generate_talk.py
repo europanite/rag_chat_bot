@@ -451,6 +451,18 @@ def extract_tweet(resp_obj: Dict[str, Any]) -> str:
     ans = (resp_obj.get("answer") or "").strip()
     return normalize_answer(ans)
 
+def extract_links(resp_obj: Any) -> List[str]:
+    if not isinstance(resp_obj, dict):
+        return []
+    links_obj = resp_obj.get("links")
+    links: List[str] = []
+    if isinstance(links_obj, list):
+        links = [x.strip() for x in links_obj if isinstance(x, str) and x.strip()]
+    elif isinstance(links_obj, str):
+        v = links_obj.strip()
+        if v:
+            links = [v]
+    return links[:5]
 
 def extract_detail(resp_obj: Dict[str, Any]) -> str:
     d = resp_obj.get("detail")
@@ -461,16 +473,19 @@ def extract_detail(resp_obj: Dict[str, Any]) -> str:
     return str(d)
 
 
-def build_entry(today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict[str, Any]) -> Dict[str, Any]:
+def build_entry(today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict[str, Any], links: Optional[List[str]] = None) -> Dict[str, Any]:
     if not today or not now_iso or not tweet:
         missing = [k for k, v in [("today", today), ("now_iso", now_iso), ("tweet", tweet)] if not v]
         raise RuntimeError(f"missing values for entry: {', '.join(missing)}")
+    if not links:
+        links = ""
     return {
         "date": today,
         "generated_at": now_iso,
         "text": tweet,
         "place": place or "",
         "weather": snap_obj,
+        "links": links
     }
 
 
@@ -660,6 +675,7 @@ def main() -> int:
         print(f"DEBUG: JSON_PAYLOAD={json.dumps(payload, ensure_ascii=False)}", file=sys.stderr)
 
     tweet = ""
+    links: List[str] = []
     resp_obj: Dict[str, Any] = {}
     detail = ""
     # bash: retries are CURL_RETRIES+2 here
@@ -674,6 +690,8 @@ def main() -> int:
         tweet = extract_tweet(resp_obj)
         if tweet:
             break
+        
+        links = extract_links(resp_obj)
 
         detail = extract_detail(resp_obj)
         print(
@@ -696,7 +714,7 @@ def main() -> int:
     # 4) Write outputs
     today = utc_date()
     now_iso = utc_now_iso_z()
-    entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj)
+    entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj,links=links)
 
     for feed_p, latest_p in pair_paths(feeds, latests):
         write_outputs(feed_p, latest_p, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)

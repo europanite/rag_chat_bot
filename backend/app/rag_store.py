@@ -651,6 +651,29 @@ def _load_json_file(path: str) -> list[dict]:
             raise ValueError(f"Missing/invalid 'text' for id={doc_id!r} in {path}")
         default_source = p.resolve().as_uri()  # file:///...
         meta = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+
+        # Promote common top-level link fields into metadata so they survive ingestion.
+        # Many upstream JSON formats keep URLs as top-level keys (e.g. "permalink", "url", "links"),
+        # but this loader previously only preserved the nested "metadata" dict.
+        meta = dict(meta)
+        for k in ("url", "permalink", "href", "link", "source_url", "sourceUrl"):
+            v = item.get(k)
+            if isinstance(v, str):
+                v = v.strip()
+                if v and k not in meta:
+                    meta[k] = v
+
+        v_links = item.get("links")
+        if v_links is not None and "links" not in meta:
+            if isinstance(v_links, list):
+                cleaned = [x.strip() for x in v_links if isinstance(x, str) and x.strip()]
+                if cleaned:
+                    meta["links"] = cleaned
+            elif isinstance(v_links, str):
+                vv = v_links.strip()
+                if vv:
+                    meta["links"] = vv
+
         docs.append(
             {
                 "id": doc_id.strip(),

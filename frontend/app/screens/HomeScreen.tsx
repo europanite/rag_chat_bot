@@ -24,6 +24,7 @@ type FeedItem = {
   image?: string; // local path or absolute URL
   image_prompt?: string; // optional (for matching)
   permalink?: string;
+  links?: string[];
 };
 
 type Feed = {
@@ -1366,6 +1367,24 @@ const getImageUrisForItem = useCallback(
                     
                     <FeedBubbleImage uris={imageUris} />
                     <Text style={{ color: "#000000", marginTop: 8, fontSize: 16, lineHeight: 22 }}>{item.text}</Text>
+
+                    {Array.isArray(item.links) && item.links.length > 0 ? (
+                      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                        {item.links.slice(0, 5).map((u, idx) => (
+                          <Pressable
+                            key={`${u}-${idx}`}
+                            onPress={() => {
+                              try { void Linking.openURL(u); } catch {}
+                            }}
+                          >
+                            <Text style={{ color: "#0B57D0", textDecorationLine: "underline", fontSize: 12 }}>
+                              🔗 {u}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    ) : null}
+
                     <Pressable
                       onPress={async () => {
                         // On web: copy permalink (shareable)
