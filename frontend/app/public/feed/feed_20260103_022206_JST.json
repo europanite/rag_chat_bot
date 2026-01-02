@@ -56,7 +56,12 @@
           "area_code": null,
           "temp_city_code": null
         }
-      }
+      },
+      "image": "/image/feed_20260103_022206_JST.png",
+      "image_url": "/image/feed_20260103_022206_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning Yokosuka! 🌅 It's a chilly Saturday with a temp of 1°C, humidity at 88%, and no precipitation. Get ready for a…",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-02T17:30:34.392274Z"
     }
   ],
   "updated_at": "2026-01-02T17:27:39Z",
