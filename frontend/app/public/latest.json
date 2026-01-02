@@ -55,5 +55,9 @@
   },
   "links": "",
   "id": "feed_20260103_072505_JST",
-  "permalink": "./?post=feed_20260103_072505_JST"
+  "permalink": "./?post=feed_20260103_072505_JST",
+  "image_url": "/image/feed_20260103_072505_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve! 🎉 Current weather in Yokosuka: clear skies, chilly at 1°C, and a gentle breeze. Perfect night for Verny…",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-02T22:33:54.522780Z"
 }
