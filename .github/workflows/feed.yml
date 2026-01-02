@@ -79,7 +79,7 @@ jobs:
           LON: "139.6722"
           TZ_NAME: "Asia/Tokyo"
           RAG_TOP_K: 16
-          CURL_MAX_TIME: 64
+          CURL_MAX_TIME: 512
           PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
@@ -88,7 +88,11 @@ jobs:
           DEBUG: 1
         run: |
           python scripts/generate_talk.py
-
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          docker compose logs --no-color --tail=200 ollama
+          docker compose logs --no-color --tail=200 backend
       - name: Stop stack
         env:
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
