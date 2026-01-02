@@ -34,7 +34,7 @@
 
 ```bash
 # set environment variables:
-export REACT_NATIVE_PACKAGER_HOSTNAME=${YOUR_HOST}
+export REACT_NATIVE_PACKAGER_HOSTNAME=192.168.2.106 
 
 # Build the image
 docker compose build
@@ -65,6 +65,11 @@ docker compose \
 docker compose \
   -f docker-compose.test.yml run \
   --rm frontend_test
+```
+
+```bash
+# Chore g
+python3 local/md_dir_to_json.py --recursive data/md/ data/json/data.json
 ```
 
 ---
