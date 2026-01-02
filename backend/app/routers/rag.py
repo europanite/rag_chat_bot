@@ -15,6 +15,7 @@ import random
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from rag_store import RAGChunk
+from ..weather_service import *
 
 logger = logging.getLogger(__name__)
 
@@ -861,7 +862,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
 
     if (live_extra is None or not live_extra.strip()):
         try:
-            live_extra = weather_service.get_live_weather_context(
+            live_extra = get_live_weather_context(
                 http_request=http_request,
                 session=_session,
             )

@@ -875,51 +875,6 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const showSidebars = width >= 980;
 
-  const RESOLVED_FEED_URL = useMemo(() => {
-  const normalized = normalizeWebAssetPath(FEED_URL);
-
-  // Read ?post=<id> on web and jump to the item when loaded.
-  useEffect(() => {
-    if (Platform.OS !== "web" || typeof window === "undefined") return;
-    try {
-      const sp = new URLSearchParams(window.location.search);
-      const pid = sp.get("post");
-      if (pid) setDeepLinkPostId(pid);
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    if (!deepLinkPostId) return;
-    const idx = timelineItems.findIndex((it) => !isSlotItem(it) && it.id === deepLinkPostId);
-    if (idx >= 0) {
-      requestAnimationFrame(() => {
-        listRef.current?.scrollToIndex({ index: idx, animated: false });
-      });
-      setDeepLinkPostId(null);
-      return;
-    }
-    // Auto-page older items until found (or exhausted)
-    if (nextUrl && !loadingMore) {
-      void loadMore();
-      return;
-    }
-    if (!nextUrl && !loadingMore) {
-      setError(`Permalink not found: ${deepLinkPostId}`);
-      setDeepLinkPostId(null);
-    }
-  }, [deepLinkPostId, timelineItems, nextUrl, loadingMore, loadMore]);
-
-  try {
-    if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
-    if (typeof window !== "undefined") return new URL(normalized, window.location.href).toString();
-  } catch {
-    // ignore
-  }
-
-  return normalized;
-}, [FEED_URL]);
-
-
   const [feed, setFeed] = useState<Feed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -951,7 +906,28 @@ export default function HomeScreen() {
   const timelineItems = useMemo(() => interleaveAds(sortedItems), [sortedItems]);
 
   const [effectiveUrl, setEffectiveUrl] = useState<string>(RESOLVED_FEED_URL);
+  const RESOLVED_FEED_URL = useMemo(() => {
+    const normalized = normalizeWebAssetPath(FEED_URL);
 
+    try {
+      if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
+      if (typeof window !== "undefined") return new URL(normalized, window.location.href).toString();
+    } catch {
+      // ignore
+    }
+
+    return normalized;
+  }, [FEED_URL]);
+
+  // Read ?post=<id> on web and jump to the item when loaded.
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined") return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const pid = sp.get("post");
+      if (pid) setDeepLinkPostId(pid);
+    } catch {}
+  }, []);
 
 useEffect(() => {
   if (!SHARE_SD_INDEX_URL) return;
@@ -1165,6 +1141,32 @@ const getImageUrisForItem = useCallback(
         setLoadingMore(false);
       }
     }, [fetchJson, loadingMore, nextUrl]);
+
+
+  // If a deep-link (?post=...) is set, scroll to it once items are loaded.
+  useEffect(() => {
+    if (!deepLinkPostId) return;
+    if (loading) return; // wait for initial fetch
+
+    const idx = timelineItems.findIndex((it) => !isSlotItem(it) && it.id === deepLinkPostId);
+    if (idx >= 0) {
+      requestAnimationFrame(() => {
+        listRef.current?.scrollToIndex({ index: idx, animated: false });
+      });
+      setDeepLinkPostId(null);
+      return;
+    }
+
+    // Auto-page older items until found (or exhausted)
+    if (nextUrl && !loadingMore) {
+      void loadMore();
+      return;
+    }
+    if (!nextUrl && !loadingMore) {
+      setError(`Permalink not found: ${deepLinkPostId}`);
+      setDeepLinkPostId(null);
+    }
+  }, [deepLinkPostId, loading, timelineItems, nextUrl, loadingMore, loadMore]);
 
   const openFeed = useCallback(() => {
     if (!effectiveUrl) return;
