@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": "feed_20260102_130829_JST",
+      "permalink": "./?post=feed_20260102_130829_JST",
+      "date": "2026-01-02",
+      "text": "Good afternoon, Yokosuka! 🌞 The weather's looking great today with a high of 9.9°C and partly cloudy skies. Don't miss the Yokosuka Countdown 2026 festival this weekend, featuring performances and parade! 🎉",
+      "place": "Yokosuka",
+      "generated_at": "2026-01-02T04:12:40Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2026-01-02T04:08:31.258202+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2026-01-02T13:00:00+09:00",
+          "temp_c": 9.9,
+          "apparent_temp_c": null,
+          "humidity_pct": 46.0,
+          "precip_mm": 0.0,
+          "weather_code": 95,
+          "cloud_cover_pct": null,
+          "wind_kmh": 6.84,
+          "wind_dir_deg": 202.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2026-01-02",
+          "weather_code": 95,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ　夕方　から　くもり　所により　雨か雪　で　雷を伴う",
+          "jma_weather_code": "111",
+          "precip_prob_pct": 30
+        },
+        "tomorrow": {
+          "date": "2026-01-03",
+          "weather_code": 0,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ",
+          "jma_weather_code": "100",
+          "precip_prob_pct": 0
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2026-01-02T11:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20260102_130829_JST.png",
+      "image_url": "/image/feed_20260102_130829_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good afternoon, Yokosuka! 🌞 The weather's looking great today with a high of 9.9°C and partly cloudy skies. Don't miss the Yokosuka Countdown 2026 festival this weekend, featuring performances and parade! 🎉",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-02T04:15:39.411525Z"
+    }
+  ],
+  "updated_at": "2026-01-02T04:12:40Z",
+  "place": "Yokosuka"
+}
