@@ -56,7 +56,12 @@
           "area_code": null,
           "temp_city_code": null
         }
-      }
+      },
+      "image": "/image/feed_20260102_200647_JST.png",
+      "image_url": "/image/feed_20260102_200647_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎉🕰️ Tonight, expect cloudy weather with a chance of thunderstorms and strong winds. Visit…",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-02T11:14:51.576835Z"
     }
   ],
   "updated_at": "2026-01-02T11:12:15Z",
