@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "feed_20260101_214936_JST",
+      "date": "2026-01-01",
+      "text": "Good evening from Yokosuka! Tonight's weather is partly cloudy with a low of 7.4°C and 51% humidity. Perfect for a quiet night hike before the New Year celebrations tomorrow 🏞️ #Yokosuka #MiuraPeninsula",
+      "place": "Yokosuka",
+      "generated_at": "2026-01-01T12:53:46Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2026-01-01T12:49:38.194494+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2026-01-01T21:40:00+09:00",
+          "temp_c": 7.4,
+          "apparent_temp_c": null,
+          "humidity_pct": 51.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 10.08,
+          "wind_dir_deg": 67.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2026-01-01",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ　夜　くもり",
+          "jma_weather_code": "111",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2026-01-02",
+          "weather_code": 95,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　所により　夕方　から　雨か雪　で　雷を伴う",
+          "jma_weather_code": "200",
+          "precip_prob_pct": 30
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2026-01-01T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20260101_214936_JST.png",
+      "image_url": "/image/feed_20260101_214936_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening from Yokosuka! Tonight's weather is partly cloudy with a low of 7.4°C and 51% humidity. Perfect for a quiet night hike before the New Year celebrations tomorrow 🏞️",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-01T12:56:45.728357Z"
+    }
+  ],
+  "updated_at": "2026-01-01T12:53:46Z",
+  "place": "Yokosuka"
+}

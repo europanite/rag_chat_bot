@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "feed_20260101_033521_JST",
+      "date": "2025-12-31",
+      "text": "Good morning! 🌞 As we start the new year, get ready to enjoy Yokosuka's winter illumination! ❤️ Tonight, it'll be a chilly but magical evening with temperatures around 7°C and partly cloudy skies. Don't miss out on the beautiful night-view! #Yokosuka #Miura",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-31T18:39:34Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-31T18:35:23.104176+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2026-01-01T03:20:00+09:00",
+          "temp_c": 7.1,
+          "apparent_temp_c": null,
+          "humidity_pct": 85.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 11.520000000000001,
+          "wind_dir_deg": 45.0,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2026-01-01",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　朝　から　昼過ぎ　晴れ",
+          "jma_weather_code": "201",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2026-01-02",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": 9.0,
+          "temp_min_c": 2.0,
+          "weather_text_ja": "くもり　時々　晴れ",
+          "jma_weather_code": "201",
+          "precip_prob_pct": null
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-31T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20260101_033521_JST.png",
+      "image_url": "/image/feed_20260101_033521_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! 🌞 As we start the new year, get ready to enjoy Yokosuka's winter illumination! ❤️ Tonight, it'll be a chilly but magical evening with temperatures around 7°C and partly cloudy skies. Don't miss out on the b",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-31T18:42:36.276614Z"
+    }
+  ],
+  "updated_at": "2025-12-31T18:39:34Z",
+  "place": "Yokosuka"
+}

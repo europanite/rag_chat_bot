@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "feed_20260101_072457_JST",
+      "date": "2025-12-31",
+      "text": "Happy New Year! 🎉 It's a chilly morning in Yokosuka, with a temp of 6.1°C and humidity at 77%! ☕️ Warm up with some hot curry or ramen at a cozy cafe like Kuramae Curry Cafe 🍜👌 #Yokosuka",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-31T22:29:13Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-31T22:24:59.007231+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2026-01-01T07:10:00+09:00",
+          "temp_c": 6.1,
+          "apparent_temp_c": null,
+          "humidity_pct": 77.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 10.08,
+          "wind_dir_deg": 45.0,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2026-01-01",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　昼前　から　昼過ぎ　晴れ",
+          "jma_weather_code": "201",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2026-01-02",
+          "weather_code": 3,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": 9.0,
+          "temp_min_c": 2.0,
+          "weather_text_ja": "くもり",
+          "jma_weather_code": "200",
+          "precip_prob_pct": 20
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2026-01-01T05:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20260101_072457_JST.png",
+      "image_url": "/image/feed_20260101_072457_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year! 🎉 It's a chilly morning in Yokosuka, with a temp of 6.1°C and humidity at 77%! ☕️ Warm up with some hot curry or ramen at a cozy cafe like Kuramae Curry Cafe 🍜👌",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-31T22:32:32.304710Z"
+    }
+  ],
+  "updated_at": "2025-12-31T22:29:13Z",
+  "place": "Yokosuka"
+}

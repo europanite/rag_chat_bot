@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "feed_20251231_182942_JST",
+      "date": "2025-12-31",
+      "text": "Happy New Year's Eve from Yokosuka! 🎉 Tonight, expect a mild winter evening with mostly cloudy skies and a gentle breeze. Perfect time for a stroll under the city's beautiful illumination lights! 😊 #Yokosuka #MiuraPeninsula",
+      "place": "Yokosuka",
+      "generated_at": "2025-12-31T09:33:57Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2025-12-31T09:29:44.829258+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2025-12-31T18:20:00+09:00",
+          "temp_c": 8.9,
+          "apparent_temp_c": null,
+          "humidity_pct": 56.0,
+          "precip_mm": 0.0,
+          "weather_code": 2,
+          "cloud_cover_pct": null,
+          "wind_kmh": 6.48,
+          "wind_dir_deg": 67.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2025-12-31",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　夜のはじめ頃　晴れ",
+          "jma_weather_code": "201",
+          "precip_prob_pct": 10
+        },
+        "tomorrow": {
+          "date": "2026-01-01",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　朝　から　昼過ぎ　晴れ",
+          "jma_weather_code": "201",
+          "precip_prob_pct": 10
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2025-12-31T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20251231_182942_JST.png",
+      "image_url": "/image/feed_20251231_182942_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Happy New Year's Eve from Yokosuka! 🎉 Tonight, expect a mild winter evening with mostly cloudy skies and a gentle breeze. Perfect time for a stroll under the city's beautiful illumination lights! 😊",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2025-12-31T09:37:09.049612Z"
+    }
+  ],
+  "updated_at": "2025-12-31T09:33:57Z",
+  "place": "Yokosuka"
+}

@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "feed_20260102_033615_JST",
+      "date": "2026-01-01",
+      "text": "Good morning Yokosuka! 🌞 As we welcome Friday, a cloudy sky with a chance of rain and thunder awaits us. The current temperature is 5.7°C with winds blowing at 11.16 km/h. Looking forward to a great day ahead! #Yokosuka #Miura",
+      "place": "Yokosuka",
+      "generated_at": "2026-01-01T18:40:30Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2026-01-01T18:36:17.834809+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2026-01-02T03:30:00+09:00",
+          "temp_c": 5.7,
+          "apparent_temp_c": null,
+          "humidity_pct": 52.0,
+          "precip_mm": 0.0,
+          "weather_code": 95,
+          "cloud_cover_pct": null,
+          "wind_kmh": 11.16,
+          "wind_dir_deg": 45.0,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2026-01-02",
+          "weather_code": 95,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "くもり　所により　夕方　から　雨か雪　で　雷を伴う",
+          "jma_weather_code": "200",
+          "precip_prob_pct": 30
+        },
+        "tomorrow": {
+          "date": "2026-01-03",
+          "weather_code": 2,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": 9.0,
+          "temp_min_c": 2.0,
+          "weather_text_ja": "晴れ　時々　くもり",
+          "jma_weather_code": "101",
+          "precip_prob_pct": null
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2026-01-01T17:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20260102_033615_JST.png",
+      "image_url": "/image/feed_20260102_033615_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning Yokosuka! 🌞 As we welcome Friday, a cloudy sky with a chance of rain and thunder awaits us. The current temperature is 5.7°C with winds blowing at 11.16 km/h. Looking forward to a great day ahead!",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-01T18:43:26.245526Z"
+    }
+  ],
+  "updated_at": "2026-01-01T18:40:30Z",
+  "place": "Yokosuka"
+}

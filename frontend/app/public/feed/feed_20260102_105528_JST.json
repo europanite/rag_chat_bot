@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "feed_20260102_105528_JST",
+      "date": "2026-01-02",
+      "text": "Good morning! It's a cloudy day with a chance of thunderstorms in Yokosuka! Perfect excuse to grab a warm drink and head to Curry Ramen Cafe for a cozy meal. Check out their daily specials! 🍜☕️ #Yokosuka",
+      "place": "Yokosuka",
+      "generated_at": "2026-01-02T01:59:36Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2026-01-02T01:55:29.968758+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2026-01-02T10:40:00+09:00",
+          "temp_c": 8.3,
+          "apparent_temp_c": null,
+          "humidity_pct": 53.0,
+          "precip_mm": 0.0,
+          "weather_code": 95,
+          "cloud_cover_pct": null,
+          "wind_kmh": 12.6,
+          "wind_dir_deg": 45.0,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2026-01-02",
+          "weather_code": 95,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ　夕方　から　くもり　所により　雨か雪　で　雷を伴う",
+          "jma_weather_code": "111",
+          "precip_prob_pct": 30
+        },
+        "tomorrow": {
+          "date": "2026-01-03",
+          "weather_code": 0,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ",
+          "jma_weather_code": "100",
+          "precip_prob_pct": 0
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2026-01-02T11:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20260102_105528_JST.png",
+      "image_url": "/image/feed_20260102_105528_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good morning! It's a cloudy day with a chance of thunderstorms in Yokosuka! Perfect excuse to grab a warm drink and head to Curry Ramen Cafe for a cozy meal. Check out their daily specials! 🍜☕️",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-02T02:02:58.695098Z"
+    }
+  ],
+  "updated_at": "2026-01-02T01:59:36Z",
+  "place": "Yokosuka"
+}
