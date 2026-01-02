@@ -1,0 +1,24 @@
+Extract tourism info from the report and make them into markdown reports in "ENGLISH". Getnerate their downlopad link.
+All texts will be written in English.
+The format is below. 
+
+# title 
+- 
+
+# datetime 
+- 
+
+# place
+-  
+
+# detail 
+- 
+
+# attention
+-
+
+# link
+- 
+
+# tags
+ -
