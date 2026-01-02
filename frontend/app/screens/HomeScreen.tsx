@@ -66,6 +66,7 @@ const MASCOT_BORDER_W = 2;
 const SIDEBAR_W = 240;
 
 const FEED_SCROLL_ID = "feed-scroll";
+const MAX_DEEP_LINK_ATTEMPTS = 25;
 
 const ITEM_EVERY_N = Math.max(2, Number((process.env.EXPO_PUBLIC_ITEM_EVERY_N || "5").trim()) || 5); // 1 ad per N items
 const ITEM_BG = "#fff7ed";
@@ -869,6 +870,7 @@ function Slot({ side }: { side: "left" | "right" }) {
 }
 export default function HomeScreen() {
   const listRef = useRef<FlatList<TimelineItem>>(null);
+  const deepLinkAttemptsRef = useRef<number>(0);
   const [deepLinkPostId, setDeepLinkPostId] = useState<string | null>(null);
   const FEED_URL = (process.env.EXPO_PUBLIC_FEED_URL || "./latest.json").trim();
   const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "").trim();
@@ -1169,7 +1171,7 @@ const getImageUrisForItem = useCallback(
     }
 
     if (nextUrl && !loadingMore) {
-      if (deepLinkAttemptsRef.current >= 25) {
+      if (deepLinkAttemptsRef.current >= MAX_DEEP_LINK_ATTEMPTS) {
         setError(`Permalink not found (gave up paging): ${deepLinkPostId}`);
         setDeepLinkPostId(null);
         deepLinkAttemptsRef.current = 0;
