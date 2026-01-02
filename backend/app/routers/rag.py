@@ -15,7 +15,7 @@ import random
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from rag_store import RAGChunk
-from ..weather_service import *
+from weather_service import *
 
 logger = logging.getLogger(__name__)
 
