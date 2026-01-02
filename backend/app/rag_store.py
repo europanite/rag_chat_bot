@@ -36,7 +36,7 @@ def _chroma_safe_metadata(meta: dict[str, Any]) -> dict[str, Any]:
         if isinstance(v, list):
             if all(isinstance(x, str) for x in v):
                 out[key] = ",".join(v)
-                if key == "tags":
+                if key in {"tags", "tag"}:
                     for t in v:
                         out[f"tag__{_slug(t)}"] = True
             else:
@@ -652,27 +652,52 @@ def _load_json_file(path: str) -> list[dict]:
         default_source = p.resolve().as_uri()  # file:///...
         meta = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
 
-        # Promote common top-level link fields into metadata so they survive ingestion.
-        # Many upstream JSON formats keep URLs as top-level keys (e.g. "permalink", "url", "links"),
-        # but this loader previously only preserved the nested "metadata" dict.
+        # Promote top-level fields into metadata so they survive ingestion.
+        # Many upstream JSON formats keep important fields as top-level keys (e.g. "title", "datetime", "place", "tag", "link(s)").
+        # This loader keeps the nested "metadata" dict *and* merges other top-level keys (except id/text/metadata) into metadata.
         meta = dict(meta)
-        for k in ("url", "permalink", "href", "link", "source_url", "sourceUrl"):
-            v = item.get(k)
-            if isinstance(v, str):
-                v = v.strip()
-                if v and k not in meta:
-                    meta[k] = v
 
-        v_links = item.get("links")
-        if v_links is not None and "links" not in meta:
-            if isinstance(v_links, list):
-                cleaned = [x.strip() for x in v_links if isinstance(x, str) and x.strip()]
-                if cleaned:
-                    meta["links"] = cleaned
-            elif isinstance(v_links, str):
-                vv = v_links.strip()
-                if vv:
-                    meta["links"] = vv
+        for k, v in item.items():
+            if k in {"id", "text", "metadata"}:
+                continue
+            if k not in meta:
+                meta[k] = v
+
+        def _clean_str_list(val: Any, *, split_commas: bool = False) -> list[str]:
+            if val is None:
+                return []
+            if isinstance(val, list):
+                return [x.strip() for x in val if isinstance(x, str) and x.strip()]
+            if isinstance(val, str):
+                s = val.strip()
+                if not s:
+                    return []
+                if split_commas and "," in s:
+                    return [p.strip() for p in s.split(",") if p.strip()]
+                return [s]
+            return []
+
+        # Normalize links: accept both `link` and `links` (string or list), and common single-URL keys.
+        links: list[str] = []
+        for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
+            links.extend(_clean_str_list(item.get(k), split_commas=True))
+            links.extend(_clean_str_list(meta.get(k), split_commas=True))
+        # De-dup while preserving order
+        links = list(dict.fromkeys([u for u in links if u]))
+        if links:
+            meta.setdefault("links", links)
+            # Back-compat: if upstream uses singular `link`, keep it in sync when possible.
+            meta.setdefault("link", links)
+
+        # Normalize tags: accept `tag` (new) and `tags` (legacy), as list[str] where possible.
+        tags: list[str] = []
+        for k in ("tags", "tag"):
+            tags.extend(_clean_str_list(item.get(k), split_commas=True))
+            tags.extend(_clean_str_list(meta.get(k), split_commas=True))
+        tags = list(dict.fromkeys([t for t in tags if t]))
+        if tags:
+            meta.setdefault("tags", tags)
+            meta.setdefault("tag", tags)
 
         docs.append(
             {

@@ -796,6 +796,77 @@ def reindex() -> ReindexResponse:
         ) from exc
 
 
+def _enrich_context_text_with_links(text: str, meta: dict[str, Any]) -> tuple[str, set[str]]:
+    """Attach doc-level metadata (especially links) to every chunk's context.
+
+    Why: chunking can separate the URL/title/time/place/tag from the relevant content chunk.
+    By re-attaching metadata, the LLM can always see the full document context and URL allow-listing works.
+    """
+
+    def _clean_list(val: Any, *, split_commas: bool = False) -> list[str]:
+        if val is None:
+            return []
+        if isinstance(val, list):
+            return [str(x).strip() for x in val if isinstance(x, (str, int, float)) and str(x).strip()]
+        if isinstance(val, str):
+            s = val.strip()
+            if not s:
+                return []
+            if split_commas and "," in s:
+                return [p.strip() for p in s.split(",") if p.strip()]
+            return [s]
+        if isinstance(val, (int, float)):
+            return [str(val)]
+        return []
+
+    # Collect links from metadata
+    links: list[str] = []
+    for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
+        links.extend(_clean_list((meta or {}).get(k), split_commas=True))
+    links = [u for u in links if isinstance(u, str) and u and ("http://" in u or "https://" in u)]
+    links = list(dict.fromkeys(links))
+
+    # Collect tags (supports new `tag` and legacy `tags`)
+    tags: list[str] = []
+    for k in ("tag", "tags"):
+        tags.extend(_clean_list((meta or {}).get(k), split_commas=True))
+    tags = list(dict.fromkeys([t for t in tags if t]))
+
+    # Build metadata block (keep it compact but complete)
+    meta_lines: list[str] = []
+    for key, label in (("title", "TITLE"), ("datetime", "DATETIME"), ("place", "PLACE")):
+        v = (meta or {}).get(key)
+        if isinstance(v, str) and v.strip():
+            if not re.search(rf"^\s*{label}\s*:", text, flags=re.IGNORECASE | re.MULTILINE):
+                meta_lines.append(f"{label}: {v.strip()}")
+
+    if tags and not re.search(r"^\s*TAG\s*:", text, flags=re.IGNORECASE | re.MULTILINE):
+        meta_lines.append("TAG: " + ", ".join(tags))
+
+    if links:
+        missing = [u for u in links if u not in text]
+        if missing:
+            meta_lines.append("LINK:")
+            meta_lines.extend(missing)
+
+    # NOTE: 全metadataをJSONとしてコンテクストへ流し込む（＝data.jsonの“コンテクスト全部”がRAGに渡る）
+    meta_json_obj = dict(meta or {})
+    try:
+        meta_json = json.dumps(meta_json_obj, ensure_ascii=False, default=str)
+    except Exception:
+        meta_json = str(meta_json_obj)
+    if meta_json and meta_json != "{}":
+        meta_lines.append("META_JSON: " + meta_json)
+
+    enriched = text.rstrip()
+    if meta_lines:
+        enriched = enriched + "\n\n----\n" + "\n".join(meta_lines)
+
+    all_links = set(links) | set(_extract_urls_from_text(enriched))
+    return enriched, all_links
+
+
+
 @router.post("/query", response_model=QueryResponse, response_model_exclude_none=True)
 def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
     """Run a full RAG cycle: retrieve similar chunks and ask the chat model."""
