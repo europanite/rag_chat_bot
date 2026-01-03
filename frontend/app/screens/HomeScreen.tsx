@@ -47,6 +47,35 @@ type SlotItem = {
 
 type TimelineItem = FeedItem | SlotItem;
 
+function normalizeLinks(raw: any): string[] | undefined {
+  // Accept both `links: string[]` and legacy `link: string`
+  const v = raw;
+
+  let arr: string[] = [];
+  if (Array.isArray(v)) {
+    arr = v
+      .filter((x) => typeof x === "string")
+      .map((x) => x.trim())
+      .filter(Boolean);
+  } else if (typeof v === "string") {
+    const s = v.trim();
+    if (s) arr = [s];
+  }
+
+  if (!arr.length) return undefined;
+
+  // De-dupe while preserving order
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const u of arr) {
+    if (seen.has(u)) continue;
+    seen.add(u);
+    out.push(u);
+  }
+  return out;
+}
+
+
 function isSlotItem(it: TimelineItem): it is SlotItem {
   return (it as any)?.kind === "ad";
 }
@@ -332,7 +361,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
               : undefined;
           const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
           const permalink = typeof it?.permalink === "string" ? it.permalink : undefined;
-          return { id, date, text, place, generated_at, image, image_prompt, permalink };
+          const links = normalizeLinks(it?.links ?? it?.link);
+          return { id, date, text, place, generated_at, image, image_prompt, permalink, links };
         })
         .filter(Boolean) as FeedItem[];
 
@@ -360,7 +390,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
       const image_prompt = typeof obj?.image_prompt === "string" ? obj.image_prompt : undefined;
       const updated_at = generated_at;
       const permalink = typeof obj?.permalink === "string" ? obj.permalink : undefined;
-      return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt, permalink }] };
+      const links = normalizeLinks(obj?.links ?? obj?.link);
+      return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt, permalink, links }] };
     }
   }
 
@@ -383,7 +414,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
               : undefined;
           const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
           const permalink = typeof it?.permalink === "string" ? it.permalink : undefined;
-          return { id, date, text, place, generated_at, image, image_prompt, permalink };
+          const links = normalizeLinks(it?.links ?? it?.link);
+          return { id, date, text, place, generated_at, image, image_prompt, permalink, links };
         })
       .filter(Boolean) as FeedItem[];
 
