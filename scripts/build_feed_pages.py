@@ -1,280 +1,265 @@
 #!/usr/bin/env python3
 """
-Build static, paginated feed JSON files for "infinite scroll" UIs.
+Build static, paginated feed JSON files for "infinite scroll" on GitHub Pages.
 
-Input: a directory containing multiple feed snapshots like:
+Key behavior:
+- Reads many snapshot files: frontend/app/public/feed/feed_*.json
+  (each snapshot is usually a single post object).
+- Emits:
+  - frontend/app/public/feed/page_000.json, page_001.json, ...
+  - rewrites frontend/app/public/latest.json to a *pointer*:
+      {"feed_url":"./feed/page_000.json","updated_at":"..."}
+- IMPORTANT FIX (for images):
+  For snapshot files named feed_*.json that represent ONE post, the filename stem is canonical.
+  We:
+    - set item.id = <stem> (so it starts with "feed_" and matches the image filename)
+    - if image/image_url is missing but ./image/<stem>.png exists, we inject image_url.
 
-  feed/feed_20260102_123456_JST.json
-  feed/feed_20260103_205844_JST.json
-  ...
-
-Each snapshot can be either:
-  - a single item object {date,text,place,...}
-  - a feed object {items:[...]}
-  - a list of items [...]
-
-Output:
-  - feed/page_000.json, feed/page_001.json, ...
-  - latest.json will be rewritten as a POINTER that points to the first page
-    (e.g. {"feed_url":"./feed/page_000.json","updated_at":"...Z"})
-
-This keeps the deployed app small and enables pagination while still keeping
-per-run snapshot files for traceability.
-
-Backward compatibility:
-  - If you previously stored history in feed.json or output.json, this script
-    will also read those (both in <public>/ and <public>/feed/) so older history
-    doesn't "disappear" after migrating to feed_*.json snapshots.
+This fixes cases where the post JSON has id=generated_at and no image_url, so the web UI
+doesn't know which image file to load.
 """
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import os
-from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 
-def _load_json(path: Path) -> Any:
-    return json.loads(path.read_text(encoding="utf-8"))
+def _load_json(p: Path) -> Any:
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
-def _dump_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+def _dump_json(p: Path, obj: Any) -> None:
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def _safe_str(x: Any) -> str:
-    if x is None:
-        return ""
-    if isinstance(x, str):
-        return x
-    return str(x)
+def _sha1(s: str) -> str:
+    return hashlib.sha1(s.encode("utf-8")).hexdigest()
 
 
-def _item_key(item: Dict[str, Any]) -> str:
-    # Prefer explicit id if present; otherwise use a hashable signature.
-    if _safe_str(item.get("id")):
-        return _safe_str(item.get("id"))
-
-    sig = "|".join(
-        [
-            _safe_str(item.get("generated_at")),
-            _safe_str(item.get("date")),
-            _safe_str(item.get("place")),
-            _safe_str(item.get("text")),
-        ]
-    ).strip()
-    if not sig:
-        sig = json.dumps(item, ensure_ascii=False, sort_keys=True)
-    return hashlib.sha1(sig.encode("utf-8")).hexdigest()[:16]
+def _item_fingerprint(it: Dict[str, Any]) -> str:
+    date = str(it.get("date", "")).strip()
+    text = str(it.get("text", "")).strip()
+    return _sha1(f"{date}\n{text}")
 
 
-def _ensure_id(item: Dict[str, Any]) -> None:
-    if not _safe_str(item.get("id")):
-        item["id"] = _item_key(item)
+def _parse_iso(s: str) -> Optional[datetime]:
+    try:
+        x = s.strip()
+        if not x:
+            return None
+        if x.endswith("Z"):
+            x = x[:-1] + "+00:00"
+        return datetime.fromisoformat(x)
+    except Exception:
+        return None
 
 
-def _ensure_permalink(item: Dict[str, Any]) -> None:
-    # Use stable id (or computed key) as permalink token.
-    _ensure_id(item)
-    if not _safe_str(item.get("permalink")):
-        item["permalink"] = f"./?post={_safe_str(item.get('id'))}"
+def _ensure_id(it: Dict[str, Any]) -> None:
+    if isinstance(it.get("id"), str) and it["id"].strip():
+        it["id"] = it["id"].strip()
+        return
+    date = str(it.get("date", "")).strip()
+    text = str(it.get("text", "")).strip()
+    it["id"] = f"auto_{_sha1(date + '|' + text)[:12]}"
 
 
-def _extract_items(obj: Any) -> List[Dict[str, Any]]:
+def _ensure_permalink(it: Dict[str, Any]) -> None:
+    if isinstance(it.get("permalink"), str) and it["permalink"].strip():
+        it["permalink"] = it["permalink"].strip()
+        return
+    pid = str(it.get("id", "")).strip()
+    if pid:
+        it["permalink"] = f"./?post={pid}"
+
+
+def _coerce_items(obj: Any) -> List[Dict[str, Any]]:
     """
-    Accept multiple historical formats:
+    Accept:
       - {"items":[...]}
-      - [...]
-      - {"date":..., "text":...} (single item)
+      - [{...}, {...}]
+      - {...} (single object entry)
+    Return: list of item dicts.
     """
-    if obj is None:
-        return []
+    if isinstance(obj, dict) and isinstance(obj.get("items"), list):
+        out: List[Dict[str, Any]] = []
+        for it in obj["items"]:
+            if isinstance(it, dict):
+                out.append(it)
+        return out
+
     if isinstance(obj, list):
-        return [x for x in obj if isinstance(x, dict)]
+        out = []
+        for it in obj:
+            if isinstance(it, dict):
+                out.append(it)
+        return out
+
     if isinstance(obj, dict):
-        if isinstance(obj.get("items"), list):
-            return [x for x in obj["items"] if isinstance(x, dict)]
-        # single item object
-        if any(k in obj for k in ("date", "text", "place", "generated_at")):
-            return [obj]  # type: ignore[list-item]
+        # Single entry object
+        if isinstance(obj.get("date"), str) and isinstance(obj.get("text"), str):
+            return [obj]
+
     return []
 
 
-@dataclass
-class BuildConfig:
-    feed_path: Path
-    feed_dir: Path
-    latest_path: Path
-    page_size: int
-    pattern: str = "feed_*.json"
+def _snapshot_is_single(obj: Any) -> bool:
+    if isinstance(obj, dict) and isinstance(obj.get("items"), list):
+        return len([x for x in obj["items"] if isinstance(x, dict)]) == 1
+    if isinstance(obj, list):
+        return len([x for x in obj if isinstance(x, dict)]) == 1
+    if isinstance(obj, dict) and isinstance(obj.get("date"), str) and isinstance(obj.get("text"), str):
+        return True
+    return False
 
 
-def resolve_config(args: argparse.Namespace) -> BuildConfig:
-    feed_path = os.getenv("FEED_PATH", "frontend/app/public")
-    feed_dir = os.getenv("FEED_DIR", str(Path(feed_path) / "feed"))
-    latest_path = os.getenv("LATEST_PATH", str(Path(feed_path) / "latest.json"))
-    page_size = int(os.getenv("PAGE_SIZE", str(args.page_size)))
-
-    return BuildConfig(
-        feed_path=Path(feed_path).resolve(),
-        feed_dir=Path(feed_dir).resolve(),
-        latest_path=Path(latest_path).resolve(),
-        page_size=page_size,
-    )
-
-
-def _iter_source_files(cfg: BuildConfig) -> List[Path]:
-    """Return JSON files that can contain historical feed items.
-
-    We support both:
-    - Snapshot files: feed_*.json
-    - Legacy aggregated feeds (kept for backward compatibility):
-      - <feed_dir>/feed.json, <feed_dir>/output.json
-      - <feed_path>/feed.json, <feed_path>/output.json
-
-    This prevents older history from disappearing when you switch formats.
+def _apply_snapshot_canonicalization(
+    it: Dict[str, Any],
+    *,
+    src_stem: str,
+    public_dir: Path,
+) -> None:
     """
-    files: List[Path] = []
+    For feed_*.json snapshots (single-post), make them compatible with web image rules:
+    - canonical id = filename stem (starts with 'feed_')
+    - add image_url if missing and the image file exists
+    """
+    if not src_stem.startswith("feed_"):
+        return
 
-    # 1) Legacy aggregated feeds (optional)
-    legacy_paths = {
-        cfg.feed_dir / "feed.json",
-        cfg.feed_dir / "output.json",
-        cfg.feed_path / "feed.json",
-        cfg.feed_path / "output.json",
-    }
-    for p in sorted(legacy_paths, key=lambda x: x.as_posix()):
-        if p.is_file() and p.suffix.lower() == ".json":
-            files.append(p)
+    # Canonicalize id to stem
+    old_id = str(it.get("id", "")).strip()
+    if old_id and old_id != src_stem and "legacy_id" not in it:
+        it["legacy_id"] = old_id
+    it["id"] = src_stem
+    it["permalink"] = f"./?post={src_stem}"
 
-    # 2) Snapshot files (newer runs) - ignore generated pagination pages
-    snaps = [
-        p
-        for p in cfg.feed_dir.glob(cfg.pattern)
-        if p.is_file() and p.suffix.lower() == ".json" and not p.name.startswith("page_")
-    ]
-    snaps_sorted = sorted(snaps, key=lambda p: p.name)
-    files.extend(snaps_sorted)
-
-    # De-dupe identical paths while keeping order
-    seen: set[str] = set()
-    out: List[Path] = []
-    for p in files:
-        k = str(p)
-        if k in seen:
-            continue
-        seen.add(k)
-        out.append(p)
-    return out
+    # Inject image_url if missing and file exists
+    has_image = isinstance(it.get("image"), str) and it["image"].strip()
+    has_image_url = isinstance(it.get("image_url"), str) and it["image_url"].strip()
+    if not (has_image or has_image_url):
+        img_path = public_dir / "image" / f"{src_stem}.png"
+        if img_path.exists():
+            it["image_url"] = f"./image/{src_stem}.png"
 
 
-def build_pages(cfg: BuildConfig) -> Tuple[int, int]:
-    cfg.feed_dir.mkdir(parents=True, exist_ok=True)
+def _iter_sources(public_dir: Path) -> Iterable[Tuple[Path, str]]:
+    feed_dir = public_dir / "feed"
 
-    src_files = _iter_source_files(cfg)
-    if not src_files:
-        # Ensure at least page_000.json exists for the app.
-        page0 = cfg.feed_dir / "page_000.json"
-        _dump_json(page0, {"items": [], "next_url": None})
-        return 1, 0
+    # Primary: snapshot files
+    if feed_dir.exists():
+        for p in sorted(feed_dir.glob("feed_*.json"), reverse=True):
+            yield p, "snapshot"
 
-    # Load items from ALL sources (legacy + snapshots)
+    # Legacy / fallback sources
+    for p in [
+        public_dir / "output.json",
+        public_dir / "feed.json",
+        public_dir / "feed_latest.json",
+        (public_dir / "feed") / "output.json",
+        (public_dir / "feed") / "feed.json",
+        (public_dir / "feed") / "feed_latest.json",
+    ]:
+        if p.exists():
+            yield p, "legacy"
+
+
+def main() -> int:
+    public_dir = Path(os.environ.get("FEED_PATH", "frontend/app/public"))
+    latest_path = Path(os.environ.get("LATEST_PATH", str(public_dir / "latest.json")))
+
+    feed_dir = public_dir / "feed"
+    feed_dir.mkdir(parents=True, exist_ok=True)
+
+    page_size = int(os.environ.get("PAGE_SIZE", "30"))
+    max_items = int(os.environ.get("MAX_ITEMS", "500"))
+
     items: List[Dict[str, Any]] = []
-    for p in src_files:
+    seen_fp: set[str] = set()
+
+    for src, kind in _iter_sources(public_dir):
         try:
-            obj = _load_json(p)
-        except Exception as e:
-            print(f"WARN: skipping invalid json: {p} err={e}")
-            continue
-
-        for item in _extract_items(obj):
-            # Normalize: always set id + permalink.
-            _ensure_id(item)
-            _ensure_permalink(item)
-            items.append(item)
-
-    # De-dupe by id/key (keep newest first)
-    # Sort newest -> oldest by a timestamp heuristic.
-    def _sort_key(it: Dict[str, Any]) -> str:
-        # Prefer generated_at; else date; else empty.
-        return _safe_str(it.get("generated_at")) or _safe_str(it.get("date")) or ""
-
-    items_sorted = sorted(items, key=_sort_key, reverse=True)
-
-    seen: set[str] = set()
-    deduped: List[Dict[str, Any]] = []
-    for it in items_sorted:
-        k = _item_key(it)
-        if k in seen:
-            continue
-        seen.add(k)
-        deduped.append(it)
-
-    total = len(deduped)
-    if total == 0:
-        page0 = cfg.feed_dir / "page_000.json"
-        _dump_json(page0, {"items": [], "next_url": None})
-        return 1, 0
-
-    # Write page_000, page_001, ...
-    num_pages = (total + cfg.page_size - 1) // cfg.page_size
-
-    for page_idx in range(num_pages):
-        start = page_idx * cfg.page_size
-        end = min(start + cfg.page_size, total)
-        page_items = deduped[start:end]
-
-        page_name = f"page_{page_idx:03d}.json"
-        page_path = cfg.feed_dir / page_name
-
-        next_url: Optional[str] = None
-        if page_idx + 1 < num_pages:
-            next_url = f"page_{page_idx + 1:03d}.json"
-
-        _dump_json(page_path, {"items": page_items, "next_url": next_url})
-
-    # Remove stale pages beyond current count
-    for p in sorted(cfg.feed_dir.glob("page_*.json")):
-        try:
-            idx = int(p.stem.split("_", 1)[1])
+            obj = _load_json(src)
         except Exception:
             continue
-        if idx >= num_pages:
+
+        src_stem = src.stem
+        single = _snapshot_is_single(obj) and kind == "snapshot"
+
+        for it in _coerce_items(obj):
+            if not (isinstance(it.get("date"), str) and isinstance(it.get("text"), str)):
+                continue
+
+            # For single snapshot feed_*.json, canonicalize id + image_url using filename stem
+            if single:
+                _apply_snapshot_canonicalization(it, src_stem=src_stem, public_dir=public_dir)
+
+            # Ensure minimum fields
+            _ensure_id(it)
+            _ensure_permalink(it)
+
+            fp = _item_fingerprint(it)
+            if fp in seen_fp:
+                continue
+            seen_fp.add(fp)
+            items.append(it)
+
+    # Sort newest-first by generated_at if possible; else keep stable by id
+    def sort_key(it: Dict[str, Any]) -> Tuple[int, str]:
+        ga = str(it.get("generated_at", "")).strip()
+        dt = _parse_iso(ga)
+        if dt is None:
+            return (0, str(it.get("id", "")))
+        # larger is newer
+        return (int(dt.timestamp()), str(it.get("id", "")))
+
+    items.sort(key=sort_key, reverse=True)
+
+    if max_items > 0:
+        items = items[:max_items]
+
+    # Write pages
+    page_paths: List[Path] = []
+    total_pages = (len(items) + page_size - 1) // page_size if items else 1
+
+    for idx in range(total_pages):
+        start = idx * page_size
+        end = start + page_size
+        page_items = items[start:end]
+
+        page_obj: Dict[str, Any] = {"items": page_items}
+        if idx + 1 < total_pages:
+            page_obj["next_url"] = f"./page_{idx+1:03d}.json"
+
+        out_path = feed_dir / f"page_{idx:03d}.json"
+        _dump_json(out_path, page_obj)
+        page_paths.append(out_path)
+
+    # Clean old page files beyond current count
+    for p in feed_dir.glob("page_*.json"):
+        if p not in page_paths:
             try:
                 p.unlink()
             except Exception:
                 pass
 
-    # Write pointer file for the app (HomeScreen follows feed_url/feed_path/feed_file).
-    # This ensures the app can fetch ./latest.json and still show the whole history.
-    page0 = cfg.feed_dir / "page_000.json"
-    try:
-        rel = page0.relative_to(cfg.feed_path).as_posix()
-        feed_url = f"./{rel}"
-    except Exception:
-        # Fallback: common layout (<public>/feed/page_000.json)
-        feed_url = "./feed/page_000.json"
+    # Rewrite latest.json as a pointer to page_000.json
+    updated_at = ""
+    if items:
+        ga = str(items[0].get("generated_at", "")).strip()
+        updated_at = ga or str(items[0].get("date", "")).strip()
+    if not updated_at:
+        updated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
-    now_utc = datetime.utcnow().isoformat() + "Z"
-    _dump_json(cfg.latest_path, {"feed_url": feed_url, "updated_at": now_utc})
+    pointer = {"feed_url": "./feed/page_000.json", "updated_at": updated_at}
+    _dump_json(latest_path, pointer)
 
-    return num_pages, total
-
-
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--page-size", type=int, default=20, help="Items per page (default 20)")
-    args = ap.parse_args()
-
-    cfg = resolve_config(args)
-    num_pages, total = build_pages(cfg)
-    print(f"OK: wrote {num_pages} pages with total={total} items. latest={cfg.latest_path}")
+    print(f"Wrote {len(page_paths)} pages, {len(items)} items. latest -> {pointer['feed_url']}")
     return 0
 
 
