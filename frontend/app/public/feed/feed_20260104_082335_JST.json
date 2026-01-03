@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-03T23:28:27Z",
+  "id": "feed_20260104_082335_JST",
   "date": "2026-01-03",
   "text": "Good morning! ☀️ It's a chilly winter day in Yokosuka with clear skies and a temp of 5.6°C! Perfect weather to grab some hot coffee and head out to the Verny Park exhibition ⏰ #Yokosuka #MiuraPeninsula",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-03T23:28:27Z",
+  "permalink": "./?post=feed_20260104_082335_JST",
+  "image_url": "./image/feed_20260104_082335_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning! ☀️ It's a chilly winter day in Yokosuka with clear skies and a temp of 5.6°C! Perfect weather to grab some hot coffee and head out to the Verny Park exhibition ⏰ #Yokosuka #MiuraPeninsula",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T23:31:37Z"
 }
