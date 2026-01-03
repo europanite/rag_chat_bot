@@ -225,7 +225,7 @@ def main() -> None:
 
     # Ensure latest.json exists
     cfg.latest_path.parent.mkdir(parents=True, exist_ok=True)
-    update_latest(cfg.latest_path)
+    # update_latest(cfg.latest_path)
 
     print(f"Built {num_pages} page(s) from {total} item(s)")
     print(f"Feed dir: {cfg.feed_dir}")
