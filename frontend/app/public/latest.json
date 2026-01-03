@@ -54,5 +54,9 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "image_url": "/image/feed_20260103_184349_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening! 🌃️ It's a chilly winter night in Yokosuka! 🏃‍♀️🌲 Head to Verny Park for some festive fun, featuring food trucks and live music. 🎵️ Enjoy the illuminations with your loved ones.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T09:52:13.392063Z"
 }
