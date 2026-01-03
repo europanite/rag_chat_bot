@@ -55,5 +55,9 @@
   },
   "links": "",
   "id": "feed_20260103_133606_JST",
-  "permalink": "./?post=feed_20260103_133606_JST"
+  "permalink": "./?post=feed_20260103_133606_JST",
+  "image_url": "/image/feed_20260103_133606_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good afternoon! Mild weather expected in Yokosuka today with a high of 9°C and clear skies 🌞 Join us at Verny Park for New…",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T04:44:05.800778Z"
 }
