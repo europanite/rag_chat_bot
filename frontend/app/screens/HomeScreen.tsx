@@ -23,7 +23,6 @@ type FeedItem = {
   generated_at?: string; // ISO string (often Z)
   image?: string; // local path or absolute URL
   image_prompt?: string; // optional (for matching)
-  permalink?: string;
   links?: string[];
 };
 
@@ -360,9 +359,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
               ? it.imageUri
               : undefined;
           const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
-          const permalink = typeof it?.permalink === "string" ? it.permalink : undefined;
           const links = normalizeLinks(it?.links ?? it?.link);
-          return { id, date, text, place, generated_at, image, image_prompt, permalink, links };
+          return { id, date, text, place, generated_at, image, image_prompt, links };
         })
         .filter(Boolean) as FeedItem[];
 
@@ -389,9 +387,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
           : undefined;
       const image_prompt = typeof obj?.image_prompt === "string" ? obj.image_prompt : undefined;
       const updated_at = generated_at;
-      const permalink = typeof obj?.permalink === "string" ? obj.permalink : undefined;
       const links = normalizeLinks(obj?.links ?? obj?.link);
-      return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt, permalink, links }] };
+      return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt, links }] };
     }
   }
 
@@ -413,9 +410,8 @@ function normalizeFeed(parsed: unknown): Feed | null {
               ? it.imageUri
               : undefined;
           const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
-          const permalink = typeof it?.permalink === "string" ? it.permalink : undefined;
           const links = normalizeLinks(it?.links ?? it?.link);
-          return { id, date, text, place, generated_at, image, image_prompt, permalink, links };
+          return { id, date, text, place, generated_at, image, image_prompt, links };
         })
       .filter(Boolean) as FeedItem[];
 
@@ -427,19 +423,6 @@ function normalizeFeed(parsed: unknown): Feed | null {
   }
 
   return null;
-}
-
-function buildPermalink(id: string, permalink?: string): string {
-  // If backend provided a relative permalink, make it absolute on web for easy sharing.
-  if (Platform.OS === "web" && typeof window !== "undefined") {
-    const u = new URL(window.location.href);
-    u.searchParams.delete("redirect");
-    u.searchParams.set("post", id);
-    u.hash = "";
-    return u.toString();
-  }
-  // Fallback (native / unknown): keep relative
-  return permalink ?? `./?post=${encodeURIComponent(id)}`;
 }
 
 type ShareSdItem = {
@@ -1184,46 +1167,6 @@ const getImageUrisForItem = useCallback(
     }, [fetchJson, loadingMore, nextUrl]);
 
 
-  // Jump to permalink target (web only). Auto-page older items until found (bounded).
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    if (!deepLinkPostId) {
-      deepLinkAttemptsRef.current = 0;
-      return;
-    }
-    // wait for the initial load to finish to avoid early "not found"
-    if (loading) return;
-
-    const idx = timelineItems.findIndex((it) => !isSlotItem(it) && it.id === deepLinkPostId);
-    if (idx >= 0) {
-      requestAnimationFrame(() => {
-        listRef.current?.scrollToIndex({ index: idx, animated: false });
-      });
-      setDeepLinkPostId(null);
-      deepLinkAttemptsRef.current = 0;
-      return;
-    }
-
-    if (nextUrl && !loadingMore) {
-      if (deepLinkAttemptsRef.current >= MAX_DEEP_LINK_ATTEMPTS) {
-        setError(`Permalink not found (gave up paging): ${deepLinkPostId}`);
-        setDeepLinkPostId(null);
-        deepLinkAttemptsRef.current = 0;
-        return;
-      }
-      deepLinkAttemptsRef.current += 1;
-      void loadMore();
-      return;
-    }
-
-    if (!nextUrl && !loadingMore) {
-      setError(`Permalink not found: ${deepLinkPostId}`);
-      setDeepLinkPostId(null);
-      deepLinkAttemptsRef.current = 0;
-    }
-  }, [deepLinkPostId, loading, timelineItems, nextUrl, loadingMore, loadMore]);
-
-
   const openFeed = useCallback(() => {
     if (!effectiveUrl) return;
     if (Platform.OS !== "web") return;
@@ -1362,7 +1305,6 @@ const getImageUrisForItem = useCallback(
         }
 
         const imageUris = getImageUrisForItem(item);
-        const url = buildPermalink(item.id, item.permalink);
         return (
           <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
             <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
@@ -1416,24 +1358,6 @@ const getImageUrisForItem = useCallback(
                         ))}
                       </View>
                     ) : null}
-
-                    <Pressable
-                      onPress={async () => {
-                        // On web: copy permalink (shareable)
-                        if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-                          try {
-                            await navigator.clipboard.writeText(url);
-                            return;
-                          } catch {}
-                        }
-                        // Fallback: open
-                        try {
-                          await Linking.openURL(url);
-                        } catch {}
-                      }}
-                    >
-                      <Text style={{ opacity: 0.7, fontSize: 12 }}>🔗 Permalink</Text>
-                    </Pressable>
                   </View>
 
                   {/* ✅ 2) Tail AFTER (on top) to cover the bubble border line */}
