@@ -553,7 +553,11 @@ def write_outputs(feed_path: str, latest_path: str, entry: Dict[str, Any], snap_
         snap_path.write_text(json.dumps(snap_obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     except Exception:
         snap_path.write_text(str(snap_json_raw).rstrip() + "\n", encoding="utf-8")
+
+    print(f"Wrote: {fp}")
+    print(f"Wrote: {lp}")
     print(f"Wrote: {snap_path}")
+    return fp, lp, snap_path
 
 def pair_paths(feeds: List[str], latests: List[str]) -> List[Tuple[str, str]]:
     if not feeds or not latests:
