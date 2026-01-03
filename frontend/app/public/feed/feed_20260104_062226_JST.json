@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-03T21:27:18Z",
+  "id": "feed_20260104_062226_JST",
   "date": "2026-01-03",
   "text": "Good morning! ☀️ It's a chilly winter day in Yokosuka, with a current temperature of 3.9°C and winds at 5.76 km/h. Enjoy the Yokosuka Countdown 2026 event tonight at Verny Park! 🎉 #Yokosuka #NewYear",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-03T21:27:18Z",
+  "permalink": "./?post=feed_20260104_062226_JST",
+  "image_url": "./image/feed_20260104_062226_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning! ☀️ It's a chilly winter day in Yokosuka, with a current temperature of 3.9°C and winds at 5.76 km/h. Enjoy the Yokosuka Countdown 2026 event tonight at Verny Park! 🎉 #Yokosuka #NewYear",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T21:29:41Z"
 }
