@@ -2,13 +2,15 @@ name: Feed
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
 
 jobs:
   rag:
@@ -19,29 +21,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Sanity check (repo chroma_db exists)
+      - name: Install python deps
         run: |
-          echo "chroma_db file count:"
-          find chroma_db -type f | wc -l
-          n=$(find chroma_db -type f | wc -l)
-          if [ "$n" -lt 5 ]; then
-            echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
-            exit 1
-          fi
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pillow
 
       - name: Start stack (db + ollama + backend)
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
-          RAG_REINDEX_ENABLED: "true"
         run: |
           docker compose -f docker-compose.yml up -d --build
 
@@ -51,56 +46,24 @@ jobs:
         run: |
           ok=0
           for i in {1..600}; do
-            if curl -fsS http://localhost:8000/health >/dev/null; then
-              ok=$((ok+1))
-              [ "$ok" -ge 3 ] && break
-            else
-              ok=0
+            if curl -fsS http://localhost:8000/rag/status >/dev/null 2>&1; then
+              ok=1
+              break
             fi
-            sleep 2
+            sleep 1
           done
-
-          if [ "$ok" -ge 3 ]; then
-            echo "backend is stable"
-          else
-            echo "Backend did not become ready in time"
+          if [ "$ok" != "1" ]; then
+            echo "backend not ready"
             docker compose logs --no-color backend || true
             exit 1
           fi
+          curl -sS http://localhost:8000/rag/status
 
-      - name: Fix permissions for feed dirs
-        run: |
-          sudo chown -R "$USER:$USER" frontend/app/public || true
-          chmod -R u+rwX frontend/app/public || true
-
-      - name: Generate post
-        env:
-          LAT: "35.2810"
-          LON: "139.6722"
-          TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: 16
-          CURL_MAX_TIME: 512
-          PLACE: "Yokosuka"
-          FEED_PATH: frontend/app/public
-          LATEST_PATH: frontend/app/public/latest.json
-          MAX_WORDS: 512
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-          DEBUG: 1
+      - name: Generate talk (feed entry + snapshot)
         run: |
           python scripts/generate_talk.py
-      - name: Dump logs on failure
-        if: failure()
-        run: |
-          docker compose logs --no-color --tail=200 ollama
-          docker compose logs --no-color --tail=200 backend
-      - name: Stop stack
-        env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-        if: always()
-        run: |
-          docker compose down
 
-      - name: Commit & push if changed
+      - name: Commit & push feed changes if any
         id: commit
         run: |
           if git diff --quiet; then
@@ -115,10 +78,7 @@ jobs:
 
           git pull --ff-only origin main
 
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
-
+          git add -A frontend/app/public/feed frontend/app/public/latest.json frontend/app/public/snapshot
           if git diff --cached --quiet; then
             echo "No staged changes"
             echo "changed=0" >> "$GITHUB_OUTPUT"
@@ -126,7 +86,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: image feed"
+          git commit -m "chore: update feed"
           git push origin HEAD:main
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
@@ -227,10 +187,7 @@ jobs:
 
           git pull --ff-only origin main
 
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/image/*.png || true
-
+          git add -A frontend/app/public/image frontend/app/public/feed frontend/app/public/latest.json
           if git diff --cached --quiet; then
             echo "No staged changes"
             echo "changed=0" >> "$GITHUB_OUTPUT"
@@ -249,7 +206,7 @@ jobs:
     if: needs.rag.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
     with:
-      ref: main
+      ref: ${{ needs.illustrate.outputs.sha != '' && needs.illustrate.outputs.sha || needs.rag.outputs.sha }}
     permissions:
       contents: read
       pages: write

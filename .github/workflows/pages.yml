@@ -34,13 +34,20 @@ jobs:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
 
-      - name: Ensure latest remote ref
+      - name: Ensure latest remote ref (branch only)
         run: |
           set -euo pipefail
-          BRANCH="${{ inputs.ref }}"
-          git fetch origin "$BRANCH" --prune || true
-          if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH"; then
-            git reset --hard "origin/$BRANCH"
+          REF="${{ inputs.ref }}"
+
+          # If it's a commit SHA, checkout is already pinned to it.
+          if [[ "$REF" =~ ^[0-9a-f]{7,40}$ ]]; then
+            echo "inputs.ref looks like a commit SHA ($REF); skipping remote reset."
+            exit 0
+          fi
+
+          git fetch origin "$REF" --prune
+          if git show-ref --verify --quiet "refs/remotes/origin/$REF"; then
+            git reset --hard "origin/$REF"
           fi
 
       - name: Use Node.js 20
@@ -79,11 +86,33 @@ jobs:
         run: |
           npx expo export --platform web --output-dir web-build
 
-      - name: Copy JSON feeds into web-build
+      - name: Copy public assets (feeds + images) into web-build
         working-directory: frontend/app
         run: |
+          set -euo pipefail
           mkdir -p web-build
-          cp -av public/. web-build/ 2>/dev/null || true
+          cp -av public/. web-build/
+
+          echo "---- public/image (source) ----"
+          ls -la public/image || true
+          echo "---- web-build/image (dest) ----"
+          ls -la web-build/image || true
+
+          if [ -d public/image ]; then
+            src_png=$(find public/image -maxdepth 1 -type f -name '*.png' | wc -l | tr -d ' ')
+          else
+            src_png=0
+          fi
+          if [ -d web-build/image ]; then
+            dst_png=$(find web-build/image -maxdepth 1 -type f -name '*.png' | wc -l | tr -d ' ')
+          else
+            dst_png=0
+          fi
+          echo "png count: public=$src_png web-build=$dst_png"
+          if [ "$src_png" -gt 0 ] && [ "$dst_png" -eq 0 ]; then
+            echo "ERROR: images were not copied into web-build."
+            exit 1
+          fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
