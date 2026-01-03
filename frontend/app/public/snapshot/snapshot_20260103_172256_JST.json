@@ -1,0 +1,57 @@
+{
+  "date": "2026-01-03",
+  "generated_at": "2026-01-03T08:28:08Z",
+  "text": "Good evening! 🌃 It's a chilly 7.5°C with partly cloudy skies in Yokosuka today 🏙️. Check out Verny Park for a warm and cozy…",
+  "place": "Yokosuka",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-03T08:22:58.123899+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-03T17:10:00+09:00",
+      "temp_c": 7.5,
+      "apparent_temp_c": null,
+      "humidity_pct": 43.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 4.680000000000001,
+      "wind_dir_deg": 157.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-03",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-04",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-03T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": []
+}
