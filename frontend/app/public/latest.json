@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-03T16:06:22Z",
+  "id": "feed_20260104_010127_JST",
   "date": "2026-01-03",
   "text": "Good morning! It's a chilly winter morning in Yokosuka with a current temperature of 3.5°C and clear skies 🌃. Get ready for a fun-filled New Year Countdown event at Verny Park on Dec 31, featuring fireworks, food trucks, and live music 🎉 #Yokosuka",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-03T16:06:22Z",
+  "permalink": "./?post=feed_20260104_010127_JST",
+  "image_url": "./image/feed_20260104_010127_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning! It's a chilly winter morning in Yokosuka with a current temperature of 3.5°C and clear skies 🌃. Get ready for a fun-filled New Year Countdown event at Verny Park on Dec 31, featuring fireworks, food trucks, and live music 🎉 #Y",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T16:09:46Z"
 }
