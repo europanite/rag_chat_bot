@@ -1,26 +1,26 @@
 {
-  "id": "2026-01-03T13:37:02Z",
+  "id": "2026-01-03T13:01:09Z",
   "date": "2026-01-03",
-  "text": "Good evening! Currently, it's a chilly 3.2°C with clear skies and a gentle breeze in Yokosuka. Enjoy the winter vibes at Verny Park's New Year Countdown event tonight 🎉🕰️ #Yokosuka #NewYearCountdown",
+  "text": "Good evening! As of 21:40, Yokosuka's weather is a chilly 4.7°C with clear skies and a gentle breeze. Get ready for Verny Park's New Year Countdown & Fireworks tomorrow 🎉🌃 #Yokosuka #NewYear",
   "place": "Yokosuka",
-  "generated_at": "2026-01-03T13:37:02Z",
+  "generated_at": "2026-01-03T13:01:09Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-03T13:32:21.832297+00:00",
+    "generated_at": "2026-01-03T12:56:28.668147+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-03T22:20:00+09:00",
-      "temp_c": 3.2,
+      "time": "2026-01-03T21:40:00+09:00",
+      "temp_c": 4.7,
       "apparent_temp_c": null,
-      "humidity_pct": 59.0,
+      "humidity_pct": 54.0,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": null,
-      "wind_kmh": 6.84,
-      "wind_dir_deg": 0.0,
+      "wind_kmh": 5.760000000000001,
+      "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -54,9 +54,5 @@
       "temp_city_code": null
     }
   },
-  "links": [],
-  "image_url": "./image/feed_20260103_223220_JST.png",
-  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening! Currently, it's a chilly 3.2°C with clear skies and a gentle breeze in Yokosuka. Enjoy the winter vibes at Verny Park's New Year Countdown event tonight 🎉🕰️",
-  "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2026-01-03T13:39:58.389984Z"
+  "links": []
 }
