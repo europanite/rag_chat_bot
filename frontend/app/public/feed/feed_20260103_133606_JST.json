@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": "feed_20260103_133606_JST",
+      "permalink": "./?post=feed_20260103_133606_JST",
+      "date": "2026-01-03",
+      "text": "Good afternoon! Mild weather expected in Yokosuka today with a high of 9°C and clear skies 🌞 Join us at Verny Park for New…",
+      "place": "Yokosuka",
+      "generated_at": "2026-01-03T04:40:51Z",
+      "weather": {
+        "source": "jma",
+        "generated_at": "2026-01-03T04:36:08.676470+00:00",
+        "place": "Yokosuka",
+        "latitude": 35.281,
+        "longitude": 139.6722,
+        "timezone": "Asia/Tokyo",
+        "current": {
+          "time": "2026-01-03T13:20:00+09:00",
+          "temp_c": 9.0,
+          "apparent_temp_c": null,
+          "humidity_pct": 23.0,
+          "precip_mm": 0.0,
+          "weather_code": 0,
+          "cloud_cover_pct": null,
+          "wind_kmh": 7.5600000000000005,
+          "wind_dir_deg": 247.5,
+          "amedas_station": "46211",
+          "jma_weather_obs_code": null
+        },
+        "today": {
+          "date": "2026-01-03",
+          "weather_code": 0,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ",
+          "jma_weather_code": "100",
+          "precip_prob_pct": 0
+        },
+        "tomorrow": {
+          "date": "2026-01-04",
+          "weather_code": 0,
+          "precip_sum_mm": null,
+          "wind_max_kmh": null,
+          "temp_max_c": null,
+          "temp_min_c": null,
+          "weather_text_ja": "晴れ",
+          "jma_weather_code": "100",
+          "precip_prob_pct": 0
+        },
+        "jma_meta": {
+          "publishing_office": "横浜地方気象台",
+          "report_datetime": "2026-01-03T11:00:00+09:00",
+          "office_code": "140000",
+          "area_code": null,
+          "temp_city_code": null
+        }
+      },
+      "image": "/image/feed_20260103_133606_JST.png",
+      "image_url": "/image/feed_20260103_133606_JST.png",
+      "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good afternoon! Mild weather expected in Yokosuka today with a high of 9°C and clear skies 🌞 Join us at Verny Park for New…",
+      "image_model": "stabilityai/sd-turbo",
+      "image_generated_at": "2026-01-03T04:44:05.800778Z"
+    }
+  ],
+  "updated_at": "2026-01-03T04:40:51Z",
+  "place": "Yokosuka"
+}

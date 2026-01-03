@@ -1,0 +1,59 @@
+{
+  "date": "2026-01-02",
+  "generated_at": "2026-01-02T16:36:12Z",
+  "text": "Happy New Year! 🎊 In Yokosuka, it's a chilly night with clear skies and light winds. ❄️ Temperatures are expected to be around…",
+  "place": "Yokosuka",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-02T16:30:47.673769+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-03T01:20:00+09:00",
+      "temp_c": 2.1,
+      "apparent_temp_c": null,
+      "humidity_pct": 82.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 7.2,
+      "wind_dir_deg": 45.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-03",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-04",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 11.0,
+      "temp_min_c": 2.0,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": null
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-02T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": "",
+  "id": "feed_20260103_013045_JST",
+  "permalink": "./?post=feed_20260103_013045_JST"
+}

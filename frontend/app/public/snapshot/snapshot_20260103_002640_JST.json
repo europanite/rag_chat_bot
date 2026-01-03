@@ -1,0 +1,59 @@
+{
+  "date": "2026-01-02",
+  "generated_at": "2026-01-02T15:32:05Z",
+  "text": "Good night Yokosuka! 😊 Current weather is calm with a temp of 2.5°C and humidity at 82%. Looking forward to warm food like…",
+  "place": "Yokosuka",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-02T15:26:43.140759+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-03T00:20:00+09:00",
+      "temp_c": 2.5,
+      "apparent_temp_c": null,
+      "humidity_pct": 82.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 8.28,
+      "wind_dir_deg": 0.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-03",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-04",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 11.0,
+      "temp_min_c": 2.0,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": null
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-02T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": "",
+  "id": "feed_20260103_002640_JST",
+  "permalink": "./?post=feed_20260103_002640_JST"
+}
