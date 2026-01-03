@@ -54,5 +54,9 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "image_url": "./image/feed_20260103_223220_JST.png",
+  "image_prompt": "Japanese picture illustration, illustrated image style, watercolor and colored pencil, soft warm light, cute and simple, hand-drawn, minimal details, friendly atmosphere, scene in Yokosuka. Inspired by this message: Good evening! Currently, it's a chilly 3.2°C with clear skies and a gentle breeze in Yokosuka. Enjoy the winter vibes at Verny Park's New Year Countdown event tonight 🎉🕰️",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T13:39:58.389984Z"
 }
