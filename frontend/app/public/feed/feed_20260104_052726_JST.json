@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-03T20:31:49Z",
+  "id": "feed_20260104_052726_JST",
   "date": "2026-01-03",
   "text": "Good morning! Currently, Yokosuka is enjoying a chilly winter day with clear skies and a low of 3.2°C. Perfect weather to explore Verny Park's New Year Countdown event tonight! 🌃🎉 #Yokosuka #Miura #NewYearCountdown",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-03T20:31:49Z",
+  "permalink": "./?post=feed_20260104_052726_JST",
+  "image_url": "./image/feed_20260104_052726_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning! Currently, Yokosuka is enjoying a chilly winter day with clear skies and a low of 3.2°C. Perfect weather to explore Verny Park's New Year Countdown event tonight! 🌃🎉 #Yokosuka #Miura #NewYearCountdown",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T20:35:18Z"
 }
