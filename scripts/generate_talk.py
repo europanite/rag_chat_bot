@@ -418,6 +418,10 @@ def build_question(
 
     return (
         "Write a tweet in English.\n"
+        "Format.\n"
+        "- GREETIN\n"
+        "- WEATHER_TOPIC(Simply descrive weather(use only sunny, cloudy, windy, chilly, rainy with temperarure, No humid)\n"
+        "- Local Spots or upcoming events\n"
         f"NOW (local, reference): {now_local.strftime('%Y-%m-%d %H:%M')} {now_local.tzname() or ''} ({now_local:%a}).\n"
         "TIME & GREETING (IMPORTANT):\n"
         "- Determine the local datetime from LIVE WEATHER JSON.\n"
@@ -430,7 +434,6 @@ def build_question(
         "  * 00:00-04:59 => 'Good night'\n"
         "\n"
         "Decide the greeting using the local time in LIVE WEATHER JSON (current.time + timezone; assume Asia/Tokyo if missing).\n"
-        "Summarize the weather using ONLY LIVE WEATHER facts.\n"
         "If you use words like 'tonight', 'this evening', 'later tonight', 'later today', they must match NOW.\n"
         "If the event date is not today, say “tomorrow” or include an explicit date (e.g., Dec 31).\n"
         f"TOPIC FAMILY: {topic_family} (event/place/chat).\n"
@@ -438,7 +441,9 @@ def build_question(
         f"HINTS: time_of_day={tod}, season={season}, weather_hint={hint}.\n"
         "Pick up ONE topic and mention only that one from RAG Context that fits the HINTS.\n"
         "You may include at most one official URL only if it exists in the chosen text.\n"
-        f"Keep within {max_words} characters.\n"
+        f"Write up to {max_words} characters.\n"
+        f"links: {links}.\n"
+        f"datetime: {datetime}.\n"
     )
 
 
@@ -459,11 +464,9 @@ def build_payload(
         "include_debug": include_debug,
         "output_style": "tweet_bot",
         "extra_context": snap_json_raw,  # live weather snapshot JSON
+        "datetime":datetime,
+        "links":links
     }
-    if datetime:
-        payload["datetime"] = datetime
-    if links:
-        payload["links"] = links
     return payload
 
 
