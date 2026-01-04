@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-04T15:27:55Z",
+  "id": "feed_20260105_002326_JST",
   "date": "2026-01-04",
   "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! 🌞 It's a chilly winter morning in Yokosuka, with cloudy skies and a low of 6.6°C. ☁️ Grab a warm drink at Café Kurībō and get cozy! 🍵🏠 Stay updated on  🎉 #Yokosuka",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-04T15:27:55Z",
+  "permalink": "./?post=feed_20260105_002326_JST",
+  "image_url": "./image/feed_20260105_002326_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! 🌞 It's a chilly winter morning in Yokosuka, with cloudy skies and a low of 6.6°C. ☁️ Grab a warm drink at Café Kurībō and get cozy! 🍵🏠 Stay updated on 🎉 #Yokosuka",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-04T15:31:17Z"
 }
