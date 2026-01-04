@@ -672,6 +672,7 @@ def _build_chat_prompts(
     output_style: str,
     max_words: int,
     place_hint: str | None,
+    datetime_rag: str,
 ) -> tuple[str, str]:
     if output_style != "tweet_bot":
         system = "You answer using the given context."
@@ -687,8 +688,6 @@ def _build_chat_prompts(
     hashtags = _get_bot_hashtags()
     place = place_hint or os.getenv("PLACE") or "your area"
 
-    now_block = _format_now_block(live_weather)
-
     system = (
         f"You are {bot_name}, a friendly English local story bot for {place} (locals, familes and tourists). "
         f"Write one tweet in English within {max_words} characters. "
@@ -701,7 +700,6 @@ def _build_chat_prompts(
         "STYLE:\n"
         "- Warm, upbeat, practical.\n"
         "- Use emojis.\n"
-        f"- If you add hashtags, pick 1-3 from: {hashtags}.\n"
     )
 
     def _sample_context(ctx: list[str], seed_text: str, k: int = 8, pool: int = 18) -> list[str]:
@@ -719,7 +717,7 @@ def _build_chat_prompts(
 
     user = (
         "NOW (for time reasoning):\n"
-        f"{now_block}\n"
+        f"{datetime_rag}\n"
         "LIVE WEATHER:\n"
         f"{live_block}\n\n"
         "RAG CONTEXT:\n"
@@ -990,6 +988,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         output_style=payload.output_style,
         max_words=payload.max_words,
         place_hint=place_hint,
+        datetime=payload.datetime
     )
 
     system_prompt, user_prompt = _augment_prompts_with_url_policy(
