@@ -34,6 +34,71 @@ def _safe_zoneinfo(tz_name: str) -> ZoneInfo:
     except Exception:
         return ZoneInfo("Asia/Tokyo")
 
+def _parse_datetime_like(s: str, tz_name: str) -> datetime | None:
+    """
+    Parse a datetime-ish string into an aware datetime in tz_name.
+    Supports ISO strings and a few loose formats. If tz is missing, assumes tz_name.
+    """
+    if not isinstance(s, str):
+        return None
+    raw = s.strip()
+    if not raw:
+        return None
+
+    # Common suffixes
+    cand0 = raw.replace("JST", "+09:00").replace(" UTC", "+00:00")
+
+    # Try ISO (with or without 'T')
+    for cand in (cand0, cand0.replace(" ", "T", 1)):
+        try:
+            dt = datetime.fromisoformat(cand.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=_safe_zoneinfo(tz_name))
+            else:
+                dt = dt.astimezone(_safe_zoneinfo(tz_name))
+            return dt
+        except Exception:
+            pass
+
+    # Fallback: date-only "YYYY-MM-DD"
+    m = re.match(r"^\s*(\d{4}-\d{2}-\d{2})", cand0)
+    if m:
+        try:
+            dt = datetime.fromisoformat(m.group(1))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=_safe_zoneinfo(tz_name))
+            return dt
+        except Exception:
+            return None
+
+    return None
+
+def _resolve_now_datetime(
+    live_weather: str | None,
+    request_datetime: str | None,
+) -> tuple[datetime, str, str]:
+    """
+    Resolve 'now' with precedence:
+      1) request_datetime (authoritative)
+      2) live_weather.current.time
+      3) server clock in TZ_NAME
+    Returns (dt, tz_name, source)
+    """
+    tz_fallback = os.getenv("TZ_NAME") or "Asia/Tokyo"
+
+    if isinstance(request_datetime, str) and request_datetime.strip():
+        dt_req = _parse_datetime_like(request_datetime, tz_fallback)
+        if dt_req is not None:
+            return dt_req, tz_fallback, "request_datetime"
+
+    dt_w, tz_w = _extract_now_from_live_weather(live_weather)
+    if dt_w is not None:
+        return dt_w, (tz_w or tz_fallback), "live_weather"
+
+    tz_name = tz_w or tz_fallback
+    return datetime.now(_safe_zoneinfo(tz_name)), tz_name, "server_clock"
+
+
 def _extract_now_from_live_weather(live_weather: str | None) -> tuple[datetime | None, str | None]:
     """
     Try to parse Open-Meteo snapshot JSON:
@@ -59,11 +124,8 @@ def _extract_now_from_live_weather(live_weather: str | None) -> tuple[datetime |
     except Exception:
         return None, None
 
-def _format_now_block(live_weather: str | None) -> str:
-    dt, tz_name = _extract_now_from_live_weather(live_weather)
-    if dt is None:
-        tz_name = tz_name or (os.getenv("TZ_NAME") or "Asia/Tokyo")
-        dt = datetime.now(_safe_zoneinfo(tz_name))
+def _format_now_block(live_weather: str | None, request_datetime: str | None = None) -> str:
+    dt, tz_name, src = _resolve_now_datetime(live_weather, request_datetime)
 
     today = dt.date()
     tomorrow = today + timedelta(days=1)
@@ -76,6 +138,8 @@ def _format_now_block(live_weather: str | None) -> str:
 
     wd = _WEEKDAYS[dt.weekday()]
     return (
+        f"- source: {src}\n"
+        f"- request_datetime: {request_datetime}\n" if request_datetime else ""
         f"- local_datetime: {dt.strftime('%Y-%m-%d %H:%M')} {dt.tzname() or ''} ({wd})\n"
         f"- timezone: {tz_name}\n"
         f"- today: {today.isoformat()}\n"
