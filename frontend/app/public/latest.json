@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-04T02:51:16Z",
+  "id": "feed_20260104_114610_JST",
   "date": "2026-01-04",
   "text": "Good morning! 🌞 It's a sunny day in Yokosuka with a comfortable temperature of 9.9°C! Head to Verny Park for some fresh air and maybe catch the New Year Countdown event tonight 🎇️🕰️: (check schedule for food trucks and live music)",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-04T02:51:16Z",
+  "permalink": "./?post=feed_20260104_114610_JST",
+  "image_url": "./image/feed_20260104_114610_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning! 🌞 It's a sunny day in Yokosuka with a comfortable temperature of 9.9°C! Head to Verny Park for some fresh air and maybe catch the New Year Countdown event tonight 🎇️🕰️: (check schedule for food trucks and live music)",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-04T02:54:24Z"
 }
