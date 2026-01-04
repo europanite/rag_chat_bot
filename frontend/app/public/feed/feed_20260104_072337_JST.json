@@ -1,0 +1,64 @@
+{
+  "id": "feed_20260104_072337_JST",
+  "date": "2026-01-03",
+  "text": "Good morning! 🌞 According to Yokosuka's weather forecast, today is sunny with a high of 2.3°C and gentle winds. ☀️ Perfect winter morning for a stroll around Verny Park during the Yokosuka Countdown 2026 event! #Yokosuka",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-03T22:28:26Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-03T22:23:38.876952+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-04T07:10:00+09:00",
+      "temp_c": 2.3,
+      "apparent_temp_c": null,
+      "humidity_pct": 48.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 6.84,
+      "wind_dir_deg": 0.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-04",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-05",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 12.0,
+      "temp_min_c": 4.0,
+      "weather_text_ja": "晴れ　時々　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": 0
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-04T05:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [],
+  "legacy_id": "2026-01-03T22:28:26Z",
+  "permalink": "./?post=feed_20260104_072337_JST",
+  "image_url": "./image/feed_20260104_072337_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning! 🌞 According to Yokosuka's weather forecast, today is sunny with a high of 2.3°C and gentle winds. ☀️ Perfect winter morning for a stroll around Verny Park during the Yokosuka Countdown 2026 event! #Yokosuka",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-03T22:31:32Z"
+}

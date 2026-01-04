@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260104_110516_JST",
-  "date": "2026-01-04",
-  "text": "Good afternoon! ☀️ It's a mild winter day in Yokosuka, with a temperature of 9.9°C and 34% humidity. Perfect weather to enjoy the exhibition at Verny Park 🎨🌳. Don't miss it!",
+  "id": "feed_20260104_022153_JST",
+  "date": "2026-01-03",
+  "text": "Good morning! 🌅 It's a chilly winter evening in Yokosuka, with clear skies and a temp of 3.4°C. Enjoy the illumination at Verny Park tonight! 🎄 #Yokosuka #Illumination",
   "place": "Yokosuka",
-  "generated_at": "2026-01-04T02:10:03Z",
+  "generated_at": "2026-01-03T17:26:40Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-04T02:05:19.084994+00:00",
+    "generated_at": "2026-01-03T17:21:55.531453+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-04T10:50:00+09:00",
-      "temp_c": 9.9,
+      "time": "2026-01-04T02:10:00+09:00",
+      "temp_c": 3.4,
       "apparent_temp_c": null,
-      "humidity_pct": 34.0,
+      "humidity_pct": 48.0,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": null,
-      "wind_kmh": 4.680000000000001,
+      "wind_kmh": 6.48,
       "wind_dir_deg": 45.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -40,25 +40,25 @@
       "weather_code": 2,
       "precip_sum_mm": null,
       "wind_max_kmh": null,
-      "temp_max_c": null,
-      "temp_min_c": null,
+      "temp_max_c": 12.0,
+      "temp_min_c": 4.0,
       "weather_text_ja": "晴れ　時々　くもり",
       "jma_weather_code": "101",
-      "precip_prob_pct": 0
+      "precip_prob_pct": null
     },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
-      "report_datetime": "2026-01-04T11:00:00+09:00",
+      "report_datetime": "2026-01-03T17:00:00+09:00",
       "office_code": "140000",
       "area_code": null,
       "temp_city_code": null
     }
   },
   "links": [],
-  "legacy_id": "2026-01-04T02:10:03Z",
-  "permalink": "./?post=feed_20260104_110516_JST",
-  "image_url": "./image/feed_20260104_110516_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good afternoon! ☀️ It's a mild winter day in Yokosuka, with a temperature of 9.9°C and 34% humidity. Perfect weather to enjoy the exhibition at Verny Park 🎨🌳. Don't miss it!",
+  "legacy_id": "2026-01-03T17:26:40Z",
+  "permalink": "./?post=feed_20260104_022153_JST",
+  "image_url": "./image/feed_20260104_022153_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning! 🌅 It's a chilly winter evening in Yokosuka, with clear skies and a temp of 3.4°C. Enjoy the illumination at Verny Park tonight! 🎄 #Yokosuka #Illumination",
   "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2026-01-04T02:12:48Z"
+  "image_generated_at": "2026-01-03T17:29:58Z"
 }
