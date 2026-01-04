@@ -684,6 +684,7 @@ def main() -> int:
         datetime=req_datetime,
         links=req_links,
     )
+    print(payload)
 
     if debug:
         print(f"DEBUG: JSON_PAYLOAD={json.dumps(payload, ensure_ascii=False)}", file=sys.stderr)
