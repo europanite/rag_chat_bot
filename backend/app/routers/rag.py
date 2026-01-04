@@ -736,6 +736,7 @@ def _build_chat_prompts(
     output_style: str,
     max_words: int,
     place_hint: str | None,
+    request_datetime: str | None = None,
 ) -> tuple[str, str]:
     if output_style != "tweet_bot":
         system = "You answer using the given context."
@@ -751,7 +752,8 @@ def _build_chat_prompts(
     hashtags = _get_bot_hashtags()
     place = place_hint or os.getenv("PLACE") or "your area"
 
-    now_block = _format_now_block(live_weather)
+    now_dt, tz_name_for_now, _src = _resolve_now_datetime(live_weather, request_datetime)
+    now_block = _format_now_block(live_weather, request_datetime=request_datetime)
 
     system = (
         f"You are {bot_name}, a friendly English local story bot for {place} (locals, familes and tourists). "
@@ -760,6 +762,7 @@ def _build_chat_prompts(
         "Show only real existing URLs.\n"
         "TIME AWARENESS:\n"
         "- Treat NOW (in user prompt) as the current local datetime.\n"
+        "- If NOW.source is 'request_datetime', it is authoritative even if LIVE WEATHER differs.\n"
         "- Do NOT recommend events that are already in the past relative to NOW.\n"
         "- If you use words like 'today', 'tomorrow', or 'this weekend', they must match NOW.\n"
         "STYLE:\n"
@@ -771,7 +774,31 @@ def _build_chat_prompts(
     def _sample_context(ctx: list[str], seed_text: str, k: int = 8, pool: int = 18) -> list[str]:
         if not ctx:
             return []
+
         cand = ctx[: min(len(ctx), pool)]
+
+        # Prefer recent context when DATETIME metadata exists
+        tz = _safe_zoneinfo(tz_name_for_now)
+
+        def _ctx_dt(txt: str) -> datetime | None:
+            m = re.search(r"(?im)^\\s*DATETIME\\s*:\\s*(.+?)\\s*$", txt or "")
+            if not m:
+                return None
+            return _parse_datetime_like(m.group(1), tz_name_for_now)
+
+        dated: list[tuple[datetime, str]] = []
+        undated: list[str] = []
+        for c in cand:
+            d = _ctx_dt(c)
+            if d is None:
+                undated.append(c)
+            else:
+                dated.append((d.astimezone(tz), c))
+
+        dated.sort(key=lambda x: x[0], reverse=True)
+        ordered = [c for _d, c in dated] + undated
+
+
         seed = int(hashlib.sha256(seed_text.encode("utf-8")).hexdigest()[:8], 16)
         rng = random.Random(seed)
         rng.shuffle(cand)
@@ -784,6 +811,7 @@ def _build_chat_prompts(
     user = (
         "NOW (for time reasoning):\n"
         f"{now_block}\n"
+        f"REQUEST_DATETIME (authoritative): {request_datetime}\n" if request_datetime else ""
         "LIVE WEATHER:\n"
         f"{live_block}\n\n"
         "RAG CONTEXT:\n"
@@ -1054,6 +1082,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         output_style=payload.output_style,
         max_words=payload.max_words,
         place_hint=place_hint,
+        request_datetime=payload.datetime,
     )
 
     system_prompt, user_prompt = _augment_prompts_with_url_policy(
@@ -1100,10 +1129,12 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
             if payload.datetime:
                 audit_question = f"REQUEST_DATETIME: {payload.datetime}\n" + audit_question
             if req_links:
-                audit_question = "REQUEST_LINKS:\n" + "\n".join(f"- {u}" for u in req_links[:10])
+                audit_question = (
+                    "REQUEST_LINKS:\n" + "\n".join(f"- {u}" for u in req_links[:10]) + "\n\n" + audit_question
+                )
 
             audit_result = _run_answer_audit(
-                question=payload.question,
+                question=audit_question,
                 answer=answer,
                 rag_context=audit_context,
                 live_weather=live_extra,
