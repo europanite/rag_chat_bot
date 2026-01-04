@@ -422,10 +422,9 @@ def build_question(
         "- GREETIN\n"
         "- WEATHER_TOPIC(Simply descrive weather(use only sunny, cloudy, windy, chilly, rainy with temperarure, No humid)\n"
         "- Local Spots or upcoming events\n"
-        f"NOW (local, reference): {now_local.strftime('%Y-%m-%d %H:%M')} {now_local.tzname() or ''} ({now_local:%a}).\n"
+        f"NOW (local, reference): {now_local.strftime('%Y-%m-%d %H:%M:S')} {now_local.tzname() or ''} ({now_local:%a}).\n"
+        f"datetime: {datetime}.\n"
         "TIME & GREETING (IMPORTANT):\n"
-        "- Determine the local datetime from LIVE WEATHER JSON.\n"
-        "- Prefer LIVE WEATHER.current.time and LIVE WEATHER.timezone.\n"
         "  If today's local date matches one of these, start with that greeting and do NOT use the hour-based greetings.\n"
         "- Otherwise, start with exactly one greeting based on local hour:\n"
         "  * 05:00-11:59 => 'Good morning'\n"
@@ -433,7 +432,6 @@ def build_question(
         "  * 17:00-23:59 => 'Good evening'\n"
         "  * 00:00-04:59 => 'Good night'\n"
         "\n"
-        "Decide the greeting using the local time in LIVE WEATHER JSON (current.time + timezone; assume Asia/Tokyo if missing).\n"
         "If you use words like 'tonight', 'this evening', 'later tonight', 'later today', they must match NOW.\n"
         "If the event date is not today, say “tomorrow” or include an explicit date (e.g., Dec 31).\n"
         f"TOPIC FAMILY: {topic_family} (event/place/chat).\n"
@@ -443,7 +441,6 @@ def build_question(
         "You may include at most one official URL only if it exists in the chosen text.\n"
         f"Write up to {max_words} characters.\n"
         f"links: {links}.\n"
-        f"datetime: {datetime}.\n"
     )
 
 
