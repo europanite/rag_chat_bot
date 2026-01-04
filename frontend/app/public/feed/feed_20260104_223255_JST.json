@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-04T13:37:24Z",
+  "id": "feed_20260104_223255_JST",
   "date": "2026-01-04",
   "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good evening! 😊 It's a chilly night in Yokosuka with a comfortable temperature of 7.7°C. Perfect excuse to grab a warm drink and try some delicious curry ramen at one of our cozy cafes! 🍜🔥 Don't miss out on the fun at !",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-04T13:37:24Z",
+  "permalink": "./?post=feed_20260104_223255_JST",
+  "image_url": "./image/feed_20260104_223255_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good evening! 😊 It's a chilly night in Yokosuka with a comfortable temperature of 7.7°C. Perfect excuse to grab a warm drink and try some delicious curry ramen at one of our cozy cafes! 🍜🔥 Don't ",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-04T13:40:40Z"
 }
