@@ -728,6 +728,210 @@ def _augment_prompts_with_url_policy(
     usr2 = (user_prompt or "") + urls_block
     return sys2, usr2
 
+
+def _first_nonempty_line(text: str) -> str:
+    for line in (text or "").splitlines():
+        s = line.strip()
+        if s:
+            return s
+    return ""
+
+
+def _extract_label_value(text: str, label: str) -> str | None:
+    m = re.search(rf"(?im)^\s*{re.escape(label)}\s*:\s*(.+?)\s*$", text or "")
+    if not m:
+        return None
+    v = m.group(1).strip()
+    return v if v else None
+
+
+def _links_from_meta(meta: dict[str, Any]) -> list[str]:
+    def _clean_list(val: Any, *, split_commas: bool = False) -> list[str]:
+        if val is None:
+            return []
+        if isinstance(val, list):
+            return [str(x).strip() for x in val if isinstance(x, (str, int, float)) and str(x).strip()]
+        if isinstance(val, str):
+            s = val.strip()
+            if not s:
+                return []
+            if split_commas and "," in s:
+                return [p.strip() for p in s.split(",") if p.strip()]
+            return [s]
+        if isinstance(val, (int, float)):
+            return [str(val)]
+        return []
+
+    links: list[str] = []
+    for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
+        links.extend(_clean_list((meta or {}).get(k), split_commas=True))
+
+    links = [u.strip() for u in links if isinstance(u, str) and u.strip()]
+    links = [u for u in links if u.startswith("http://") or u.startswith("https://")]
+    # normalize + dedupe while preserving order
+    out: list[str] = []
+    seen: set[str] = set()
+    for u in links:
+        nu = _normalize_url(u)
+        if nu and nu not in seen:
+            out.append(nu)
+            seen.add(nu)
+    return out
+
+
+def _select_required_context(
+    chunks: list[RAGChunk],
+    *,
+    fallback_links: list[str] | None = None,
+) -> tuple[str | None, str | None]:
+    """
+    Pick a (mention, url) pair to force into the tweet:
+    - Prefer a chunk that has BOTH a clear mention (TITLE/PLACE) and at least one link.
+    - Otherwise, prefer a chunk that has a clear mention.
+    - As a last resort, fall back to the first non-empty line of the top chunk.
+    """
+    fallback_links = fallback_links or []
+
+    best_mention: str | None = None
+    best_links: list[str] = []
+
+    for c in chunks or []:
+        meta = c.metadata if isinstance(c.metadata, dict) else {}
+
+        mention = (
+            (str(meta.get("title")).strip() if isinstance(meta.get("title"), str) else "")
+            or (str(meta.get("place")).strip() if isinstance(meta.get("place"), str) else "")
+            or (_extract_label_value(c.text, "TITLE") or "")
+            or (_extract_label_value(c.text, "PLACE") or "")
+        ).strip() or None
+
+        links = _links_from_meta(meta)
+
+        if mention and links:
+            return mention, links[0]
+
+        if best_mention is None and mention:
+            best_mention = mention
+            best_links = links
+
+    if best_mention:
+        return best_mention, (best_links[0] if best_links else (fallback_links[0] if fallback_links else None))
+
+    # no TITLE/PLACE detected — still return something to anchor the tweet
+    if chunks:
+        fallback_mention = _first_nonempty_line(chunks[0].text)[:48].strip() or None
+        return fallback_mention, (fallback_links[0] if fallback_links else None)
+
+    return None, (fallback_links[0] if fallback_links else None)
+
+
+def _project_context_for_tweet(ctx: str, *, max_len: int = 420) -> str:
+    """
+    Convert verbose chunk text into a compact, single-line summary for tweet writing.
+    This helps the model reliably pick a spot/event and associated link.
+    """
+    if not isinstance(ctx, str) or not ctx.strip():
+        return ""
+
+    title = _extract_label_value(ctx, "TITLE")
+    place = _extract_label_value(ctx, "PLACE")
+    dt = _extract_label_value(ctx, "DATETIME")
+
+    urls = sorted(_extract_urls_from_text(ctx))
+    url = urls[0] if urls else None
+
+    base = (ctx.split("----", 1)[0] if "----" in ctx else ctx).strip()
+    base = re.sub(r"\s+", " ", base)
+    if len(base) > 180:
+        base = base[:177].rstrip() + "…"
+
+    parts: list[str] = []
+    if title:
+        parts.append(f"TITLE: {title}")
+    if place:
+        parts.append(f"PLACE: {place}")
+    if dt:
+        parts.append(f"DATETIME: {dt}")
+    if url:
+        parts.append(f"URL: {url}")
+    if base:
+        parts.append(f"SNIPPET: {base}")
+
+    out = " | ".join(parts).strip()
+    if len(out) > max_len:
+        out = out[: max_len - 1].rstrip() + "…"
+    return out
+
+
+def _enforce_tweet_contract(
+    answer: str,
+    *,
+    max_chars: int,
+    required_mention: str | None,
+    required_url: str | None,
+) -> str:
+    """
+    Guarantee:
+    - mention appears verbatim (prefixed at start)
+    - required_url appears exactly once at the end (if provided)
+    - total length <= max_chars, preserving the URL when trimming
+    """
+    text = _strip_wrapping_quotes(_clean_single_line(answer or ""))
+    mention = (required_mention or "").strip()
+    url = _normalize_url(required_url) if isinstance(required_url, str) and required_url.strip() else ""
+
+    # Ensure mention is at the start exactly once
+    if mention:
+        if not text.startswith(mention):
+            if mention in text:
+                text = text.replace(mention, "", 1).strip()
+            text = f"{mention} — {text}".strip() if text else mention
+
+    # Ensure URL is at the end exactly once
+    if url:
+        # remove existing occurrences
+        text = re.sub(re.escape(url) + r"(?=\s|$)", "", text).strip()
+        text = re.sub(r"\s{2,}", " ", text).strip()
+        if text:
+            text = f"{text} {url}".strip()
+        else:
+            text = url
+
+    # Enforce length while preserving URL suffix
+    if max_chars > 0 and len(text) > max_chars:
+        suffix = f" {url}" if (url and text.endswith(url) and len(text) > len(url)) else (url if (url and text == url) else "")
+        base = text[:-len(suffix)].rstrip() if suffix else text
+        base_limit = max_chars - len(suffix)
+        if base_limit <= 0:
+            # can't fit base; return truncated suffix
+            return (suffix or text)[:max_chars].rstrip()
+
+        base = _enforce_max_chars(base, base_limit)
+        text = (base + suffix).strip()
+        if len(text) > max_chars:
+            text = text[:max_chars].rstrip()
+
+    return text
+
+
+def _finalize_answer(
+    answer: str,
+    *,
+    output_style: str,
+    max_chars: int,
+    required_mention: str | None,
+    required_url: str | None,
+) -> str:
+    if output_style == "tweet_bot":
+        return _enforce_tweet_contract(
+            answer,
+            max_chars=max_chars,
+            required_mention=required_mention,
+            required_url=required_url,
+        )
+    return _enforce_max_chars(answer, max_chars)
+
+
 def _build_chat_prompts(
     *,
     question: str,
@@ -737,15 +941,33 @@ def _build_chat_prompts(
     max_words: int,
     place_hint: str | None,
     request_datetime: str | None = None,
+    required_context_mention: str | None = None,
+    required_context_url: str | None = None,
 ) -> tuple[str, str]:
+    """
+    Build (system, user) prompts.
+
+    NOTE: Avoid Python's implicit string concatenation + conditional-expression footguns.
+    Always build prompt parts explicitly to ensure LIVE WEATHER / RAG CONTEXT are never dropped.
+    """
     if output_style != "tweet_bot":
         system = "You answer using the given context."
         ctx = "\n\n".join(rag_context + ([live_weather] if live_weather else []))
-        user = (
-            "Use the context below aside from general knowledge to answer the question.\n\n"
-            f"Context:\n{ctx}\n\n"
-            f"Question:\n{question}\n"
-        )
+
+        parts: list[str] = [
+            "Use the context below aside from general knowledge to answer the question.",
+            "",
+            "Context:",
+            ctx,
+            "",
+            "Question:",
+            question,
+        ]
+        if request_datetime and request_datetime.strip():
+            parts.insert(0, f"REQUEST_DATETIME (authoritative): {request_datetime.strip()}")
+            parts.insert(1, "")
+
+        user = "\n".join(parts).strip() + "\n"
         return system, user
 
     bot_name = _get_bot_name()
@@ -760,11 +982,17 @@ def _build_chat_prompts(
         f"Write one tweet in English within {max_words} characters. "
         "No markdown, no lists, no extra commentary, no quotes.\n"
         "Show only real existing URLs.\n"
+        "\n"
+        "CONTEXT REQUIREMENTS (NON-NEGOTIABLE):\n"
+        "- You MUST mention REQUIRED_CONTEXT_MENTION (from the user prompt) verbatim.\n"
+        "- If REQUIRED_CONTEXT_URL is provided (and appears in Allowed URLs), include it exactly once.\n"
+        "\n"
         "TIME AWARENESS:\n"
         "- Treat NOW (in user prompt) as the current local datetime.\n"
         "- If NOW.source is 'request_datetime', it is authoritative even if LIVE WEATHER differs.\n"
         "- Do NOT recommend events that are already in the past relative to NOW.\n"
         "- If you use words like 'today', 'tomorrow', or 'this weekend', they must match NOW.\n"
+        "\n"
         "STYLE:\n"
         "- Warm, upbeat, practical.\n"
         "- Use emojis.\n"
@@ -774,14 +1002,13 @@ def _build_chat_prompts(
     def _sample_context(ctx: list[str], seed_text: str, k: int = 8, pool: int = 18) -> list[str]:
         if not ctx:
             return []
-
         cand = ctx[: min(len(ctx), pool)]
 
         # Prefer recent context when DATETIME metadata exists
         tz = _safe_zoneinfo(tz_name_for_now)
 
         def _ctx_dt(txt: str) -> datetime | None:
-            m = re.search(r"(?im)^\\s*DATETIME\\s*:\\s*(.+?)\\s*$", txt or "")
+            m = re.search(r"(?im)^\s*DATETIME\s*:\s*(.+?)\s*$", txt or "")
             if not m:
                 return None
             return _parse_datetime_like(m.group(1), tz_name_for_now)
@@ -798,29 +1025,46 @@ def _build_chat_prompts(
         dated.sort(key=lambda x: x[0], reverse=True)
         ordered = [c for _d, c in dated] + undated
 
-
         seed = int(hashlib.sha256(seed_text.encode("utf-8")).hexdigest()[:8], 16)
         rng = random.Random(seed)
-        rng.shuffle(cand)
-        return cand[: min(k, len(cand))]
+        rng.shuffle(ordered)
+        return ordered[: min(k, len(ordered))]
 
     sampled = _sample_context(rag_context, question, k=8, pool=18)
-    rag_lines = "\n".join(f"- {c}" for c in sampled) if sampled else "- (none)"
+
+    # Make tweet-bot context compact (avoid huge multi-line chunks / META_JSON bloat).
+    compacted = [_project_context_for_tweet(c) for c in sampled]
+    rag_lines = "\n".join(f"- {c}" for c in compacted if c) if compacted else "- (none)"
+
     live_block = live_weather.strip() if isinstance(live_weather, str) and live_weather.strip() else "(not available)"
 
-    user = (
-        "NOW (for time reasoning):\n"
-        f"{now_block}\n"
-        f"REQUEST_DATETIME (authoritative): {request_datetime}\n" if request_datetime else ""
-        "LIVE WEATHER:\n"
-        f"{live_block}\n\n"
-        "RAG CONTEXT:\n"
-        f"{rag_lines}\n\n"
-        "TASK:\n"
-        f"{question}\n\n"
-        "Remember: output ONLY the tweet text."
+    parts: list[str] = [
+        "NOW (for time reasoning):",
+        now_block,
+    ]
+    if request_datetime and request_datetime.strip():
+        parts.extend([f"REQUEST_DATETIME (authoritative): {request_datetime.strip()}", ""])
+
+    parts.extend(
+        [
+            "LIVE WEATHER:",
+            live_block,
+            "",
+            "RAG CONTEXT (compact):",
+            rag_lines,
+            "",
+            "REQUIRED FIELDS:",
+            f"REQUIRED_CONTEXT_MENTION: {(required_context_mention or '').strip() or '(not available)'}",
+            f"REQUIRED_CONTEXT_URL: {(required_context_url or '').strip() or '(not available)'}",
+            "",
+            "TASK:",
+            question,
+            "",
+            "Remember: output ONLY the tweet text.",
+        ]
     )
 
+    user = "\n".join(parts).strip() + "\n"
     return system, user
 
 
@@ -1075,6 +1319,15 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
     allowed_urls = _collect_allowed_urls(context_texts, live_extra) | set(req_links)
 
 
+
+    required_mention, required_url_candidate = _select_required_context(
+        chunks,
+        fallback_links=sorted(doc_links),
+    )
+    required_url = _normalize_url(required_url_candidate) if required_url_candidate else None
+    if required_url and required_url not in allowed_urls:
+        required_url = None
+
     system_prompt, user_prompt = _build_chat_prompts(
         question=payload.question,
         rag_context=context_texts,
@@ -1083,6 +1336,8 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         max_words=payload.max_words,
         place_hint=place_hint,
         request_datetime=payload.datetime,
+        required_context_mention=required_mention,
+        required_context_url=required_url,
     )
 
     system_prompt, user_prompt = _augment_prompts_with_url_policy(
@@ -1110,7 +1365,13 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         allowed_urls=allowed_urls,
         allowlist_regexes=_get_allowlist_regexes(),
     )
-    answer = _enforce_max_chars(answer, payload.max_words)
+    answer = _finalize_answer(
+        answer,
+        output_style=payload.output_style,
+        max_chars=payload.max_words,
+        required_mention=required_mention,
+        required_url=required_url,
+    )
 
     # Optional: audit the answer with a second LLM call.
     audit_enabled = payload.audit if payload.audit is not None else _get_audit_default_enabled()
@@ -1166,7 +1427,13 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
             )
             if removed_urls_2:
                 removed_urls = (removed_urls or []) + removed_urls_2
-            answer = _enforce_max_chars(answer, payload.max_words)
+            answer = _finalize_answer(
+                answer,
+                output_style=payload.output_style,
+                max_chars=payload.max_words,
+                required_mention=required_mention,
+                required_url=required_url,
+            )
 
     debug_context: list[str] | None = None
     debug_chunks: list[ChunkOut] | None = None
