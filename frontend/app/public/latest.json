@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-05T23:29:27Z",
+  "id": "feed_20260106_082453_JST",
   "date": "2026-01-05",
   "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! 👋 Enjoy the crisp winter weather in Yokosuka, perfect for a coastal stroll along the waterfront 🏞️. Tomorrow's forecast is looking chilly ⚠️ with a high of 10°C and cloudy skies ☁️. Don't miss  - learn more at [none] 🔜",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-05T23:29:27Z",
+  "permalink": "./?post=feed_20260106_082453_JST",
+  "image_url": "./image/feed_20260106_082453_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! 👋 Enjoy the crisp winter weather in Yokosuka, perfect for a coastal stroll along the waterfront 🏞️. Tomorrow's forecast is looking chilly ⚠️ with a high of 10°C and cloudy skies ☁️.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-05T23:32:59Z"
 }
