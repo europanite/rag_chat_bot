@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-05T05:42:59Z",
+  "id": "feed_20260105_143833_JST",
   "date": "2026-01-05",
   "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good afternoon! As we count down to Yokosuka Countdown 2026 🎉🕰️, enjoy the mild winter weather ⛅️ with a high of 13.7°C today and partly cloudy skies ☁️. Head to Zushi Beach for some relaxing evening strolls before the New Year's celebration! 🏖️",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-05T05:42:59Z",
+  "permalink": "./?post=feed_20260105_143833_JST",
+  "image_url": "./image/feed_20260105_143833_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good afternoon! As we count down to Yokosuka Countdown 2026 🎉🕰️, enjoy the mild winter weather ⛅️ with a high of 13.7°C today and partly cloudy skies ☁️. Head to Zushi Beach for some relaxing eve",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-05T05:46:14Z"
 }
