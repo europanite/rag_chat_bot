@@ -104,7 +104,7 @@ services:
     command: ["npx", "expo", "start", "--tunnel"]
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.13.5
     container_name: ollama
     ports:
       - "11434:11434"

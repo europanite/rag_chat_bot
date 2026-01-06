@@ -394,7 +394,7 @@ def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]
 
 
 def build_question(
-    max_chars: int,
+    max_words: int,
     topic_family: str,
     topic_mode: str,
     now_local: datetime,
@@ -434,9 +434,9 @@ def build_question(
     return (
         "Write a tweet in English.\n"
         "Format.\n"
-        "- GREETIN\n"
+        "- GREETING FIRST\n"
         "- WEATHER_TOPIC(Simply descrive weather(use only sunny, cloudy, windy, chilly, rainy with temperarure, No humid)\n"
-        "- Local Spots or upcoming events\n"
+        "- Local Spots or upcoming events from ONLY RAG CONTEXT\n"
         f"datetime: {datetime}.\n"
         "TIME & GREETING (IMPORTANT):\n"
         "  If today's local date matches one of these, start with that greeting and do NOT use the hour-based greetings.\n"
@@ -453,7 +453,7 @@ def build_question(
         f"HINTS: time_of_day={tod}, season={season}, weather_hint={hint}.\n"
         "Pick up ONE topic and mention only that one from RAG Context that fits the HINTS.\n"
         "You may include at most one official URL only if it exists in the chosen text.\n"
-        f"Write up to {max_chars} characters.\n"
+        f"Write up to {max_words} characters.\n"
         f"links: {links}.\n"
     )
 
@@ -462,7 +462,7 @@ def build_payload(
     question: str,
     top_k: int,
     snap_json_raw: str,
-    max_chars: int,
+    max_words: int,
     include_debug: bool,
     datetime: str | None = None,
     links: list[str] | None = None,
@@ -474,7 +474,7 @@ def build_payload(
     payload: dict = {
         "question": question,
         "top_k": top_k,
-        "max_chars": max_chars,
+        "max_words": max_words,
         "include_debug": include_debug,
         "output_style": "tweet_bot",
         "extra_context": snap_json_raw,  # live weather snapshot JSON
@@ -613,7 +613,7 @@ def main() -> int:
     if top_k > 128:
         print(f"ERROR: RAG_TOP_K={top_k} is invalid. Backend requires top_k <= 128.", file=sys.stderr)
         return 1
-    max_chars = env("MAX_WORDS", "128") or "128"
+    max_words = env("MAX_WORDS", "128") or "128"
     hashtags = env("HASHTAGS", "")
 
     now_local = local_stamp(tz_name)
@@ -635,7 +635,7 @@ def main() -> int:
     print(tz_name)
     print(f"API_BASE: {api_base}")
     print(f"WEATHER: lat={lat} lon={lon} tz={tz_name} place='{place}'")
-    print(f"TOP_K={top_k} MAX_WORDS={max_chars}")
+    print(f"TOP_K={top_k} MAX_WORDS={max_words}")
     print(f"FEED_PATHS={feed_paths_raw}")
     print(f"LATEST_PATHS={latest_paths_raw}")
 
@@ -682,7 +682,7 @@ def main() -> int:
     req_links: list[str] = []
     req_datetime = now_dt_local.isoformat()
     question = build_question(
-        max_chars=max_chars,
+        max_words=max_words,
         topic_family=topic_family,
         topic_mode=topic_mode,
         now_local=now_dt_local,
@@ -697,7 +697,7 @@ def main() -> int:
         question=question,
         top_k=top_k,
         snap_json_raw=snap_json_raw,
-        max_chars=max_chars,
+        max_words=max_words,
         include_debug=include_debug,
         datetime=req_datetime,
         links=req_links,
