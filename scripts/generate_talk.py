@@ -50,6 +50,21 @@ def env(name: str, default: str = "") -> str:
     return default if v is None else v
 
 
+
+
+def env_bool(name: str, default: bool = False) -> bool:
+    v = env(name, None)
+    if v is None:
+        return bool(default)
+    v2 = str(v).strip().lower()
+    if v2 in ("1", "true", "yes", "y", "on"):
+        return True
+    if v2 in ("0", "false", "no", "n", "off"):
+        return False
+    # fallback: any non-empty value means True
+    return True
+
+
 def is_blank(s: str) -> bool:
     return not s or not s.strip()
 
@@ -422,7 +437,6 @@ def build_question(
         "- GREETIN\n"
         "- WEATHER_TOPIC(Simply descrive weather(use only sunny, cloudy, windy, chilly, rainy with temperarure, No humid)\n"
         "- Local Spots or upcoming events\n"
-        f"NOW (local, reference): {now_local.strftime('%Y-%m-%d %H:%M:S')} {now_local.tzname() or ''} ({now_local:%a}).\n"
         f"datetime: {datetime}.\n"
         "TIME & GREETING (IMPORTANT):\n"
         "  If today's local date matches one of these, start with that greeting and do NOT use the hour-based greetings.\n"
@@ -452,21 +466,26 @@ def build_payload(
     include_debug: bool,
     datetime: str | None = None,
     links: list[str] | None = None,
+    *,
+    audit: bool | None = None,
+    audit_rewrite: bool | None = None,
 ) -> dict:
-    # Keep current bash behavior: send snapshot as extra_context string;
-    payload = {
+    # Keep current behavior: send the weather snapshot as `extra_context` (JSON string).
+    payload: dict = {
         "question": question,
         "top_k": top_k,
         "max_words": max_words,
         "include_debug": include_debug,
         "output_style": "tweet_bot",
         "extra_context": snap_json_raw,  # live weather snapshot JSON
-        "datetime":datetime,
-        "links":links
+        "datetime": datetime,
+        "links": links,
     }
+    if audit is not None:
+        payload["audit"] = audit
+    if audit_rewrite is not None:
+        payload["audit_rewrite"] = audit_rewrite
     return payload
-
-
 def extract_tweet(resp_obj: Dict[str, Any]) -> str:
     ans = (resp_obj.get("answer") or "").strip()
     return normalize_answer(ans)
@@ -600,7 +619,7 @@ def main() -> int:
     now_local = local_stamp(tz_name)
     # Output paths (match bash behavior)
     feed_path_dir = env("FEED_PATH", "")
-    latest_path_default = env("LATEST_PATH", "frontend/app/public/latest.json") or "frontend/app/public/latest.json"
+    latest_path_default = env("LATEST_PATH", "frontend/app/public/latest.json")
     computed_feed_path = str(Path(feed_path_dir) / "feed" / f"feed_{now_local}.json") if feed_path_dir else ""
 
     feed_paths_raw = env("FEED_PATHS", "")
@@ -672,6 +691,8 @@ def main() -> int:
         datetime=req_datetime,
     )
     include_debug=1
+    audit = env_bool("RAG_AUDIT", default=True)
+    audit_rewrite = env_bool("RAG_AUDIT_REWRITE", default=True)
     payload = build_payload(
         question=question,
         top_k=top_k,
@@ -680,6 +701,8 @@ def main() -> int:
         include_debug=include_debug,
         datetime=req_datetime,
         links=req_links,
+        audit=audit,
+        audit_rewrite=audit_rewrite,
     )
     print(payload)
 
