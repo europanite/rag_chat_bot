@@ -2,7 +2,7 @@ name: Feed
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 4,10,12,14,16,18 * * *'
   workflow_dispatch:
 
 permissions:
