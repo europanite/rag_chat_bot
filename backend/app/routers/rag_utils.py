@@ -79,112 +79,170 @@ def extract_urls_from_text(text: str) -> list[str]:
     return out
 
 
-def collect_allowed_urls(*parts: str, extra_urls: Optional[Iterable[str]] = None) -> set[str]:
-    allowed: set[str] = set()
-    for p in parts:
-        for u in extract_urls_from_text(p or ""):
-            allowed.add(u)
-    if extra_urls:
-        for u in extra_urls:
-            if u:
-                allowed.add(normalize_url(u))
+def collect_allowed_urls(*, user_links: list[str], rag_chunks: list[RAGChunk], extra_text: Optional[str]) -> set[str]:
+    allowed = set()
+    for u in user_links or []:
+        u2 = normalize_url(u)
+        if u2:
+            allowed.add(u2)
+
+    # from retrieved chunks metadata
+    for c in rag_chunks or []:
+        md = c.metadata or {}
+        for k in ("url", "source", "link"):
+            if md.get(k):
+                allowed.add(normalize_url(str(md.get(k))))
+
+    # from extra_text
+    for u in extract_urls_from_text(extra_text or ""):
+        allowed.add(u)
+
+    # remove weird bare schemes
+    allowed = {u for u in allowed if u and not _BARE_SCHEME_RE.search(u)}
     return allowed
 
 
 def filter_answer_urls(answer: str, allowed_urls: set[str]) -> tuple[str, list[str]]:
     if not answer:
         return answer, []
+    allowed_norm = {normalize_url(u) for u in allowed_urls if u}
     removed: list[str] = []
-    filtered = answer
-    for u in extract_urls_from_text(answer):
-        if u not in allowed_urls:
+
+    def repl(m: re.Match) -> str:
+        u = normalize_url(m.group(0))
+        if u and u not in allowed_norm:
             removed.append(u)
-            filtered = filtered.replace(u, "")
-    filtered = re.sub(r"\s{2,}", " ", filtered).strip()
-    return filtered, removed
+            return ""
+        return m.group(0)
+
+    cleaned = _URL_RE.sub(repl, answer)
+    cleaned = re.sub(r"\s+\n", "\n", cleaned).strip()
+    return cleaned, removed
 
 
-def chunk_id(meta: dict[str, Any], text: str) -> str:
-    meta = meta or {}
-    for k in ("id", "chunk_id", "uid"):
-        if meta.get(k):
-            return str(meta[k])
-    if meta.get("url"):
-        return str(meta["url"])
-    return hashlib.sha1((text or "").encode("utf-8", errors="ignore")).hexdigest()[:10]
-
-
-def select_required_context(chunks: list[RAGChunk]) -> tuple[str, str]:
+def _chunk_best_url(chunks: list[RAGChunk], allowed_urls: set[str]) -> Optional[str]:
     if not chunks:
-        return ("", "")
-    best = chunks[0]
-    meta = best.metadata or {}
-    url = meta.get("url") or (extract_urls_from_text(best.text)[0] if extract_urls_from_text(best.text) else "")
-    title = meta.get("title") or ""
-    place = meta.get("place") or ""
+        return None
+    allowed_norm = {normalize_url(u) for u in allowed_urls if u}
+    for c in chunks:
+        md = c.metadata or {}
+        u = md.get("url") or md.get("source") or md.get("link")
+        if u:
+            u2 = normalize_url(str(u))
+            if u2 and u2 in allowed_norm:
+                return u2
+    return None
 
-    mention = title.strip() or (best.text.strip().splitlines()[0][:80] if best.text else "")
-    if place.strip() and place.lower() not in mention.lower():
-        mention = f"{mention} ({place.strip()})".strip()
-    return mention, normalize_url(url)
+
+def _pick_required_mention(chunks: list[RAGChunk]) -> str:
+    if not chunks:
+        return "RAG"
+    c0 = chunks[0]
+    md = c0.metadata or {}
+    title = md.get("title") or md.get("name") or md.get("spot") or md.get("event")
+    if title:
+        return str(title)
+    # fallback: hash prefix from text
+    t = (c0.text or "").strip()
+    if not t:
+        return "RAG"
+    h = hashlib.sha1(t.encode("utf-8", errors="ignore")).hexdigest()[:8]
+    return f"RAG:{h}"
 
 
-def project_context_for_prompt(chunks: list[RAGChunk], *, style: str, max_items: int = 8) -> str:
-    items: list[str] = []
-    for c in chunks[:max_items]:
-        t = (c.text or "").strip()
-        if not t:
+def select_required_context(chunks: list[RAGChunk], allowed_urls: set[str]) -> tuple[str, str]:
+    mention = _pick_required_mention(chunks)
+    url = _chunk_best_url(chunks, allowed_urls)
+    if not url:
+        # fallback: any allowed url
+        url = next(iter(allowed_urls), "https://example.com")
+    return mention, url
+
+
+def _join_context(context_texts: Iterable[str], limit_chars: int = 6000) -> str:
+    out: list[str] = []
+    used = 0
+    for t in context_texts:
+        s = (t or "").strip()
+        if not s:
             continue
-        if style == "tweet_bot":
-            t = re.sub(r"\s+", " ", t)[:280]
-        items.append(f"- {t}")
-    return "\n".join(items)
+        if used + len(s) + 2 > limit_chars:
+            break
+        out.append(s)
+        used += len(s) + 2
+    return "\n\n".join(out)
 
 
 def build_chat_prompts(
     *,
     question: str,
     now_block: str,
-    chunks: list[RAGChunk],
-    extra_context: str,
-    output_style: str,
+    context_texts: list[str],
+    live_extra: Optional[str],
     required_mention: str,
     required_url: str,
-    allowed_urls: set[str],
+    output_style: str,
     max_chars: int,
+    audit_feedback: Optional[str] = None,
+    previous_answer: Optional[str] = None,
 ) -> tuple[str, str]:
-    bot_name = get_bot_name()
-    hashtags = get_bot_hashtags() if output_style == "tweet_bot" else ""
+    sys_lines = [
+        "You are a helpful assistant.",
+        "You MUST follow the requirements exactly.",
+        "If you are unsure, be conservative and avoid hallucinations.",
+        f"Output style: {output_style}",
+    ]
 
-    allowed_list = "\n".join(f"- {u}" for u in sorted(allowed_urls)) if allowed_urls else "(none)"
+    user_lines = [
+        now_block.strip(),
+        "",
+        f"[QUESTION]\n{question}\n[/QUESTION]",
+        "",
+        f"[RAG_CONTEXT]\n{_join_context(context_texts)}\n[/RAG_CONTEXT]",
+    ]
 
-    system_prompt = f"""You are {bot_name}.
-Hard requirements:
-- You MUST mention: "{required_mention}"
-- You MUST include this URL exactly once: "{required_url}"
-- tweet_bot => single line, <= {max_chars} chars
-- Do NOT invent URLs. Use only allowed URLs.
-"""
+    if live_extra:
+        user_lines += ["", f"[LIVE_CONTEXT]\n{live_extra.strip()}\n[/LIVE_CONTEXT]"]
 
-    ctx_block = project_context_for_prompt(chunks, style=output_style)
+    # strict requirements
+    user_lines += [
+        "",
+        "[REQUIREMENTS]",
+        f"- You must mention: {required_mention}",
+        f"- You must include this URL exactly once: {required_url}",
+        f"- Keep within {max_chars} characters (hard limit).",
+        "- Do not include any other URLs.",
+        "[/REQUIREMENTS]",
+    ]
 
-    user_prompt = f"""NOW: {now_block}
+    if previous_answer:
+        user_lines += ["", f"[PREVIOUS_ANSWER]\n{previous_answer}\n[/PREVIOUS_ANSWER]"]
 
-QUESTION:
-{question}
+    if audit_feedback:
+        user_lines += ["", f"[AUDIT_FEEDBACK]\n{audit_feedback}\n[/AUDIT_FEEDBACK]"]
 
-EXTRA CONTEXT:
-{extra_context.strip() if extra_context else "(none)"}
+    user_lines += ["", "Answer now."]
 
-RAG CONTEXT:
-{ctx_block}
+    return "\n".join(sys_lines).strip(), "\n".join(user_lines).strip()
 
-ALLOWED URLs:
-{allowed_list}
 
-Hashtags you may use if they fit: {hashtags}
-"""
-    return system_prompt, user_prompt
+def _ensure_required(answer: str, required_mention: str, required_url: str) -> str:
+    a = (answer or "").strip()
+    if required_mention and required_mention not in a:
+        # append a short mention
+        a = (a + f"\n\n({required_mention})").strip()
+    if required_url and required_url not in a:
+        a = (a + f"\n{required_url}").strip()
+    return a
+
+
+def _trim_to_chars(text: str, max_chars: int) -> str:
+    if max_chars <= 0:
+        return text
+    s = text or ""
+    if len(s) <= max_chars:
+        return s
+    return s[: max_chars - 1].rstrip() + "…"
 
 
 def finalize_answer(
@@ -195,25 +253,18 @@ def finalize_answer(
     required_mention: str,
     required_url: str,
 ) -> str:
-    s = (raw_answer or "").strip().strip('"').strip()
-    s = _BARE_SCHEME_RE.sub("", s).replace("()", "").strip()
+    a = (raw_answer or "").strip()
+
+    # normalize whitespace a bit
+    a = re.sub(r"[ \t]+\n", "\n", a)
+    a = re.sub(r"\n{3,}", "\n\n", a).strip()
+
+    a = _ensure_required(a, required_mention, required_url)
 
     if output_style == "tweet_bot":
-        s = re.sub(r"\s+", " ", s.replace("\n", " ").replace("\r", " ")).strip()
+        a = _trim_to_chars(a, max_chars)
+    else:
+        # keep max_chars for safety
+        a = _trim_to_chars(a, max_chars)
 
-    if required_mention and required_mention.lower() not in s.lower():
-        s = f"{required_mention} — {s}".strip(" —")
-    if required_url and required_url not in s:
-        s = f"{s} {required_url}".strip()
-
-    if output_style == "tweet_bot" and len(s) > max_chars:
-        suffix = f" {required_url}".strip() if required_url and required_url in s else ""
-        base = s.replace(suffix, "").strip() if suffix else s
-        reserve = len(suffix) + 2
-        avail = max(0, max_chars - reserve)
-        trimmed = base[:avail].rstrip()
-        if " " in trimmed:
-            trimmed = trimmed.rsplit(" ", 1)[0].rstrip()
-        s = f"{trimmed} … {suffix}".strip()[:max_chars]
-
-    return s.strip()
+    return a.strip()
