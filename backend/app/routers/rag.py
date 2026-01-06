@@ -209,7 +209,7 @@ class QueryRequest(BaseModel):
         description="Controls output style. 'tweet_bot' produces a single friendly tweet-like post.",
     )
 
-    max_words: int = Field(
+    max_chars: int = Field(
         default=512,
         ge=50,
         le=1024,
@@ -585,10 +585,10 @@ def _strip_wrapping_quotes(text: str) -> str:
     return s
 
 
-def _enforce_max_chars(text: str, max_words: int) -> str:
-    if max_words <= 0 or len(text) <= max_words:
+def _enforce_max_chars(text: str, max_chars: int) -> str:
+    if max_chars <= 0 or len(text) <= max_chars:
         return text
-    cut = text[: max_words - 1]
+    cut = text[: max_chars - 1]
     if " " in cut:
         cut = cut.rsplit(" ", 1)[0]
     return cut.rstrip() + "…"
@@ -938,7 +938,7 @@ def _build_chat_prompts(
     rag_context: list[str],
     live_weather: str | None,
     output_style: str,
-    max_words: int,
+    max_chars: int,
     place_hint: str | None,
     request_datetime: str | None = None,
     required_context_mention: str | None = None,
@@ -979,7 +979,7 @@ def _build_chat_prompts(
 
     system = (
         f"You are {bot_name}, a friendly English local story bot for {place} (locals, familes and tourists). "
-        f"Write one tweet in English within {max_words} characters. "
+        f"Write one tweet in English within {max_chars} characters. "
         "No markdown, no lists, no extra commentary, no quotes.\n"
         "Show only real existing URLs.\n"
         "\n"
@@ -1333,7 +1333,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
         rag_context=context_texts,
         live_weather=live_extra,
         output_style=payload.output_style,
-        max_words=payload.max_words,
+        max_chars=payload.max_chars,
         place_hint=place_hint,
         request_datetime=payload.datetime,
         required_context_mention=required_mention,
@@ -1368,7 +1368,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
     answer = _finalize_answer(
         answer,
         output_style=payload.output_style,
-        max_chars=payload.max_words,
+        max_chars=payload.max_chars,
         required_mention=required_mention,
         required_url=required_url,
     )
@@ -1401,7 +1401,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
                 live_weather=live_extra,
                 allowed_urls=allowed_urls,
                 output_style=payload.output_style,
-                max_chars=payload.max_words,
+                max_chars=payload.max_chars,
                 audit_model=audit_model,
                 include_raw=bool(payload.include_debug),
             )
@@ -1430,7 +1430,7 @@ def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
             answer = _finalize_answer(
                 answer,
                 output_style=payload.output_style,
-                max_chars=payload.max_words,
+                max_chars=payload.max_chars,
                 required_mention=required_mention,
                 required_url=required_url,
             )
