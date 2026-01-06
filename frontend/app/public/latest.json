@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-06T08:17:17Z",
+  "id": "feed_20260106_170925_JST",
   "date": "2026-01-06",
   "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good evening! Head to Yokosuka's Sanbu Shrine this winter for a peaceful stroll amidst the cold. Enjoy the serene atmosphere and take in the sights of the traditional Japanese architecture. #Yokosuka",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-06T08:17:17Z",
+  "permalink": "./?post=feed_20260106_170925_JST",
+  "image_url": "./image/feed_20260106_170925_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good evening! Head to Yokosuka's Sanbu Shrine this winter for a peaceful stroll amidst the cold. Enjoy the serene atmosphere and take in the sights of the traditional Japanese architecture. #Yoko",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-06T08:20:34Z"
 }
