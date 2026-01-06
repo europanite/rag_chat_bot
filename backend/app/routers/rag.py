@@ -2,161 +2,53 @@ from __future__ import annotations
 
 import logging
 import os
-import re
 from http import HTTPStatus
-from typing import Any, Literal
-import json
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
-import rag_store
+from typing import Any, Callable, Literal, Optional
+
 import requests
-import hashlib
-import random
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
+
+import rag_store
 from rag_store import RAGChunk
-from weather_service import *
+
+# --- Import split modules (works both as package and flat) ---
+try:
+    from .rag_utils import (
+        truthy_env,
+        resolve_now_datetime,
+        collect_allowed_urls,
+        filter_answer_urls,
+        select_required_context,
+        build_chat_prompts,
+        finalize_answer,
+        get_output_style_default,
+        get_max_chars_default,
+    )
+    from .rag_audit import run_answer_audit, AuditResult as AuditResultLite
+except Exception:  # pragma: no cover
+    from rag_utils import (  # type: ignore
+        truthy_env,
+        resolve_now_datetime,
+        collect_allowed_urls,
+        filter_answer_urls,
+        select_required_context,
+        build_chat_prompts,
+        finalize_answer,
+        get_output_style_default,
+        get_max_chars_default,
+    )
+    from rag_audit import run_answer_audit, AuditResult as AuditResultLite  # type: ignore
+
 
 logger = logging.getLogger(__name__)
-
 router = APIRouter(prefix="/rag", tags=["rag"])
-
-_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
-# Use a module-level session so tests can monkeypatch it.
 _session = requests.Session()
 
 
-
-def _safe_zoneinfo(tz_name: str) -> ZoneInfo:
-    try:
-        return ZoneInfo(tz_name)
-    except Exception:
-        return ZoneInfo("Asia/Tokyo")
-
-def _parse_datetime_like(s: str, tz_name: str) -> datetime | None:
-    """
-    Parse a datetime-ish string into an aware datetime in tz_name.
-    Supports ISO strings and a few loose formats. If tz is missing, assumes tz_name.
-    """
-    if not isinstance(s, str):
-        return None
-    raw = s.strip()
-    if not raw:
-        return None
-
-    # Common suffixes
-    cand0 = raw.replace("JST", "+09:00").replace(" UTC", "+00:00")
-
-    # Try ISO (with or without 'T')
-    for cand in (cand0, cand0.replace(" ", "T", 1)):
-        try:
-            dt = datetime.fromisoformat(cand.replace("Z", "+00:00"))
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=_safe_zoneinfo(tz_name))
-            else:
-                dt = dt.astimezone(_safe_zoneinfo(tz_name))
-            return dt
-        except Exception:
-            pass
-
-    # Fallback: date-only "YYYY-MM-DD"
-    m = re.match(r"^\s*(\d{4}-\d{2}-\d{2})", cand0)
-    if m:
-        try:
-            dt = datetime.fromisoformat(m.group(1))
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=_safe_zoneinfo(tz_name))
-            return dt
-        except Exception:
-            return None
-
-    return None
-
-def _resolve_now_datetime(
-    live_weather: str | None,
-    request_datetime: str | None,
-) -> tuple[datetime, str, str]:
-    """
-    Resolve 'now' with precedence:
-      1) request_datetime (authoritative)
-      2) live_weather.current.time
-      3) server clock in TZ_NAME
-    Returns (dt, tz_name, source)
-    """
-    tz_fallback = os.getenv("TZ_NAME") or "Asia/Tokyo"
-
-    if isinstance(request_datetime, str) and request_datetime.strip():
-        dt_req = _parse_datetime_like(request_datetime, tz_fallback)
-        if dt_req is not None:
-            return dt_req, tz_fallback, "request_datetime"
-
-    dt_w, tz_w = _extract_now_from_live_weather(live_weather)
-    if dt_w is not None:
-        return dt_w, (tz_w or tz_fallback), "live_weather"
-
-    tz_name = tz_w or tz_fallback
-    return datetime.now(_safe_zoneinfo(tz_name)), tz_name, "server_clock"
-
-
-def _extract_now_from_live_weather(live_weather: str | None) -> tuple[datetime | None, str | None]:
-    """
-    Try to parse Open-Meteo snapshot JSON:
-      { "timezone": "Asia/Tokyo", "current": { "time": "2025-12-28T21:00", ... } }
-    """
-    if not live_weather or not live_weather.strip():
-        return None, None
-    try:
-        obj = json.loads(live_weather)
-        if not isinstance(obj, dict):
-            return None, None
-        tz_name = obj.get("timezone") or obj.get("timezone_abbreviation") or "Asia/Tokyo"
-        cur = obj.get("current") or {}
-        t = cur.get("time")
-        if not isinstance(t, str) or not t:
-            return None, tz_name
-        dt = datetime.fromisoformat(t.replace("Z", "+00:00"))
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=_safe_zoneinfo(tz_name))
-        else:
-            dt = dt.astimezone(_safe_zoneinfo(tz_name))
-        return dt, tz_name
-    except Exception:
-        return None, None
-
-def _format_now_block(live_weather: str | None, request_datetime: str | None = None) -> str:
-    dt, tz_name, src = _resolve_now_datetime(live_weather, request_datetime)
-
-    today = dt.date()
-    tomorrow = today + timedelta(days=1)
-
-    # to fix "this weekend"
-    # weekday(): Mon=0 ... Sun=6
-    days_until_sat = (5 - dt.weekday()) % 7
-    sat = today + timedelta(days=days_until_sat)
-    sun = sat + timedelta(days=1)
-
-    wd = _WEEKDAYS[dt.weekday()]
-    return (
-        f"- source: {src}\n"
-        f"- request_datetime: {request_datetime}\n" if request_datetime else ""
-        f"- local_datetime: {dt.strftime('%Y-%m-%d %H:%M')} {dt.tzname() or ''} ({wd})\n"
-        f"- timezone: {tz_name}\n"
-        f"- today: {today.isoformat()}\n"
-        f"- tomorrow: {tomorrow.isoformat()}\n"
-        f"- this_weekend: {sat.isoformat()}–{sun.isoformat()} (Sat–Sun)\n"
-    )
-
-def _truthy(value: str | None) -> bool:
-    if value is None:
-        return False
-    return value.strip().lower() in {"1", "true", "yes", "y", "on"}
-
-
 # -------------------------------------------------------------------
-# Request / response models
+# Models (keep compatibility with existing scripts)
 # -------------------------------------------------------------------
-
 
 class IngestRequest(BaseModel):
     documents: list[str] = Field(..., description="Raw texts to ingest into the vector store.")
@@ -169,75 +61,27 @@ class IngestResponse(BaseModel):
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=1)
 
-
     # caller-provided metadata (NOT stored in RAG)
-    datetime: str | None = Field(
-        default=None,
-        description="Optional ISO datetime string provided by the caller (e.g. 2026-01-03T17:43:54+09:00).",
-    )
-    links: list[str] | None = Field(
-        default=None,
-        description="Optional list of URLs provided by the caller (for allowlisting / UI display).",
-    )
+    datetime: str | None = Field(default=None, description="Optional ISO datetime string.")
+    links: list[str] | None = Field(default=None, description="Optional URLs provided by the caller.")
 
-    top_k: int = Field(
-        5,
-        ge=1,
-        le=128,
-        description="Number of similar chunks to retrieve from the vector store.",
-    )
+    top_k: int = Field(5, ge=1, le=128)
 
-    extra_context: str | None = Field(
-        default=None,
-        description=(
-            "Optional short-lived context that should NOT be stored in RAG "
-            "(e.g., live weather fetched at runtime)."
-        ),
-    )
-
-    # Backward-compat aliases for older clients/scripts
+    extra_context: str | None = Field(default=None, description="Short-lived context (e.g., live weather).")
     context: str | None = Field(default=None, description="Alias for extra_context")
     user_context: str | None = Field(default=None, description="Alias for extra_context")
 
-    include_debug: bool = Field(
-        default=False,
-        description="If true, include retrieved RAG context and chunk metadata in the response.",
-    )
+    include_debug: bool = Field(default=False)
 
-    output_style: Literal["default", "tweet_bot"] = Field(
-        default="tweet_bot",
-        description="Controls output style. 'tweet_bot' produces a single friendly tweet-like post.",
-    )
+    output_style: Literal["default", "tweet_bot"] = Field(default="tweet_bot")
+    max_chars: int = Field(default=512, ge=50, le=1024)
 
-    max_chars: int = Field(
-        default=512,
-        ge=50,
-        le=1024,
-        description="Maximum characters for the generated post (tweet is 280).",
-    )
+    audit: bool | None = Field(default=None)
+    audit_rewrite: bool | None = Field(default=None)
+    audit_model: str | None = Field(default=None)
 
-    audit: bool | None = Field(
-        default=None,
-        description=(
-            "Enable auditing of the generated answer by a second LLM call. "
-            "If None, uses env RAG_AUDIT_DEFAULT."
-        ),
-    )
-
-    audit_rewrite: bool | None = Field(
-        default=None,
-        description=(
-            "If true, and the auditor provides a fixed_answer, replace answer with it. "
-            "If None, uses env RAG_AUDIT_REWRITE_DEFAULT."
-        ),
-    )
-
-    audit_model: str | None = Field(
-        default=None,
-        description=(
-            "Optional override model name for auditing (defaults to RAG_AUDIT_MODEL / OLLAMA_CHAT_MODEL)."
-        ),
-    )
+    # strict loop controls
+    max_attempts: int | None = Field(default=None, ge=1, le=20, description="Max regenerate attempts when audit fails.")
 
 
 class ChunkOut(BaseModel):
@@ -249,13 +93,26 @@ class ChunkOut(BaseModel):
 
 class AuditResult(BaseModel):
     model: str | None = None
-    passed: bool = Field(..., description="True if the answer is supported by the provided context.")
-    score: int = Field(..., ge=0, le=100, description="0-100 quality score of support & faithfulness.")
-    confidence: Literal["low", "medium", "high"] | None = None
+    passed: bool
     issues: list[str] = Field(default_factory=list)
     fixed_answer: str | None = None
+
+    # debug
     original_answer: str | None = None
     raw: str | None = None
+
+
+class StatusResponse(BaseModel):
+    docs_dir: str
+    json_files: int
+    chunks_in_store: int
+    files: list[str]
+
+
+class ReindexResponse(BaseModel):
+    reindexed: bool
+    json_files: int
+    chunks_in_store: int
 
 
 class QueryResponse(BaseModel):
@@ -267,47 +124,19 @@ class QueryResponse(BaseModel):
     audit: AuditResult | None = None
 
 
-class StatusResponse(BaseModel):
-    docs_dir: str
-    json_files: int
-    chunks_in_store: int
-    files: list[str]
-
-
-class ReindexResponse(BaseModel):
-    documents: int
-    chunks: int
-    files: int
-
-
 # -------------------------------------------------------------------
-# Ollama chat wrapper
+# Ollama chat call
 # -------------------------------------------------------------------
 
+def _get_chat_url() -> str:
+    return os.getenv("OLLAMA_CHAT_URL", "http://ollama:11434/api/chat")
 
-def _get_ollama_chat_model() -> str:
+
+def _get_chat_model() -> str:
     return os.getenv("OLLAMA_CHAT_MODEL", "llama3.1")
 
 
-def _get_ollama_base_url() -> str:
-    return os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").rstrip("/")
-
-def _get_ollama_chat_timeout() -> int:
-    """
-    Seconds for requests timeout to Ollama /api/chat.
-    """
-    raw = os.getenv("OLLAMA_CHAT_TIMEOUT", "300")
-    try:
-        v = int(raw)
-        return v if v > 0 else 300
-    except Exception:
-        return 300
-
-def _call_ollama_chat(*, question: str, system_prompt: str, user_prompt: str) -> str:
-    """Call Ollama's /api/chat endpoint."""
-    base_url = _get_ollama_base_url()
-    model = _get_ollama_chat_model()
-
+def _call_chat_with_model(model: str, system_prompt: str, user_prompt: str) -> str:
     payload = {
         "model": model,
         "messages": [
@@ -316,1163 +145,258 @@ def _call_ollama_chat(*, question: str, system_prompt: str, user_prompt: str) ->
         ],
         "stream": False,
     }
-
-    try:
-        timeout_s = _get_ollama_chat_timeout()
-        resp = _session.post(f"{base_url}/api/chat", json=payload, timeout=timeout_s)
-        resp.raise_for_status()
-        data = resp.json()
-
-        message = data.get("message") or {}
-        content = message.get("content")
-        if not isinstance(content, str):
-            raise RuntimeError("Ollama chat response missing 'message.content'")
-    except Exception as e:
-        logger.exception("Ollama chat failed: %s", e)
-        raise RuntimeError(f"Ollama chat failed: {e}") from e
-
+    resp = _session.post(_get_chat_url(), json=payload, timeout=90)
+    resp.raise_for_status()
+    obj = resp.json()
+    msg = obj.get("message") or {}
+    content = msg.get("content")
+    if not isinstance(content, str):
+        raise ValueError(f"Unexpected Ollama response: {obj}")
     return content
 
 
-def _truthy_env(name: str, default: str = "false") -> bool:
-    raw = os.getenv(name, default).strip().lower()
-    return raw in {"1", "true", "yes", "y", "on"}
-
-
-def _get_audit_default_enabled() -> bool:
-    return _truthy_env("RAG_AUDIT_DEFAULT", "false")
-
-
-def _get_audit_default_rewrite() -> bool:
-    return _truthy_env("RAG_AUDIT_REWRITE_DEFAULT", "false")
-
-
-def _get_ollama_audit_model() -> str:
-    return os.getenv("RAG_AUDIT_MODEL") or _get_ollama_chat_model()
-
-
-def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
-    """Call Ollama's /api/chat endpoint with an explicit model override."""
-    base_url = _get_ollama_base_url()
-
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "stream": False,
-    }
-
-    try:
-        timeout_s = _get_ollama_chat_timeout()
-        resp = _session.post(f"{base_url}/api/chat", json=payload, timeout=timeout_s)
-        resp.raise_for_status()
-        data = resp.json()
-        message = data.get("message")
-        if not isinstance(message, dict):
-            raise RuntimeError("Ollama chat response missing 'message'")
-        content = message.get("content")
-        if not isinstance(content, str):
-            raise RuntimeError("Ollama chat response missing 'message.content'")
-        return content
-    except Exception as e:
-        logger.exception("Ollama audit chat failed: %s", e)
-        raise RuntimeError(f"Ollama audit chat failed: {e}") from e
-
-
-def _strip_code_fences(text: str) -> str:
-    t = text.strip()
-    if t.startswith("```"):
-        t = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", t)
-        t = re.sub(r"\s*```\s*$", "", t)
-    return t.strip()
-
-
-def _parse_first_json_object(text: str) -> dict | None:
-    candidate = _strip_code_fences(text)
-    try:
-        obj = json.loads(candidate)
-        if isinstance(obj, dict):
-            return obj
-    except Exception:
-        pass
-
-    # Fallback: find the first {...} block that parses as JSON.
-    for m in re.finditer(r"\{.*?\}", candidate, flags=re.DOTALL):
-        try:
-            obj = json.loads(m.group(0))
-            if isinstance(obj, dict):
-                return obj
-        except Exception:
-            continue
-    return None
-
-
-def _build_audit_prompts(
-    *,
-    question: str,
-    answer: str,
-    rag_context: list[str],
-    live_weather: str | None,
-    allowed_urls: list[str],
-    output_style: str,
-    max_chars: int,
-) -> tuple[str, str]:
-    system_prompt = (
-        "You are a strict auditor for a Retrieval-Augmented Generation (RAG) assistant.\n"
-        "You will be given: QUESTION, ANSWER, and CONTEXT.\n"
-        "Your job: judge whether the ANSWER is fully supported by the CONTEXT.\n"
-        "Rules:\n"
-        "- Use ONLY the provided CONTEXT; do NOT rely on outside knowledge.\n"
-        "- If a claim is not clearly supported, mark it as an issue.\n"
-        "- If the answer contains URLs not listed in ALLOWED_URLS, mark it as an issue.\n"
-        "- Output MUST be a single JSON object and nothing else.\n"
-        "\n"
-        "JSON schema (keys must exist):\n"
-        "{\n"
-        "  \"passed\": boolean,\n"
-        "  \"score\": integer 0-100,\n"
-        "  \"confidence\": \"low\"|\"medium\"|\"high\",\n"
-        "  \"issues\": array of strings,\n"
-        "  \"fixed_answer\": string|null\n"
-        "}\n"
-        "\n"
-        "If passed=false, provide fixed_answer that removes unsupported claims and stays within max_chars. "
-        "Keep the same output_style as the original answer."
-    )
-
-    ctx_parts: list[str] = []
-    for i, c in enumerate(rag_context, start=1):
-        if not isinstance(c, str):
-            continue
-        c = c.strip()
-        if not c:
-            continue
-        # Cap each context block to avoid runaway tokens
-        if len(c) > 1500:
-            c = c[:1500] + "…"
-        ctx_parts.append(f"[{i}] {c}")
-
-    user_prompt = (
-        f"OUTPUT_STYLE: {output_style}\n"
-        f"MAX_CHARS: {max_chars}\n"
-        f"ALLOWED_URLS: {allowed_urls}\n"
-        f"QUESTION:\n{question}\n\n"
-        f"ANSWER:\n{answer}\n\n"
-        f"CONTEXT:\n" + "\n\n".join(ctx_parts) + "\n\n"
-        + (f"LIVE_WEATHER:\n{live_weather}\n\n" if live_weather else "")
-    )
-
-    return system_prompt, user_prompt
-
-
-def _run_answer_audit(
-    *,
-    question: str,
-    answer: str,
-    rag_context: list[str],
-    live_weather: str | None,
-    allowed_urls: list[str],
-    output_style: str,
-    max_chars: int,
-    audit_model: str,
-    include_raw: bool,
-) -> AuditResult:
-    system_prompt, user_prompt = _build_audit_prompts(
-        question=question,
-        answer=answer,
-        rag_context=rag_context,
-        live_weather=live_weather,
-        allowed_urls=allowed_urls,
-        output_style=output_style,
-        max_chars=max_chars,
-    )
-
-    raw = _call_ollama_chat_with_model(
-        model=audit_model,
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-    )
-
-    obj = _parse_first_json_object(raw)
-    if not isinstance(obj, dict):
-        return AuditResult(
-            model=audit_model,
-            passed=False,
-            score=0,
-            confidence="low",
-            issues=["Audit model did not return valid JSON."],
-            fixed_answer=None,
-            raw=(raw if include_raw else None),
-        )
-
-    passed = bool(obj.get("passed", False))
-    score = obj.get("score")
-    try:
-        score_i = int(score)
-    except Exception:
-        score_i = 0
-    score_i = max(0, min(100, score_i))
-
-    conf = obj.get("confidence")
-    if conf not in {"low", "medium", "high"}:
-        conf = "low"
-
-    issues = obj.get("issues")
-    if not isinstance(issues, list):
-        issues_list: list[str] = []
-    else:
-        issues_list = [str(x) for x in issues if str(x).strip()]
-
-    fixed_answer = obj.get("fixed_answer")
-    if fixed_answer is not None and not isinstance(fixed_answer, str):
-        fixed_answer = str(fixed_answer)
-
-    return AuditResult(
-        model=audit_model,
-        passed=passed,
-        score=score_i,
-        confidence=conf,
-        issues=issues_list,
-        fixed_answer=fixed_answer,
-        raw=(raw if include_raw else None),
-    )
-
-
-
-
-def _chunk_id_from_metadata(meta: dict) -> str | None:
-    doc_id = meta.get("doc_id")
-    idx = meta.get("chunk_index")
-    if idx is None:
-        idx = meta.get("index")
-    if isinstance(doc_id, str) and doc_id and idx is not None:
-        return f"{doc_id}:{idx}"
-    return None
-
-
 # -------------------------------------------------------------------
-# Tweet-bot helpers (output only; no citations/sources in the text)
+# Endpoints
 # -------------------------------------------------------------------
 
-
-def _get_bot_name() -> str:
-    return os.getenv("WEATHER_BOT_NAME", "YokoWeather")
-
-
-def _get_bot_hashtags() -> str:
-    # Space-separated or comma-separated accepted; we pass through to the model.
-    return os.getenv("HASHTAGS", "#Yokosuka #MiuraPeninsula #Kanagawa")
-
-
-def _clean_single_line(text: str) -> str:
-    return " ".join(text.replace("\n", " ").replace("\r", " ").replace("\t", " ").split()).strip()
-
-
-def _strip_wrapping_quotes(text: str) -> str:
-    s = text.strip()
-    pairs = [
-        ('"', '"'),
-        ("'", "'"),
-        ("“", "”"),
-        ("‘", "’"),
-        ("`", "`"),
-    ]
-    for a, b in pairs:
-        if s.startswith(a) and s.endswith(b) and len(s) >= 2:
-            s = s[1:-1].strip()
-    return s
-
-
-def _enforce_max_chars(text: str, max_chars: int) -> str:
-    if max_chars <= 0 or len(text) <= max_chars:
-        return text
-    cut = text[: max_chars - 1]
-    if " " in cut:
-        cut = cut.rsplit(" ", 1)[0]
-    return cut.rstrip() + "…"
-
-
-# -------------------------------------------------------------------
-# URL safety: only allow URLs that appear in retrieved context (or explicit allowlists)
-# -------------------------------------------------------------------
-
-# NOTE: the double-quote inside the character class must be escaped for Python string syntax.
-_URL_RE = re.compile(r"https?://[^\s<>()\[\]\"']+")
-_MD_LINK_RE = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
-
-_TRAILING_PUNCT_RE = re.compile(r"[\]\)\}\>,\.;:!\?\"']+$")
-
-
-def _normalize_url(url: str) -> str:
-    """Normalize URLs for comparison (strip common trailing punctuation)."""
-    u = url.strip()
-    # Remove common trailing punctuation that appears in prose.
-    u = _TRAILING_PUNCT_RE.sub("", u)
-    return u
-
-
-def _extract_urls_from_text(text: str) -> set[str]:
-    return { _normalize_url(m.group(0)) for m in _URL_RE.finditer(text or "") }
-
-
-def _get_extra_allowed_urls() -> set[str]:
-    raw = os.getenv("RAG_EXTRA_ALLOWED_URLS", "")
-    if not raw.strip():
-        return set()
-    parts = re.split(r"[\n,]+", raw)
-    return {_normalize_url(p) for p in parts if p.strip()}
-
-
-def _get_allowlist_regexes() -> list[re.Pattern[str]]:
-    raw = os.getenv("RAG_URL_ALLOWLIST_REGEXES", "")
-    if not raw.strip():
-        return []
-    patterns: list[re.Pattern[str]] = []
-    for p in re.split(r"[\n,]+", raw):
-        p = p.strip()
-        if not p:
-            continue
-        try:
-            patterns.append(re.compile(p))
-        except re.error:
-            logger.warning("Invalid URL allowlist regex ignored: %s", p)
-    return patterns
-
-
-def _is_allowed_url(url: str, *, allowed_urls: set[str], allowlist_regexes: list[re.Pattern[str]]) -> bool:
-    u = _normalize_url(url)
-    if u in allowed_urls:
-        return True
-    for rx in allowlist_regexes:
-        if rx.search(u):
-            return True
-    return False
-
-_INCOMPLETE_SCHEME_RE = re.compile(r"https?://(?=[\s\)\]\}\>,\.;:!\?\"']|$)")
-_EMPTY_PARENS_RE = re.compile(r"\(\s*\)")
-
-def _filter_answer_urls(
-    answer: str,
-    *,
-    allowed_urls: set[str],
-    allowlist_regexes: list[re.Pattern[str]],
-) -> tuple[str, list[str]]:
-    """Remove/harden URLs that are not allowed.
-
-    - Markdown links: keep the label, drop the URL if not allowed.
-    - Raw URLs: remove if not allowed.
-    """
-    removed: list[str] = []
-
-    def _md_repl(m: re.Match[str]) -> str:
-        label = m.group(1)
-        url = _normalize_url(m.group(2))
-        if _is_allowed_url(url, allowed_urls=allowed_urls, allowlist_regexes=allowlist_regexes):
-            return f"[{label}]({url})"
-        removed.append(url)
-        return label  # drop the link, keep text
-
-    out = _MD_LINK_RE.sub(_md_repl, answer or "")
-
-    def _raw_repl(m: re.Match[str]) -> str:
-        url = _normalize_url(m.group(0))
-        if _is_allowed_url(url, allowed_urls=allowed_urls, allowlist_regexes=allowlist_regexes):
-            return url
-        removed.append(url)
-        return ""
-
-    out = _URL_RE.sub(_raw_repl, out)
-    out = _INCOMPLETE_SCHEME_RE.sub("", out)     # "https://)", "https://"
-    out = _EMPTY_PARENS_RE.sub("", out)          # "( )" , "()"
-
-    # Cleanup: collapse extra spaces created by URL removal.
-    out = re.sub(r"\s{2,}", " ", out).strip()
-    removed_dedup = sorted({u for u in removed if u})
-    return out, removed_dedup
-
-
-def _collect_allowed_urls(context_texts: list[str], live_extra: str | None) -> set[str]:
-    urls: set[str] = set()
-    for t in context_texts:
-        urls |= _extract_urls_from_text(t)
-    if live_extra:
-        urls |= _extract_urls_from_text(live_extra)
-    urls |= _get_extra_allowed_urls()
-    return {u for u in urls if u}
-
-
-def _augment_prompts_with_url_policy(
-    system_prompt: str,
-    user_prompt: str,
-    *,
-    allowed_urls: set[str],
-) -> tuple[str, str]:
-    policy = (
-        "\nURL POLICY:\n"
-        "- Do NOT invent or guess URLs.\n"
-        "- Only include URLs that appear in the 'Allowed URLs' list (verbatim).\n"
-        "- If the Allowed URLs list is empty, do not include any URLs.\n"
-    )
-    sys2 = (system_prompt or "") + policy
-
-    # Keep the list short to avoid bloating prompts.
-    max_urls = int(os.getenv("RAG_MAX_ALLOWED_URLS_IN_PROMPT", "25") or "25")
-    allowed_list = sorted(allowed_urls)[: max_urls if max_urls > 0 else 25]
-    if allowed_list:
-        urls_block = "\nAllowed URLs (copy/paste only):\n" + "\n".join(f"- {u}" for u in allowed_list) + "\n"
-    else:
-        urls_block = "\nAllowed URLs (copy/paste only):\n- (none)\n"
-
-    usr2 = (user_prompt or "") + urls_block
-    return sys2, usr2
-
-
-def _first_nonempty_line(text: str) -> str:
-    for line in (text or "").splitlines():
-        s = line.strip()
-        if s:
-            return s
-    return ""
-
-
-def _extract_label_value(text: str, label: str) -> str | None:
-    m = re.search(rf"(?im)^\s*{re.escape(label)}\s*:\s*(.+?)\s*$", text or "")
-    if not m:
-        return None
-    v = m.group(1).strip()
-    return v if v else None
-
-
-def _links_from_meta(meta: dict[str, Any]) -> list[str]:
-    def _clean_list(val: Any, *, split_commas: bool = False) -> list[str]:
-        if val is None:
-            return []
-        if isinstance(val, list):
-            return [str(x).strip() for x in val if isinstance(x, (str, int, float)) and str(x).strip()]
-        if isinstance(val, str):
-            s = val.strip()
-            if not s:
-                return []
-            if split_commas and "," in s:
-                return [p.strip() for p in s.split(",") if p.strip()]
-            return [s]
-        if isinstance(val, (int, float)):
-            return [str(val)]
-        return []
-
-    links: list[str] = []
-    for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
-        links.extend(_clean_list((meta or {}).get(k), split_commas=True))
-
-    links = [u.strip() for u in links if isinstance(u, str) and u.strip()]
-    links = [u for u in links if u.startswith("http://") or u.startswith("https://")]
-    # normalize + dedupe while preserving order
-    out: list[str] = []
-    seen: set[str] = set()
-    for u in links:
-        nu = _normalize_url(u)
-        if nu and nu not in seen:
-            out.append(nu)
-            seen.add(nu)
-    return out
-
-
-def _select_required_context(
-    chunks: list[RAGChunk],
-    *,
-    fallback_links: list[str] | None = None,
-) -> tuple[str | None, str | None]:
-    """
-    Pick a (mention, url) pair to force into the tweet:
-    - Prefer a chunk that has BOTH a clear mention (TITLE/PLACE) and at least one link.
-    - Otherwise, prefer a chunk that has a clear mention.
-    - As a last resort, fall back to the first non-empty line of the top chunk.
-    """
-    fallback_links = fallback_links or []
-
-    best_mention: str | None = None
-    best_links: list[str] = []
-
-    for c in chunks or []:
-        meta = c.metadata if isinstance(c.metadata, dict) else {}
-
-        mention = (
-            (str(meta.get("title")).strip() if isinstance(meta.get("title"), str) else "")
-            or (str(meta.get("place")).strip() if isinstance(meta.get("place"), str) else "")
-            or (_extract_label_value(c.text, "TITLE") or "")
-            or (_extract_label_value(c.text, "PLACE") or "")
-        ).strip() or None
-
-        links = _links_from_meta(meta)
-
-        if mention and links:
-            return mention, links[0]
-
-        if best_mention is None and mention:
-            best_mention = mention
-            best_links = links
-
-    if best_mention:
-        return best_mention, (best_links[0] if best_links else (fallback_links[0] if fallback_links else None))
-
-    # no TITLE/PLACE detected — still return something to anchor the tweet
-    if chunks:
-        fallback_mention = _first_nonempty_line(chunks[0].text)[:48].strip() or None
-        return fallback_mention, (fallback_links[0] if fallback_links else None)
-
-    return None, (fallback_links[0] if fallback_links else None)
-
-
-def _project_context_for_tweet(ctx: str, *, max_len: int = 420) -> str:
-    """
-    Convert verbose chunk text into a compact, single-line summary for tweet writing.
-    This helps the model reliably pick a spot/event and associated link.
-    """
-    if not isinstance(ctx, str) or not ctx.strip():
-        return ""
-
-    title = _extract_label_value(ctx, "TITLE")
-    place = _extract_label_value(ctx, "PLACE")
-    dt = _extract_label_value(ctx, "DATETIME")
-
-    urls = sorted(_extract_urls_from_text(ctx))
-    url = urls[0] if urls else None
-
-    base = (ctx.split("----", 1)[0] if "----" in ctx else ctx).strip()
-    base = re.sub(r"\s+", " ", base)
-    if len(base) > 180:
-        base = base[:177].rstrip() + "…"
-
-    parts: list[str] = []
-    if title:
-        parts.append(f"TITLE: {title}")
-    if place:
-        parts.append(f"PLACE: {place}")
-    if dt:
-        parts.append(f"DATETIME: {dt}")
-    if url:
-        parts.append(f"URL: {url}")
-    if base:
-        parts.append(f"SNIPPET: {base}")
-
-    out = " | ".join(parts).strip()
-    if len(out) > max_len:
-        out = out[: max_len - 1].rstrip() + "…"
-    return out
-
-
-def _enforce_tweet_contract(
-    answer: str,
-    *,
-    max_chars: int,
-    required_mention: str | None,
-    required_url: str | None,
-) -> str:
-    """
-    Guarantee:
-    - mention appears verbatim (prefixed at start)
-    - required_url appears exactly once at the end (if provided)
-    - total length <= max_chars, preserving the URL when trimming
-    """
-    text = _strip_wrapping_quotes(_clean_single_line(answer or ""))
-    mention = (required_mention or "").strip()
-    url = _normalize_url(required_url) if isinstance(required_url, str) and required_url.strip() else ""
-
-    # Ensure mention is at the start exactly once
-    if mention:
-        if not text.startswith(mention):
-            if mention in text:
-                text = text.replace(mention, "", 1).strip()
-            text = f"{mention} — {text}".strip() if text else mention
-
-    # Ensure URL is at the end exactly once
-    if url:
-        # remove existing occurrences
-        text = re.sub(re.escape(url) + r"(?=\s|$)", "", text).strip()
-        text = re.sub(r"\s{2,}", " ", text).strip()
-        if text:
-            text = f"{text} {url}".strip()
-        else:
-            text = url
-
-    # Enforce length while preserving URL suffix
-    if max_chars > 0 and len(text) > max_chars:
-        suffix = f" {url}" if (url and text.endswith(url) and len(text) > len(url)) else (url if (url and text == url) else "")
-        base = text[:-len(suffix)].rstrip() if suffix else text
-        base_limit = max_chars - len(suffix)
-        if base_limit <= 0:
-            # can't fit base; return truncated suffix
-            return (suffix or text)[:max_chars].rstrip()
-
-        base = _enforce_max_chars(base, base_limit)
-        text = (base + suffix).strip()
-        if len(text) > max_chars:
-            text = text[:max_chars].rstrip()
-
-    return text
-
-
-def _finalize_answer(
-    answer: str,
-    *,
-    output_style: str,
-    max_chars: int,
-    required_mention: str | None,
-    required_url: str | None,
-) -> str:
-    if output_style == "tweet_bot":
-        return _enforce_tweet_contract(
-            answer,
-            max_chars=max_chars,
-            required_mention=required_mention,
-            required_url=required_url,
-        )
-    return _enforce_max_chars(answer, max_chars)
-
-
-def _build_chat_prompts(
-    *,
-    question: str,
-    rag_context: list[str],
-    live_weather: str | None,
-    output_style: str,
-    max_chars: int,
-    place_hint: str | None,
-    request_datetime: str | None = None,
-    required_context_mention: str | None = None,
-    required_context_url: str | None = None,
-) -> tuple[str, str]:
-    """
-    Build (system, user) prompts.
-
-    NOTE: Avoid Python's implicit string concatenation + conditional-expression footguns.
-    Always build prompt parts explicitly to ensure LIVE WEATHER / RAG CONTEXT are never dropped.
-    """
-    if output_style != "tweet_bot":
-        system = "You answer using the given context."
-        ctx = "\n\n".join(rag_context + ([live_weather] if live_weather else []))
-
-        parts: list[str] = [
-            "Use the context below aside from general knowledge to answer the question.",
-            "",
-            "Context:",
-            ctx,
-            "",
-            "Question:",
-            question,
-        ]
-        if request_datetime and request_datetime.strip():
-            parts.insert(0, f"REQUEST_DATETIME (authoritative): {request_datetime.strip()}")
-            parts.insert(1, "")
-
-        user = "\n".join(parts).strip() + "\n"
-        return system, user
-
-    bot_name = _get_bot_name()
-    hashtags = _get_bot_hashtags()
-    place = place_hint or os.getenv("PLACE") or "your area"
-
-    now_dt, tz_name_for_now, _src = _resolve_now_datetime(live_weather, request_datetime)
-    now_block = _format_now_block(live_weather, request_datetime=request_datetime)
-
-    system = (
-        f"You are {bot_name}, a friendly English local story bot for {place} (locals, familes and tourists). "
-        f"Write one tweet in English within {max_chars} characters. "
-        "No markdown, no lists, no extra commentary, no quotes.\n"
-        "Show only real existing URLs.\n"
-        "\n"
-        "CONTEXT REQUIREMENTS (NON-NEGOTIABLE):\n"
-        "- You MUST mention REQUIRED_CONTEXT_MENTION (from the user prompt) verbatim.\n"
-        "- If REQUIRED_CONTEXT_URL is provided (and appears in Allowed URLs), include it exactly once.\n"
-        "\n"
-        "TIME AWARENESS:\n"
-        "- Treat NOW (in user prompt) as the current local datetime.\n"
-        "- If NOW.source is 'request_datetime', it is authoritative even if LIVE WEATHER differs.\n"
-        "- Do NOT recommend events that are already in the past relative to NOW.\n"
-        "- If you use words like 'today', 'tomorrow', or 'this weekend', they must match NOW.\n"
-        "\n"
-        "STYLE:\n"
-        "- Warm, upbeat, practical.\n"
-        "- Use emojis.\n"
-        f"- If you add hashtags, pick 1-3 from: {hashtags}.\n"
-    )
-
-    def _sample_context(ctx: list[str], seed_text: str, k: int = 8, pool: int = 18) -> list[str]:
-        if not ctx:
-            return []
-        cand = ctx[: min(len(ctx), pool)]
-
-        # Prefer recent context when DATETIME metadata exists
-        tz = _safe_zoneinfo(tz_name_for_now)
-
-        def _ctx_dt(txt: str) -> datetime | None:
-            m = re.search(r"(?im)^\s*DATETIME\s*:\s*(.+?)\s*$", txt or "")
-            if not m:
-                return None
-            return _parse_datetime_like(m.group(1), tz_name_for_now)
-
-        dated: list[tuple[datetime, str]] = []
-        undated: list[str] = []
-        for c in cand:
-            d = _ctx_dt(c)
-            if d is None:
-                undated.append(c)
-            else:
-                dated.append((d.astimezone(tz), c))
-
-        dated.sort(key=lambda x: x[0], reverse=True)
-        ordered = [c for _d, c in dated] + undated
-
-        seed = int(hashlib.sha256(seed_text.encode("utf-8")).hexdigest()[:8], 16)
-        rng = random.Random(seed)
-        rng.shuffle(ordered)
-        return ordered[: min(k, len(ordered))]
-
-    sampled = _sample_context(rag_context, question, k=8, pool=18)
-
-    # Make tweet-bot context compact (avoid huge multi-line chunks / META_JSON bloat).
-    compacted = [_project_context_for_tweet(c) for c in sampled]
-    rag_lines = "\n".join(f"- {c}" for c in compacted if c) if compacted else "- (none)"
-
-    live_block = live_weather.strip() if isinstance(live_weather, str) and live_weather.strip() else "(not available)"
-
-    parts: list[str] = [
-        "NOW (for time reasoning):",
-        now_block,
-    ]
-    if request_datetime and request_datetime.strip():
-        parts.extend([f"REQUEST_DATETIME (authoritative): {request_datetime.strip()}", ""])
-
-    parts.extend(
-        [
-            "LIVE WEATHER:",
-            live_block,
-            "",
-            "RAG CONTEXT (compact):",
-            rag_lines,
-            "",
-            "REQUIRED FIELDS:",
-            f"REQUIRED_CONTEXT_MENTION: {(required_context_mention or '').strip() or '(not available)'}",
-            f"REQUIRED_CONTEXT_URL: {(required_context_url or '').strip() or '(not available)'}",
-            "",
-            "TASK:",
-            question,
-            "",
-            "Remember: output ONLY the tweet text.",
-        ]
-    )
-
-    user = "\n".join(parts).strip() + "\n"
-    return system, user
-
-
-# -------------------------------------------------------------------
-# Routes
-# -------------------------------------------------------------------
+@router.post("/ingest", response_model=IngestResponse)
+def ingest(payload: IngestRequest) -> IngestResponse:
+    if not payload.documents:
+        raise HTTPException(status_code=400, detail="documents must not be empty")
+    ok = 0
+    for doc in payload.documents:
+        if isinstance(doc, str) and doc.strip():
+            rag_store.add_document(doc)
+            ok += 1
+    if ok == 0:
+        raise HTTPException(status_code=HTTPStatus.BAD_GATEWAY, detail="All ingests failed.")
+    return IngestResponse(ingested=ok)
 
 
 @router.get("/status", response_model=StatusResponse)
 def status() -> StatusResponse:
-    docs_dir = os.getenv("RAG_DOCS_DIR") or os.getenv("DOCS_DIR", "/data/json")
-    file_paths = rag_store.list_json_files(docs_dir)
-    file_names = [os.path.basename(p) for p in file_paths][:50]
-
-    return StatusResponse(
-        docs_dir=docs_dir,
-        json_files=len(file_paths),
-        chunks_in_store=rag_store.get_collection_count(),
-        files=file_names,
-    )
-
-
-@router.post("/ingest", response_model=IngestResponse)
-def ingest_rag(request: IngestRequest) -> IngestResponse:
-    """(Optional) Ingest raw texts (kept for backwards-compat / testing).
-
-    In production, prefer indexing from JSON files via /rag/reindex or startup auto-index.
-    """
-    docs = [d.strip() for d in request.documents if d and d.strip()]
-
-    if not docs:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail="No documents provided.",
-        )
-
-    successes = 0
-    last_error: Exception | None = None
-
-    for text in docs:
-        try:
-            rag_store.add_document(text)
-            successes += 1
-        except Exception as exc:
-            logger.exception("Failed to ingest document", exc_info=exc)
-            last_error = exc
-
-    if successes == 0 and last_error is not None:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_GATEWAY,
-            detail=f"Document ingestion failed: {last_error}",
-        )
-
-    return IngestResponse(ingested=successes)
+    docs_dir = os.getenv("RAG_DOCS_DIR", "/data/json")
+    files = rag_store.list_json_files(docs_dir)
+    try:
+        count = rag_store.get_collection_count()
+    except Exception:
+        count = 0
+    return StatusResponse(docs_dir=docs_dir, json_files=len(files), chunks_in_store=count, files=files)
 
 
 @router.post("/reindex", response_model=ReindexResponse)
 def reindex() -> ReindexResponse:
-    """Clear and rebuild the vector DB from JSON files in DOCS_DIR."""
-    docs_dir = os.getenv("RAG_DOCS_DIR") or os.getenv("DOCS_DIR", "/data/json")
-    enabled = _truthy(os.getenv("RAG_REINDEX_ENABLED", "true"))
-    if not enabled:
-        raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN,
-            detail="Reindex is disabled by configuration.",
-        )
-
+    docs_dir = os.getenv("RAG_DOCS_DIR", "/data/json")
+    files = rag_store.list_json_files(docs_dir)
+    rag_store.reindex(docs_dir)
     try:
-        stats = rag_store.rebuild_from_json_dir(docs_dir)
-        return ReindexResponse(**stats)
-    except Exception as exc:
-        logger.exception("Reindex failed", exc_info=exc)
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_GATEWAY,
-            detail=str(exc),
-        ) from exc
-
-
-def _enrich_context_text_with_links(text: str, meta: dict[str, Any]) -> tuple[str, set[str]]:
-    """Attach doc-level metadata (especially links) to every chunk's context.
-
-    Why: chunking can separate the URL/title/time/place/tag from the relevant content chunk.
-    By re-attaching metadata, the LLM can always see the full document context and URL allow-listing works.
-    """
-
-    def _clean_list(val: Any, *, split_commas: bool = False) -> list[str]:
-        if val is None:
-            return []
-        if isinstance(val, list):
-            return [str(x).strip() for x in val if isinstance(x, (str, int, float)) and str(x).strip()]
-        if isinstance(val, str):
-            s = val.strip()
-            if not s:
-                return []
-            if split_commas and "," in s:
-                return [p.strip() for p in s.split(",") if p.strip()]
-            return [s]
-        if isinstance(val, (int, float)):
-            return [str(val)]
-        return []
-
-    # Collect links from metadata
-    links: list[str] = []
-    for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
-        links.extend(_clean_list((meta or {}).get(k), split_commas=True))
-    links = [u for u in links if isinstance(u, str) and u and ("http://" in u or "https://" in u)]
-    links = list(dict.fromkeys(links))
-
-    # Collect tags (supports new `tag` and legacy `tags`)
-    tags: list[str] = []
-    for k in ("tag", "tags"):
-        tags.extend(_clean_list((meta or {}).get(k), split_commas=True))
-    tags = list(dict.fromkeys([t for t in tags if t]))
-
-    # Build metadata block (keep it compact but complete)
-    meta_lines: list[str] = []
-    for key, label in (("title", "TITLE"), ("datetime", "DATETIME"), ("place", "PLACE")):
-        v = (meta or {}).get(key)
-        if isinstance(v, str) and v.strip():
-            if not re.search(rf"^\s*{label}\s*:", text, flags=re.IGNORECASE | re.MULTILINE):
-                meta_lines.append(f"{label}: {v.strip()}")
-
-    if tags and not re.search(r"^\s*TAG\s*:", text, flags=re.IGNORECASE | re.MULTILINE):
-        meta_lines.append("TAG: " + ", ".join(tags))
-
-    if links:
-        missing = [u for u in links if u not in text]
-        if missing:
-            meta_lines.append("LINK:")
-            meta_lines.extend(missing)
-
-    # NOTE: 全metadataをJSONとしてコンテクストへ流し込む（＝data.jsonの“コンテクスト全部”がRAGに渡る）
-    meta_json_obj = dict(meta or {})
-    try:
-        meta_json = json.dumps(meta_json_obj, ensure_ascii=False, default=str)
+        count = rag_store.get_collection_count()
     except Exception:
-        meta_json = str(meta_json_obj)
-    if meta_json and meta_json != "{}":
-        meta_lines.append("META_JSON: " + meta_json)
-
-    enriched = text.rstrip()
-    if meta_lines:
-        enriched = enriched + "\n\n----\n" + "\n".join(meta_lines)
-
-    all_links = set(links) | set(_extract_urls_from_text(enriched))
-    return enriched, all_links
-
+        count = 0
+    return ReindexResponse(reindexed=True, json_files=len(files), chunks_in_store=count)
 
 
 @router.post("/query", response_model=QueryResponse, response_model_exclude_none=True)
 def query_rag(payload: QueryRequest, http_request: Request) -> QueryResponse:
-    """Run a full RAG cycle: retrieve similar chunks and ask the chat model."""
+    # ---- resolve defaults ----
+    style = payload.output_style or get_output_style_default()
+    max_chars = int(payload.max_chars or get_max_chars_default(style))
+
+    audit_enabled = payload.audit if payload.audit is not None else truthy_env("RAG_AUDIT_DEFAULT", False)
+    audit_rewrite = payload.audit_rewrite if payload.audit_rewrite is not None else truthy_env("RAG_AUDIT_REWRITE_DEFAULT", True)
+    audit_model = payload.audit_model or os.getenv("RAG_AUDIT_MODEL") or _get_chat_model()
+
+    max_attempts = payload.max_attempts or int(os.getenv("RAG_MAX_ATTEMPTS", "6"))
+
+    # ---- retrieve ----
     try:
-        tweet_pool = int(os.getenv("RAG_TWEET_CONTEXT_POOL", "18"))
-        raw_k = max(payload.top_k * 4, tweet_pool * 4) if payload.output_style == "tweet_bot" else payload.top_k
-
-        chunks: list[RAGChunk] = rag_store.query_similar_chunks(
-            payload.question,
-            top_k=raw_k,
-        )
-
-        if payload.output_style == "tweet_bot":
-            seen = set()
-            diversified = []
-            for c in sorted(chunks, key=lambda x: x.distance):
-                meta = c.metadata if isinstance(c.metadata, dict) else {}
-                key = meta.get("file") or meta.get("doc_id") or c.text[:40]
-                if key in seen:
-                    continue
-                diversified.append(c)
-                seen.add(key)
-                if len(diversified) >= tweet_pool:
-                    break
-            chunks = diversified or chunks[:tweet_pool]
+        chunks: list[RAGChunk] = rag_store.query_similar_chunks(payload.question, top_k=payload.top_k)
     except Exception as exc:
         logger.exception("Vector search failed", exc_info=exc)
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_GATEWAY,
-            detail=f"Vector search failed: {exc}",
-        ) from exc
+        raise HTTPException(status_code=HTTPStatus.BAD_GATEWAY, detail=f"Vector search failed: {exc}") from exc
 
     if not chunks:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail="No relevant context found for the given question.",
-        )
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="No relevant context found.")
 
+    # ---- build context strings ----
     context_texts: list[str] = []
-    doc_links: set[str] = set()
     for c in chunks:
-        meta = c.metadata if isinstance(c.metadata, dict) else {}
-        enriched, links = _enrich_context_text_with_links(c.text, meta)
-        context_texts.append(enriched)
-        doc_links |= links
+        t = (c.text or "").strip()
+        if t:
+            context_texts.append(t)
 
-    # Compat: accept `context` / `user_context` as aliases for `extra_context`
-    extra_ctx: str | None = payload.extra_context or payload.context or payload.user_context
+    live_extra = (payload.extra_context or payload.context or payload.user_context or "").strip()
 
-    def _looks_like_weather_json(s: str) -> bool:
-        try:
-            obj = json.loads(s)
-        except Exception:
-            return False
-        if not isinstance(obj, dict):
-            return False
-        cur = obj.get("current")
-        return (
-            isinstance(cur, dict)
-            and isinstance(cur.get("time"), str)
-            and bool(cur.get("time"))
+    # allowed urls: from context + request links
+    req_links = [u.strip() for u in (payload.links or []) if isinstance(u, str) and u.strip()]
+    allowed_urls = collect_allowed_urls("\n".join(context_texts), live_extra, extra_urls=req_links)
+
+    # pick one required mention/url from top chunk
+    req_mention, req_url = select_required_context(chunks)
+    required_mention = req_mention or ""
+    required_url = req_url or ""
+
+    # NOW block (truth)
+    now_dt, now_label = resolve_now_datetime(payload.datetime, tz_name="Asia/Tokyo")
+    now_block = f"local_datetime: {now_label}\ntoday: {now_dt.date().isoformat()}"
+
+    # ---- generation loop ----
+    last_audit: Optional[AuditResult] = None
+    last_removed: list[str] = []
+    last_answer: str = ""
+
+    feedback = ""  # we append audit issues into prompt for next attempt
+
+    def _audit_context_text() -> str:
+        ctx = "\n".join(context_texts[:8])
+        if live_extra:
+            ctx += "\n\n[Live context]\n" + live_extra
+        return ctx
+
+    for attempt in range(1, max_attempts + 1):
+        extra_for_prompt = live_extra
+        if feedback:
+            extra_for_prompt = (extra_for_prompt + "\n\n[Audit feedback to fix]\n" + feedback).strip()
+
+        sys_p, usr_p = build_chat_prompts(
+            question=payload.question,
+            now_block=now_block,
+            chunks=chunks,
+            extra_context=extra_for_prompt,
+            output_style=style,
+            required_mention=required_mention,
+            required_url=required_url,
+            allowed_urls=allowed_urls,
+            max_chars=max_chars,
         )
 
-    live_extra: str | None = None
-    user_extra: str | None = None
-    if isinstance(extra_ctx, str) and extra_ctx.strip():
-        if _looks_like_weather_json(extra_ctx):
-            live_extra = extra_ctx
-        else:
-            user_extra = extra_ctx
-
-    if (live_extra is None or not live_extra.strip()):
+        # generate
         try:
-            live_extra = get_live_weather_context(
-                http_request=http_request,
-                session=_session,
-            )
+            raw = _call_chat_with_model(_get_chat_model(), sys_p, usr_p)
         except Exception as exc:
-            logger.exception("Live weather fetch failed", exc_info=exc)
-            raise HTTPException(
-                status_code=HTTPStatus.SERVICE_UNAVAILABLE,
-                detail=f"Live weather fetch failed: {exc}",
-            ) from exc
+            logger.exception("Ollama chat failed", exc_info=exc)
+            raise HTTPException(status_code=HTTPStatus.BAD_GATEWAY, detail=str(exc)) from exc
 
+        candidate = finalize_answer(
+            raw_answer=raw,
+            output_style=style,
+            max_chars=max_chars,
+            required_mention=required_mention,
+            required_url=required_url,
+        )
 
-    place_hint = http_request.query_params.get("place") or os.getenv("PLACE")
+        # filter urls
+        candidate, removed = filter_answer_urls(candidate, allowed_urls=allowed_urls)
+        candidate = finalize_answer(
+            raw_answer=candidate,
+            output_style=style,
+            max_chars=max_chars,
+            required_mention=required_mention,
+            required_url=required_url,
+        )
 
-    # If caller provided non-weather extra context, keep it, but don't poison LIVE WEATHER.
-    if user_extra:
-        context_texts = context_texts + [f"EXTRA CONTEXT:\n{user_extra}"]
+        last_answer = candidate
+        last_removed = removed
 
-    # normalize request links
-    req_links: list[str] = []
-    for raw in (payload.links or []):
-        if not isinstance(raw, str):
-            continue
-        u = _normalize_url(raw.strip())
-        if u and (u.startswith("http://") or u.startswith("https://")):
-            req_links.append(u)
-        if len(req_links) >= 50:
+        if not audit_enabled:
+            last_audit = None
             break
 
-    allowed_urls = _collect_allowed_urls(context_texts, live_extra) | set(req_links)
-
-
-
-    required_mention, required_url_candidate = _select_required_context(
-        chunks,
-        fallback_links=sorted(doc_links),
-    )
-    required_url = _normalize_url(required_url_candidate) if required_url_candidate else None
-    if required_url and required_url not in allowed_urls:
-        required_url = None
-
-    system_prompt, user_prompt = _build_chat_prompts(
-        question=payload.question,
-        rag_context=context_texts,
-        live_weather=live_extra,
-        output_style=payload.output_style,
-        max_chars=payload.max_chars,
-        place_hint=place_hint,
-        request_datetime=payload.datetime,
-        required_context_mention=required_mention,
-        required_context_url=required_url,
-    )
-
-    system_prompt, user_prompt = _augment_prompts_with_url_policy(
-        system_prompt,
-        user_prompt,
-        allowed_urls=allowed_urls,
-    )
-
-    try:
-        answer = _call_ollama_chat(
+        # audit (strict) + rewrite enabled
+        audit_lite: AuditResultLite = run_answer_audit(
             question=payload.question,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
+            answer=candidate,
+            now_block=now_block,
+            required_mention=required_mention,
+            required_url=required_url,
+            allowed_urls=sorted(allowed_urls),
+            max_chars=max_chars,
+            output_style=style,
+            audit_context=_audit_context_text(),
+            strict=True,
+            rewrite=audit_rewrite,
+            audit_model=audit_model,
+            call_chat_with_model=lambda m, sp, up: _call_chat_with_model(m, sp, up),
         )
-    except Exception as exc:
-        logger.exception("Ollama chat failed", exc_info=exc)
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_GATEWAY,
-            detail=str(exc),
-        ) from exc
 
-    answer = _strip_wrapping_quotes(_clean_single_line(answer))
-    answer, removed_urls = _filter_answer_urls(
-        answer,
-        allowed_urls=allowed_urls,
-        allowlist_regexes=_get_allowlist_regexes(),
-    )
-    answer = _finalize_answer(
-        answer,
-        output_style=payload.output_style,
-        max_chars=payload.max_chars,
-        required_mention=required_mention,
-        required_url=required_url,
-    )
+        last_audit = AuditResult(
+            model=audit_model,
+            passed=audit_lite.passed,
+            issues=audit_lite.issues,
+            fixed_answer=audit_lite.fixed_answer,
+            raw=(audit_lite.raw if payload.include_debug else None),
+        )
 
-    # Optional: audit the answer with a second LLM call.
-    audit_enabled = payload.audit if payload.audit is not None else _get_audit_default_enabled()
-    audit_rewrite = payload.audit_rewrite if payload.audit_rewrite is not None else _get_audit_default_rewrite()
-    audit_result: AuditResult | None = None
-    if audit_enabled:
-        audit_model = payload.audit_model or _get_ollama_audit_model()
+        if audit_lite.passed:
+            break
 
-        # Keep audit context bounded: reuse what we already sent to the writer model.
-        audit_context = context_texts[:20]
-
-        try:
-
-            # keep auditor seeing the same request metadata (optional)
-            audit_question = payload.question
-            if payload.datetime:
-                audit_question = f"REQUEST_DATETIME: {payload.datetime}\n" + audit_question
-            if req_links:
-                audit_question = (
-                    "REQUEST_LINKS:\n" + "\n".join(f"- {u}" for u in req_links[:10]) + "\n\n" + audit_question
-                )
-
-            audit_result = _run_answer_audit(
-                question=audit_question,
-                answer=answer,
-                rag_context=audit_context,
-                live_weather=live_extra,
-                allowed_urls=allowed_urls,
-                output_style=payload.output_style,
-                max_chars=payload.max_chars,
-                audit_model=audit_model,
-                include_raw=bool(payload.include_debug),
+        # If auditor gave fixed_answer, try it once (re-audit without rewrite)
+        if audit_lite.fixed_answer:
+            fixed = finalize_answer(
+                raw_answer=audit_lite.fixed_answer,
+                output_style=style,
+                max_chars=max_chars,
+                required_mention=required_mention,
+                required_url=required_url,
             )
-        except Exception as exc:
-            # Don't fail the main request if auditing fails; surface the failure via audit_result.
-            audit_result = AuditResult(
-                model=audit_model,
-                passed=False,
-                score=0,
-                confidence="low",
-                issues=[f"Audit failed: {exc}"],
-                fixed_answer=None,
-                raw=(str(exc) if payload.include_debug else None),
-            )
-
-        if audit_rewrite and audit_result.fixed_answer:
-            audit_result.original_answer = answer
-            answer = _strip_wrapping_quotes(_clean_single_line(audit_result.fixed_answer))
-            answer, removed_urls_2 = _filter_answer_urls(
-                answer,
-                allowed_urls=allowed_urls,
-                allowlist_regexes=_get_allowlist_regexes(),
-            )
-            if removed_urls_2:
-                removed_urls = (removed_urls or []) + removed_urls_2
-            answer = _finalize_answer(
-                answer,
-                output_style=payload.output_style,
-                max_chars=payload.max_chars,
+            fixed, removed2 = filter_answer_urls(fixed, allowed_urls=allowed_urls)
+            fixed = finalize_answer(
+                raw_answer=fixed,
+                output_style=style,
+                max_chars=max_chars,
                 required_mention=required_mention,
                 required_url=required_url,
             )
 
-    debug_context: list[str] | None = None
-    debug_chunks: list[ChunkOut] | None = None
-
-    if payload.include_debug:
-        debug_context = list(context_texts)
-        if live_extra and live_extra.strip():
-            debug_context.append(f"[Live context]\n{live_extra.strip()}")
-
-        chunk_out: list[ChunkOut] = []
-        for c in chunks:
-            meta = c.metadata if isinstance(c.metadata, dict) else {}
-            chunk_out.append(
-                ChunkOut(
-                    id=_chunk_id_from_metadata(meta),
-                    text=c.text,
-                    distance=c.distance,
-                    metadata=meta,
-                )
+            audit2 = run_answer_audit(
+                question=payload.question,
+                answer=fixed,
+                now_block=now_block,
+                required_mention=required_mention,
+                required_url=required_url,
+                allowed_urls=sorted(allowed_urls),
+                max_chars=max_chars,
+                output_style=style,
+                audit_context=_audit_context_text(),
+                strict=True,
+                rewrite=False,
+                audit_model=audit_model,
+                call_chat_with_model=lambda m, sp, up: _call_chat_with_model(m, sp, up),
             )
-        debug_chunks = chunk_out
+            if audit2.passed:
+                last_answer = fixed
+                last_removed = last_removed + removed2
+                last_audit.original_answer = candidate
+                last_audit.passed = True
+                last_audit.fixed_answer = fixed
+                break
 
-    # links for UI/debug: request links first, then doc_links
+        # feed issues back into next attempt
+        feedback = "\n".join(f"- {x}" for x in (audit_lite.issues or [])[:8]) or "- Fix all unmet requirements."
+
+    # ---- debug payload ----
+    dbg_context = None
+    dbg_chunks = None
+    if payload.include_debug:
+        dbg_context = context_texts[:8] + ([f"[Live context]\n{live_extra}"] if live_extra else [])
+        dbg_chunks = [
+            ChunkOut(text=c.text, distance=c.distance, metadata=(c.metadata or {}))
+            for c in chunks[: payload.top_k]
+        ]
+
+    # links for UI
     links_out: list[str] = []
     seen = set()
-    for u in req_links:
-        if u not in seen:
-            links_out.append(u)
-            seen.add(u)
-    for u in (sorted(doc_links) if doc_links else []):
-        if u not in seen:
+    for u in req_links + sorted(allowed_urls):
+        if u and u not in seen:
             links_out.append(u)
             seen.add(u)
 
     return QueryResponse(
-        answer=answer,
-        links=(links_out if links_out else None),
-        context=debug_context,
-        chunks=debug_chunks,
-        removed_urls=(removed_urls if payload.include_debug and removed_urls else None),
-        audit=audit_result,
+        answer=last_answer,
+        links=(links_out or None),
+        context=dbg_context,
+        chunks=dbg_chunks,
+        removed_urls=(last_removed or None if payload.include_debug else None),
+        audit=last_audit,
     )
