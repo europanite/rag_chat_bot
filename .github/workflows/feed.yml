@@ -84,7 +84,7 @@ jobs:
           PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
-          MAX_WORDS: 512
+          max_chars: 512
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
           DEBUG: 1
         run: |
