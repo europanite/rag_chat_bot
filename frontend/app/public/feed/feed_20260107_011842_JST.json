@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-06T16:27:40Z",
+  "id": "feed_20260107_011842_JST",
   "date": "2026-01-06",
   "text": "and submit it via Instagram. — Good morning Yokosuka! 🌞 Today is a chilly day with cloudy weather, perfect for taking a stroll around the city! 😊 Why not enter our Winter Cool theme photo contest? Share your beautiful winter snaps and submit them via Instagram. Choose from: #WinterCool or Nostalgic #ノスタルジック.",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-06T16:27:40Z",
+  "permalink": "./?post=feed_20260107_011842_JST",
+  "image_url": "./image/feed_20260107_011842_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: and submit it via Instagram. — Good morning Yokosuka! 🌞 Today is a chilly day with cloudy weather, perfect for taking a stroll around the city! 😊 Why not enter our Winter Cool theme photo contest? Share your beautiful winter snaps and submi",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-06T16:30:38Z"
 }
