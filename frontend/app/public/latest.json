@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-06T04:48:07Z",
+  "id": "feed_20260106_134332_JST",
   "date": "2026-01-06",
   "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Hey! It's a mild winter afternoon in Yokosuka, perfect for enjoying the sunset from the viewpoint hill! Tomorrow at  | PLACE: ---- | DATETIME: - 2025-12-31 (Wed) 18:00 – 2026-01-01 (Thu, Holiday) 01:00 #Yokosuka",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-06T04:48:07Z",
+  "permalink": "./?post=feed_20260106_134332_JST",
+  "image_url": "./image/feed_20260106_134332_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Hey! It's a mild winter afternoon in Yokosuka, perfect for enjoying the sunset from the viewpoint hill! Tomorrow at | PLACE: ---- | DATETIME: - 2025-12-31 (Wed) 18:00 – 2026-01-01 (Thu, Holiday) ",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-06T04:51:21Z"
 }
