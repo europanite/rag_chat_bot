@@ -1,0 +1,64 @@
+{
+  "id": "feed_20260104_151445_JST",
+  "date": "2026-01-04",
+  "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good afternoon from Yokosuka! 🌞 Today's forecast is sunny with a mild temperature of 11.1°C, perfect for enjoying the  festival tonight! 😊",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-04T06:19:09Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-04T06:14:47.547671+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-04T15:00:00+09:00",
+      "temp_c": 11.1,
+      "apparent_temp_c": null,
+      "humidity_pct": 52.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 9.0,
+      "wind_dir_deg": 202.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-04",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-05",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　時々　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": 0
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-04T11:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [],
+  "legacy_id": "2026-01-04T06:19:09Z",
+  "permalink": "./?post=feed_20260104_151445_JST",
+  "image_url": "./image/feed_20260104_151445_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good afternoon from Yokosuka! 🌞 Today's forecast is sunny with a mild temperature of 11.1°C, perfect for enjoying the festival tonight! 😊",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-04T06:22:28Z"
+}

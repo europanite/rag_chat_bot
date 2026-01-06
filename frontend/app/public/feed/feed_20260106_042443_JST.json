@@ -1,0 +1,64 @@
+{
+  "id": "feed_20260106_042443_JST",
+  "date": "2026-01-05",
+  "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! 🌅 It's a chilly winter morning in Yokosuka, with a windy weather forecast for today. 🌬️ Perfect excuse to grab a warm cup of coffee and enjoy the sea views at Zushi Beach! ⛱️ #Yokosuka",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-05T19:29:01Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-05T19:24:45.564381+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-06T04:10:00+09:00",
+      "temp_c": 5.5,
+      "apparent_temp_c": null,
+      "humidity_pct": 43.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 22.32,
+      "wind_dir_deg": 22.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-06",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　朝晩　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-07",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 10.0,
+      "temp_min_c": 3.0,
+      "weather_text_ja": "くもり　後　晴れ",
+      "jma_weather_code": "211",
+      "precip_prob_pct": null
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-05T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [],
+  "legacy_id": "2026-01-05T19:29:01Z",
+  "permalink": "./?post=feed_20260106_042443_JST",
+  "image_url": "./image/feed_20260106_042443_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! 🌅 It's a chilly winter morning in Yokosuka, with a windy weather forecast for today. 🌬️ Perfect excuse to grab a warm cup of coffee and enjoy the sea views at Zushi Beach! ⛱️ #Yokos",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-05T19:32:41Z"
+}

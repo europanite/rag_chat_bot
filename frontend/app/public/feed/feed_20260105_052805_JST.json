@@ -1,0 +1,64 @@
+{
+  "id": "feed_20260105_052805_JST",
+  "date": "2026-01-04",
+  "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! Today's forecast is sunny with a high of 5.7°C and a gentle breeze. Perfect day to visit the Yokosuka Coast for some winter fun at ! 🌞🏖️",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-04T20:32:33Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-04T20:28:08.095092+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-05T05:20:00+09:00",
+      "temp_c": 5.7,
+      "apparent_temp_c": null,
+      "humidity_pct": 71.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 6.48,
+      "wind_dir_deg": 90.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-05",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　時々　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-06",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 10.0,
+      "temp_min_c": 3.0,
+      "weather_text_ja": "晴れ　朝晩　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-05T05:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [],
+  "legacy_id": "2026-01-04T20:32:33Z",
+  "permalink": "./?post=feed_20260105_052805_JST",
+  "image_url": "./image/feed_20260105_052805_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good morning! Today's forecast is sunny with a high of 5.7°C and a gentle breeze. Perfect day to visit the Yokosuka Coast for some winter fun at ! 🌞🏖️",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-04T20:35:41Z"
+}

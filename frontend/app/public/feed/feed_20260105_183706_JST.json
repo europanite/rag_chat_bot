@@ -1,0 +1,64 @@
+{
+  "id": "feed_20260105_183706_JST",
+  "date": "2026-01-05",
+  "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good evening! 🌃 The  is approaching, and tonight's winter evening is perfect for a stroll with friends to enjoy the illumination lights 🎄. Don't forget to bundle up as it might be a bit chilly 😊.",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-05T09:41:35Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-05T09:37:08.877257+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-05T18:30:00+09:00",
+      "temp_c": 11.9,
+      "apparent_temp_c": null,
+      "humidity_pct": 52.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 24.48,
+      "wind_dir_deg": 270.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-05",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夜遅く　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-06",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　朝晩　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": 0
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-05T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [],
+  "legacy_id": "2026-01-05T09:41:35Z",
+  "permalink": "./?post=feed_20260105_183706_JST",
+  "image_url": "./image/feed_20260105_183706_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good evening! 🌃 The is approaching, and tonight's winter evening is perfect for a stroll with friends to enjoy the illumination lights 🎄. Don't forget to bundle up as it might be a bit chilly 😊.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-05T09:44:57Z"
+}

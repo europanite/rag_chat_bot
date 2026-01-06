@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260106_154004_JST",
+  "id": "feed_20260106_134332_JST",
   "date": "2026-01-06",
-  "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good afternoon! Sunny skies in Yokosuka today with a mild 9.2°C temperature, perfect for a hike at Zushi Beach during ! 🏞️🏃‍♀️",
+  "text": "Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Hey! It's a mild winter afternoon in Yokosuka, perfect for enjoying the sunset from the viewpoint hill! Tomorrow at  | PLACE: ---- | DATETIME: - 2025-12-31 (Wed) 18:00 – 2026-01-01 (Thu, Holiday) 01:00 #Yokosuka",
   "place": "Yokosuka",
-  "generated_at": "2026-01-06T06:44:31Z",
+  "generated_at": "2026-01-06T04:48:07Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-06T06:40:05.880294+00:00",
+    "generated_at": "2026-01-06T04:43:33.943070+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-06T15:30:00+09:00",
-      "temp_c": 9.2,
+      "time": "2026-01-06T13:30:00+09:00",
+      "temp_c": 10.2,
       "apparent_temp_c": null,
-      "humidity_pct": 36.0,
+      "humidity_pct": 32.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 6.12,
-      "wind_dir_deg": 112.5,
+      "wind_kmh": 3.9600000000000004,
+      "wind_dir_deg": 45.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -55,10 +55,10 @@
     }
   },
   "links": [],
-  "legacy_id": "2026-01-06T06:44:31Z",
-  "permalink": "./?post=feed_20260106_154004_JST",
-  "image_url": "./image/feed_20260106_154004_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Good afternoon! Sunny skies in Yokosuka today with a mild 9.2°C temperature, perfect for a hike at Zushi Beach during ! 🏞️🏃‍♀️",
+  "legacy_id": "2026-01-06T04:48:07Z",
+  "permalink": "./?post=feed_20260106_134332_JST",
+  "image_url": "./image/feed_20260106_134332_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Yokosuka Countdown 2026 (よこすかカウントダウン 2026) — Hey! It's a mild winter afternoon in Yokosuka, perfect for enjoying the sunset from the viewpoint hill! Tomorrow at | PLACE: ---- | DATETIME: - 2025-12-31 (Wed) 18:00 – 2026-01-01 (Thu, Holiday) ",
   "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2026-01-06T06:48:10Z"
+  "image_generated_at": "2026-01-06T04:51:21Z"
 }
