@@ -42,7 +42,7 @@ jobs:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "true"
-          OLLAMA_CHAT_MODEL: llama3.1:70b
+          OLLAMA_CHAT_MODEL: llama3.1:8b
         run: |
           docker compose -f docker-compose.yml up -d --build
 
