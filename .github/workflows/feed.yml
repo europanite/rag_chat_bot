@@ -42,9 +42,7 @@ jobs:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "true"
-          OLLAMA_CHAT_MODEL: llama3.1:8B
-          OLLAMA_CHAT_TIMEOUT: 300
-          EMBEDDING_MODEL: nomic-embed-text
+          # OLLAMA_CHAT_MODEL: llama3.1
         run: |
           docker compose -f docker-compose.yml up -d --build
 
