@@ -1,270 +1,287 @@
+"""
+Utilities for the RAG router.
+
+This module is intentionally dependency-light so it can be imported by the API
+router without pulling in heavy libraries.
+
+Key goals:
+- Extract/normalize URLs from RAG context and live context (snapshots).
+- Enforce an allow-list of URLs in the final answer.
+- Build prompts that strongly bias the LLM to only talk about retrieved context.
+- Make it hard for the LLM to output broken "(https://)" fragments.
+"""
 from __future__ import annotations
 
-import hashlib
-import os
 import re
-from datetime import datetime
-from typing import Any, Iterable, Optional
-from zoneinfo import ZoneInfo
-
-from rag_store import RAGChunk
+from typing import Iterable, List, Optional, Sequence, Set, Tuple
 
 
-def truthy_env(name: str, default: bool = False) -> bool:
-    v = os.getenv(name)
-    if v is None:
-        return default
-    return v.strip().lower() in {"1", "true", "yes", "y", "on"}
+# Matches URLs with a scheme. Keep it conservative to avoid capturing trailing punctuation.
+_URL_RE = re.compile(r"https?://[^\s\)\]\}>\",']+")
+# Matches "https://" or "http://" that is *not* followed by a normal URL character (broken scheme).
+_BARE_SCHEME_RE = re.compile(r"(https?://)(?=($|[\s\)\]\}>\",']))")
+
+# Common trailing punctuation we want to strip from URLs after regex extraction.
+_URL_TRAIL_TRIM = ".,;:!?)>]\"'”’"
 
 
-def get_bot_name() -> str:
-    return os.getenv("BOT_NAME", "YokosukaRAG")
+def truthy_env(val: Optional[str]) -> bool:
+    if val is None:
+        return False
+    return val.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
-def get_bot_hashtags() -> str:
-    return os.getenv("BOT_HASHTAGS", "#Yokosuka #MiuraPeninsula #Kanagawa #Japan")
-
-
-def get_output_style_default() -> str:
-    return os.getenv("OUTPUT_STYLE_DEFAULT", "tweet_bot")
-
-
-def get_max_chars_default(style: str) -> int:
-    return int(os.getenv("MAX_CHARS_TWEET", "280")) if style == "tweet_bot" else int(
-        os.getenv("MAX_CHARS_DEFAULT", "2000")
-    )
-
-
-def safe_zoneinfo(tz_name: Optional[str]) -> Optional[ZoneInfo]:
-    if not tz_name:
-        return None
-    try:
-        return ZoneInfo(tz_name)
-    except Exception:
-        return None
-
-
-def resolve_now_datetime(payload_datetime: Optional[str], tz_name: Optional[str]) -> tuple[datetime, str]:
-    tz = safe_zoneinfo(tz_name) or ZoneInfo("Asia/Tokyo")
-    if payload_datetime:
-        try:
-            dt = datetime.fromisoformat(payload_datetime.replace("Z", "+00:00"))
-            dt = dt.astimezone(tz) if dt.tzinfo else dt.replace(tzinfo=tz)
-        except Exception:
-            dt = datetime.now(tz)
-    else:
-        dt = datetime.now(tz)
-    return dt, f"{dt.strftime('%A %Y-%m-%d %H:%M')} {tz.key}"
-
-
-_URL_RE = re.compile(r"https?://[^\s\)\]\}>\",']+", re.IGNORECASE)
-_BARE_SCHEME_RE = re.compile(r"(?<!\w)(https?://)(?![A-Za-z0-9])", re.IGNORECASE)
-_URL_TRIM_CHARS = " \t\r\n.,;:!?)\"]}'＞》〉」』】"
-
-
-def normalize_url(url: str) -> str:
-    return (url or "").strip().strip(_URL_TRIM_CHARS)
-
-
-def extract_urls_from_text(text: str) -> list[str]:
+def extract_urls_from_text(text: str) -> List[str]:
     if not text:
         return []
-    urls = [normalize_url(m.group(0)) for m in _URL_RE.finditer(text)]
-    seen: set[str] = set()
-    out: list[str] = []
+    urls = _URL_RE.findall(text)
+    cleaned: List[str] = []
     for u in urls:
+        cleaned.append(normalize_url(u))
+    # Deduplicate preserving order
+    seen = set()
+    out = []
+    for u in cleaned:
         if u and u not in seen:
             seen.add(u)
             out.append(u)
     return out
 
 
-def collect_allowed_urls(*, user_links: list[str], rag_chunks: list[RAGChunk], extra_text: Optional[str]) -> set[str]:
-    allowed = set()
-    for u in user_links or []:
-        u2 = normalize_url(u)
-        if u2:
-            allowed.add(u2)
-
-    # from retrieved chunks metadata
-    for c in rag_chunks or []:
-        md = c.metadata or {}
-        for k in ("url", "source", "link"):
-            if md.get(k):
-                allowed.add(normalize_url(str(md.get(k))))
-
-    # from extra_text
-    for u in extract_urls_from_text(extra_text or ""):
-        allowed.add(u)
-
-    # remove weird bare schemes
-    allowed = {u for u in allowed if u and not _BARE_SCHEME_RE.search(u)}
-    return allowed
+def normalize_url(url: str) -> str:
+    """Normalize a URL for allow-list comparison."""
+    if not url:
+        return ""
+    u = url.strip()
+    # strip common trailing punctuation
+    u = u.rstrip(_URL_TRAIL_TRIM)
+    return u
 
 
-def filter_answer_urls(answer: str, allowed_urls: set[str]) -> tuple[str, list[str]]:
+def collect_allowed_urls(
+    *,
+    user_links: Optional[Sequence[str]] = None,
+    context_texts: Optional[Sequence[str]] = None,
+    extra_text: Optional[str] = None,
+    limit: int = 64,
+) -> Set[str]:
+    """
+    Build an allow-list of URLs.
+
+    user_links: explicitly requested links from the caller (highest priority).
+    context_texts: retrieved RAG chunks.
+    extra_text: live snapshot text (e.g., weather JSON).
+    """
+    urls: List[str] = []
+
+    for u in (user_links or []):
+        nu = normalize_url(u)
+        if nu:
+            urls.append(nu)
+
+    for t in (context_texts or []):
+        urls.extend(extract_urls_from_text(t))
+
+    if extra_text:
+        urls.extend(extract_urls_from_text(extra_text))
+
+    # Deduplicate but keep a stable order then return a set for fast membership.
+    seen = set()
+    ordered: List[str] = []
+    for u in urls:
+        if not u or u in seen:
+            continue
+        seen.add(u)
+        ordered.append(u)
+        if len(ordered) >= limit:
+            break
+    return set(ordered)
+
+
+def filter_answer_urls(answer: str, allowed_urls: Set[str]) -> Tuple[str, List[str]]:
+    """
+    Remove URLs from answer that are not in allowed_urls.
+    Returns (filtered_answer, removed_urls).
+    """
     if not answer:
         return answer, []
     allowed_norm = {normalize_url(u) for u in allowed_urls if u}
-    removed: list[str] = []
+    removed: List[str] = []
 
-    def repl(m: re.Match) -> str:
-        u = normalize_url(m.group(0))
-        if u and u not in allowed_norm:
-            removed.append(u)
-            return ""
-        return m.group(0)
+    def _replace(match: re.Match) -> str:
+        url = normalize_url(match.group(0))
+        if url in allowed_norm:
+            return url
+        removed.append(url)
+        return ""
 
-    cleaned = _URL_RE.sub(repl, answer)
-    cleaned = re.sub(r"\s+\n", "\n", cleaned).strip()
-    return cleaned, removed
+    filtered = _URL_RE.sub(_replace, answer)
 
-
-def _chunk_best_url(chunks: list[RAGChunk], allowed_urls: set[str]) -> Optional[str]:
-    if not chunks:
-        return None
-    allowed_norm = {normalize_url(u) for u in allowed_urls if u}
-    for c in chunks:
-        md = c.metadata or {}
-        u = md.get("url") or md.get("source") or md.get("link")
-        if u:
-            u2 = normalize_url(str(u))
-            if u2 and u2 in allowed_norm:
-                return u2
-    return None
+    # Clean doubled spaces created by removals
+    filtered = re.sub(r"[ \t]{2,}", " ", filtered)
+    filtered = re.sub(r"\n{3,}", "\n\n", filtered).strip()
+    return filtered, removed
 
 
-def _pick_required_mention(chunks: list[RAGChunk]) -> str:
-    if not chunks:
-        return "RAG"
-    c0 = chunks[0]
-    md = c0.metadata or {}
-    title = md.get("title") or md.get("name") or md.get("spot") or md.get("event")
-    if title:
-        return str(title)
-    # fallback: hash prefix from text
-    t = (c0.text or "").strip()
-    if not t:
-        return "RAG"
-    h = hashlib.sha1(t.encode("utf-8", errors="ignore")).hexdigest()[:8]
-    return f"RAG:{h}"
+def strip_broken_schemes(text: str) -> str:
+    """Remove broken standalone schemes like '(https://)'."""
+    if not text:
+        return text
+    t = _BARE_SCHEME_RE.sub("", text)
+    # also remove empty parentheses left behind: "( )", "()", "( )"
+    t = re.sub(r"\(\s*\)", "", t)
+    t = re.sub(r"\[\s*\]", "", t)
+    t = re.sub(r"\s{2,}", " ", t)
+    t = re.sub(r"\n{3,}", "\n\n", t)
+    return t.strip()
 
 
-def select_required_context(chunks: list[RAGChunk], allowed_urls: set[str]) -> tuple[str, str]:
-    mention = _pick_required_mention(chunks)
-    url = _chunk_best_url(chunks, allowed_urls)
-    if not url:
-        # fallback: any allowed url
-        url = next(iter(allowed_urls), "https://example.com")
-    return mention, url
+def select_required_context(
+    *,
+    chunks: Sequence[object],
+    allowed_urls: Set[str],
+) -> Tuple[str, str]:
+    """
+    Pick ONE required mention (string) and ONE required URL to enforce in the answer.
 
+    We prefer:
+    - a URL that appears in the top chunk's text or metadata
+    - otherwise the first URL in allowed_urls
+    """
+    required_url = ""
+    required_mention = ""
 
-def _join_context(context_texts: Iterable[str], limit_chars: int = 6000) -> str:
-    out: list[str] = []
-    used = 0
-    for t in context_texts:
-        s = (t or "").strip()
-        if not s:
-            continue
-        if used + len(s) + 2 > limit_chars:
-            break
-        out.append(s)
-        used += len(s) + 2
-    return "\n\n".join(out)
+    # Best-effort extraction from first chunk.
+    if chunks:
+        first = chunks[0]
+        meta = getattr(first, "metadata", None) or {}
+        # mention priority: title/name/place
+        for k in ("title", "name", "spot", "place", "event", "location"):
+            v = meta.get(k)
+            if isinstance(v, str) and v.strip():
+                required_mention = v.strip()
+                break
+
+        text = getattr(first, "text", "") or ""
+        urls_in_first = extract_urls_from_text(text)
+        if urls_in_first:
+            required_url = normalize_url(urls_in_first[0])
+
+    if not required_url and allowed_urls:
+        # stable pick: smallest string
+        required_url = sorted(allowed_urls)[0]
+
+    if not required_mention:
+        # fallback mention: short snippet of first chunk
+        if chunks:
+            text = (getattr(chunks[0], "text", "") or "").strip()
+            required_mention = (text.splitlines()[0] if text else "").strip()[:60]
+        if not required_mention:
+            required_mention = "the provided context"
+
+    return required_mention, required_url
 
 
 def build_chat_prompts(
     *,
     question: str,
     now_block: str,
-    context_texts: list[str],
-    live_extra: Optional[str],
+    context_texts: Sequence[str],
+    extra_context: Optional[str],
     required_mention: str,
     required_url: str,
-    output_style: str,
-    max_chars: int,
-    audit_feedback: Optional[str] = None,
-    previous_answer: Optional[str] = None,
-) -> tuple[str, str]:
-    sys_lines = [
-        "You are a helpful assistant.",
-        "You MUST follow the requirements exactly.",
-        "If you are unsure, be conservative and avoid hallucinations.",
-        f"Output style: {output_style}",
-    ]
+    allowed_urls: Set[str],
+    output_style: str = "tweet_bot",
+    max_chars: int = 280,
+) -> Tuple[str, str]:
+    """
+    Build (system_prompt, user_prompt).
 
-    user_lines = [
-        now_block.strip(),
-        "",
-        f"[QUESTION]\n{question}\n[/QUESTION]",
-        "",
-        f"[RAG_CONTEXT]\n{_join_context(context_texts)}\n[/RAG_CONTEXT]",
-    ]
+    output_style:
+      - "tweet_bot": concise social post; respects max_chars
+      - "default": generic helpful answer
+    """
+    allowed_list = "\n".join(f"- {u}" for u in sorted(allowed_urls)) if allowed_urls else "(none)"
 
-    if live_extra:
-        user_lines += ["", f"[LIVE_CONTEXT]\n{live_extra.strip()}\n[/LIVE_CONTEXT]"]
+    style_rules = ""
+    if output_style == "tweet_bot":
+        style_rules = (
+            f"- Output must be <= {max_chars} characters.\n"
+            "- Keep it punchy and natural.\n"
+            "- If you mention relative time words like 'tonight', they must match NOW.\n"
+        )
 
-    # strict requirements
-    user_lines += [
-        "",
-        "[REQUIREMENTS]",
-        f"- You must mention: {required_mention}",
-        f"- You must include this URL exactly once: {required_url}",
-        f"- Keep within {max_chars} characters (hard limit).",
-        "- Do not include any other URLs.",
-        "[/REQUIREMENTS]",
-    ]
+    system_prompt = (
+        "You are a careful assistant.\n"
+        "You MUST answer using ONLY the provided context.\n"
+        "Do NOT invent events, places, or dates.\n"
+        "If you include any URL, it MUST be in the allow-list.\n"
+        "Never output broken fragments like '(https://)'.\n"
+    )
 
-    if previous_answer:
-        user_lines += ["", f"[PREVIOUS_ANSWER]\n{previous_answer}\n[/PREVIOUS_ANSWER]"]
+    # RAG context block
+    rag_block = "\n\n".join(
+        f"[{i+1}] {t.strip()}" for i, t in enumerate(context_texts) if t and t.strip()
+    ).strip()
 
-    if audit_feedback:
-        user_lines += ["", f"[AUDIT_FEEDBACK]\n{audit_feedback}\n[/AUDIT_FEEDBACK]"]
+    user_prompt = (
+        f"{now_block}\n\n"
+        f"Question:\n{question.strip()}\n\n"
+        f"Required mention: {required_mention}\n"
+        f"Required URL: {required_url}\n\n"
+        f"Allowed URLs:\n{allowed_list}\n\n"
+        f"RAG context:\n{rag_block}\n\n"
+    )
 
-    user_lines += ["", "Answer now."]
+    if extra_context and extra_context.strip():
+        user_prompt += f"[Live context]\n{extra_context.strip()}\n\n"
 
-    return "\n".join(sys_lines).strip(), "\n".join(user_lines).strip()
+    user_prompt += (
+        "Rules:\n"
+        f"{style_rules}"
+        f"- You MUST mention the required mention and include the required URL.\n"
+        "- Do NOT include any URL not in the allow-list.\n"
+        "- If context is insufficient, say so briefly.\n\n"
+        "Answer:"
+    )
 
-
-def _ensure_required(answer: str, required_mention: str, required_url: str) -> str:
-    a = (answer or "").strip()
-    if required_mention and required_mention not in a:
-        # append a short mention
-        a = (a + f"\n\n({required_mention})").strip()
-    if required_url and required_url not in a:
-        a = (a + f"\n{required_url}").strip()
-    return a
-
-
-def _trim_to_chars(text: str, max_chars: int) -> str:
-    if max_chars <= 0:
-        return text
-    s = text or ""
-    if len(s) <= max_chars:
-        return s
-    return s[: max_chars - 1].rstrip() + "…"
+    return system_prompt, user_prompt
 
 
 def finalize_answer(
     *,
-    raw_answer: str,
-    output_style: str,
-    max_chars: int,
+    answer: str,
     required_mention: str,
     required_url: str,
+    max_chars: int,
 ) -> str:
-    a = (raw_answer or "").strip()
+    """Post-process answer: strip broken schemes, enforce required mention/url, enforce length."""
+    a = (answer or "").strip()
+    a = strip_broken_schemes(a)
 
-    # normalize whitespace a bit
-    a = re.sub(r"[ \t]+\n", "\n", a)
-    a = re.sub(r"\n{3,}", "\n\n", a).strip()
+    if required_mention and required_mention.lower() not in a.lower():
+        # Add a gentle mention; keep it short
+        a = f"{a}\n\n({required_mention})".strip() if a else f"{required_mention}"
 
-    a = _ensure_required(a, required_mention, required_url)
+    if required_url and required_url not in a:
+        if a:
+            a = f"{a}\n{required_url}"
+        else:
+            a = required_url
 
-    if output_style == "tweet_bot":
-        a = _trim_to_chars(a, max_chars)
-    else:
-        # keep max_chars for safety
-        a = _trim_to_chars(a, max_chars)
+    # Hard cap. Keep URL at the end.
+    if max_chars > 0 and len(a) > max_chars:
+        url_tail = f"\n{required_url}" if required_url else ""
+        budget = max_chars - len(url_tail)
+        if budget < 0:
+            # extreme: just return the URL
+            return required_url[:max_chars]
+        head = a
+        if url_tail and a.endswith(url_tail):
+            head = a[: -len(url_tail)]
+        head = head.strip()
+        if len(head) > budget:
+            head = head[:budget].rstrip()
+        a = (head + url_tail).strip()
 
-    return a.strip()
+    return a

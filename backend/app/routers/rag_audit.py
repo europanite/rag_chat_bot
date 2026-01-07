@@ -1,176 +1,179 @@
+"""
+LLM-based audit for answers produced by the RAG router.
+
+The audit model is asked to validate:
+- The answer stays within provided context.
+- The answer only uses allowed URLs.
+- It respects formatting/length constraints (best-effort).
+
+This module is designed to be called from routers/rag.py.
+"""
 from __future__ import annotations
 
 import json
 import re
-from typing import Any, Callable, Optional
+from typing import Callable, List, Optional, Sequence, Set
 
 from pydantic import BaseModel, Field
 
+from .rag_utils import strip_broken_schemes
 
-class AuditResult(BaseModel):
-    passed: bool
-    issues: list[str] = Field(default_factory=list)
+
+_JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
+
+
+class AuditLite(BaseModel):
+    passed: bool = False
+    score: int = Field(default=0, ge=0, le=100)
+    confidence: str = "low"  # low|medium|high
+    issues: List[str] = Field(default_factory=list)
     fixed_answer: Optional[str] = None
-
-    # Debug fields (filled by caller when include_debug=True)
-    original_answer: Optional[str] = None
     raw: Optional[str] = None
 
 
-_CODE_FENCE_RE = re.compile(r"^\s*```(?:json)?\s*|\s*```\s*$", re.IGNORECASE | re.MULTILINE)
-
-
-def _strip_code_fences(text: str) -> str:
-    return _CODE_FENCE_RE.sub("", text or "").strip()
-
-
-def _parse_first_json_object(text: str) -> Optional[dict[str, Any]]:
-    """
-    Best-effort: find the first JSON object in free-form model output.
-    Returns None if parsing fails.
-    """
-    s = _strip_code_fences(text)
-    if not s:
+def _extract_json(text: str) -> Optional[dict]:
+    if not text:
         return None
+    t = text.strip()
+    # Strip code fences
+    if t.startswith("```"):
+        t = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", t)
+        t = re.sub(r"\s*```$", "", t).strip()
 
+    m = _JSON_OBJECT_RE.search(t)
+    if not m:
+        return None
     try:
-        obj = json.loads(s)
-        return obj if isinstance(obj, dict) else None
+        return json.loads(m.group(0))
     except Exception:
-        pass
-
-    start = s.find("{")
-    if start < 0:
         return None
 
-    depth = 0
-    in_str = False
-    esc = False
-    for i in range(start, len(s)):
-        ch = s[i]
-        if in_str:
-            if esc:
-                esc = False
-            elif ch == "\\":
-                esc = True
-            elif ch == '"':
-                in_str = False
-            continue
-        else:
-            if ch == '"':
-                in_str = True
-                continue
-            if ch == "{":
-                depth += 1
-            elif ch == "}":
-                depth -= 1
-                if depth == 0:
-                    candidate = s[start : i + 1]
-                    try:
-                        obj = json.loads(candidate)
-                        return obj if isinstance(obj, dict) else None
-                    except Exception:
-                        return None
-    return None
 
-
-def _audit_prompt(
-    question: str,
+def build_audit_prompts(
+    *,
     answer: str,
+    question: str,
     now_block: str,
-    required_mention: str,
+    allowed_urls: Set[str],
     required_url: str,
-    allowed_urls: list[str],
+    strict_context: bool,
+    allow_rewrite: bool,
     max_chars: int,
-    output_style: str,
-    audit_context: str,
-    strict: bool,
 ) -> tuple[str, str]:
-    sys = "\n".join(
-        [
-            "You are a strict JSON-only validator.",
-            "Output ONLY a JSON object with keys: passed (bool), issues (array of strings), fixed_answer (string|null).",
-            "Never include Markdown code fences.",
-            "If you cannot fully fix, set fixed_answer to null.",
-            "",
-            audit_context or "",
-        ]
-    ).strip()
+    allowed_list = "\n".join(f"- {u}" for u in sorted(allowed_urls)) if allowed_urls else "(none)"
+    rewrite_rule = (
+        "If you can rewrite into a compliant answer, set fixed_answer to the rewritten answer.\n"
+        if allow_rewrite
+        else "Do not rewrite. Set fixed_answer to null.\n"
+    )
+    system_prompt = (
+        "You are a strict QA auditor for a RAG answer.\n"
+        "Return ONLY valid JSON.\n"
+        "Schema:\n"
+        "{\n"
+        '  "passed": boolean,\n'
+        '  "score": integer (0-100),\n'
+        '  "confidence": "low"|"medium"|"high",\n'
+        '  "issues": string[],\n'
+        '  "fixed_answer": string|null\n'
+        "}\n"
+    )
 
-    # Keep the user prompt deterministic
-    user = "\n".join(
-        [
-            now_block.strip(),
-            "",
-            f"[QUESTION]\n{question}\n[/QUESTION]",
-            "",
-            f"[ANSWER]\n{answer}\n[/ANSWER]",
-            "",
-            f"[REQUIREMENTS]",
-            f"- Must mention: {required_mention}",
-            f"- Must include URL exactly: {required_url}",
-            f"- Only allowed URLs (if any): {', '.join(allowed_urls) if allowed_urls else '(none)'}",
-            f"- Max chars: {max_chars}",
-            f"- Output style: {output_style}",
-            f"- Strict: {strict}",
-            f"[/REQUIREMENTS]",
-            "",
-            "Return JSON only.",
-        ]
-    ).strip()
-
-    return sys, user
+    user_prompt = (
+        f"{now_block}\n\n"
+        f"Question:\n{question.strip()}\n\n"
+        f"Answer:\n{answer.strip()}\n\n"
+        f"Constraints:\n"
+        f"- max_chars: {max_chars}\n"
+        f"- required_url: {required_url}\n"
+        f"- strict_context: {strict_context}\n"
+        f"- allowed_urls:\n{allowed_list}\n\n"
+        f"Rules:\n"
+        f"- The answer must include required_url.\n"
+        f"- The answer must not include any URL outside allowed_urls.\n"
+        f"- The answer must not contain broken fragments like '(https://)'.\n"
+        f"- If strict_context is true, it must not introduce unsupported facts.\n"
+        f"{rewrite_rule}\n"
+        "Now produce JSON."
+    )
+    return system_prompt, user_prompt
 
 
 def run_answer_audit(
     *,
-    question: str,
-    answer: str,
-    now_block: str,
-    required_mention: str,
-    required_url: str,
-    allowed_urls: list[str],
-    max_chars: int,
-    output_style: str,
-    audit_context: str,
-    strict: bool,
-    rewrite: bool,
-    audit_model: str,
     call_chat_with_model: Callable[[str, str, str], str],
-) -> AuditResult:
+    model: str,
+    answer: str,
+    question: str,
+    now_block: str,
+    allowed_urls: Set[str],
+    required_url: str,
+    strict_context: bool,
+    allow_rewrite: bool,
+    max_chars: int,
+) -> AuditLite:
     """
-    Run audit against answer. If rewrite=True, auditor may attempt to produce fixed_answer.
+    call_chat_with_model(model, system_prompt, user_prompt) -> str
     """
-    sys, user = _audit_prompt(
+    # Defensive cleanup before auditing
+    cleaned_answer = strip_broken_schemes(answer)
+
+    sys_prompt, user_prompt = build_audit_prompts(
+        answer=cleaned_answer,
         question=question,
-        answer=answer,
         now_block=now_block,
-        required_mention=required_mention,
-        required_url=required_url,
         allowed_urls=allowed_urls,
+        required_url=required_url,
+        strict_context=strict_context,
+        allow_rewrite=allow_rewrite,
         max_chars=max_chars,
-        output_style=output_style,
-        audit_context=audit_context,
-        strict=strict,
     )
 
-    raw = call_chat_with_model(audit_model, sys, user)
-    obj = _parse_first_json_object(raw)
+    raw = ""
+    try:
+        raw = call_chat_with_model(model, sys_prompt, user_prompt) or ""
+    except Exception as e:
+        return AuditLite(
+            passed=False,
+            score=0,
+            confidence="low",
+            issues=[f"audit_call_failed: {e}"],
+            fixed_answer=None,
+            raw=str(e),
+        )
 
-    issues: list[str] = []
-    fixed: Optional[str] = None
-    passed = False
+    data = _extract_json(raw)
+    if not isinstance(data, dict):
+        return AuditLite(
+            passed=False,
+            score=0,
+            confidence="low",
+            issues=["audit_parse_failed"],
+            fixed_answer=None,
+            raw=raw,
+        )
 
-    if obj:
-        passed = bool(obj.get("passed", False))
-        try:
-            issues = [str(x) for x in (obj.get("issues") or [])]
-        except Exception:
-            issues = []
-        if rewrite:
-            fa = obj.get("fixed_answer")
-            fixed = None if fa is None else str(fa)
-    else:
-        issues = ["Audit returned invalid JSON."]
+    passed = bool(data.get("passed", False))
+    score = int(data.get("score", 0) or 0)
+    confidence = str(data.get("confidence", "low") or "low").lower()
+    if confidence not in {"low", "medium", "high"}:
+        confidence = "low"
+    issues = data.get("issues") or []
+    if not isinstance(issues, list):
+        issues = [str(issues)]
+    issues = [str(x) for x in issues if str(x).strip()]
 
-    return AuditResult(passed=passed, issues=[str(x) for x in issues], fixed_answer=fixed, raw=raw)
+    fixed_answer = data.get("fixed_answer", None)
+    if fixed_answer is not None:
+        fixed_answer = str(fixed_answer).strip()
+        if fixed_answer == "" or fixed_answer.lower() == "null":
+            fixed_answer = None
+
+    return AuditLite(
+        passed=passed,
+        score=max(0, min(100, score)),
+        confidence=confidence,
+        issues=issues,
+        fixed_answer=fixed_answer,
+        raw=raw,
+    )
