@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-07T18:43:31Z",
+  "id": "feed_20260108_033807_JST",
   "date": "2026-01-07",
   "text": "Good morning Yokosuka! It's a chilly winter morning with a bit of wind blowing. The weather forecast says it'll be mostly sunny today! Don't miss the \"2025 Yokosuka Chuo Illumination Photo Contest\" results coming soon!\nTake a stroll around Kinugasayama Park and enjoy the winter scenery #ウィンタークール",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-07T18:43:31Z",
+  "permalink": "./?post=feed_20260108_033807_JST",
+  "image_url": "./image/feed_20260108_033807_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning Yokosuka! It's a chilly winter morning with a bit of wind blowing. The weather forecast says it'll be mostly sunny today! Don't miss the \"2025 Yokosuka Chuo Illumination Photo Contest\" results coming soon! Take a stroll around ",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-07T18:46:52Z"
 }
