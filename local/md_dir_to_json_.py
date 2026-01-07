@@ -12,9 +12,6 @@ Expected output schema (flat fields; NO nested metadata):
     "lang": "en",
     "tags": ["tag1", "tag2"],
     "links": [{"label": "Event page", "url": "https://example.com"}, ...],
-    "title": "…",
-    "datetime": "…",
-    "place": "…",
     "text": "..."
   },
   ...
@@ -118,18 +115,12 @@ def split_sections(md: str) -> Dict[str, List[str]]:
         next_start = hits_sorted[i + 1][1] if i + 1 < len(hits_sorted) else len(md)
         body = md[end:next_start].strip("\n")
 
-        # Collect bullet items.
-        # - Lines starting with "- " begin a new item.
-        # - Indented lines (continuation notes) are appended to the previous item.
+        # Collect bullet lines "- ..."
         items: List[str] = []
-        for raw_line in body.splitlines():
-            if not raw_line.strip():
-                continue
-            if raw_line.lstrip().startswith("- "):
-                items.append(raw_line.lstrip()[2:].strip())
-                continue
-            if items and (raw_line.startswith("  ") or raw_line.startswith("\t")):
-                items[-1] = items[-1] + "\n" + raw_line.strip()
+        for line in body.splitlines():
+            line = line.strip()
+            if line.startswith("- "):
+                items.append(line[2:].strip())
         if items:
             sections[name] = items
 
@@ -290,16 +281,12 @@ def main() -> int:
             text = build_text_from_sections(sections)
             tags = sections.get("tags", [])
             title = sections.get("title", [path.stem])[0]
-            datetime = "\n".join(sections.get("datetime", [])).strip()
-            place = "\n".join(sections.get("place", [])).strip()
             link_section_items = sections.get("link", [])
         else:
             # Fallback: embed full markdown as-is
             text = md.strip()
             tags = []
             title = path.stem
-            datetime = ""
-            place = ""
             link_section_items = None
 
         links = extract_links(md, link_section_items=link_section_items)
@@ -321,9 +308,6 @@ def main() -> int:
             "lang": lang,
             "tags": tags,
             "links": links,
-            "title": title,
-            "datetime": datetime,
-            "place": place,
             "text": text if text else title,
         }
         records.append(record)
