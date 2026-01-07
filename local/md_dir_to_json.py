@@ -4,12 +4,14 @@ Convert a directory of Markdown files into a single JSON array for RAG ingestion
 
 python3 md_dir_to_json.py ../data/md ./output.json --recursive --source local-notes --id-prefix tourism_
 
-Expected output schema (based on the user's sample):
+Expected output schema (flat fields; NO nested metadata):
 [
   {
     "id": "unique_id",
     "source": "some-source",
-    "metadata": { "lang": "en", "tags": ["tag1", "tag2"] },
+    "lang": "en",
+    "tags": ["tag1", "tag2"],
+    "links": [{"label": "Event page", "url": "https://example.com"}, ...],
     "text": "..."
   },
   ...
@@ -20,6 +22,12 @@ Features
 - Parses a structured Markdown format if present:
     # title / # datetime / # place / # detail / # attention / # link / # tags
   (each section contains bullet lines starting with "- ").
+- Extracts links from:
+    - the "# link" section (if present)
+    - Markdown links: [label](https://...)
+    - Auto links: <https://...>
+    - Bare URLs: https://...
+  Links are de-duplicated (by URL) while preserving first-seen order.
 - Falls back to using the entire Markdown content as "text" when the structure isn't found.
 
 Usage
@@ -33,7 +41,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 
 SECTION_HEADERS = [
@@ -47,10 +55,14 @@ SECTION_HEADERS = [
 ]
 
 
+# --- language ---------------------------------------------------------------
+
 def contains_japanese(text: str) -> bool:
     # Hiragana, Katakana, CJK Unified Ideographs (Kanji)
     return bool(re.search(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]", text))
 
+
+# --- IDs -------------------------------------------------------------------
 
 def sanitize_stem(stem: str, max_len: int = 32) -> str:
     # Keep alnum, dash, underscore; replace others with underscore
@@ -67,6 +79,8 @@ def stable_id(rel_path: str, content: str, stem: str, prefix: str = "") -> str:
     base = f"{sanitize_stem(stem)}_{digest}"
     return f"{prefix}{base}"
 
+
+# --- Markdown parsing -------------------------------------------------------
 
 def split_sections(md: str) -> Dict[str, List[str]]:
     """
@@ -135,6 +149,99 @@ def build_text_from_sections(sections: Dict[str, List[str]]) -> str:
     return "\n\n".join(parts).strip()
 
 
+# --- Link extraction --------------------------------------------------------
+
+_FENCED_CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
+_INLINE_CODE_RE = re.compile(r"`[^`]*`")
+_MD_LINK_RE = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
+_AUTOLINK_RE = re.compile(r"<(https?://[^>\s]+)>")
+_BARE_URL_RE = re.compile(r"(?<!\()(?P<url>https?://[^\s<>\])}]+)")
+
+
+def _strip_md_for_link_scan(md: str) -> str:
+    """
+    Remove fenced code blocks and inline code to avoid extracting example URLs.
+    This is a heuristic; it won't be perfect, but it prevents many false positives.
+    """
+    s = md.replace("\r\n", "\n").replace("\r", "\n")
+    s = _FENCED_CODE_BLOCK_RE.sub("", s)
+    s = _INLINE_CODE_RE.sub("", s)
+    return s
+
+
+def _clean_url(url: str) -> str:
+    # Trim common trailing punctuation that often appears in prose.
+    return url.rstrip(").,;:!?'\"")
+
+
+def _links_from_link_section(items: List[str]) -> List[Dict[str, str]]:
+    """
+    Turn '# link' section bullet items into link dicts.
+    Supported patterns:
+      - Label: https://...
+      - https://...
+    """
+    out: List[Dict[str, str]] = []
+    for raw in items:
+        s = raw.strip()
+        if not s:
+            continue
+
+        # Common "Label: URL" pattern
+        m = re.match(r"^(?P<label>[^:]{1,80})\s*:\s*(?P<url>https?://\S+)\s*$", s)
+        if m:
+            out.append({"label": m.group("label").strip(), "url": _clean_url(m.group("url").strip())})
+            continue
+
+        # Otherwise: extract first URL from the line; keep the whole line as label only if it's not just the URL.
+        m2 = re.search(r"https?://\S+", s)
+        if m2:
+            url = _clean_url(m2.group(0).strip())
+            label = s
+            if label == m2.group(0):
+                label = ""
+            out.append({"label": label, "url": url})
+    return out
+
+
+def extract_links(md: str, link_section_items: Optional[List[str]] = None) -> List[Dict[str, str]]:
+    """
+    Extract links from Markdown text and optional '# link' section items.
+    De-duplicates by URL while preserving first-seen order.
+    """
+    seen = set()
+    out: List[Dict[str, str]] = []
+
+    def push(label: str, url: str) -> None:
+        u = _clean_url(url.strip())
+        if not u or u in seen:
+            return
+        seen.add(u)
+        out.append({"label": (label or "").strip(), "url": u})
+
+    # 1) '# link' section has priority (if present)
+    if link_section_items:
+        for d in _links_from_link_section(link_section_items):
+            push(d.get("label", ""), d.get("url", ""))
+
+    # 2) Scan the (cleaned) markdown body
+    scan = _strip_md_for_link_scan(md)
+
+    for m in _MD_LINK_RE.finditer(scan):
+        push(m.group(1), m.group(2))
+
+    for m in _AUTOLINK_RE.finditer(scan):
+        push("", m.group(1))
+
+    # Bare URLs (best-effort)
+    for m in _BARE_URL_RE.finditer(scan):
+        push("", m.group("url"))
+
+    return out
+
+
+# --- file iteration ---------------------------------------------------------
+
 def iter_markdown_files(input_dir: Path, recursive: bool) -> List[Path]:
     if recursive:
         files = sorted([p for p in input_dir.rglob("*.md") if p.is_file()])
@@ -142,6 +249,8 @@ def iter_markdown_files(input_dir: Path, recursive: bool) -> List[Path]:
         files = sorted([p for p in input_dir.glob("*.md") if p.is_file()])
     return files
 
+
+# --- main -------------------------------------------------------------------
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -172,11 +281,15 @@ def main() -> int:
             text = build_text_from_sections(sections)
             tags = sections.get("tags", [])
             title = sections.get("title", [path.stem])[0]
+            link_section_items = sections.get("link", [])
         else:
             # Fallback: embed full markdown as-is
             text = md.strip()
             tags = []
             title = path.stem
+            link_section_items = None
+
+        links = extract_links(md, link_section_items=link_section_items)
 
         lang = "ja" if contains_japanese(md) else "en"
 
@@ -192,10 +305,9 @@ def main() -> int:
         record = {
             "id": doc_id,
             "source": args.source,
-            "metadata": {
-                "lang": lang,
-                "tags": tags,
-            },
+            "lang": lang,
+            "tags": tags,
+            "links": links,
             "text": text if text else title,
         }
         records.append(record)
