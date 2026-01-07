@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-07T16:39:51Z",
+  "id": "feed_20260108_013420_JST",
   "date": "2026-01-07",
   "text": "\"Happy New Year from Yokosuka! Brrr, it's chilly tonight with 3.1°C temp. Get warm with a cup of hot drink at one of our cozy cafes or bakeries. Don't miss the countdown celebration for #YokosukaCountdown2026: https://ja-yokosukahayama.or.jp/tourism/ \" (Yokosuka Countdown 2026 (よこすかカウントダウン 2026))",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://ja-yokosukahayama.or.jp/tourism/"
-  ]
+  ],
+  "legacy_id": "2026-01-07T16:39:51Z",
+  "permalink": "./?post=feed_20260108_013420_JST",
+  "image_url": "./image/feed_20260108_013420_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: \"Happy New Year from Yokosuka! Brrr, it's chilly tonight with 3.1°C temp. Get warm with a cup of hot drink at one of our cozy cafes or bakeries. Don't miss the countdown celebration for #YokosukaCountdown2026: https://ja-yokosukahayama.or.j",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-07T16:42:47Z"
 }
