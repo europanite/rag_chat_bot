@@ -123,7 +123,12 @@ def _call_ollama_chat(
 
 
 def _docs_dir() -> str:
-    return (os.getenv("RAG_DOCS_DIR") or "docs").strip()
+    # Prefer explicit RAG_DOCS_DIR. Fall back to DOCS_DIR (used by docker-compose),
+    # and finally /data/json (the compose mount point).
+    raw = os.getenv("RAG_DOCS_DIR") or os.getenv("DOCS_DIR") or "/data/json"
+    raw = (raw or "").strip()
+    # Guard against empty-string env values
+    return raw or "/data/json"
 
 
 def _now_block(req: Request, payload_datetime: Optional[str]) -> str:
