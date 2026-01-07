@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-07T12:26:50Z",
+  "id": "feed_20260107_212036_JST",
   "date": "2026-01-07",
   "text": "Brrr! It's chilly tonight in Yokosuka! Don't miss the #YokosukaCountdown2026 at Verny Park, featuring a stunning winter illumination display. Get cozy and enjoy the festive atmosphere! Learn more at https://ja-yokosukahayama.or.jp/tourism/ (Title: Yokosuka Countdown 2026 (よこすかカウントダウン 2026))",
   "place": "Yokosuka",
@@ -58,5 +58,11 @@
     "https://ja-yokosukahayama.or.jp/tourism/",
     "https://www.cocoyoko.net/",
     "https://www.sukaichi.com/"
-  ]
+  ],
+  "legacy_id": "2026-01-07T12:26:50Z",
+  "permalink": "./?post=feed_20260107_212036_JST",
+  "image_url": "./image/feed_20260107_212036_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Brrr! It's chilly tonight in Yokosuka! Don't miss the #YokosukaCountdown2026 at Verny Park, featuring a stunning winter illumination display. Get cozy and enjoy the festive atmosphere! Learn more at https://ja-yokosukahayama.or.jp/tourism/ ",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-07T12:29:33Z"
 }
