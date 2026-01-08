@@ -605,7 +605,7 @@ def main() -> int:
     if top_k > 128:
         print(f"ERROR: RAG_TOP_K={top_k} is invalid. Backend requires top_k <= 128.", file=sys.stderr)
         return 1
-    max_chars = env("MAX_CHARS")
+    max_chars = int(env("MAX_CHARS"))
     hashtags = env("HASHTAGS", "")
 
     now_local = local_stamp(tz_name)
