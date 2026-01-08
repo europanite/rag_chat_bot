@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-08T03:18:56Z",
+  "id": "feed_20260108_121342_JST",
   "date": "2026-01-08",
   "text": "\"Good afternoon from Yokosuka! It's a mild and windy winter day. Head to the Yokosuka Winter Illumination (横須賀ウィンターイルミネーション) for",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-08T03:18:56Z",
+  "permalink": "./?post=feed_20260108_121342_JST",
+  "image_url": "./image/feed_20260108_121342_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: \"Good afternoon from Yokosuka! It's a mild and windy winter day. Head to the Yokosuka Winter Illumination (横須賀ウィンターイルミネーション) for",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-08T03:21:39Z"
 }
