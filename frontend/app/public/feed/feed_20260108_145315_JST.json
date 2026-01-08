@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-08T05:58:07Z",
+  "id": "feed_20260108_145315_JST",
   "date": "2026-01-08",
   "text": "Here's a tweet for you: \"Happy afternoon in Yokosuka! Today's weather is sunny with a mild 9.4°C (49°F) temperature. Don't miss out on the fun at #YokosukaCountdown2026 happening tomorrow and tomorrow night (01/11-01/12)! #ウィンタークール\" (Yokosuka Countdown 2026 (よこすかカウントダウン 2026))",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-08T05:58:07Z",
+  "permalink": "./?post=feed_20260108_145315_JST",
+  "image_url": "./image/feed_20260108_145315_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Here's a tweet for you: \"Happy afternoon in Yokosuka! Today's weather is sunny with a mild 9.4°C (49°F) temperature. Don't miss out on the fun at #YokosukaCountdown2026 happening tomorrow and tomorrow night (01/11-01/12)! #ウィンタークール\" (Yokosu",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-08T06:01:44Z"
 }
