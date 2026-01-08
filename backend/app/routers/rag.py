@@ -44,9 +44,6 @@ _session = requests.Session()
 
 # Defaults (tests rely on these env keys)
 DEFAULT_BASE_URL = "http://ollama:11434"
-DEFAULT_CHAT_MODEL = "llama3.1"
-DEFAULT_AUDIT_MODEL = "llama3.1"
-
 
 def _get_ollama_base_url() -> str:
     base = (os.getenv("OLLAMA_BASE_URL") or DEFAULT_BASE_URL).strip()
@@ -55,16 +52,16 @@ def _get_ollama_base_url() -> str:
 
 
 def _get_ollama_chat_model() -> str:
-    return (os.getenv("OLLAMA_CHAT_MODEL") or DEFAULT_CHAT_MODEL).strip()
+    return (os.getenv("OLLAMA_CHAT_MODEL")).strip()
 
 
 def _get_rag_model() -> str:
     # allow overriding RAG model independently
-    return (os.getenv("RAG_MODEL") or _get_ollama_chat_model()).strip()
+    return (os.getenv("RAG_MODEL")).strip()
 
 
 def _get_audit_model() -> str:
-    return (os.getenv("AUDIT_MODEL") or DEFAULT_AUDIT_MODEL).strip()
+    return (os.getenv("AUDIT_MODEL")).strip()
 
 
 def _get_timeout_s() -> int:
