@@ -157,17 +157,6 @@ def _now_block(req: Request, payload_datetime: Optional[str]) -> str:
     return "NOW:\n" + "\n".join(parts)
 
 
-def _max_chars_default() -> int:
-    for k in ("RAG_MAX_CHARS", "MAX_CHARS", "TWEET_MAX_CHARS"):
-        v = os.getenv(k)
-        if v:
-            try:
-                return max(40, min(2000, int(v)))
-            except Exception:
-                pass
-    return 280
-
-
 class IngestRequest(BaseModel):
     documents: List[str] = Field(default_factory=list)
 
@@ -306,7 +295,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     )
 
     now_block = _now_block(request, payload.datetime)
-    max_chars = int(payload.max_chars or _max_chars_default())
+    max_chars = int(payload.max_chars)
 
     sys_prompt, user_prompt = build_chat_prompts(
         question=question,
