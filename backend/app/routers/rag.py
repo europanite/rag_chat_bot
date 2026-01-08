@@ -49,7 +49,7 @@ def _get_rag_model() -> str:
     return (os.getenv("RAG_MODEL"))
 
 def _get_audit_model() -> str:
-    return (os.getenv("AUDIT_MODEL")
+    return (os.getenv("AUDIT_MODEL"))
 
 
 def _get_timeout_s() -> int:
