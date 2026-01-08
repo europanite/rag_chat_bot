@@ -10,7 +10,6 @@ This router provides:
 The design here matches the test helpers and scripts in this repository:
 - Uses rag_store.query_similar_chunks (not rag_store.query).
 - Uses rag_store.add_document for ingestion.
-- Provides _get_ollama_base_url/_get_ollama_chat_model and _call_ollama_chat helpers.
 
 Note: The actual LLM calls are to an Ollama server at {OLLAMA_BASE_URL}/api/chat.
 """
@@ -43,15 +42,9 @@ router = APIRouter(prefix="/rag", tags=["rag"])
 _session = requests.Session()
 
 # Defaults (tests rely on these env keys)
-DEFAULT_BASE_URL = "http://ollama:11434"
+OLLAMA_BASE_URL = "http://ollama:11434"
 DEFAULT_CHAT_MODEL = "llama3.1"
 DEFAULT_AUDIT_MODEL = "llama3.1"
-
-
-def _get_ollama_base_url() -> str:
-    base = (os.getenv("OLLAMA_BASE_URL") or DEFAULT_BASE_URL).strip()
-    # normalize trailing slash
-    return base[:-1] if base.endswith("/") else base
 
 
 def _get_ollama_chat_model() -> str:
@@ -88,7 +81,7 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
 
 def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
     """Direct Ollama call for a specific model (tests may monkeypatch this)."""
-    url = f"{_get_ollama_base_url()}/api/chat"
+    url = f"{OLLAMA_BASE_URL}/api/chat"
     payload = _ollama_chat_payload(model=model, system_prompt=system_prompt, user_prompt=user_prompt)
     resp = _session.post(url, json=payload, timeout=_get_timeout_s())
     resp.raise_for_status()
