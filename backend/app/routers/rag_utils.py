@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import json
 import re
-from typing import Iterable, List, Optional, Sequence, Set, Tuple
-
+from typing import Any, Iterable, List, Optional, Sequence, Set, Tuple
 
 # Matches URLs with a scheme. Keep it conservative to avoid capturing trailing punctuation.
 _URL_RE = re.compile(r"https?://[^\s\)\]\}>\",']+")
@@ -45,10 +45,65 @@ def normalize_url(url: str) -> str:
     u = u.rstrip(_URL_TRAIL_TRIM)
     return u
 
+def _links_from_meta_value(val: Any) -> List[str]:
+    if val is None:
+        return []
+    if isinstance(val, str):
+        s = val.strip()
+        if not s:
+            return []
+        # Might be JSON-encoded (because chroma metadata flattens)
+        if (s.startswith("[") and s.endswith("]")) or (s.startswith("{") and s.endswith("}")):
+            try:
+                obj = json.loads(s)
+                return _links_from_meta_value(obj)
+            except Exception:
+                pass
+        if "," in s:
+            return [p.strip() for p in s.split(",") if p.strip()]
+        return [s]
+    if isinstance(val, list):
+        out: List[str] = []
+        for x in val:
+            out.extend(_links_from_meta_value(x))
+        return out
+    if isinstance(val, dict):
+        out: List[str] = []
+        for kk in ("url", "href", "link", "permalink", "source_url", "sourceUrl"):
+            vv = val.get(kk)
+            if isinstance(vv, str) and vv.strip():
+                out.append(vv.strip())
+        return out
+    return []
+
+def collect_source_links(*, chunks: Sequence[object], limit: int = 64) -> List[str]:
+    """
+    Collect `metadata.links` from retrieved chunks (in rank order).
+    """
+    out: List[str] = []
+    seen: Set[str] = set()
+    for c in chunks:
+        meta = getattr(c, "metadata", None) or {}
+        for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
+            for raw in _links_from_meta_value(meta.get(k)):
+                nu = normalize_url(raw)
+                if not nu:
+                    continue
+                if not re.match(r"^https?://", nu, flags=re.I):
+                    continue
+                if nu in seen:
+                    continue
+                seen.add(nu)
+                out.append(nu)
+                if len(out) >= limit:
+                    return out
+    return out
+
 
 def collect_allowed_urls(
     *,
     user_links: Optional[Sequence[str]] = None,
+    chunk_links: Optional[Sequence[str]] = None,
     context_texts: Optional[Sequence[str]] = None,
     extra_text: Optional[str] = None,
     limit: int = 64,
@@ -63,6 +118,11 @@ def collect_allowed_urls(
     urls: List[str] = []
 
     for u in (user_links or []):
+        nu = normalize_url(u)
+        if nu:
+            urls.append(nu)
+
+    for u in (chunk_links or []):
         nu = normalize_url(u)
         if nu:
             urls.append(nu)
@@ -149,6 +209,15 @@ def select_required_context(
             if isinstance(v, str) and v.strip():
                 required_mention = v.strip()
                 break
+
+        # URL priority: metadata.links (or similar keys) -> text -> allowed_urls
+        meta_urls: List[str] = []
+        for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
+            meta_urls.extend(_links_from_meta_value(meta.get(k)))
+        meta_urls = [normalize_url(u) for u in meta_urls if u]
+        meta_urls = [u for u in meta_urls if re.match(r"^https?://", u, flags=re.I)]
+        if meta_urls:
+            required_url = meta_urls[0]
 
         text = getattr(first, "text", "") or ""
         urls_in_first = extract_urls_from_text(text)

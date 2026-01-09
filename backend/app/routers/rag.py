@@ -27,6 +27,7 @@ from pydantic import BaseModel, Field
 import rag_store
 from .rag_utils import (
     build_chat_prompts,
+    collect_source_links,
     collect_allowed_urls,
     filter_answer_urls,
     finalize_answer,
@@ -247,9 +248,13 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     context_texts = [(getattr(c, "text", "") or "").strip() for c in chunks]
     context_texts = [t for t in context_texts if t]
 
+    # 1) links from data.json metadata (preferred for UI)
+    source_links = collect_source_links(chunks=chunks, limit=64)
+
     # allow-list URLs
     allowed_urls: Set[str] = collect_allowed_urls(
         user_links=payload.links,
+        chunk_links=source_links,
         context_texts=context_texts,
         extra_text=payload.extra_context,
     )
@@ -408,17 +413,24 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
 
         break
 
-    # Build links out (include explicit links first, then allowed urls)
+    # Build links out:
+    # - explicit links (caller)
+    # - source links (data.json metadata)
+    # - ensure required_url is included
     links_out: List[str] = []
     seen: Set[str] = set()
     for u in (payload.links or []):
         if u and u not in seen:
             seen.add(u)
             links_out.append(u)
-    for u in sorted(allowed_urls):
+    for u in (source_links or []):
         if u and u not in seen:
             seen.add(u)
             links_out.append(u)
+
+    if required_url and required_url not in seen:
+        links_out.append(required_url)
+        seen.add(required_url)
 
     debug: Optional[Dict[str, Any]] = None
     if payload.include_debug:
@@ -426,6 +438,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             "required_mention": required_mention,
             "required_url": required_url,
             "allowed_urls": sorted(allowed_urls),
+            "source_links": source_links,
             "top_k": top_k,
         }
 

@@ -677,11 +677,41 @@ def _load_json_file(path: str) -> list[dict]:
                 return [s]
             return []
 
+        def _clean_link_list(val: Any) -> list[str]:
+            """
+            Accept:
+              - "https://..." (string)
+              - ["https://...", ...] (list[str])
+              - [{"label": "...", "url": "https://..."}, ...] (list[dict])
+              - {"url": "https://..."} (dict)
+            and return list[str] of URLs.
+            """
+            if val is None:
+                return []
+            if isinstance(val, str):
+                return _clean_str_list(val, split_commas=True)
+            if isinstance(val, dict):
+                for kk in ("url", "href", "link", "permalink", "source_url", "sourceUrl"):
+                    vv = val.get(kk)
+                    if isinstance(vv, str) and vv.strip():
+                        return _clean_str_list(vv, split_commas=True)
+                return []
+            if isinstance(val, list):
+                out: list[str] = []
+                for x in val:
+                    if isinstance(x, str):
+                        out.extend(_clean_str_list(x, split_commas=True))
+                    elif isinstance(x, dict):
+                        out.extend(_clean_link_list(x))
+                return out
+            return []
+
+
         # Normalize links: accept both `link` and `links` (string or list), and common single-URL keys.
         links: list[str] = []
         for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
-            links.extend(_clean_str_list(item.get(k), split_commas=True))
-            links.extend(_clean_str_list(meta.get(k), split_commas=True))
+            links.extend(_clean_link_list(item.get(k)))
+            links.extend(_clean_link_list(meta.get(k)))
         # De-dup while preserving order
         links = list(dict.fromkeys([u for u in links if u]))
         if links:
