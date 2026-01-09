@@ -232,8 +232,41 @@ def fetch_weather_snapshot(lat: str, lon: str, tz_name: str, place: str) -> Tupl
 
 
 def _as_float(x: Any) -> Optional[float]:
+    # JSON from Open-Meteo should already be numeric, but be tolerant of strings.
+    if isinstance(x, bool):
+        return None
     if isinstance(x, (int, float)):
         return float(x)
+    if isinstance(x, str):
+        s = x.strip()
+        if not s:
+            return None
+        try:
+            return float(s)
+        except Exception:
+            return None
+    return None
+
+
+def _as_int(x: Any) -> Optional[int]:
+    # Be tolerant: numbers may appear as float or numeric strings.
+    if x is None or isinstance(x, bool):
+        return None
+    if isinstance(x, int):
+        return x
+    if isinstance(x, float):
+        try:
+            return int(x)
+        except Exception:
+            return None
+    if isinstance(x, str):
+        s = x.strip()
+        if not s:
+            return None
+        try:
+            return int(float(s))
+        except Exception:
+            return None
     return None
 
 
