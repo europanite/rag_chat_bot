@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-09T01:02:09Z",
+  "id": "feed_20260109_095541_JST",
   "date": "2026-01-09",
   "text": "Good morning from Yokosuka! It's a chilly winter morning with some cloudy skies ahead. Don't miss New Year Events in Kurihama (Yokosuka): Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki (2025–2026) happening NOW! #WinterCool",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-09T01:02:09Z",
+  "permalink": "./?post=feed_20260109_095541_JST",
+  "image_url": "./image/feed_20260109_095541_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning from Yokosuka! It's a chilly winter morning with some cloudy skies ahead. Don't miss New Year Events in Kurihama (Yokosuka): Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki (2025–2026) happening NOW! #WinterCool",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-09T01:05:07Z"
 }
