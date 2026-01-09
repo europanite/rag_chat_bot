@@ -94,14 +94,7 @@ def _call_ollama_chat(
     )
 
 
-def _docs_dir() -> str:
-    # Prefer explicit RAG_DOCS_DIR. Fall back to DOCS_DIR (used by docker-compose),
-    # and finally /data/json (the compose mount point).
-    raw = os.getenv("RAG_DOCS_DIR") or os.getenv("DOCS_DIR") or "/data/json"
-    raw = (raw or "").strip()
-    # Guard against empty-string env values
-    return raw or "/data/json"
-
+DOCS_DIR = os.getenv("DOCS_DIR").strip()
 
 def _now_block(req: Request, payload_datetime: Optional[str]) -> str:
     """
@@ -191,7 +184,7 @@ def status() -> Dict[str, Any]:
     except Exception as e:
         logger.exception("get_collection_count failed")
         raise HTTPException(status_code=500, detail=f"RAG store error: {e}")
-    return {"ok": True, "chunks_in_store": n, "docs_dir": _docs_dir()}
+    return {"ok": True, "chunks_in_store": n, "docs_dir": DOCS_DIR}
 
 
 @router.post("/reindex")
@@ -199,7 +192,7 @@ def reindex() -> Dict[str, Any]:
     """
     Rebuild the index from docs dir JSON files (expected by scripts).
     """
-    docs = _docs_dir()
+    docs = DOCS_DIR
     if not os.path.isdir(docs):
         raise HTTPException(status_code=404, detail=f"Docs dir not found: {docs}")
     try:
