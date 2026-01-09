@@ -1,15 +1,3 @@
-"""
-Utilities for the RAG router.
-
-This module is intentionally dependency-light so it can be imported by the API
-router without pulling in heavy libraries.
-
-Key goals:
-- Extract/normalize URLs from RAG context and live context (snapshots).
-- Enforce an allow-list of URLs in the final answer.
-- Build prompts that strongly bias the LLM to only talk about retrieved context.
-- Make it hard for the LLM to output broken "(https://)" fragments.
-"""
 from __future__ import annotations
 
 import re

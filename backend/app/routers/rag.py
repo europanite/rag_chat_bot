@@ -47,14 +47,6 @@ router = APIRouter(prefix="/rag", tags=["rag"])
 # Reused HTTP session for Ollama calls (tests monkeypatch this).
 _session = requests.Session()
 
-def _get_timeout_s() -> int:
-    # tests expect an int timeout argument
-    try:
-        return int(os.getenv("OLLAMA_TIMEOUT_S") or "90")
-    except Exception:
-        return 90
-
-
 def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
     return {
         "model": model,
@@ -70,7 +62,7 @@ def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt:
     """Direct Ollama call for a specific model (tests may monkeypatch this)."""
     url = f"{OLLAMA_BASE_URL}/api/chat"
     payload = _ollama_chat_payload(model=model, system_prompt=system_prompt, user_prompt=user_prompt)
-    resp = _session.post(url, json=payload, timeout=_get_timeout_s())
+    resp = _session.post(url, json=payload, timeout=OLLAMA_TIMEOUT_S)
     resp.raise_for_status()
     data = resp.json() or {}
     return ((data.get("message") or {}).get("content") or "").strip()
