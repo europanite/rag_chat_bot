@@ -10,7 +10,6 @@ This router provides:
 The design here matches the test helpers and scripts in this repository:
 - Uses rag_store.query_similar_chunks (not rag_store.query).
 - Uses rag_store.add_document for ingestion.
-- Provides _get_ollama_base_url/_get_ollama_chat_model and _call_ollama_chat helpers.
 
 Note: The actual LLM calls are to an Ollama server at {OLLAMA_BASE_URL}/api/chat.
 """
@@ -35,33 +34,18 @@ from .rag_utils import (
 )
 from .rag_audit import AuditLite, run_answer_audit
 
+OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL")
+RAG_MODEL = os.getenv("RAG_MODEL")
+AUDIT_MODEL = os.getenv("AUDIT_MODEL")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
+OLLAMA_TIMEOUT_S = os.getenv("OLLAMA_TIMEOUT_S")
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
 # Reused HTTP session for Ollama calls (tests monkeypatch this).
 _session = requests.Session()
-
-# Defaults (tests rely on these env keys)
-
-def _get_ollama_base_url() -> str:
-    base = (os.getenv("OLLAMA_BASE_URL")).strip()
-    # normalize trailing slash
-    return base[:-1] if base.endswith("/") else base
-
-
-def _get_ollama_chat_model() -> str:
-    return (os.getenv("OLLAMA_CHAT_MODEL")).strip()
-
-
-def _get_rag_model() -> str:
-    # allow overriding RAG model independently
-    return (os.getenv("RAG_MODEL")).strip()
-
-
-def _get_audit_model() -> str:
-    return (os.getenv("AUDIT_MODEL")).strip()
-
 
 def _get_timeout_s() -> int:
     # tests expect an int timeout argument
@@ -84,7 +68,7 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
 
 def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
     """Direct Ollama call for a specific model (tests may monkeypatch this)."""
-    url = f"{_get_ollama_base_url()}/api/chat"
+    url = f"{OLLAMA_BASE_URL}/api/chat"
     payload = _ollama_chat_payload(model=model, system_prompt=system_prompt, user_prompt=user_prompt)
     resp = _session.post(url, json=payload, timeout=_get_timeout_s())
     resp.raise_for_status()
@@ -112,7 +96,7 @@ def _call_ollama_chat(
         )
         user_prompt = f"Question:\n{question}\n\nContext:\n{context or ''}\n\nAnswer:"
     return _call_ollama_chat_with_model(
-        model=_get_rag_model(),
+        model=RAG_MODEL,
         system_prompt=system_prompt,
         user_prompt=user_prompt,
     )
@@ -347,7 +331,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             answer = candidate
             break
 
-        audit_model = (payload.audit_model or _get_audit_model()).strip()
+        audit_model = AUDIT_MODEL
         audit_lite: AuditLite = run_answer_audit(
             call_chat_with_model=lambda m, sp, up: _call_ollama_chat_with_model(
                 model=m, system_prompt=sp, user_prompt=up
