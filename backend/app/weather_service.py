@@ -261,38 +261,50 @@ def _as_int(v: Any) -> int | None:
 
 
 def format_live_weather_context(location: Location, weather: WeatherSnapshot) -> str:
-    desc = _WEATHER_CODE.get(weather.weather_code, f"weather_code={weather.weather_code}" if weather.weather_code is not None else "unknown")
-    where = location.place or f"{location.latitude:.4f},{location.longitude:.4f}"
-    parts: list[str] = [
-        f"Location: {where} (source={location.source})",
-    ]
-    if weather.observed_at:
-        parts.append(f"Observed at: {weather.observed_at}")
-    parts.append(f"Condition: {desc}")
+    """Format weather for LLM consumption (minimal).
 
-    if weather.temperature_c is not None:
-        t = f"{weather.temperature_c:.1f}°C"
-        if weather.apparent_temperature_c is not None:
-            t += f" (feels {weather.apparent_temperature_c:.1f}°C)"
-        parts.append(f"Temperature: {t}")
+    We intentionally keep this *small* to reduce prompt bloat.
+    Output contains ONLY:
+      - weather: one of {sunny, cloudy, rainy, windy, chilly}
+      - temp_c: integer Celsius
 
-    if weather.humidity_pct is not None:
-        parts.append(f"Humidity: {weather.humidity_pct:.0f}%")
+    Other fields are used only to derive the single `weather` label.
+    """
 
-    if weather.precipitation_mm is not None:
-        parts.append(f"Precipitation: {weather.precipitation_mm:.1f} mm")
+    temp_c = weather.temperature_c
+    precip_mm = weather.precipitation_mm
+    wind_kmh = weather.wind_speed_kmh
+    code = weather.weather_code
 
-    if weather.wind_speed_kmh is not None:
-        wind = f"{weather.wind_speed_kmh:.1f} km/h"
-        if weather.wind_direction_deg is not None:
-            wind += f" @ {weather.wind_direction_deg:.0f}°"
-        parts.append(f"Wind: {wind}")
+    # Priority: rainy > windy > chilly > sunny > cloudy
+    is_rainy = False
+    if precip_mm is not None and precip_mm > 0.1:
+        is_rainy = True
+    if code is not None:
+        # WMO weather codes: treat any precipitation / thunder / snow as "rainy"
+        if 51 <= code <= 67:
+            is_rainy = True
+        if 71 <= code <= 86:
+            is_rainy = True
+        if 95 <= code <= 99:
+            is_rainy = True
 
-    # A reminder for the LLM: this is ephemeral and should not be stored.
-    parts.append("Note: This is live, short-lived context; do NOT store it in the vector DB.")
+    if is_rainy:
+        condition = "rainy"
+    elif wind_kmh is not None and wind_kmh >= 25.0:
+        condition = "windy"
+    elif temp_c is not None and temp_c <= 5.0:
+        condition = "chilly"
+    else:
+        # Use weather_code/precip/cloud if available; fall back to 'cloudy'
+        is_sunny = False
+        if code == 0:
+            is_sunny = True
+        # If you later add cloud cover to WeatherSnapshot, you can refine this.
+        condition = "sunny" if is_sunny else "cloudy"
 
-    return "\n".join(parts)
-
+    temp_i = int(round(temp_c)) if temp_c is not None else 0
+    return f"weather={condition}\ntemp_c={temp_i}\n"
 
 def get_live_weather_context(*, http_request: Request, session: requests.Session) -> str:
     """Return a short, human-readable block that can be appended to the RAG prompt."""

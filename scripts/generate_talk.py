@@ -279,92 +279,75 @@ def _seasonal_event_keywords(now_local: datetime) -> str:
     return base
 
 
-def _weather_hint(cur: Dict[str, Any]) -> str:
-    temp = _as_float(cur.get("temp_c"))
-    precip = _as_float(cur.get("precip_mm"))
-    cloud = _as_float(cur.get("cloud_cover_pct"))
-    wind = _as_float(cur.get("wind_kmh"))
-    code = cur.get("weather_code")
+def _weather_condition_and_temp(obj: Dict[str, Any]) -> tuple[str, int]:
+    """Derive a single weather condition + temperature.
 
-    snow_codes = {71, 73, 75, 77, 85, 86}
-    thunder_codes = {95, 96, 99}
+    Accepts either:
+      - the full snapshot dict (with key "current")
+      - the "current" dict itself (already flattened)
 
-    tags: list[str] = []
-    if isinstance(code, int) and code in thunder_codes:
-        tags.append("thunder")
-    if isinstance(code, int) and code in snow_codes:
-        tags.append("snowy")
-    if precip is not None and precip >= 0.2:
-        tags.append("rainy")
-    if wind is not None and wind >= 20:
-        tags.append("windy")
-    if cloud is not None and cloud >= 70:
-        tags.append("cloudy")
+    Output condition is one of: sunny, cloudy, rainy, windy, chilly
+    """
 
-    if temp is not None:
-        if temp <= 8:
-            tags.append("cold")
-        elif temp >= 26:
-            tags.append("hot")
-        else:
-            tags.append("mild")
+    if not isinstance(obj, dict):
+        cur = {}
+    else:
+        cur = obj.get("current") if isinstance(obj.get("current"), dict) else obj
 
-    return ", ".join(tags) if tags else "unknown"
+    temp_c = _as_float(cur.get("temp_c"))
+    precip_mm = _as_float(cur.get("precip_mm"))
+    cloud_pct = _as_float(cur.get("cloud_cover_pct"))
+    wind_kmh = _as_float(cur.get("wind_kmh"))
+    weather_code = _as_int(cur.get("weather_code"))
+
+    # Priority: rainy > windy > chilly > sunny > cloudy
+    is_rainy = False
+    if precip_mm is not None and precip_mm > 0.1:
+        is_rainy = True
+    if weather_code is not None:
+        # WMO weather codes: treat any precipitation / thunder / snow as "rainy"
+        if 51 <= weather_code <= 67:
+            is_rainy = True
+        if 71 <= weather_code <= 86:
+            is_rainy = True
+        if 95 <= weather_code <= 99:
+            is_rainy = True
+
+    if is_rainy:
+        condition = "rainy"
+    elif wind_kmh is not None and wind_kmh >= 25.0:
+        condition = "windy"
+    elif temp_c is not None and temp_c <= 5.0:
+        condition = "chilly"
+    else:
+        is_sunny = False
+        if weather_code is not None and weather_code == 0:
+            is_sunny = True
+        if cloud_pct is not None and cloud_pct <= 20.0:
+            is_sunny = True
+        condition = "sunny" if is_sunny else "cloudy"
+
+    temp_i = int(round(temp_c)) if temp_c is not None else 0
+    return condition, temp_i
+
+
+def _weather_hint(obj: Dict[str, Any]) -> str:
+    """Backward-compatible hint: condition + temperature only."""
+    condition, temp_i = _weather_condition_and_temp(obj)
+    return f"{condition},{temp_i}C"
 
 def _weather_brief_for_llm(snap_obj: Dict[str, Any]) -> str:
-    """Return a tiny JSON string for LLM: only condition words + temperature.
+    """Return a *minimal* weather summary for the LLM.
 
-    The tweet prompt requires weather words to be among:
-    sunny / cloudy / windy / chilly / rainy.
+    We intentionally pass only:
+      - condition: one of {sunny, cloudy, rainy, windy, chilly}
+      - temp_c: integer Celsius
+
+    Everything else is used only to derive the condition, but is NOT forwarded.
     """
-    cur = (snap_obj or {}).get("current") or {}
-    temp = _as_float(cur.get("temp_c"))
-    precip = _as_float(cur.get("precip_mm"))
-    cloud = _as_float(cur.get("cloud_cover_pct"))
-    wind = _as_float(cur.get("wind_kmh"))
-    code = cur.get("weather_code")
 
-    # WMO weather codes (Open-Meteo compatible)
-    precip_codes = set(range(51, 68)) | {80, 81, 82, 95, 96, 99}
-    clear_codes = {0, 1}
-    cloudy_codes = {2, 3}
-
-    tags: set[str] = set()
-
-    # Rain first (covers showers / thunderstorms as well)
-    if precip is not None and precip >= 0.2:
-        tags.add("rainy")
-    elif isinstance(code, int) and code in precip_codes:
-        tags.add("rainy")
-
-    # Sky condition if not rainy
-    if "rainy" not in tags:
-        if cloud is not None:
-            if cloud >= 70:
-                tags.add("cloudy")
-            elif cloud <= 30:
-                tags.add("sunny")
-        elif isinstance(code, int):
-            if code in clear_codes:
-                tags.add("sunny")
-            elif code in cloudy_codes:
-                tags.add("cloudy")
-
-    # Wind and temperature modifiers
-    if wind is not None and wind >= 20:
-        tags.add("windy")
-    if temp is not None and temp <= 8:
-        tags.add("chilly")
-
-    # Guarantee at least one of {sunny, cloudy, rainy}
-    if not ({"sunny", "cloudy", "rainy"} & tags):
-        tags.add("cloudy")
-
-    temp_i = int(round(temp)) if temp is not None else None
-    order = ["rainy", "sunny", "cloudy", "windy", "chilly"]
-    weather = [t for t in order if t in tags]
-    return json.dumps({"weather": weather, "temp_c": temp_i}, ensure_ascii=False)
-
+    condition, temp_i = _weather_condition_and_temp(snap_obj)
+    return f"weather={condition}\ntemp_c={temp_i}\n"
 
 def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]:
     """
@@ -530,7 +513,7 @@ def build_question(
         f"{event_guard}"
         f"TOPIC FAMILY: {topic_family} (event/place/chat).\n"
         f"SUBTOPIC: {topic_mode} (keywords: {topic_keywords}).\n"
-        f"HINTS: time_of_day={tod}, season={season}, weather_hint={hint}.\n"
+        f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
         "Pick up ONE topic and mention only that one from RAG Context that fits the HINTS.\n"
         "You may include at most one official URL only if it exists in the chosen text.\n"
         f"Write up to {max_chars} characters.\n"
