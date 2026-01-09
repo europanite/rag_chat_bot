@@ -46,7 +46,7 @@ jobs:
           RAG_MODEL: "llama3.1:8b"
           AUDIT_MODEL: "llama3.1:8b"
           OLLAMA_BASE_URL: "http://ollama:11434"
-          OLLAMA_TIMEOUT_S: 90
+          OLLAMA_TIMEOUT_S: 256
         run: |
           docker compose -f docker-compose.yml up -d --build
 
@@ -90,7 +90,7 @@ jobs:
           LATEST_PATH: frontend/app/public/latest.json
           MAX_CHARS: 512
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-          OLLAMA_TIMEOUT_S: 90
+          OLLAMA_TIMEOUT_S: 256
           DEBUG: 1
         run: |
           python scripts/generate_talk.py

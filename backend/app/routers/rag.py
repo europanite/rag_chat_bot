@@ -41,7 +41,7 @@ OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL")
 RAG_MODEL = os.getenv("RAG_MODEL")
 AUDIT_MODEL = os.getenv("AUDIT_MODEL")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
-OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S", "90"))
+OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S", "256"))
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,10 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
+        "options": {
+            "num_predict": 256,
+            "temperature": 0.2,
+        },
     }
 
 
@@ -65,7 +69,7 @@ def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt:
     """Direct Ollama call for a specific model (tests may monkeypatch this)."""
     url = f"{OLLAMA_BASE_URL}/api/chat"
     payload = _ollama_chat_payload(model=model, system_prompt=system_prompt, user_prompt=user_prompt)
-    resp = _session.post(url, json=payload, timeout=OLLAMA_TIMEOUT_S)
+    resp = _session.post(url, json=payload, timeout=(5, OLLAMA_TIMEOUT_S))
     resp.raise_for_status()
     data = resp.json() or {}
     return ((data.get("message") or {}).get("content") or "").strip()
