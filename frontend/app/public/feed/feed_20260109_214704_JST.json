@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-09T12:53:31Z",
+  "id": "feed_20260109_214704_JST",
   "date": "2026-01-09",
   "text": "\"Good evening! It's a chilly night in Yokosuka with a mild temperature of 9.3°C. Head to Hashirimizu Beach for some nighttime coastal views tonight! Don't miss the upcoming #YokosukaCountdown2026 event on Jan 1st!\" (Yokosuka Countdown 2026 (よこすかカウントダウン 2026))",
   "place": "Yokosuka",
@@ -54,5 +54,11 @@
       "temp_city_code": null
     }
   },
-  "links": []
+  "links": [],
+  "legacy_id": "2026-01-09T12:53:31Z",
+  "permalink": "./?post=feed_20260109_214704_JST",
+  "image_url": "./image/feed_20260109_214704_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: \"Good evening! It's a chilly night in Yokosuka with a mild temperature of 9.3°C. Head to Hashirimizu Beach for some nighttime coastal views tonight! Don't miss the upcoming #YokosukaCountdown2026 event on Jan 1st!\" (Yokosuka Countdown 2026 ",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-09T12:56:09Z"
 }
