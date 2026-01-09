@@ -1,0 +1,66 @@
+{
+  "id": "feed_20260109_110000_JST",
+  "date": "2026-01-09",
+  "text": "\"Happy New Year from Yokosuka! Today's forecast: mild, partly cloudy. Don't miss New Year Events in Kurihama (Yokosuka): Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki (2025–2026) for a unique experience. Check out https://ja-yokosukahayama.or.jp/tourism/ for more info #NewYearInYokosuka\"",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-09T02:06:48Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-09T02:00:02.827864+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-09T10:50:00+09:00",
+      "temp_c": 8.3,
+      "apparent_temp_c": null,
+      "humidity_pct": 30.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 11.879999999999999,
+      "wind_dir_deg": 45.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-09",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夕方　から　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 10
+    },
+    "tomorrow": {
+      "date": "2026-01-10",
+      "weather_code": 95,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夕方　から　くもり　所により　夜　雨　で　雷を伴う",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 30
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-09T11:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://ja-yokosukahayama.or.jp/tourism/"
+  ],
+  "legacy_id": "2026-01-09T02:06:48Z",
+  "permalink": "./?post=feed_20260109_110000_JST",
+  "image_url": "./image/feed_20260109_110000_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: \"Happy New Year from Yokosuka! Today's forecast: mild, partly cloudy. Don't miss New Year Events in Kurihama (Yokosuka): Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki (2025–2026) for a unique experience. Check out https://ja-yokosukaha",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-09T02:09:58Z"
+}
