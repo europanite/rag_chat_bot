@@ -43,10 +43,9 @@ router = APIRouter(prefix="/rag", tags=["rag"])
 _session = requests.Session()
 
 # Defaults (tests rely on these env keys)
-DEFAULT_BASE_URL = "http://ollama:11434"
 
 def _get_ollama_base_url() -> str:
-    base = (os.getenv("OLLAMA_BASE_URL") or DEFAULT_BASE_URL).strip()
+    base = (os.getenv("OLLAMA_BASE_URL")).strip()
     # normalize trailing slash
     return base[:-1] if base.endswith("/") else base
 
