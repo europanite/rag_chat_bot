@@ -496,7 +496,7 @@ def build_question(
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
     season = _season_bucket(now_local.month)
-    hint = _weather_hint(cur)
+    condition, temp_i = _weather_condition_and_temp(cur)
 
     # Keywords help retrieval; family/mode enforce "event/place/chat"
     keyword_map: Dict[Tuple[str, str], str] = {
