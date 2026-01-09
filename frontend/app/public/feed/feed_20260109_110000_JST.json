@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-09T02:06:48Z",
+  "id": "feed_20260109_110000_JST",
   "date": "2026-01-09",
   "text": "\"Happy New Year from Yokosuka! Today's forecast: mild, partly cloudy. Don't miss New Year Events in Kurihama (Yokosuka): Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki (2025–2026) for a unique experience. Check out https://ja-yokosukahayama.or.jp/tourism/ for more info #NewYearInYokosuka\"",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://ja-yokosukahayama.or.jp/tourism/"
-  ]
+  ],
+  "legacy_id": "2026-01-09T02:06:48Z",
+  "permalink": "./?post=feed_20260109_110000_JST",
+  "image_url": "./image/feed_20260109_110000_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: \"Happy New Year from Yokosuka! Today's forecast: mild, partly cloudy. Don't miss New Year Events in Kurihama (Yokosuka): Joya-no-Kane, Hatsumode, First Sunrise & Dondoyaki (2025–2026) for a unique experience. Check out https://ja-yokosukaha",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-09T02:09:58Z"
 }
