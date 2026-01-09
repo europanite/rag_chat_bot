@@ -48,7 +48,7 @@ services:
       RAG_REBUILD_ON_START: ${RAG_REBUILD_ON_START}
       RAG_INDEX_FAIL_FAST: ${RAG_INDEX_FAIL_FAST}
       RAG_CHUNK_SIZE: ${RAG_CHUNK_SIZE}
-      RAG_TOP_K: ${RAG_TOP_K:-16}
+      RAG_TOP_K: ${RAG_TOP_K:-8}
       LAT: ${LAT}
       LON: ${LON}
       TZ_NAME: ${TZ_NAME}

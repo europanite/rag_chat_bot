@@ -83,17 +83,13 @@ jobs:
           LAT: "35.2810"
           LON: "139.6722"
           TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: 16
+          RAG_TOP_K: 8
           CURL_MAX_TIME: 512
           PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
           MAX_CHARS: 512
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-          # OLLAMA_BASE_URL: "http://ollama:11434"
-          # OLLAMA_CHAT_MODEL: "llama3.1:8b"
-          # RAG_MODEL: "llama3.1:8b"
-          # AUDIT_MODEL: "llama3.1:8b"
           OLLAMA_TIMEOUT_S: 90
           DEBUG: 1
         run: |
