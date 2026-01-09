@@ -18,6 +18,8 @@ from __future__ import annotations
 import os
 import json
 import logging
+import re
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import requests
@@ -39,7 +41,7 @@ OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL")
 RAG_MODEL = os.getenv("RAG_MODEL")
 AUDIT_MODEL = os.getenv("AUDIT_MODEL")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
-OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S"))
+OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S", "90"))
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +97,7 @@ def _call_ollama_chat(
     )
 
 
-DOCS_DIR = os.getenv("DOCS_DIR").strip()
+DOCS_DIR = (os.getenv("DOCS_DIR") or "/data/json").strip()
 
 def _now_block(req: Request, payload_datetime: Optional[str]) -> str:
     """
@@ -122,6 +124,234 @@ def _now_block(req: Request, payload_datetime: Optional[str]) -> str:
         return "NOW: (not provided)"
     return "NOW:\n" + "\n".join(parts)
 
+
+# -----------------------------
+# Temporal helpers (event hygiene)
+# -----------------------------
+
+_TOPIC_FAMILY_RE = re.compile(r"TOPIC\s*FAMILY:\s*([^\n]+)", re.IGNORECASE)
+_ISO_DATE_RE = re.compile(r"\b(20\d{2}-\d{2}-\d{2})\b")
+_MONTH_DAY_RE = re.compile(
+    r"\b("
+    r"Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|"
+    r"Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?"
+    r")\.?\s+(\d{1,2})(?:st|nd|rd|th)?\b",
+    re.IGNORECASE,
+)
+_SLASH_DATE_RE = re.compile(r"\b(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?\b")
+
+_MONTHS = {
+    "jan": 1, "january": 1,
+    "feb": 2, "february": 2,
+    "mar": 3, "march": 3,
+    "apr": 4, "april": 4,
+    "may": 5,
+    "jun": 6, "june": 6,
+    "jul": 7, "july": 7,
+    "aug": 8, "august": 8,
+    "sep": 9, "sept": 9, "september": 9,
+    "oct": 10, "october": 10,
+    "nov": 11, "november": 11,
+    "dec": 12, "december": 12,
+}
+
+
+def _safe_parse_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    s = str(value).strip()
+    if not s:
+        return None
+    # Accept Z as UTC.
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
+
+def _safe_parse_date_like(value: Any, *, now_dt: Optional[datetime] = None) -> Optional[date]:
+    if value is None:
+        return None
+    if isinstance(value, (list, tuple)) and value:
+        value = value[0]
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return value
+    if not isinstance(value, str):
+        return None
+
+    s = value.strip()
+    if not s:
+        return None
+
+    # Date only
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", s):
+        try:
+            return date.fromisoformat(s)
+        except Exception:
+            return None
+
+    # Datetime-like
+    if s.endswith("Z"):
+        s2 = s[:-1] + "+00:00"
+    else:
+        s2 = s
+    try:
+        return datetime.fromisoformat(s2).date()
+    except Exception:
+        return None
+
+
+def _extract_topic_family(question: str) -> Optional[str]:
+    q = (question or "")
+    m = _TOPIC_FAMILY_RE.search(q)
+    if not m:
+        return None
+    raw = (m.group(1) or "").strip()
+    if not raw:
+        return None
+    # e.g. "event (event/place/chat)." -> "event"
+    token = re.split(r"[\s\(]", raw, maxsplit=1)[0].strip().lower()
+    return token or None
+
+
+def _wants_future_events(question: str) -> bool:
+    q = (question or "").lower()
+    # Our generator prompt includes "upcoming events" for event family.
+    if "upcoming" in q:
+        return True
+    if "do not mention past" in q:
+        return True
+    if "future event" in q:
+        return True
+    return False
+
+
+def _chunk_event_date(chunk: Any, *, now_dt: Optional[datetime]) -> Optional[date]:
+    meta = getattr(chunk, "metadata", None) or {}
+    if not isinstance(meta, dict):
+        return None
+    for key in ("datetime", "date", "event_datetime", "event_date", "start_datetime", "start_date"):
+        if key in meta:
+            d = _safe_parse_date_like(meta.get(key), now_dt=now_dt)
+            if d:
+                return d
+    return None
+
+
+def _postprocess_retrieved_chunks(
+    chunks: List[Any],
+    *,
+    question: str,
+    now_dt: Optional[datetime],
+) -> List[Any]:
+    """Post-process retrieved chunks to avoid selecting past events for 'upcoming' prompts.
+
+    This is intentionally conservative: it only activates when the prompt explicitly
+    requests upcoming events and declares TOPIC FAMILY: event.
+    """
+    family = _extract_topic_family(question)
+    if family != "event":
+        return chunks
+    if not _wants_future_events(question):
+        return chunks
+    if not now_dt:
+        return chunks
+
+    today = now_dt.date()
+    try:
+        horizon_days = int(os.getenv("EVENT_HORIZON_DAYS", "0") or "0")
+    except Exception:
+        horizon_days = 0
+    horizon_date = today + timedelta(days=horizon_days) if horizon_days > 0 else None
+
+    ranked: list[tuple[int, float, Any]] = []
+    for c in chunks:
+        dist = getattr(c, "distance", 0.0) or 0.0
+        try:
+            dist_f = float(dist)
+        except Exception:
+            dist_f = 0.0
+
+        d = _chunk_event_date(c, now_dt=now_dt)
+        if d is None:
+            ranked.append((1, dist_f, c))  # unknown date
+            continue
+        if d < today:
+            continue  # drop past
+        if horizon_date and d > horizon_date:
+            ranked.append((2, dist_f, c))  # too far; de-prioritize
+            continue
+        ranked.append((0, dist_f, c))  # upcoming/today
+
+    # If everything got filtered out, fall back to original to avoid empty context.
+    if not ranked:
+        return chunks
+
+    ranked.sort(key=lambda t: (t[0], t[1]))
+    return [t[2] for t in ranked]
+
+
+def _temporal_issues_future_event_answer(answer: str, *, now_dt: datetime) -> List[str]:
+    """Detect obvious 'past event' mentions in the generated answer."""
+    issues: list[str] = []
+    text = (answer or "")
+    if not text.strip():
+        return issues
+
+    today = now_dt.date()
+
+    # 1) ISO dates: 2026-01-01
+    for iso in _ISO_DATE_RE.findall(text):
+        try:
+            d = date.fromisoformat(iso)
+        except Exception:
+            continue
+        if d < today:
+            issues.append(f"mentions past date: {iso}")
+
+    # 2) Month day: Jan 1st
+    for mon, day_s in _MONTH_DAY_RE.findall(text):
+        key = mon.strip().lower().rstrip(".")
+        month_num = _MONTHS.get(key)
+        if not month_num:
+            continue
+        try:
+            day_num = int(day_s)
+        except Exception:
+            continue
+        year = now_dt.year
+        # handle year wrap for Dec -> Jan if needed
+        if month_num < now_dt.month and (now_dt.month - month_num) >= 6:
+            year += 1
+        try:
+            d = date(year, month_num, day_num)
+        except Exception:
+            continue
+        if d < today:
+            issues.append(f"mentions past date: {mon} {day_num}")
+
+    # 3) Numeric dates: 1/1 or 01/01/2026
+    for m_s, d_s, y_s in _SLASH_DATE_RE.findall(text):
+        try:
+            mm = int(m_s)
+            dd = int(d_s)
+            yy = int(y_s) if y_s else now_dt.year
+            if yy < 100:
+                yy += 2000
+            # if year missing, assume upcoming if it looks like a wrap
+            if not y_s and mm < now_dt.month and (now_dt.month - mm) >= 6:
+                yy = now_dt.year + 1
+            d = date(yy, mm, dd)
+        except Exception:
+            continue
+        if d < today:
+            issues.append(f"mentions past date: {m_s}/{d_s}{('/'+y_s) if y_s else ''}")
+
+    return issues
 
 class IngestRequest(BaseModel):
     documents: List[str] = Field(default_factory=list)
@@ -235,9 +465,18 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     except Exception:
         top_k = 5
 
+    now_dt = _safe_parse_datetime(payload.datetime)
+    topic_family = _extract_topic_family(question)
+    wants_future_events = (topic_family == "event") and _wants_future_events(question)
+
     # Retrieve context
     try:
         chunks = rag_store.query_similar_chunks(question, top_k=top_k)
+        chunks = _postprocess_retrieved_chunks(
+            chunks,
+            question=question,
+            now_dt=now_dt,
+        )
     except Exception as e:
         logger.exception("query_similar_chunks failed")
         raise HTTPException(status_code=502, detail=f"RAG query failed: {e}")
@@ -285,6 +524,9 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     last_audit: Optional[AuditResult] = None
 
     attempts = max(1, int(payload.audit_max_attempts or 1)) if payload.audit else 1
+    # For 'upcoming event' prompts, allow at least one extra internal retry when rewrite is enabled.
+    if payload.audit and wants_future_events and payload.audit_rewrite:
+        attempts = max(attempts, 2)
 
     answer = ""
     for attempt in range(1, attempts + 1):
@@ -315,6 +557,34 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             required_url=required_url,
             max_chars=max_chars,
         )
+
+
+        # Deterministic temporal lint for "upcoming event" prompts (catches obvious past-date mentions).
+        if wants_future_events and now_dt:
+            temporal_issues = _temporal_issues_future_event_answer(candidate, now_dt=now_dt)
+            if temporal_issues:
+                last_audit = AuditResult(
+                    model="temporal_lint",
+                    passed=False,
+                    score=0,
+                    confidence="high",
+                    issues=temporal_issues,
+                    fixed_answer=None,
+                    original_answer=original_answer if payload.audit_rewrite else None,
+                    raw="temporal_lint_failed" if payload.include_debug else None,
+                )
+                answer = candidate
+                if attempt < attempts and payload.audit_rewrite:
+                    feedback = "; ".join(temporal_issues[:5])
+                    user_prompt = (
+                        user_prompt
+                        + "\n\n"
+                        + f"Audit feedback: {feedback}\n"
+                        + "Rewrite to comply with rules. If mentioning a date, it must be today or in the future.\n"
+                        + "Do not call past events 'upcoming'. Do not add new facts.\n"
+                    )
+                    continue
+                break
 
         # If no audit requested, accept immediately
         if not payload.audit:

@@ -93,6 +93,7 @@ def build_audit_prompts(
         f"- The answer must not include any URL outside allowed_urls.\n"
         f"- The answer must not contain broken fragments like '(https://)'.\n"
         f"- If strict_context is true, it must not introduce unsupported facts.\n"
+        f"- If the question requests upcoming events, the answer must not mention a date earlier than today (based on now_block datetime).\n"
         f"{rewrite_rule}\n"
         "Now produce JSON."
     )

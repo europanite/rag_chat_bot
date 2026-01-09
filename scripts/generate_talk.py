@@ -259,6 +259,26 @@ def _season_bucket(month: int) -> str:
     return "autumn"
 
 
+def _seasonal_event_keywords(now_local: datetime) -> str:
+    """Keywords for seasonal events.
+
+    Avoid hard-biasing 'new year' unless we are near that period, to reduce retrieval of past New Year events.
+    """
+    base = "seasonal holiday event"
+    mth = now_local.month
+    day = now_local.day
+    extra: list[str] = []
+    # Christmas window (approx): Dec 15 - Dec 26
+    if mth == 12 and 15 <= day <= 26:
+        extra.append("christmas")
+    # New Year window (approx): Dec 26 - Jan 5
+    if (mth == 12 and day >= 26) or (mth == 1 and day <= 5):
+        extra.append("new year")
+    if extra:
+        return base + " " + " ".join(extra)
+    return base
+
+
 def _weather_hint(cur: Dict[str, Any]) -> str:
     temp = _as_float(cur.get("temp_c"))
     precip = _as_float(cur.get("precip_mm"))
@@ -422,7 +442,7 @@ def build_question(
         ("event", "festival"): "festival matsuri parade performance",
         ("event", "market"): "market fair flea local vendors",
         ("event", "exhibition"): "exhibition art museum gallery indoor",
-        ("event", "seasonal"): "seasonal holiday christmas new year event",
+        ("event", "seasonal"): "seasonal holiday event",
         # chat
         ("chat", "food"): "curry ramen cafe bakery warm drink",
         ("chat", "trivia"): "fun fact local tip small story",
@@ -430,6 +450,18 @@ def build_question(
         ("chat", "activity"): "running fishing hike workout",
     }
     topic_keywords = keyword_map.get((topic_family, topic_mode), "local tip short story")
+    if topic_family == "event" and topic_mode == "seasonal":
+        topic_keywords = _seasonal_event_keywords(now_local)
+
+    # Strong guardrails: prevent "upcoming" from referencing past events.
+    event_guard = ""
+    if topic_family == "event":
+        event_guard = (
+            "IMPORTANT(event): 'upcoming' means today or later (based on datetime above). "
+            "Do NOT mention past events or any date earlier than today. "
+            "If you cannot find a future event in the RAG Context, write about a local spot instead (still from RAG Context).\n"
+        )
+
 
     return (
         "Write a tweet in English.\n"
@@ -441,6 +473,7 @@ def build_question(
         "\n"
         "If you use words like 'tonight', 'this evening', 'later tonight', 'later today', they must match NOW.\n"
         "If the event date is not today, say “tomorrow” or include an explicit date (e.g., Dec 31).\n"
+        f"{event_guard}"
         f"TOPIC FAMILY: {topic_family} (event/place/chat).\n"
         f"SUBTOPIC: {topic_mode} (keywords: {topic_keywords}).\n"
         f"HINTS: time_of_day={tod}, season={season}, weather_hint={hint}.\n"
