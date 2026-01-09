@@ -311,6 +311,60 @@ def _weather_hint(cur: Dict[str, Any]) -> str:
 
     return ", ".join(tags) if tags else "unknown"
 
+def _weather_brief_for_llm(snap_obj: Dict[str, Any]) -> str:
+    """Return a tiny JSON string for LLM: only condition words + temperature.
+
+    The tweet prompt requires weather words to be among:
+    sunny / cloudy / windy / chilly / rainy.
+    """
+    cur = (snap_obj or {}).get("current") or {}
+    temp = _as_float(cur.get("temp_c"))
+    precip = _as_float(cur.get("precip_mm"))
+    cloud = _as_float(cur.get("cloud_cover_pct"))
+    wind = _as_float(cur.get("wind_kmh"))
+    code = cur.get("weather_code")
+
+    # WMO weather codes (Open-Meteo compatible)
+    precip_codes = set(range(51, 68)) | {80, 81, 82, 95, 96, 99}
+    clear_codes = {0, 1}
+    cloudy_codes = {2, 3}
+
+    tags: set[str] = set()
+
+    # Rain first (covers showers / thunderstorms as well)
+    if precip is not None and precip >= 0.2:
+        tags.add("rainy")
+    elif isinstance(code, int) and code in precip_codes:
+        tags.add("rainy")
+
+    # Sky condition if not rainy
+    if "rainy" not in tags:
+        if cloud is not None:
+            if cloud >= 70:
+                tags.add("cloudy")
+            elif cloud <= 30:
+                tags.add("sunny")
+        elif isinstance(code, int):
+            if code in clear_codes:
+                tags.add("sunny")
+            elif code in cloudy_codes:
+                tags.add("cloudy")
+
+    # Wind and temperature modifiers
+    if wind is not None and wind >= 20:
+        tags.add("windy")
+    if temp is not None and temp <= 8:
+        tags.add("chilly")
+
+    # Guarantee at least one of {sunny, cloudy, rainy}
+    if not ({"sunny", "cloudy", "rainy"} & tags):
+        tags.add("cloudy")
+
+    temp_i = int(round(temp)) if temp is not None else None
+    order = ["rainy", "sunny", "cloudy", "windy", "chilly"]
+    weather = [t for t in order if t in tags]
+    return json.dumps({"weather": weather, "temp_c": temp_i}, ensure_ascii=False)
+
 
 def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]:
     """
@@ -486,7 +540,7 @@ def build_question(
 def build_payload(
     question: str,
     top_k: int,
-    snap_json_raw: str,
+    snap_obj: Dict[str, Any] | None,
     max_chars: int,
     include_debug: bool,
     datetime: str | None = None,
@@ -495,14 +549,14 @@ def build_payload(
     audit: bool | None = None,
     audit_rewrite: bool | None = None,
 ) -> dict:
-    # Keep current behavior: send the weather snapshot as `extra_context` (JSON string).
+    # Send only a compact weather summary (condition words + temp) to the LLM.
     payload: dict = {
         "question": question,
         "top_k": top_k,
         "max_chars": max_chars,
         "include_debug": include_debug,
         "output_style": "tweet_bot",
-        "extra_context": snap_json_raw,  # live weather snapshot JSON
+        "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
         "links": links,
     }
@@ -721,7 +775,7 @@ def main() -> int:
     payload = build_payload(
         question=question,
         top_k=top_k,
-        snap_json_raw=snap_json_raw,
+        snap_obj=snap_obj,
         max_chars=max_chars,
         include_debug=include_debug,
         datetime=req_datetime,
