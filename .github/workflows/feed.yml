@@ -91,6 +91,7 @@ jobs:
           MAX_CHARS: 512
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
           OLLAMA_TIMEOUT_S: 256
+          TOPIC_VARIANT: ${{ github.run_number }}
           DEBUG: 1
         run: |
           python scripts/generate_talk.py

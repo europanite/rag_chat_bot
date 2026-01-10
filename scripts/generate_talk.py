@@ -439,8 +439,16 @@ def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]
     for k in list(family_w.keys()):
         family_w[k] = max(1, int(family_w[k]))
 
-    # Deterministic per-hour, but still "random" and condition-aware
-    seed_str = f"{now_local.strftime('%Y-%m-%d-%H')}|{season}|{tod}|{hint}|{code}"
+
+    # Deterministic per-hour by default. To increase topic variety across runs,
+    # allow an external variant (e.g., GitHub Actions run_number) to perturb the seed.
+    try:
+        topic_variant = int(os.getenv("TOPIC_VARIANT", "0") or "0")
+    except Exception:
+        topic_variant = 0
+    seed_str = f"{now_local.strftime('%Y-%m-%d-%H')}|{season}|{tod}|{hint}|{code}|v{topic_variant}"
+
+
     seed = int(hashlib.sha256(seed_str.encode("utf-8")).hexdigest()[:8], 16)
     rng = random.Random(seed)
 
@@ -452,33 +460,59 @@ def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]
         modes = ["coast", "park", "viewpoint", "shrine", "museum", "walk"]
         w =     [  20,     18,       18,       16,       14,     14]
         if precip is not None and precip >= 0.2:
-            # rain -> indoor-ish / short walk
-            w = [8, 10, 10, 14, 38, 20]
+            # rain -> prefer indoor / short routes (but don't force a single mode)
+            w[0] = max(6, w[0] - 8)   # coast
+            w[2] = max(8, w[2] - 6)   # viewpoint
+            w[4] += 18                # museum
+            w[5] += 6                 # walk
         if season == "winter" and tod in ("evening", "night"):
-            # winter evening -> viewpoints for lights / night scenery
-            w = [14, 10, 26, 12, 20, 18]
+            # winter evening -> more night-view, but keep variety
+            w[2] += 10                # viewpoint
+            w[4] += 4                 # museum (indoor option)
+            w[1] = max(8, w[1] - 4)   # park a bit less
     elif family == "event":
         modes = ["illumination", "festival", "market", "exhibition", "seasonal"]
         w =     [      26,        20,       18,          18,        18]
         if season == "winter":
-            w = [40, 12, 12, 16, 20]
+            # winter: illumination/seasonal up, but not a hard lock
+            w[0] += 8                 # illumination
+            w[4] += 6                 # seasonal
+            w[3] += 2                 # exhibition
+            w[1] = max(10, w[1] - 4)  # festival a bit less
+            w[2] = max(10, w[2] - 4)  # market a bit less
         if tod in ("evening", "night"):
-            w = [38, 16, 14, 14, 18]
+            # night: still illumination-friendly, but keep alternatives
+            w[0] += 6
+            w[4] += 2
+            w[3] += 2
         if precip is not None and precip >= 0.2:
             # rain -> exhibitions/indoor events
-            w = [14, 10, 10, 42, 24]
+            w[3] += 18                # exhibition
+            w[0] = max(10, w[0] - 8)  # illumination down a bit
+            w[1] = max(8,  w[1] - 8)  # festival down
+            w[2] = max(8,  w[2] - 8)  # market down
+            w[4] += 6                 # seasonal still ok
     else:  # chat
         modes = ["food", "trivia", "history", "activity"]
         w =     [  30,      25,       20,        25]
         if precip is not None and precip >= 0.2:
-            w = [40, 25, 25, 10]
+            w[0] += 12                # food
+            w[2] += 4                 # history (indoor topics)
+            w[3] = max(6, w[3] - 12)  # activity
         if temp is not None and temp <= 8:
-            w = [44, 22, 24, 10]
+            w[0] += 12
+            w[2] += 4
+            w[3] = max(6, w[3] - 12)
         if temp is not None and temp >= 24 and (precip is None or precip < 0.2):
-            w = [24, 18, 18, 40]
+            w[3] += 16
+            w[0] = max(12, w[0] - 8)
         if tod in ("evening", "night"):
-            w = [42, 24, 20, 14]
+            w[0] += 10
+            w[1] += 2
+            w[3] = max(6, w[3] - 8)
 
+    # Final clamp (avoid zero/negative weights)
+    w = [max(1, int(x)) for x in w]
     mode = rng.choices(modes, weights=w, k=1)[0]
     return family, mode
 
@@ -501,20 +535,19 @@ def build_question(
     # Keywords help retrieval; family/mode enforce "event/place/chat"
     keyword_map: Dict[Tuple[str, str], str] = {
         # place
-        ("place", "coast"): "coast beach sea bay port waterfront",
-        ("place", "park"): "park garden green nature trail",
-        ("place", "viewpoint"): "viewpoint hill lookout skyline sunset night-view",
-        ("place", "shrine"): "shrine temple heritage tradition",
-        ("place", "museum"): "museum exhibition indoor history culture",
-        ("place", "walk"): "walk stroll promenade shopping street",
+        ("place", "coast"): "coast beach sea bay port waterfront marina pier",
+        ("place", "park"): "park garden green nature trail flower",
+        ("place", "viewpoint"): "viewpoint hill lookout skyline sunset night-view observation deck",
+        ("place", "shrine"): "shrine temple heritage tradition seasonal",
+        ("place", "museum"): "museum exhibition indoor history culture art",
+        ("place", "walk"): "walk stroll promenade shopping street arcade",
         # event
-        ("event", "illumination"): "illumination lights winter evening night-view",
-        ("event", "festival"): "festival matsuri parade performance",
-        ("event", "market"): "market fair flea local vendors",
-        ("event", "exhibition"): "exhibition art museum gallery indoor",
-        ("event", "seasonal"): "seasonal holiday event",
+        ("event", "festival"): "festival matsuri parade performance music dance",
+        ("event", "market"): "market fair flea local vendors farmers",
+        ("event", "exhibition"): "exhibition art museum gallery indoor showcase",
+        ("event", "seasonal"): "seasonal holiday event limited-time",
         # chat
-        ("chat", "food"): "curry ramen cafe bakery warm drink",
+        ("chat", "food"): "navy curry burger ramen cafe bakery warm drink",
         ("chat", "trivia"): "fun fact local tip small story",
         ("chat", "history"): "history navy port heritage museum",
         ("chat", "activity"): "running fishing hike workout",
