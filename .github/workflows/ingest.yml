@@ -38,6 +38,7 @@ jobs:
       - name: Wait for backend
         env:
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
+          OLLAMA_TIMEOUT_S: 256
         run: |
           ok=0
           for i in {1..600}; do
