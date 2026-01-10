@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-10T12:50:31Z",
+  "id": "feed_20260110_214346_JST",
   "date": "2026-01-10",
   "text": "Hello, everyone. It's a chilly rainy night in Yokosuka! The perfect time to visit Goshogasaki for a romantic winter view. Let's bundle up and enjoy the night scenery together! #ウィンタークール #ロマンティック (Goshogasaki (御所ヶ崎))",
   "place": "Yokosuka",
@@ -60,5 +60,11 @@
     "https://instagram.com/yokosukaxmaslights",
     "https://www.cocoyoko.net/spot/tukayama-park.html",
     "http://www.kanagawa-park.or.jp/tsukayama/"
-  ]
+  ],
+  "legacy_id": "2026-01-10T12:50:31Z",
+  "permalink": "./?post=feed_20260110_214346_JST",
+  "image_url": "./image/feed_20260110_214346_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Hello, everyone. It's a chilly rainy night in Yokosuka! The perfect time to visit Goshogasaki for a romantic winter view. Let's bundle up and enjoy the night scenery together! #ウィンタークール #ロマンティック (Goshogasaki (御所ヶ崎))",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-10T12:53:55Z"
 }
