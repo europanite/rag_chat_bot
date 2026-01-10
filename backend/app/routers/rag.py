@@ -552,14 +552,19 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             required_mention=required_mention,
             required_url=required_url,
             max_chars=max_chars,
+            output_style=payload.output_style or "tweet_bot",
         )
-        candidate, removed = filter_answer_urls(candidate, allowed_urls)
+
+        keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
+        candidate, removed = filter_answer_urls(candidate, allowed_urls, keep_allowed=keep_allowed
         removed_urls_total.extend(removed)
+
         candidate = finalize_answer(
             answer=candidate,
             required_mention=required_mention,
             required_url=required_url,
             max_chars=max_chars,
+            output_style=payload.output_style or "tweet_bot",
         )
 
 
@@ -609,6 +614,8 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             strict_context=bool(payload.strict_context),
             allow_rewrite=bool(payload.audit_rewrite),
             max_chars=max_chars,
+            require_required_url_in_answer=((payload.output_style or "tweet_bot") != "tweet_bot"),
+            forbid_urls_in_answer=((payload.output_style or "tweet_bot") == "tweet_bot"),
         )
 
         last_audit = AuditResult(
@@ -633,14 +640,17 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 required_mention=required_mention,
                 required_url=required_url,
                 max_chars=max_chars,
+                output_style=payload.output_style or "tweet_bot",
             )
-            fixed, removed2 = filter_answer_urls(fixed, allowed_urls)
+            keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
+            fixed, removed2 = filter_answer_urls(fixed, allowed_urls, keep_allowed=keep_allowe
             removed_urls_total.extend(removed2)
             fixed = finalize_answer(
                 answer=fixed,
                 required_mention=required_mention,
                 required_url=required_url,
                 max_chars=max_chars,
+                output_style=payload.output_style or "tweet_bot",
             )
             candidate = fixed
 
@@ -657,6 +667,8 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 strict_context=bool(payload.strict_context),
                 allow_rewrite=False,
                 max_chars=max_chars,
+                require_required_url_in_answer=((payload.output_style or "tweet_bot") != "tweet_bot"),
+                forbid_urls_in_answer=((payload.output_style or "tweet_bot") == "tweet_bot"),
             )
             last_audit = AuditResult(
                 model=audit_model,

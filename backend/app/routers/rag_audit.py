@@ -59,6 +59,8 @@ def build_audit_prompts(
     strict_context: bool,
     allow_rewrite: bool,
     max_chars: int,
+    require_required_url_in_answer: bool,
+    forbid_urls_in_answer: bool,
 ) -> tuple[str, str]:
     allowed_list = "\n".join(f"- {u}" for u in sorted(allowed_urls)) if allowed_urls else "(none)"
     rewrite_rule = (
@@ -79,6 +81,15 @@ def build_audit_prompts(
         "}\n"
     )
 
+    must_url_rule = (
+        f"- The answer must include required_url.\n" if (require_required_url_in_answer and required_url) else ""
+    )
+    url_rules = (
+        "- The answer must not contain any URL.\n"
+        if forbid_urls_in_answer
+        else "- The answer must not include any URL outside allowed_urls.\n"
+    )
+
     user_prompt = (
         f"{now_block}\n\n"
         f"Question:\n{question.strip()}\n\n"
@@ -89,8 +100,8 @@ def build_audit_prompts(
         f"- strict_context: {strict_context}\n"
         f"- allowed_urls:\n{allowed_list}\n\n"
         f"Rules:\n"
-        f"- The answer must include required_url.\n"
-        f"- The answer must not include any URL outside allowed_urls.\n"
+        f"{must_url_rule}"
+        f"{url_rules}"
         f"- The answer must not contain broken fragments like '(https://)'.\n"
         f"- If strict_context is true, it must not introduce unsupported facts.\n"
         f"- If the question requests upcoming events, the answer must not mention a date earlier than today (based on now_block datetime).\n"
@@ -112,6 +123,8 @@ def run_answer_audit(
     strict_context: bool,
     allow_rewrite: bool,
     max_chars: int,
+    require_required_url_in_answer: bool = True,
+    forbid_urls_in_answer: bool = False,
 ) -> AuditLite:
     """
     call_chat_with_model(model, system_prompt, user_prompt) -> str
@@ -128,6 +141,8 @@ def run_answer_audit(
         strict_context=strict_context,
         allow_rewrite=allow_rewrite,
         max_chars=max_chars,
+        require_required_url_in_answer=require_required_url_in_answer,
+        forbid_urls_in_answer=forbid_urls_in_answer,
     )
 
     raw = ""

@@ -4,6 +4,53 @@ import json
 import re
 from typing import Any, Iterable, List, Optional, Sequence, Set, Tuple
 
+# --- tweet hygiene ---
+_GREET_RE = re.compile(r"^(hi|hello|good (morning|afternoon|evening))\b", re.I)
+_META_PREFIX_RE = re.compile(r"^\s*here[’']?s a possible answer:\s*", re.I)
+_META_LINE_RE = re.compile(
+    r"^\s*(?:[\*\-]\s*)?(note:|i included\b|i also mentioned\b|the answer is within\b)\b",
+    re.I,
+)
+
+def _strip_meta_preamble(text: str) -> str:
+    a = (text or "").strip()
+    a = _META_PREFIX_RE.sub("", a).strip()
+    # unwrap one layer of quotes
+    if len(a) >= 2 and a[0] == '"' and a[-1] == '"':
+        a = a[1:-1].strip()
+    # drop compliance chatter lines
+    kept: List[str] = []
+    for ln in a.splitlines():
+        s = ln.strip()
+        if not s:
+            kept.append("")  # keep paragraph breaks
+            continue
+        if _META_LINE_RE.search(s):
+            continue
+        kept.append(ln)
+    # collapse excessive blank lines
+    out_lines: List[str] = []
+    blank = 0
+    for ln in kept:
+        if ln.strip() == "":
+            blank += 1
+            if blank <= 1:
+                out_lines.append("")
+            continue
+        blank = 0
+        out_lines.append(ln.rstrip())
+    return "\n".join(out_lines).strip()
+
+def ensure_greeting_first(text: str, greeting: str = "Hello, everyone.") -> str:
+    a = (text or "").strip()
+    if not a:
+        return greeting
+    lines = a.splitlines()
+    first = next((ln.strip() for ln in lines if ln.strip()), "")
+    if first and _GREET_RE.match(first):
+        return a
+    return f"{greeting}\n{a}".strip()
+
 # Matches URLs with a scheme. Keep it conservative to avoid capturing trailing punctuation.
 _URL_RE = re.compile(r"https?://[^\s\)\]\}>\",']+")
 # Matches "https://" or "http://" that is *not* followed by a normal URL character (broken scheme).
@@ -146,7 +193,7 @@ def collect_allowed_urls(
     return set(ordered)
 
 
-def filter_answer_urls(answer: str, allowed_urls: Set[str]) -> Tuple[str, List[str]]:
+def filter_answer_urls(answer: str, allowed_urls: Set[str], *, keep_allowed: bool = True) -> Tuple[str, List[str]]:
     """
     Remove URLs from answer that are not in allowed_urls.
     Returns (filtered_answer, removed_urls).
@@ -158,7 +205,7 @@ def filter_answer_urls(answer: str, allowed_urls: Set[str]) -> Tuple[str, List[s
 
     def _replace(match: re.Match) -> str:
         url = normalize_url(match.group(0))
-        if url in allowed_norm:
+        if keep_allowed and (url in allowed_norm):
             return url
         removed.append(url)
         return ""
@@ -264,6 +311,9 @@ def build_chat_prompts(
     if output_style == "tweet_bot":
         style_rules = (
             f"- Output must be <= {max_chars} characters.\n"
+            "- Output ONLY the post text (no preface, no quotes, no compliance notes).\n"
+            "- The FIRST line must be a greeting (e.g., 'Hello, everyone.').\n"
+            "- Do NOT include any URLs in the post text. Links are shown separately.\n"
             "- Keep it punchy and natural.\n"
             "- If you mention relative time words like 'tonight', they must match NOW.\n"
         )
@@ -285,23 +335,25 @@ def build_chat_prompts(
         f"{now_block}\n\n"
         f"Question:\n{question.strip()}\n\n"
         f"Required mention: {required_mention}\n"
-        f"Required URL: {required_url}\n\n"
-        f"Allowed URLs:\n{allowed_list}\n\n"
-        f"RAG context:\n{rag_block}\n\n"
+        + (f"Required URL (for link section only): {required_url}\n\n" if output_style != "tweet_bot" else "\n")
+        + (f"Allowed URLs:\n{allowed_list}\n\n" if output_style != "tweet_bot" else "")
+        + f"RAG context:\n{rag_block}\n\n"
     )
 
     if extra_context and extra_context.strip():
         user_prompt += f"[Live context]\n{extra_context.strip()}\n\n"
 
+    must_url = "" if output_style == "tweet_bot" else "- You MUST include the required URL.\n"
+    url_rule = "- Do NOT include any URL in the post text.\n" if output_style == "tweet_bot" else "- Do NOT include any URL not in the allow-list.\n"
     user_prompt += (
         "Rules:\n"
         f"{style_rules}"
-        f"- You MUST mention the required mention and include the required URL.\n"
-        "- Do NOT include any URL not in the allow-list.\n"
+        f"- You MUST mention the required mention.\n"
+        f"{must_url}"
+        f"{url_rule}"
         "- If context is insufficient, say so briefly.\n\n"
         "Answer:"
     )
-
     return system_prompt, user_prompt
 
 
@@ -311,34 +363,23 @@ def finalize_answer(
     required_mention: str,
     required_url: str,
     max_chars: int,
+    output_style: str = "tweet_bot",
 ) -> str:
     """Post-process answer: strip broken schemes, enforce required mention/url, enforce length."""
     a = (answer or "").strip()
     a = strip_broken_schemes(a)
 
+    if output_style == "tweet_bot":
+        a = _strip_meta_preamble(a)
+        a = ensure_greeting_first(a)
+
     if required_mention and required_mention.lower() not in a.lower():
         # Add a gentle mention; keep it short
         a = f"{a}\n\n({required_mention})".strip() if a else f"{required_mention}"
 
-    if required_url and required_url not in a:
-        if a:
-            a = f"{a}\n{required_url}"
-        else:
-            a = required_url
+    # Hard cap (tweet_bot: no URL tail).
 
-    # Hard cap. Keep URL at the end.
     if max_chars > 0 and len(a) > max_chars:
-        url_tail = f"\n{required_url}" if required_url else ""
-        budget = max_chars - len(url_tail)
-        if budget < 0:
-            # extreme: just return the URL
-            return required_url[:max_chars]
-        head = a
-        if url_tail and a.endswith(url_tail):
-            head = a[: -len(url_tail)]
-        head = head.strip()
-        if len(head) > budget:
-            head = head[:budget].rstrip()
-        a = (head + url_tail).strip()
+        a = a[:max_chars].rstrip()
 
     return a
