@@ -556,7 +556,12 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         )
 
         keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
-        candidate, removed = filter_answer_urls(candidate, allowed_urls, keep_allowed=keep_allowed
+        candidate, removed = filter_answer_urls(
+            candidate,
+            allowed_urls,
+            keep_allowed=keep_allowed,
+        )
+
         removed_urls_total.extend(removed)
 
         candidate = finalize_answer(
@@ -642,8 +647,14 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 max_chars=max_chars,
                 output_style=payload.output_style or "tweet_bot",
             )
+                                  
             keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
-            fixed, removed2 = filter_answer_urls(fixed, allowed_urls, keep_allowed=keep_allowe
+            fixed, removed2 = filter_answer_urls(
+                fixed,
+                allowed_urls,
+                keep_allowed=keep_allowed,
+            )
+
             removed_urls_total.extend(removed2)
             fixed = finalize_answer(
                 answer=fixed,
