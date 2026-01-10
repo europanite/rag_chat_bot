@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-10T12:22:02Z",
+  "id": "feed_20260110_211522_JST",
   "date": "2026-01-10",
   "text": "Hello, everyone. It's a chilly rainy night in Yokosuka! Perfect weather to stay indoors and enjoy the countdown to 2026 at Yokosuka Countdown 2026 (よこすかカウントダウン 2026).",
   "place": "Yokosuka",
@@ -60,5 +60,11 @@
     "https://www.cocoyoko.net/event/photocon-illumi.html",
     "https://instagram.com/yokosukaxmaslights",
     "https://www.cocoyoko.net/spot/gosyogasaki.html"
-  ]
+  ],
+  "legacy_id": "2026-01-10T12:22:02Z",
+  "permalink": "./?post=feed_20260110_211522_JST",
+  "image_url": "./image/feed_20260110_211522_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Hello, everyone. It's a chilly rainy night in Yokosuka! Perfect weather to stay indoors and enjoy the countdown to 2026 at Yokosuka Countdown 2026 (よこすかカウントダウン 2026).",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-10T12:25:16Z"
 }
