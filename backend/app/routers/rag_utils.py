@@ -3,14 +3,43 @@ from __future__ import annotations
 import json
 import re
 from typing import Any, Iterable, List, Optional, Sequence, Set, Tuple
+from datetime import datetime
 
 # --- tweet hygiene ---
-_GREET_RE = re.compile(r"^(hi|hello|good (morning|afternoon|evening))\b", re.I)
+_GREET_RE = re.compile(r"^(hi|hello|good (morning|afternoon|evening|night))\b", re.I)
 _META_PREFIX_RE = re.compile(r"^\s*here[’']?s a possible answer:\s*", re.I)
 _META_LINE_RE = re.compile(
     r"^\s*(?:[\*\-]\s*)?(note:|i included\b|i also mentioned\b|the answer is within\b)\b",
     re.I,
 )
+
+
+def _time_greeting(now_dt: Optional[datetime]) -> str:
+    """Return a time-of-day greeting. Never returns 'Hello, everyone.'."""
+    if not now_dt:
+        return "Good day."
+    h = int(now_dt.hour)
+    if 5 <= h <= 10:
+        return "Good morning."
+    if 11 <= h <= 16:
+        return "Good afternoon."
+    if 17 <= h <= 21:
+        return "Good evening."
+    return "Good night."
+
+def _greeting_kind(line: str) -> Optional[str]:
+    s = (line or "").strip().lower()
+    if s.startswith("good morning"):
+        return "morning"
+    if s.startswith("good afternoon"):
+        return "afternoon"
+    if s.startswith("good evening"):
+        return "evening"
+    if s.startswith("good night"):
+        return "night"
+    if s.startswith("hi") or s.startswith("hello"):
+        return "hello"
+    return None
 
 def _strip_meta_preamble(text: str) -> str:
     a = (text or "").strip()
@@ -41,15 +70,38 @@ def _strip_meta_preamble(text: str) -> str:
         out_lines.append(ln.rstrip())
     return "\n".join(out_lines).strip()
 
-def ensure_greeting_first(text: str, greeting: str = "Hello, everyone.") -> str:
+def ensure_greeting_first(
+    text: str,
+    *,
+    now_dt: Optional[datetime] = None,
+    greeting: Optional[str] = None,
+) -> str:
+    """Ensure first line is a time-appropriate greeting (not 'Hello, everyone.')."""
+    desired = (greeting or _time_greeting(now_dt)).strip()
     a = (text or "").strip()
     if not a:
-        return greeting
+        return desired
     lines = a.splitlines()
-    first = next((ln.strip() for ln in lines if ln.strip()), "")
-    if first and _GREET_RE.match(first):
+
+    idx = next((i for i, ln in enumerate(lines) if ln.strip()), None)
+    first = lines[idx].strip() if idx is not None else ""
+    kind = _greeting_kind(first)
+    desired_kind = _greeting_kind(desired)  # morning/afternoon/evening/night
+
+    # If it already starts with the correct time greeting, keep it.
+    if kind and kind != "hello" and desired_kind and kind == desired_kind:
         return a
-    return f"{greeting}\n{a}".strip()
+
+    # If it starts with *any* greeting (hello/hi or wrong time), replace that first greeting line.
+    if kind:
+        if idx is not None:
+            lines[idx] = desired
+            return "\n".join(lines).strip()
+        return desired
+
+    # No greeting at all -> prepend.
+    return f"{desired}\n{a}".strip()
+
 
 # Matches URLs with a scheme. Keep it conservative to avoid capturing trailing punctuation.
 _URL_RE = re.compile(r"https?://[^\s\)\]\}>\",']+")
@@ -312,7 +364,9 @@ def build_chat_prompts(
         style_rules = (
             f"- Output must be <= {max_chars} characters.\n"
             "- Output ONLY the post text (no preface, no quotes, no compliance notes).\n"
-            "- The FIRST line must be a greeting (e.g., 'Hello, everyone.').\n"
+            "- The FIRST line must be a time-appropriate greeting that matches NOW "
+            "(Good morning/Good afternoon/Good evening/Good night).\n"
+            "- Do NOT start with the fixed greeting 'Hello, everyone.'.\n"
             "- Do NOT include any URLs in the post text. Links are shown separately.\n"
             "- Keep it punchy and natural.\n"
             "- If you mention relative time words like 'tonight', they must match NOW.\n"
@@ -364,6 +418,7 @@ def finalize_answer(
     required_url: str,
     max_chars: int,
     output_style: str = "tweet_bot",
+    now_dt: Optional[datetime] = None,
 ) -> str:
     """Post-process answer: strip broken schemes, enforce required mention/url, enforce length."""
     a = (answer or "").strip()
@@ -371,7 +426,7 @@ def finalize_answer(
 
     if output_style == "tweet_bot":
         a = _strip_meta_preamble(a)
-        a = ensure_greeting_first(a)
+        a = ensure_greeting_first(a, now_dt=now_dt)
 
     if required_mention and required_mention.lower() not in a.lower():
         # Add a gentle mention; keep it short

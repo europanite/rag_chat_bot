@@ -553,6 +553,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             required_url=required_url,
             max_chars=max_chars,
             output_style=payload.output_style or "tweet_bot",
+            now_dt=now_dt,
         )
 
         keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
@@ -570,6 +571,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             required_url=required_url,
             max_chars=max_chars,
             output_style=payload.output_style or "tweet_bot",
+            now_dt=now_dt,
         )
 
 
@@ -646,6 +648,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 required_url=required_url,
                 max_chars=max_chars,
                 output_style=payload.output_style or "tweet_bot",
+                now_dt=now_dt,
             )
                                   
             keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
@@ -662,6 +665,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 required_url=required_url,
                 max_chars=max_chars,
                 output_style=payload.output_style or "tweet_bot",
+                now_dt=now_dt,
             )
             candidate = fixed
 

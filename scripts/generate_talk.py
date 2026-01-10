@@ -569,7 +569,9 @@ def build_question(
     return (
         "Write a tweet in English.\n"
         "Format.\n"
-        "- GREETING FIRST\n"
+        "- GREETING FIRST: Use a time-of-day greeting that matches HINTS.time_of_day "
+        "(Good morning/Good afternoon/Good evening/Good night). "
+        "Do NOT use the fixed greeting 'Hello, everyone.'\n"
         "- WEATHER_TOPIC(Simply descrive weather(use only sunny, cloudy, windy, chilly, rainy with temperarure, No humid)\n"
         "- Local Spots or upcoming events from ONLY RAG CONTEXT\n"
         f"datetime: {datetime}.\n"
