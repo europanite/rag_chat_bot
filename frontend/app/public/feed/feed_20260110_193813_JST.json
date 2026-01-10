@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-10T10:45:02Z",
+  "id": "feed_20260110_193813_JST",
   "date": "2026-01-10",
   "text": "Hello, everyone. It's a chilly rainy evening in Yokosuka! Perfect excuse to grab a warm drink and head over to Ohako for some delicious ramen. Don't forget to check out the 2025 Yokosuka Chuo Illumination Photo Contest! #ウィンタークール #food",
   "place": "Yokosuka",
@@ -60,5 +60,11 @@
     "https://www.cocoyoko.net/yoksuka-countdown/",
     "https://www.keikyu.co.jp/company/news/2025/20251128HP_25140TE.html",
     "https://www.google.com/maps/search/?api=1&query=%E3%82%A6%E3%83%83%E3%83%89%E3%82%A2%E3%82%A4%E3%83%A9%E3%83%B3%E3%83%89%20%E3%82%AB%E3%83%AC%E3%83%BC%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20%E5%A4%A7%E6%BB%9D%E7%94%BA1-4%EF%BC%88%E7%B1%B3%E6%B5%B7%E8%BB%8D%E5%9F%BA%E5%9C%B0%E8%A3%8F%E9%96%80%E6%A8%AA%EF%BC%89"
-  ]
+  ],
+  "legacy_id": "2026-01-10T10:45:02Z",
+  "permalink": "./?post=feed_20260110_193813_JST",
+  "image_url": "./image/feed_20260110_193813_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Hello, everyone. It's a chilly rainy evening in Yokosuka! Perfect excuse to grab a warm drink and head over to Ohako for some delicious ramen. Don't forget to check out the 2025 Yokosuka Chuo Illumination Photo Contest! #ウィンタークール #food",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-10T10:48:13Z"
 }
