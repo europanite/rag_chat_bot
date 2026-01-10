@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260110_214346_JST",
+  "id": "feed_20260110_211522_JST",
   "date": "2026-01-10",
-  "text": "Hello, everyone. It's a chilly rainy night in Yokosuka! The perfect time to visit Goshogasaki for a romantic winter view. Let's bundle up and enjoy the night scenery together! #ウィンタークール #ロマンティック (Goshogasaki (御所ヶ崎))",
+  "text": "Hello, everyone. It's a chilly rainy night in Yokosuka! Perfect weather to stay indoors and enjoy the countdown to 2026 at Yokosuka Countdown 2026 (よこすかカウントダウン 2026).",
   "place": "Yokosuka",
-  "generated_at": "2026-01-10T12:50:31Z",
+  "generated_at": "2026-01-10T12:22:02Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-10T12:43:48.849165+00:00",
+    "generated_at": "2026-01-10T12:15:23.654623+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-10T21:30:00+09:00",
-      "temp_c": 14.8,
+      "time": "2026-01-10T21:00:00+09:00",
+      "temp_c": 13.9,
       "apparent_temp_c": null,
-      "humidity_pct": 77.0,
+      "humidity_pct": 76.0,
       "precip_mm": 0.0,
       "weather_code": 95,
       "cloud_cover_pct": null,
-      "wind_kmh": 28.8,
-      "wind_dir_deg": 202.5,
+      "wind_kmh": 22.68,
+      "wind_dir_deg": 225.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -55,16 +55,16 @@
     }
   },
   "links": [
-    "https://www.cocoyoko.net/spot/gosyogasaki.html",
+    "https://www.cocoyoko.net/yoksuka-countdown/",
+    "https://www.keikyu.co.jp/company/news/2025/20251128HP_25140TE.html",
     "https://www.cocoyoko.net/event/photocon-illumi.html",
     "https://instagram.com/yokosukaxmaslights",
-    "https://www.cocoyoko.net/spot/tukayama-park.html",
-    "http://www.kanagawa-park.or.jp/tsukayama/"
+    "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
-  "legacy_id": "2026-01-10T12:50:31Z",
-  "permalink": "./?post=feed_20260110_214346_JST",
-  "image_url": "./image/feed_20260110_214346_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Hello, everyone. It's a chilly rainy night in Yokosuka! The perfect time to visit Goshogasaki for a romantic winter view. Let's bundle up and enjoy the night scenery together! #ウィンタークール #ロマンティック (Goshogasaki (御所ヶ崎))",
+  "legacy_id": "2026-01-10T12:22:02Z",
+  "permalink": "./?post=feed_20260110_211522_JST",
+  "image_url": "./image/feed_20260110_211522_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Hello, everyone. It's a chilly rainy night in Yokosuka! Perfect weather to stay indoors and enjoy the countdown to 2026 at Yokosuka Countdown 2026 (よこすかカウントダウン 2026).",
   "image_model": "stabilityai/sd-turbo",
-  "image_generated_at": "2026-01-10T12:53:55Z"
+  "image_generated_at": "2026-01-10T12:25:16Z"
 }
