@@ -1344,7 +1344,7 @@ const getImageUrisForItem = useCallback(
 
                     {Array.isArray(item.links) && item.links.length > 0 ? (
                       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                        {item.links.slice(0, 5).map((u, idx) => (
+                        {item.links.slice(0, 1).map((u, idx) => (
                           <Pressable
                             key={`${u}-${idx}`}
                             onPress={() => {

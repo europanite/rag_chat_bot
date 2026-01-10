@@ -631,7 +631,7 @@ def extract_links(resp_obj: Any) -> List[str]:
         v = links_obj.strip()
         if v:
             links = [v]
-    return links[:5]
+    return links[:1]
 
 def extract_detail(resp_obj: Dict[str, Any]) -> str:
     d = resp_obj.get("detail")

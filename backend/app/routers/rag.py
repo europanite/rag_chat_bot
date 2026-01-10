@@ -733,6 +733,10 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         links_out.append(required_url)
         seen.add(required_url)
 
+    # Keep ONLY ONE link for UI output (prefer required_url / top-chunk URL)
+    primary_link = required_url or (links_out[0] if links_out else "")
+    links_out = [primary_link] if primary_link else []
+
     debug: Optional[Dict[str, Any]] = None
     if payload.include_debug:
         debug = {
