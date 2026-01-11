@@ -41,7 +41,7 @@ OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL")
 RAG_MODEL = os.getenv("RAG_MODEL")
 AUDIT_MODEL = os.getenv("AUDIT_MODEL")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
-OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S", "256"))
+OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S"))
 
 logger = logging.getLogger(__name__)
 

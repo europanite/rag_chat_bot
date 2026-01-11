@@ -18,6 +18,24 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+  image:
+    build:
+      context: ./image
+      dockerfile: Dockerfile
+    container_name: image
+    tty: true
+    working_dir: /repo
+    volumes:
+      - ./:/repo
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+    environment:
+      FEED_PATH: frontend/app/public
+      LATEST_PATH: frontend/app/public/latest.json
+      MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
+      SD_MODEL_ID: ${SD_MODEL_ID:-}
+    command: ["sh", "image/run.sh"]
+    restart: "no"
   backend:
     build:
       context: ./backend
@@ -70,7 +88,6 @@ services:
       - ./chroma_db:/chroma
       - ./scripts:/scripts
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-
   frontend:
     build:
       context: ./frontend
@@ -129,3 +146,5 @@ services:
 volumes:
   db_data:
   ollama:
+  hf_cache:
+  torch_cache:
