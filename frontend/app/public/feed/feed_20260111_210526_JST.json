@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-11T12:26:27Z",
+  "id": "feed_20260111_210526_JST",
   "date": "2026-01-11",
   "text": "Good evening! It's windy and chilly tonight in Yokosuka. Get ready for the Yokosuka Countdown 2026 event happening tomorrow from 18:00 to 01:00, featuring a nostalgic atmosphere with #ノスタルジック. (Yokosuka Countdown 2026 (よこすかカウントダウン 2026))",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://www.cocoyoko.net/yoksuka-countdown/"
-  ]
+  ],
+  "legacy_id": "2026-01-11T12:26:27Z",
+  "permalink": "./?post=feed_20260111_210526_JST",
+  "image_url": "./image/feed_20260111_210526_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good evening! It's windy and chilly tonight in Yokosuka. Get ready for the Yokosuka Countdown 2026 event happening tomorrow from 18:00 to 01:00, featuring a nostalgic atmosphere with #ノスタルジック. (Yokosuka Countdown 2026 (よこすかカウントダウン 2026))",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-11T12:30:06Z"
 }
