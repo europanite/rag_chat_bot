@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-11T16:35:03Z",
+  "id": "feed_20260112_012809_JST",
   "date": "2026-01-11",
   "text": "Good night! It's chilly outside with a temperature of 4°C. I'm craving something warm to drink after visiting よこすか海軍カ チャリティ for their charity event.",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://www.google.com/maps/search/?api=1&query=%E3%82%A6%E3%83%83%E3%83%89%E3%82%A2%E3%82%A4%E3%83%A9%E3%83%B3%E3%83%89%20%E3%82%AB%E3%83%AC%E3%83%BC%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20%E5%A4%A7%E6%BB%9D%E7%94%BA1-4%EF%BC%88%E7%B1%B3%E6%B5%B7%E8%BB%8D%E5%9F%BA%E5%9C%B0%E8%A3%8F%E9%96%80%E6%A8%AA%EF%BC%89"
-  ]
+  ],
+  "legacy_id": "2026-01-11T16:35:03Z",
+  "permalink": "./?post=feed_20260112_012809_JST",
+  "image_url": "./image/feed_20260112_012809_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good night! It's chilly outside with a temperature of 4°C. I'm craving something warm to drink after visiting よこすか海軍カ チャリティ for their charity event.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-11T16:40:13Z"
 }
