@@ -32,6 +32,11 @@ jobs:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "true"
+          OLLAMA_TIMEOUT_S: "256"
+          OLLAMA_BASE_URL: "http://ollama:11434"
+          OLLAMA_CHAT_MODEL: "llama3.1:8b"
+          RAG_MODEL: "llama3.1:8b"
+          AUDIT_MODEL: "llama3.1:8b"
         run: |
           docker compose -f docker-compose.yml up -d --build
 
