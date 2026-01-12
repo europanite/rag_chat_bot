@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-12T22:15:34Z",
+  "id": "feed_20260113_071118_JST",
   "date": "2026-01-12",
   "text": "Good morning\nWindy, 10°C.\nThe Yokosuka Chuo Illumination Photo Contest took place last year, but you can still visit the beautiful Hashirimizu Beach today. (2025 Yokosuka Chuo Illumination Photo Contest)",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "legacy_id": "2026-01-12T22:15:34Z",
+  "permalink": "./?post=feed_20260113_071118_JST",
+  "image_url": "./image/feed_20260113_071118_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good morning Windy, 10°C. The Yokosuka Chuo Illumination Photo Contest took place last year, but you can still visit the beautiful Hashirimizu Beach today. (2025 Yokosuka Chuo Illumination Photo Contest)",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-12T22:19:10Z"
 }
