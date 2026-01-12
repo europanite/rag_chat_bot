@@ -47,9 +47,8 @@ jobs:
           AUDIT_MODEL: "llama3.1:8b"
           OLLAMA_BASE_URL: "http://ollama:11434"
           OLLAMA_TIMEOUT_S: 512
-          COMPOSE_BAKE: false
         run: |
-          COMPOSE_BAKE=false docker compose -f docker-compose.yml up -d --build
+          docker compose -f docker-compose.yml up -d --build
 
       - name: Wait for backend
         env:

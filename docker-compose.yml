@@ -18,24 +18,24 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
-  image:
-    build:
-      context: ./image
-      dockerfile: Dockerfile
-    container_name: image
-    tty: true
-    working_dir: /repo
-    volumes:
-      - ./:/repo
-      - hf_cache:/root/.cache/huggingface
-      - torch_cache:/root/.cache/torch
-    environment:
-      FEED_PATH: frontend/app/public
-      LATEST_PATH: frontend/app/public/latest.json
-      MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
-      SD_MODEL_ID: ${SD_MODEL_ID:-}
-    command: ["sh", "image/run.sh"]
-    restart: "no"
+  # image:
+  #   build:
+  #     context: ./image
+  #     dockerfile: Dockerfile
+  #   container_name: image
+  #   tty: true
+  #   working_dir: /repo
+  #   volumes:
+  #     - ./:/repo
+  #     - hf_cache:/root/.cache/huggingface
+  #     - torch_cache:/root/.cache/torch
+  #   environment:
+  #     FEED_PATH: frontend/app/public
+  #     LATEST_PATH: frontend/app/public/latest.json
+  #     MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
+  #     SD_MODEL_ID: ${SD_MODEL_ID:-}
+  #   command: ["sh", "image/run.sh"]
+  #   restart: "no"
   backend:
     build:
       context: ./backend
@@ -108,7 +108,6 @@ services:
       EXPO_PUBLIC_USE_SLOT: ${EXPO_PUBLIC_USE_SLOT}
       EXPO_PUBLIC_FEED_JSON_URL: ${EXPO_PUBLIC_FEED_JSON_URL}
       EXPO_PUBLIC_SHARE_SD_INDEX_URL: ${EXPO_PUBLIC_SHARE_SD_INDEX_URL}
-      EXPO_PUBLIC_SHOW_SIDEBARS: ${EXPO_PUBLIC_SHOW_SIDEBARS}
       EXPO_PUBLIC_SLOT_ROTATE_MS: ${EXPO_PUBLIC_SLOT_ROTATE_MS}
       EXPO_PUBLIC_SLOT_FADE_MS: ${EXPO_PUBLIC_SLOT_FADE_MS}
     ports:
