@@ -518,13 +518,10 @@ def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]
 
 
 def build_question(
-    max_chars: int,
     topic_family: str,
     topic_mode: str,
     now_local: datetime,
     snap_obj: dict,
-    links: list[str] | None = None,
-    datetime: str | None = None,
 ) -> str:
 
     cur = (snap_obj or {}).get("current") or {}
@@ -570,7 +567,7 @@ def build_question(
         "- Mention the current weather briefly (use only: sunny/cloudy/windy/chilly/rainy + temp).\n"
         "- Introduce ONE local spot or ONE upcoming event from ONLY the RAG context.\n"
         f"{event_guard}"
-        f"datetime: {datetime}.\n"
+        f"datetime: {now_local}.\n"
         f"TOPIC: {topic_family}/{topic_mode} (keywords: {topic_keywords}).\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
         "Pick ONE topic that fits the hints.\n"
@@ -583,7 +580,6 @@ def build_payload(
     max_chars: int,
     include_debug: bool,
     datetime: str | None = None,
-    links: list[str] | None = None,
     *,
     audit: bool | None = None,
     audit_rewrite: bool | None = None,
@@ -597,7 +593,6 @@ def build_payload(
         "output_style": "tweet_bot",
         "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
-        "links": links,
     }
     if audit is not None:
         payload["audit"] = audit
@@ -797,16 +792,11 @@ def main() -> int:
     # 3) Query backend for today's tweet
     now_dt_local = datetime.now(ZoneInfo(tz_name))
     topic_family, topic_mode = pick_topic(now_local=now_dt_local, snap_obj=snap_obj)
-    req_links: list[str] = []
-    req_datetime = now_dt_local.isoformat()
     question = build_question(
-        max_chars=max_chars,
         topic_family=topic_family,
         topic_mode=topic_mode,
         now_local=now_dt_local,
         snap_obj=snap_obj,
-        links=req_links,
-        datetime=req_datetime,
     )
 
     include_debug = 1 if debug else 0
@@ -820,8 +810,7 @@ def main() -> int:
         snap_obj=snap_obj,
         max_chars=max_chars,
         include_debug=include_debug,
-        datetime=req_datetime,
-        links=req_links,
+        datetime=now_dt_local,
         audit=audit,
         audit_rewrite=audit_rewrite,
     )
