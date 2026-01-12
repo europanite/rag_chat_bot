@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-12T09:03:38Z",
+  "id": "feed_20260112_175900_JST",
   "date": "2026-01-12",
   "text": "Good evening Yokosuka! It's a chilly 6 degrees outside but the sunny weather makes it perfect for a stroll. Don't forget to check out the photos from last year's 2025 Yokosuka Chuo Illumination Photo Contest on",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "legacy_id": "2026-01-12T09:03:38Z",
+  "permalink": "./?post=feed_20260112_175900_JST",
+  "image_url": "./image/feed_20260112_175900_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good evening Yokosuka! It's a chilly 6 degrees outside but the sunny weather makes it perfect for a stroll. Don't forget to check out the photos from last year's 2025 Yokosuka Chuo Illumination Photo Contest on",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-12T09:07:31Z"
 }
