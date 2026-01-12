@@ -1,28 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""Generate a tweet-style diary entry via backend RAG API and write JSON outputs.
-
-This is a Python port of `scripts/generate_diary.sh`.
-
-Behavior summary (keeps the bash contract):
-- Reads env vars (LAT/LON required; many optional with defaults)
-- Fetches a live weather snapshot via `scripts/fetch_weather.py`
-- Waits for backend `/rag/status`, triggers `/rag/reindex` if empty
-- Calls `/rag/query` to generate today's tweet text (with retries)
-- Writes:
-  - latest.json
-  - time-stamped feed JSON (append/replace today's entry)
-  - weather snapshot file next to latest: snapshot/snapshot_{now_local}.json
-
-The output path contract matches the bash script:
-- FEED_PATH + LATEST_PATH (single) OR FEED_PATHS + LATEST_PATHS (colon-separated)
-- If FEED_PATHS/LATEST_PATHS are unset/blank, falls back to:
-  FEED_PATH={FEED_PATH}/feed/feed_{now_local}.json
-  LATEST_PATH={LATEST_PATH:-frontend/app/public/latest.json}
-
-Stdlib-only.
-"""
-
 from __future__ import annotations
 
 import json
@@ -48,9 +23,6 @@ from zoneinfo import ZoneInfo
 def env(name: str, default: str = "") -> str:
     v = os.getenv(name)
     return default if v is None else v
-
-
-
 
 def env_bool(name: str, default: bool = False) -> bool:
     v = env(name, None)
@@ -779,19 +751,25 @@ def main() -> int:
     q = {"place": place, "lat": str(lat), "lon": str(lon), "tz": tz_name}
     query_url = f"{api_base}/rag/query?{urllib.parse.urlencode(q)}"
 
-    # Warm up once (ignore failures)
-    try:
-        _ = http_json(
-            "POST",
-            query_url,
-            {"question": "ping", "top_k": 1, "extra_context": "{}"},
-            cfg,
-        )
-    except Exception:
-        pass
-
     # 3) Query backend for today's tweet
     now_dt_local = datetime.now(ZoneInfo(tz_name))
+
+    # Warm up once: DO NOT bypass build_payload; keep request schema consistent.
+    warm_payload = build_payload(
+        question="ping",
+        top_k=1,
+        snap_obj=snap_obj,
+        max_chars=max_chars,
+        include_debug=False,
+        datetime=now_dt_local.isoformat(),
+        audit=False,
+        audit_rewrite=False,
+    )
+    # Hard fail if payload shape regresses again
+    if warm_payload.get("max_chars") is None:
+        raise RuntimeError("BUG: warmup payload missing max_chars")
+    _ = http_json("POST", query_url, warm_payload, cfg)
+
     topic_family, topic_mode = pick_topic(now_local=now_dt_local, snap_obj=snap_obj)
     question = build_question(
         topic_family=topic_family,
