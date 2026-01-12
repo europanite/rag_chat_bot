@@ -28,7 +28,6 @@ from diffusers import AutoPipelineForText2Image
 MODEL_ID = os.environ.get("SD_MODEL_ID", "stabilityai/sd-turbo").strip() or "stabilityai/sd-turbo"
 DEVICE = "cpu"  # GitHub Actions runner is typically CPU for this job
 
-
 def load_json(p: Path) -> Any:
     return json.loads(p.read_text(encoding="utf-8"))
 

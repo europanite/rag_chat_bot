@@ -446,7 +446,7 @@ def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]
         topic_variant = int(os.getenv("TOPIC_VARIANT", "0") or "0")
     except Exception:
         topic_variant = 0
-    seed_str = f"{now_local.strftime('%Y-%m-%d-%H')}|{season}|{tod}|{hint}|{code}|v{topic_variant}"
+    seed_str = f"{now_local.strftime('%Y-%m-%d-%H:%M:%S')}|{season}|{tod}|{hint}|{code}|v{topic_variant}"
 
 
     seed = int(hashlib.sha256(seed_str.encode("utf-8")).hexdigest()[:8], 16)
@@ -565,28 +565,16 @@ def build_question(
             "If you cannot find a future event in the RAG Context, write about a local spot instead (still from RAG Context).\n"
         )
 
-
     return (
-        "Write a tweet in English.\n"
-        "Format.\n"
-        "- GREETING FIRST: Use a time-of-day greeting that matches HINTS.time_of_day "
-        "(Good morning/Good afternoon/Good evening/Good night). "
-        "Do NOT use the fixed greeting 'Hello, everyone.'\n"
-        "- WEATHER_TOPIC(Simply descrive weather(use only sunny, cloudy, windy, chilly, rainy with temperarure, No humid)\n"
-        "- Local Spots or upcoming events from ONLY RAG CONTEXT\n"
-        f"datetime: {datetime}.\n"
-        "\n"
-        "If you use words like 'tonight', 'this evening', 'later tonight', 'later today', they must match NOW.\n"
-        "If the event date is not today, say “tomorrow” or include an explicit date (e.g., Dec 31).\n"
+        "Write one short tweet in English.\n"
+        "- Mention the current weather briefly (use only: sunny/cloudy/windy/chilly/rainy + temp).\n"
+        "- Introduce ONE local spot or ONE upcoming event from ONLY the RAG context.\n"
         f"{event_guard}"
-        f"TOPIC FAMILY: {topic_family} (event/place/chat).\n"
-        f"SUBTOPIC: {topic_mode} (keywords: {topic_keywords}).\n"
+        f"datetime: {datetime}.\n"
+        f"TOPIC: {topic_family}/{topic_mode} (keywords: {topic_keywords}).\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
-        "Pick up ONE topic and mention only that one from RAG Context that fits the HINTS.\n"
-        "You may include at most one official URL only if it exists in the chosen text.\n"
-        f"Write up to {max_chars} characters.\n"
+        "Pick ONE topic that fits the hints.\n"
     )
-
 
 def build_payload(
     question: str,
@@ -820,9 +808,12 @@ def main() -> int:
         links=req_links,
         datetime=req_datetime,
     )
-    include_debug=1
-    audit = env_bool("RAG_AUDIT", default=True)
-    audit_rewrite = env_bool("RAG_AUDIT_REWRITE", default=True)
+
+    include_debug = 1 if debug else 0
+    # Default OFF
+    audit = env_bool("RAG_AUDIT", default=False)
+    audit_rewrite = env_bool("RAG_AUDIT_REWRITE", default=False)
+
     payload = build_payload(
         question=question,
         top_k=top_k,

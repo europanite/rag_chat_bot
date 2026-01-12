@@ -37,7 +37,6 @@ from .rag_utils import (
 )
 from .rag_audit import AuditLite, run_answer_audit
 
-OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL")
 RAG_MODEL = os.getenv("RAG_MODEL")
 AUDIT_MODEL = os.getenv("AUDIT_MODEL")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
@@ -59,7 +58,7 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
             {"role": "user", "content": user_prompt},
         ],
         "options": {
-            "num_predict": 256,
+            "num_predict": 128,
             "temperature": 0.2,
         },
     }
