@@ -80,7 +80,7 @@ jobs:
         run: |
           ok=0
           for i in {1..600}; do
-            if curl -fsS http://localhost:8000/health >/dev/null; then
+            if curl -fsS --connect-timeout 1 --max-time 2 http://localhost:8000/health >/dev/null 2>&1; then
               ok=$((ok+1))
               [ "$ok" -ge 3 ] && break
             else
@@ -93,7 +93,8 @@ jobs:
             echo "backend is stable"
           else
             echo "Backend did not become ready in time"
-            docker compose logs --no-color backend || true
+            docker compose -f docker-compose.yml ps || true
+            docker compose -f docker-compose.yml logs --no-color --tail=400 backend ollama db || true
             exit 1
           fi
 
