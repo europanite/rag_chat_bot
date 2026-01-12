@@ -18,6 +18,16 @@ STEPS = int(os.environ.get("STEPS", "2"))
 STRENGTH = float(os.environ.get("STRENGTH", "0.45"))
 GUIDANCE_SCALE = float(os.environ.get("GUIDANCE_SCALE", "0.0"))
 
+# img2img CPU tuning / overrides
+DEVICE = os.environ.get("DEVICE", "auto").strip().lower()          # auto | cpu | cuda
+TORCH_NUM_THREADS = int(os.environ.get("TORCH_NUM_THREADS", "0"))  # 0 = leave default
+SEED_OVERRIDE = os.environ.get("SEED", "").strip()                 # optional int
+SEED_OFFSET = int(os.environ.get("SEED_OFFSET", "0"))              # add to computed seed
+
+# optional: run SD at smaller size for CPU speed, then upscale to PAGE_W/H
+SD_W = int(os.environ.get("SD_W", "0"))
+SD_H = int(os.environ.get("SD_H", "0"))
+
 MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sd-turbo").strip()
 PLACE = os.environ.get("PLACE", "").strip()
 
@@ -51,6 +61,13 @@ def slug(s: str) -> str:
     s = re.sub(r"-+", "-", s).strip("-")
     return s or "x"
 
+
+def _floor_to_8(x: int) -> int:
+    # keep SD sizes valid (multiple of 8)
+    x = int(x)
+    if x <= 0:
+        return 0
+    return max(64, (x // 8) * 8)
 
 def fit_cover(img: Image.Image, w: int, h: int) -> Image.Image:
     iw, ih = img.size
@@ -100,10 +117,38 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) ->
     import torch
     from diffusers import AutoPipelineForImage2Image
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # choose device
+    if DEVICE == "cuda":
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    elif DEVICE == "cpu":
+        device = "cpu"
+    else:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    # CPU: float32 is safest. CUDA: fp16 is fastest.
     dtype = torch.float16 if device == "cuda" else torch.float32
 
+    if TORCH_NUM_THREADS > 0:
+        try:
+            torch.set_num_threads(TORCH_NUM_THREADS)
+        except Exception:
+            pass
+ 
     pipe = AutoPipelineForImage2Image.from_pretrained(MODEL_ID, torch_dtype=dtype).to(device)
+    # Prefer safetensors; try fp16 variant on CUDA when available
+    pipe = None
+    if device == "cuda":
+        try:
+            pipe = AutoPipelineForImage2Image.from_pretrained(
+                MODEL_ID, torch_dtype=dtype, use_safetensors=True, variant="fp16"
+            )
+        except Exception:
+            pipe = None
+    if pipe is None:
+        pipe = AutoPipelineForImage2Image.from_pretrained(
+            MODEL_ID, torch_dtype=dtype, use_safetensors=True
+        )
+    pipe = pipe.to(device)
 
     try:
         pipe.set_progress_bar_config(disable=True)
@@ -118,6 +163,11 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) ->
     except Exception:
         pass
 
+    try:
+        pipe.enable_vae_tiling()
+    except Exception:
+        pass
+
     g = torch.Generator(device=device).manual_seed(seed)
 
     # Mirror-augment:
@@ -127,16 +177,16 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) ->
     # NOTE: flipping twice without generation is identical; the "difference" comes from the img2img step in between.
     in_img = ImageOps.mirror(base) if MIRROR_AUG else base
 
-    out_img = pipe(
-        prompt=prompt,
-        negative_prompt=negative,
-        image=in_img,
-        strength=max(0.05, min(0.95, STRENGTH)),
-        guidance_scale=GUIDANCE_SCALE,
-        num_inference_steps=max(1, min(4, STEPS)),
-        generator=g,
-    ).images[0].convert("RGB")
-
+    with torch.inference_mode():
+        out_img = pipe(
+            prompt=prompt,
+            negative_prompt=negative,
+            image=in_img,
+            strength=max(0.05, min(0.95, STRENGTH)),
+            guidance_scale=GUIDANCE_SCALE,
+            num_inference_steps=max(1, min(4, STEPS)),
+            generator=g,
+        ).images[0].convert("RGB")
     out = ImageOps.mirror(out_img) if MIRROR_AUG else out_img
 
     return out
@@ -232,7 +282,15 @@ def main() -> int:
         NEGATIVE_LOCAL = NEGATIVE
 
     if MODE == "img2img":
-        arranged = img2img_arrange(base, PROMPT_LOCAL, NEGATIVE_LOCAL, seed=seed)
+        # Optional: run SD at smaller size for CPU speed
+        sdw = _floor_to_8(SD_W)
+        sdh = _floor_to_8(SD_H)
+        sd_in = base
+        if sdw and sdh and (sdw != PAGE_W or sdh != PAGE_H):
+            sd_in = fit_cover(base, sdw, sdh)
+
+        arranged = img2img_arrange(sd_in, PROMPT_LOCAL, NEGATIVE_LOCAL, seed=seed)
+        arranged = fit_cover(arranged, PAGE_W, PAGE_H)
     else:
         arranged = pillow_arrange(base, STYLE)
 
