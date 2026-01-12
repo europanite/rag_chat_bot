@@ -24,6 +24,8 @@ PLACE = os.environ.get("PLACE", "").strip()
 PROMPT = os.environ.get("PROMPT", "").strip()
 NEGATIVE = os.environ.get("NEGATIVE", "").strip()
 
+MIRROR_AUG = (os.environ.get("MIRROR_AUG", "0").strip() != "0")  # mirror->img2img->mirror back (double flip)
+
 PATCH_JSON = (os.environ.get("PATCH_JSON", "1").strip() != "0")  # dont update latest/feed if 0
 OUT_NAME = os.environ.get("OUT_NAME", "").strip()
 
@@ -38,57 +40,60 @@ def dump_json(p: Path, obj):
 
 def clean_for_prompt(text: str) -> str:
     t = re.sub(r"https?://\S+", "", text)
-    t = re.sub(r"#\w+", "", t)
     t = re.sub(r"\s+", " ", t).strip()
+    # keep it short-ish for stable diffusion
     return t[:220]
 
 
 def slug(s: str) -> str:
-    s = re.sub(r"\s+", "_", s.strip())
-    s = re.sub(r"[^0-9A-Za-z_\-]", "", s)
-    return s[:60] or "item"
+    s = (s or "").strip().lower()
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    s = re.sub(r"-+", "-", s).strip("-")
+    return s or "x"
 
 
 def fit_cover(img: Image.Image, w: int, h: int) -> Image.Image:
-    img = img.convert("RGB")
-    sw, sh = img.size
-    scale = max(w / sw, h / sh)
-    nw, nh = int(sw * scale + 0.5), int(sh * scale + 0.5)
-    img = img.resize((nw, nh), Image.LANCZOS)
+    iw, ih = img.size
+    if iw <= 0 or ih <= 0:
+        return img.resize((w, h))
+    scale = max(w / iw, h / ih)
+    nw, nh = int(iw * scale + 0.5), int(ih * scale + 0.5)
+    img = img.resize((nw, nh), Image.Resampling.LANCZOS)
     left = max(0, (nw - w) // 2)
     top = max(0, (nh - h) // 2)
     return img.crop((left, top, left + w, top + h))
 
 
 def pillow_arrange(img: Image.Image, style: str) -> Image.Image:
-    img = img.convert("RGB")
-
-    if style in ("photo", "grade"):
-        img = ImageOps.autocontrast(img, cutoff=1)
-        img = ImageEnhance.Color(img).enhance(1.10)
-        img = ImageEnhance.Contrast(img).enhance(1.08)
-        img = ImageEnhance.Sharpness(img).enhance(1.20)
-        return img
-
-    if style == "watercolor":
-        img = ImageOps.autocontrast(img, cutoff=1)
-        img = img.filter(ImageFilter.GaussianBlur(radius=1.0))
-        img = ImageEnhance.Color(img).enhance(0.95)
-        img = ImageEnhance.Brightness(img).enhance(1.03)
-        img = ImageOps.posterize(img, bits=5)
-        img = img.filter(ImageFilter.SMOOTH)
-        return img
+    style = (style or "grade").strip().lower()
 
     if style == "oil":
-        img = ImageOps.autocontrast(img, cutoff=1)
-        img = img.filter(ImageFilter.ModeFilter(size=7))
-        img = ImageFilter.SMOOTH_MORE.filter(img)
-        img = ImageOps.posterize(img, bits=4)
-        img = img.filter(ImageFilter.EDGE_ENHANCE_MORE)
-        return img
+        # soft "oil-ish" look: blur + contrast + slight edge enhance
+        base = img.filter(ImageFilter.GaussianBlur(radius=1.2))
+        base = ImageEnhance.Color(base).enhance(1.15)
+        base = ImageEnhance.Contrast(base).enhance(1.18)
+        base = base.filter(ImageFilter.EDGE_ENHANCE_MORE)
+        return base
 
-    # fallback
-    return img
+    if style == "watercolor":
+        # watercolor-ish: soften + brighten + reduce contrast a bit
+        base = img.filter(ImageFilter.GaussianBlur(radius=1.8))
+        base = ImageEnhance.Brightness(base).enhance(1.05)
+        base = ImageEnhance.Contrast(base).enhance(0.95)
+        base = ImageEnhance.Color(base).enhance(1.10)
+        return base
+
+    if style == "photo":
+        # light photo grading: sharpen + mild contrast
+        base = img.filter(ImageFilter.UnsharpMask(radius=2, percent=120, threshold=3))
+        base = ImageEnhance.Contrast(base).enhance(1.08)
+        return base
+
+    # default: grade
+    base = ImageEnhance.Color(img).enhance(1.05)
+    base = ImageEnhance.Contrast(base).enhance(1.10)
+    base = base.filter(ImageFilter.UnsharpMask(radius=2, percent=110, threshold=3))
+    return base
 
 
 def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) -> Image.Image:
@@ -115,15 +120,24 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) ->
 
     g = torch.Generator(device=device).manual_seed(seed)
 
-    out = pipe(
+    # Mirror-augment:
+    # - mirror input (L/R flip) before img2img
+    # - generate
+    # - mirror output back (so final orientation matches original)
+    # NOTE: flipping twice without generation is identical; the "difference" comes from the img2img step in between.
+    in_img = ImageOps.mirror(base) if MIRROR_AUG else base
+
+    out_img = pipe(
         prompt=prompt,
         negative_prompt=negative,
-        image=base,
+        image=in_img,
         strength=max(0.05, min(0.95, STRENGTH)),
         guidance_scale=GUIDANCE_SCALE,
         num_inference_steps=max(1, min(4, STEPS)),
         generator=g,
     ).images[0].convert("RGB")
+
+    out = ImageOps.mirror(out_img) if MIRROR_AUG else out_img
 
     return out
 
@@ -149,6 +163,7 @@ def patch_feed_file(p: Path, *, date: str, text: str, generated_at: str, feed_st
             it["image_url"] = rel_url
             it["image_prompt"] = prompt
             it["image_model"] = MODEL_ID
+            it["image_mirror_aug"] = bool(MIRROR_AUG)
             it["image_generated_at"] = now_iso
             changed = True
 
@@ -234,12 +249,15 @@ def main() -> int:
             # OUT_DIR
             rel_url = ""
 
-        if rel_url:
+        # Update latest.json (keep existing keys)
+        if isinstance(latest, dict):
+            latest["image"] = rel_url
             latest["image_url"] = rel_url
-            latest["image_prompt"] = prompt
+            latest["image_prompt"] = PROMPT_LOCAL if MODE == "img2img" else f"pillow:{STYLE}"
             latest["id"] = feed_stem
             latest["permalink"] = f"./?post={feed_stem}"
             latest["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
+            latest["image_mirror_aug"] = bool(MIRROR_AUG)
             latest["image_generated_at"] = now_iso
             dump_json(LATEST_PATH, latest)
 
