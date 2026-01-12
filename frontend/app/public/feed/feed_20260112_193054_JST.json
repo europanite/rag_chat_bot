@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-12T10:36:05Z",
+  "id": "feed_20260112_193054_JST",
   "date": "2026-01-12",
   "text": "Good evening Yokosuka! It's a chilly 6°C tonight, but the sunny weather makes it perfect for watching the YOKOSUKA Fire Department Parade 2026 (消防出初式) happening now along the parade route. #YOKOSUKAFireDepartmentParade2026",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/syoubou-parade.html"
-  ]
+  ],
+  "legacy_id": "2026-01-12T10:36:05Z",
+  "permalink": "./?post=feed_20260112_193054_JST",
+  "image_url": "./image/feed_20260112_193054_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good evening Yokosuka! It's a chilly 6°C tonight, but the sunny weather makes it perfect for watching the YOKOSUKA Fire Department Parade 2026 (消防出初式) happening now along the parade route. #YOKOSUKAFireDepartmentParade2026",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-12T10:39:31Z"
 }
