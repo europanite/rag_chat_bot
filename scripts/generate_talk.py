@@ -599,6 +599,7 @@ def build_payload(
     if audit_rewrite is not None:
         payload["audit_rewrite"] = audit_rewrite
     return payload
+
 def extract_tweet(resp_obj: Dict[str, Any]) -> str:
     ans = (resp_obj.get("answer") or "").strip()
     return normalize_answer(ans)
