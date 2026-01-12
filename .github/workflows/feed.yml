@@ -49,7 +49,7 @@ jobs:
           OLLAMA_TIMEOUT_S: 512
           COMPOSE_BAKE: false
         run: |
-          docker compose -f docker-compose.yml up -d --build
+          COMPOSE_BAKE=false docker compose -f docker-compose.yml up -d --build
 
       - name: Wait for backend
         env:
