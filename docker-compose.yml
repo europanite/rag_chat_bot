@@ -27,14 +27,14 @@ services:
     working_dir: /repo
     volumes:
       - ./:/repo
-      - hf_cache:/root/.cache/huggingface
-      - torch_cache:/root/.cache/torch
+      - ${HF_CACHE_DIR:-hf_cache}:/root/.cache/huggingface
+      - ${TORCH_CACHE_DIR:-torch_cache}:/root/.cache/torch
     environment:
       FEED_PATH: frontend/app/public
       LATEST_PATH: frontend/app/public/latest.json
       MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
       SD_MODEL_ID: ${SD_MODEL_ID:-}
-    command: ["sh", "image/run.sh"]
+    command: ["sh", "illustrate/app/run.sh"]
     restart: "no"
   backend:
     build:

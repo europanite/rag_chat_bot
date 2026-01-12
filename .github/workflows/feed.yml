@@ -204,11 +204,6 @@ jobs:
           sudo docker system prune -af --volumes 2>/dev/null || true
           df -h
 
-      - name: Setup Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
       - name: Cache Hugging Face + Torch
         uses: actions/cache@v4
         with:
@@ -220,29 +215,23 @@ jobs:
             ${{ runner.os }}-hf-torch-sdturbo-
             ${{ runner.os }}-hf-torch-
 
-      - name: Install SD deps (CPU)
+      - name: Wire cache dirs into docker-compose
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install diffusers transformers accelerate safetensors pillow
+          echo "HF_CACHE_DIR=$HOME/.cache/huggingface" >> $GITHUB_ENV
+          echo "TORCH_CACHE_DIR=$HOME/.cache/torch" >> $GITHUB_ENV
 
-      - name: Generate illustrated image (sd-turbo) and patch feed
-        env:
-          LATEST_PATH: frontend/app/public/latest.json
-          FEED_DIR: frontend/app/public/feed
-          OUT_DIR: frontend/app/public/image
-          MODEL_ID: stabilityai/sd-turbo
-          STEPS: "2"
-          BASE_SIZE: "512"
-          PAGE_W: "640" # VGA
-          PAGE_H: "480" # VGA
-          BRAND: "GOODDAY YOKOSUKA"
-          PLACE: "Yokosuka"
+      - name: Build illustrate image
         run: |
           set -euo pipefail
-          test -f "$LATEST_PATH"
+          docker compose -f docker-compose.yml build illustrate
 
-          python scripts/illustrate.py
+      - name: Generate illustrated image and patch feed (via docker-compose illustrate)
+        env:
+          SD_MODEL_ID: stabilityai/sd-turbo
+        run: |
+          set -euo pipefail
+          test -f frontend/app/public/latest.json
+          docker compose -f docker-compose.yml run --rm illustrate
 
       - name: Commit & push illustrated changes if any
         id: commit
