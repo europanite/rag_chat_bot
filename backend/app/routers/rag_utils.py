@@ -298,7 +298,7 @@ def select_required_context(
     required_url = ""
     required_mention = ""
 
-    # Best-effort extraction from first chunk.
+    # mention: keep first-chunk priority (stable)
     if chunks:
         first = chunks[0]
         meta = getattr(first, "metadata", None) or {}
@@ -309,20 +309,23 @@ def select_required_context(
                 required_mention = v.strip()
                 break
 
-        # URL priority: metadata.links (or similar keys) -> text -> allowed_urls
+    # URL: scan chunks until we find a usable one
+    for c in (chunks or []):
+        meta = getattr(c, "metadata", None) or {}
         meta_urls: List[str] = []
         for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
             meta_urls.extend(_links_from_meta_value(meta.get(k)))
         meta_urls = [normalize_url(u) for u in meta_urls if u]
         meta_urls = [u for u in meta_urls if re.match(r"^https?://", u, flags=re.I)]
-        if meta_urls:
-            required_url = meta_urls[0]
-
-        text = getattr(first, "text", "") or ""
-        urls_in_first = extract_urls_from_text(text)
-        if urls_in_first:
-            required_url = normalize_url(urls_in_first[0])
-
+        text_urls = [normalize_url(u) for u in extract_urls_from_text(getattr(c, "text", "") or "")]
+        for u in (meta_urls + text_urls):
+            if not u:
+                continue
+            if (not allowed_urls) or (u in allowed_urls):
+                required_url = u
+                break
+        if required_url:
+            break
     if not required_url and allowed_urls:
         # stable pick: smallest string
         required_url = sorted(allowed_urls)[0]
