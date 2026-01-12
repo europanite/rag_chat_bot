@@ -789,11 +789,10 @@ def main() -> int:
         snap_obj=snap_obj,
         max_chars=max_chars,
         include_debug=include_debug,
-        datetime=now_dt_local,
+        datetime=str(now_dt_local), 
         audit=audit,
         audit_rewrite=audit_rewrite,
     )
-    print(payload)
 
     if debug:
         print(f"DEBUG: JSON_PAYLOAD={json.dumps(payload, ensure_ascii=False)}", file=sys.stderr)
