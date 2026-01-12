@@ -362,6 +362,8 @@ def build_chat_prompts(
         "(Good morning/Good afternoon/Good evening/Good night).\n"
         "- Do NOT start with the fixed greeting 'Hello, everyone.'.\n"
         "- Do NOT include any URLs in the post text. Links are shown separately.\n"
+        "- Use EXACTLY 3 lines: (1) Greeting (2) Weather (3) Main.\n"
+        "- The SECOND line must include one of: sunny/cloudy/windy/chilly/rainy AND a temperature'.\n"
         "- Keep it punchy and natural.\n"
         "- If you mention relative time words like 'tonight', they must match NOW.\n"
     )
@@ -386,21 +388,16 @@ def build_chat_prompts(
         f"{question.strip()}\n\n"
         f"Required mention: {required_mention}\n\n"
         f"RAG context:\n{rag_block}\n\n"
-        f"Required URL (for link section only): {required_url}\n\n"
-        f"Allowed URLs:\n{allowed_list}\n\n"
-        "Rules:\n"
-        f"{style_rules}"
-        "- You MUST mention the required mention.\n"
-        "- You MUST include the required URL.\n"
-        "- Do NOT include any URL not in the allow-list.\n"
-        "- If context is insufficient, say so briefly.\n\n"
+        f"Required URL (for link section only, do NOT paste into text): {required_url}\n\n"
+        f"Allowed URLs (for link section only):\n{allowed_list}\n\n"
     )
 
     if extra_context and extra_context.strip():
         user_prompt += f"[Live context]\n{extra_context.strip()}\n\n"
 
-    must_url = ""
+    must_url = ""  # tweet_bot: never require URL in text
     url_rule = "- Do NOT include any URL in the post text.\n"
+
     user_prompt += (
        "Rules:\n"
         f"{style_rules}"

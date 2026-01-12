@@ -65,8 +65,11 @@ def split_paths(colon_separated: str) -> List[str]:
 
 
 def normalize_answer(text: str) -> str:
-    # Mirror bash: collapse all whitespace/newlines to single spaces
-    return re.sub(r"\\s+", " ", (text or "").strip()).strip()
+    # Keep line structure (greeting/weather/body). Normalize spaces per-line.
+    raw = (text or "").strip()
+    lines = [re.sub(r"[ \t]+", " ", ln).strip() for ln in raw.splitlines()]
+    lines = [ln for ln in lines if ln]
+    return "\n".join(lines).strip()
 
 
 def parse_possibly_concatenated_json(s: str) -> List[Any]:
@@ -535,14 +538,18 @@ def build_question(
         )
 
     return (
-        "Write one short tweet in English.\n"
-        "- Mention the current weather briefly (use only: sunny/cloudy/windy/chilly/rainy + temp).\n"
-        "- Introduce ONE local spot or ONE upcoming event from ONLY the RAG context.\n"
+        "Write a tweet in English.\n"
+        "Follow this format EXACTLY (3 lines, no URLs in the text):\n"
+        "1) Greeting line: Good morning/Good afternoon/Good evening/Good night (match HINTS.time_of_day).\n"
+        "2) Weather line: '<sunny|cloudy|windy|chilly|rainy>, <temp_c>°C.' (use ONLY those weather words + temp).\n"
+        "3) Main line: Introduce ONE upcoming event (today or later) OR ONE local spot from ONLY the RAG context.\n"
+        "   - Mention the spot/event name explicitly.\n"
+        "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
+        "Rules: No hashtags. No emojis. Keep it natural and punchy.\n"
         f"{event_guard}"
         f"datetime: {now_local}.\n"
         f"TOPIC: {topic_family}/{topic_mode} (keywords: {topic_keywords}).\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
-        "Pick ONE topic that fits the hints.\n"
     )
 
 def build_payload(
