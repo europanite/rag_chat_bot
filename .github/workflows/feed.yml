@@ -53,6 +53,14 @@ jobs:
           docker compose -f docker-compose.yml build --pull
 
       - name: Start stack (up)
+        env:
+          RAG_AUTO_INDEX: "false"
+          RAG_REBUILD_ON_START: "false"
+          OLLAMA_BASE_URL: "http://ollama:11434"
+          OLLAMA_TIMEOUT_S: "512"
+          EMBEDDING_MODEL: "mxbai-embed-large"
+          RAG_MODEL: "llama3.1:8b"
+          AUDIT_MODEL: "llama3.2:3b"
         run: |
           set -euxo pipefail
           docker compose -f docker-compose.yml up -d
