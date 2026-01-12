@@ -43,7 +43,7 @@ jobs:
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "true"
           RAG_MODEL: "llama3.1:8b"
-          AUDIT_MODEL: "llama3.1:8b"
+          AUDIT_MODEL: "llama3.2:3b"
           OLLAMA_BASE_URL: "http://ollama:11434"
           OLLAMA_TIMEOUT_S: 512
         run: |
