@@ -24,7 +24,6 @@ services:
       DB_PASS: test
       DB_NAME: app_test
       EMBEDDING_MODEL: ${EMBEDDING_MODEL}
-      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL}
       OLLAMA_BASE_URL: http://ollama:11434
     depends_on:
       db_test:

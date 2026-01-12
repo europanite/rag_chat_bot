@@ -37,17 +37,34 @@ jobs:
             exit 1
           fi
 
-      - name: Start stack
-        env:
-          RAG_AUTO_INDEX: "false"
-          RAG_REBUILD_ON_START: "false"
-          RAG_REINDEX_ENABLED: "true"
-          RAG_MODEL: "llama3.1:8b"
-          AUDIT_MODEL: "llama3.2:3b"
-          OLLAMA_BASE_URL: "http://ollama:11434"
-          OLLAMA_TIMEOUT_S: 512
+      - name: Free disk space
         run: |
-          docker compose -f docker-compose.yml up -d --build
+          set -eux
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android
+          docker system prune -af || true
+          df -h
+
+      - name: Start stack (build)
+        run: |
+          set -euxo pipefail
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
+          export BUILDKIT_PROGRESS=plain
+          docker compose -f docker-compose.yml build --pull
+
+      - name: Start stack (up)
+        run: |
+          set -euxo pipefail
+          docker compose -f docker-compose.yml up -d
+          docker compose -f docker-compose.yml ps
+
+      - name: Dump docker logs on failure
+        if: failure()
+        run: |
+          docker compose -f docker-compose.yml ps || true
+          docker compose -f docker-compose.yml logs --no-color --tail=400 || true
+          docker system df || true
+          df -h || true
 
       - name: Wait for backend
         env:

@@ -53,7 +53,6 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       AUTH_EXPIRE_MINUTES: ${AUTH_EXPIRE_MINUTES}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
-      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama3.1:8b}
       OLLAMA_CHAT_TIMEOUT: ${OLLAMA_CHAT_TIMEOUT:-300}
       RAG_MODEL: ${RAG_MODEL}
       AUDIT_MODEL: ${AUDIT_MODEL}
@@ -135,10 +134,10 @@ services:
       ollama serve & \
       sleep 5 && \
       ollama pull ${EMBEDDING_MODEL} && \
-      ollama pull ${OLLAMA_CHAT_MODEL} && \
+      ollama pull ${RAG_MODEL} && \
       wait"]
     healthcheck:
-      test: ["CMD-SHELL", "ollama show ${EMBEDDING_MODEL} >/dev/null 2>&1 && ollama show ${OLLAMA_CHAT_MODEL} >/dev/null 2>&1"]
+      test: ["CMD-SHELL", "ollama show ${EMBEDDING_MODEL} >/dev/null 2>&1 && ollama show ${RAG_MODEL} >/dev/null 2>&1"]
       interval: 20s
       timeout: 20s
       retries: 60
