@@ -550,9 +550,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         candidate = finalize_answer(
             answer=candidate,
             required_mention=required_mention,
-            required_url=required_url,
             max_chars=max_chars,
-            output_style=payload.output_style or "tweet_bot",
             now_dt=now_dt,
         )
 
@@ -568,9 +566,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         candidate = finalize_answer(
             answer=candidate,
             required_mention=required_mention,
-            required_url=required_url,
             max_chars=max_chars,
-            output_style=payload.output_style or "tweet_bot",
             now_dt=now_dt,
         )
 
@@ -645,9 +641,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             fixed = finalize_answer(
                 answer=audit_lite.fixed_answer,
                 required_mention=required_mention,
-                required_url=required_url,
                 max_chars=max_chars,
-                output_style=payload.output_style or "tweet_bot",
                 now_dt=now_dt,
             )
                                   
@@ -662,9 +656,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             fixed = finalize_answer(
                 answer=fixed,
                 required_mention=required_mention,
-                required_url=required_url,
                 max_chars=max_chars,
-                output_style=payload.output_style or "tweet_bot",
                 now_dt=now_dt,
             )
             candidate = fixed

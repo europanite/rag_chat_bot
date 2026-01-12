@@ -352,32 +352,28 @@ def build_chat_prompts(
 ) -> Tuple[str, str]:
     """
     Build (system_prompt, user_prompt).
-
-    output_style:
-      - "tweet_bot": concise social post; respects max_chars
-      - "default": generic helpful answer
     """
     allowed_list = "\n".join(f"- {u}" for u in sorted(allowed_urls)) if allowed_urls else "(none)"
 
-    style_rules = ""
-    if output_style == "tweet_bot":
-        style_rules = (
-            f"- Output must be <= {max_chars} characters.\n"
-            "- Output ONLY the post text (no preface, no quotes, no compliance notes).\n"
-            "- The FIRST line must be a time-appropriate greeting that matches NOW "
-            "(Good morning/Good afternoon/Good evening/Good night).\n"
-            "- Do NOT start with the fixed greeting 'Hello, everyone.'.\n"
-            "- Do NOT include any URLs in the post text. Links are shown separately.\n"
-            "- Keep it punchy and natural.\n"
-            "- If you mention relative time words like 'tonight', they must match NOW.\n"
-        )
-
+    style_rules = (
+        f"- Output must be <= {max_chars} characters.\n"
+        "- Output ONLY the post text (no preface, no quotes, no compliance notes).\n"
+        "- The FIRST line must be a time-appropriate greeting that matches NOW "
+        "(Good morning/Good afternoon/Good evening/Good night).\n"
+        "- Do NOT start with the fixed greeting 'Hello, everyone.'.\n"
+        "- Do NOT include any URLs in the post text. Links are shown separately.\n"
+        "- Keep it punchy and natural.\n"
+        "- If you mention relative time words like 'tonight', they must match NOW.\n"
+    )
+    
     system_prompt = (
-        "You are a careful assistant.\n"
-        "You MUST answer using ONLY the provided context.\n"
-        "Do NOT invent events, places, or dates.\n"
-        "If you include any URL, it MUST be in the allow-list.\n"
-        "Never output broken fragments like '(https://)'.\n"
+            "You are a careful assistant.\n"
+            "You MUST answer using ONLY the provided context.\n"
+            "Do NOT invent events, places, or dates.\n"
+            "Rules:\n"
+            f"{style_rules}"
+            "- You MUST mention the required mention provided in the user prompt.\n"
+            "- If context is insufficient, say so briefly.\n"
     )
 
     # RAG context block
@@ -387,20 +383,26 @@ def build_chat_prompts(
 
     user_prompt = (
         f"{now_block}\n\n"
-        f"Question:\n{question.strip()}\n\n"
-        f"Required mention: {required_mention}\n"
-        + (f"Required URL (for link section only): {required_url}\n\n" if output_style != "tweet_bot" else "\n")
-        + (f"Allowed URLs:\n{allowed_list}\n\n" if output_style != "tweet_bot" else "")
-        + f"RAG context:\n{rag_block}\n\n"
+        f"{question.strip()}\n\n"
+        f"Required mention: {required_mention}\n\n"
+        f"RAG context:\n{rag_block}\n\n"
+        f"Required URL (for link section only): {required_url}\n\n"
+        f"Allowed URLs:\n{allowed_list}\n\n"
+        "Rules:\n"
+        f"{style_rules}"
+        "- You MUST mention the required mention.\n"
+        "- You MUST include the required URL.\n"
+        "- Do NOT include any URL not in the allow-list.\n"
+        "- If context is insufficient, say so briefly.\n\n"
     )
 
     if extra_context and extra_context.strip():
         user_prompt += f"[Live context]\n{extra_context.strip()}\n\n"
 
-    must_url = "" if output_style == "tweet_bot" else "- You MUST include the required URL.\n"
-    url_rule = "- Do NOT include any URL in the post text.\n" if output_style == "tweet_bot" else "- Do NOT include any URL not in the allow-list.\n"
+    must_url = ""
+    url_rule = "- Do NOT include any URL in the post text.\n"
     user_prompt += (
-        "Rules:\n"
+       "Rules:\n"
         f"{style_rules}"
         f"- You MUST mention the required mention.\n"
         f"{must_url}"
@@ -415,18 +417,15 @@ def finalize_answer(
     *,
     answer: str,
     required_mention: str,
-    required_url: str,
     max_chars: int,
-    output_style: str = "tweet_bot",
     now_dt: Optional[datetime] = None,
 ) -> str:
     """Post-process answer: strip broken schemes, enforce required mention/url, enforce length."""
     a = (answer or "").strip()
     a = strip_broken_schemes(a)
 
-    if output_style == "tweet_bot":
-        a = _strip_meta_preamble(a)
-        a = ensure_greeting_first(a, now_dt=now_dt)
+    a = _strip_meta_preamble(a)
+    a = ensure_greeting_first(a, now_dt=now_dt)
 
     if required_mention and required_mention.lower() not in a.lower():
         # Add a gentle mention; keep it short
