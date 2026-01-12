@@ -1,7 +1,7 @@
 import os, re, json, hashlib
 from pathlib import Path
 from datetime import datetime, timezone
-
+from typing import Any
 from PIL import Image, ImageFilter, ImageEnhance, ImageOps
 
 LATEST_PATH = Path(os.environ.get("LATEST_PATH", "frontend/app/public/latest.json"))
@@ -53,6 +53,40 @@ def clean_for_prompt(text: str) -> str:
     t = re.sub(r"\s+", " ", t).strip()
     # keep it short-ish for stable diffusion
     return t[:220]
+
+
+
+def _clip_safe_prompt(pipe: Any, text: str) -> str:
+    """
+    Truncate prompt to the CLIP tokenizer max length (typically 77 tokens),
+    to avoid: 'Token indices sequence length is longer than ... (80 > 77)'.
+    """
+    text = (text or "").strip()
+    if not text:
+        return text
+    try:
+        tok = getattr(pipe, "tokenizer", None)
+        if tok is None:
+            return text
+        max_len = int(getattr(tok, "model_max_length", 77) or 77)
+        enc = tok(text, truncation=True, max_length=max_len, return_tensors=None)
+        ids = enc.get("input_ids")
+        # tokenizer returns either List[int] or List[List[int]]
+        if isinstance(ids, list) and ids and isinstance(ids[0], list):
+            ids = ids[0]
+        if not isinstance(ids, list) or not ids:
+            return text
+        return tok.decode(ids, skip_special_tokens=True).strip()
+    except Exception:
+        return text
+
+
+def _from_pretrained_img2img(AutoPipelineForImage2Image: Any, model_id: str, dtype: Any, **kwargs: Any):
+    """Prefer new 'dtype=' API, fallback to 'torch_dtype=' for older diffusers."""
+    try:
+        return AutoPipelineForImage2Image.from_pretrained(model_id, dtype=dtype, **kwargs)
+    except TypeError:
+        return AutoPipelineForImage2Image.from_pretrained(model_id, torch_dtype=dtype, **kwargs)
 
 
 def slug(s: str) -> str:
@@ -134,19 +168,26 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) ->
         except Exception:
             pass
  
-    pipe = AutoPipelineForImage2Image.from_pretrained(MODEL_ID, torch_dtype=dtype).to(device)
     # Prefer safetensors; try fp16 variant on CUDA when available
     pipe = None
+
     if device == "cuda":
         try:
-            pipe = AutoPipelineForImage2Image.from_pretrained(
-                MODEL_ID, torch_dtype=dtype, use_safetensors=True, variant="fp16"
+            pipe = _from_pretrained_img2img(
+                AutoPipelineForImage2Image,
+                MODEL_ID,
+                dtype,
+                use_safetensors=True,
+                variant="fp16",
             )
         except Exception:
             pipe = None
     if pipe is None:
-        pipe = AutoPipelineForImage2Image.from_pretrained(
-            MODEL_ID, torch_dtype=dtype, use_safetensors=True
+        pipe = _from_pretrained_img2img(
+            AutoPipelineForImage2Image,
+            MODEL_ID,
+            dtype,
+            use_safetensors=True,
         )
     pipe = pipe.to(device)
 
@@ -158,17 +199,29 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) ->
         pipe.enable_attention_slicing()
     except Exception:
         pass
+    # diffusers newer API prefers pipe.vae.enable_slicing/tiling
     try:
-        pipe.enable_vae_slicing()
+        pipe.vae.enable_slicing()
     except Exception:
-        pass
-
+        try:
+            pipe.enable_vae_slicing()
+        except Exception:
+            pass
     try:
-        pipe.enable_vae_tiling()
+        pipe.vae.enable_tiling()
     except Exception:
-        pass
+        try:
+            pipe.enable_vae_tiling()
+        except Exception:
+            pass
 
     g = torch.Generator(device=device).manual_seed(seed)
+
+
+    # Avoid CLIP max token warnings (77 tokens)
+    prompt = _clip_safe_prompt(pipe, prompt)
+    negative = _clip_safe_prompt(pipe, negative)
+
 
     # Mirror-augment:
     # - mirror input (L/R flip) before img2img
