@@ -564,6 +564,13 @@ def build_payload(
     audit_rewrite: bool | None = None,
 ) -> dict:
     # Send only a compact weather summary (condition words + temp) to the LLM.
+
+    recent_block = int(os.environ.get("RECENT_URL_BLOCK", "25"))
+    recent_files = int(os.environ.get("RECENT_URL_FILES", "40"))
+    feed_path_name = env("FEED_PATH", "")
+    feed_dir = Path(feed_path_name).parent if feed_path_name else Path("frontend/app/public/feed")
+    blocked_urls = collect_recent_primary_urls(feed_dir, max_files=recent_files, max_urls=recent_block)
+
     payload: dict = {
         "question": question,
         "top_k": top_k,
@@ -680,6 +687,24 @@ def pair_paths(feeds: List[str], latests: List[str]) -> List[Tuple[str, str]]:
     first = latests[0]
     return [(f, first) for f in feeds]
 
+def collect_recent_primary_urls(feed_dir: Path, *, max_files: int = 40, max_urls: int = 25) -> list[str]:
+    urls: list[str] = []
+    if not feed_dir.exists():
+        return urls
+    files = sorted(feed_dir.glob("feed_*.json"), reverse=True)[:max_files]
+    for p in files:
+        try:
+            obj = json.loads(p.read_text(encoding="utf-8"))
+            links = obj.get("links") or []
+            for u in links:
+                if isinstance(u, str) and u.startswith("http"):
+                    if u not in urls:
+                        urls.append(u)
+                if len(urls) >= max_urls:
+                    return urls
+        except Exception:
+            continue
+    return urls
 
 def main() -> int:
     debug = env("DEBUG", "0") == "1"

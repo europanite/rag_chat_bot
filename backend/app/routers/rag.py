@@ -34,6 +34,7 @@ from .rag_utils import (
     filter_answer_urls,
     finalize_answer,
     select_required_context,
+    normalize_url,
 )
 from .rag_audit import AuditLite, run_answer_audit
 
@@ -377,13 +378,11 @@ class AuditResult(BaseModel):
 
 class QueryRequest(BaseModel):
     question: str
-
-    # scripts/generate_talk.py sends these
     datetime: Optional[str] = None
     links: List[str] = Field(default_factory=list)
     top_k: int = 5
     extra_context: Optional[str] = None
-
+    blocked_urls: List[str] = Field(default_factory=list)
     output_style: str = "tweet_bot"
     max_chars: Optional[int] = None
 
@@ -475,6 +474,25 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     # Retrieve context
     try:
         chunks = rag_store.query_similar_chunks(question, top_k=top_k)
+
+        # Normalize blocked URLs (recently used primary links)
+        blocked: Set[str] = set()
+        for u in (payload.blocked_urls or []):
+            nu = normalize_url(u)
+            if nu:
+                blocked.add(nu)
+
+        # If we can, prefer chunks that don't point to recently-used URLs
+        if blocked and chunks:
+            filtered = []
+            for c in chunks:
+                c_links = collect_source_links(chunks=[c], limit=16)
+                if any(u in blocked for u in c_links):
+                    continue
+                filtered.append(c)
+            if filtered:
+                chunks = filtered
+
         chunks = _postprocess_retrieved_chunks(
             chunks,
             question=question,
@@ -500,6 +518,11 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         context_texts=context_texts,
         extra_text=payload.extra_context,
     )
+
+    # Remove blocked URLs from the allow-list (prevents reusing the same URL)
+    if blocked:
+        allowed_urls = {u for u in allowed_urls if u not in blocked}
+        source_links = [u for u in source_links if u not in blocked]
 
     required_mention, required_url = select_required_context(
         chunks=chunks,
