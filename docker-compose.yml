@@ -18,24 +18,24 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
-  # image:
-  #   build:
-  #     context: ./image
-  #     dockerfile: Dockerfile
-  #   container_name: image
-  #   tty: true
-  #   working_dir: /repo
-  #   volumes:
-  #     - ./:/repo
-  #     - hf_cache:/root/.cache/huggingface
-  #     - torch_cache:/root/.cache/torch
-  #   environment:
-  #     FEED_PATH: frontend/app/public
-  #     LATEST_PATH: frontend/app/public/latest.json
-  #     MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
-  #     SD_MODEL_ID: ${SD_MODEL_ID:-}
-  #   command: ["sh", "image/run.sh"]
-  #   restart: "no"
+  illustrate:
+    build:
+      context: ./illustrate
+      dockerfile: Dockerfile
+    container_name: illustrate
+    tty: true
+    working_dir: /repo
+    volumes:
+      - ./:/repo
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+    environment:
+      FEED_PATH: frontend/app/public
+      LATEST_PATH: frontend/app/public/latest.json
+      MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
+      SD_MODEL_ID: ${SD_MODEL_ID:-}
+    command: ["sh", "image/run.sh"]
+    restart: "no"
   backend:
     build:
       context: ./backend
