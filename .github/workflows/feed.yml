@@ -37,7 +37,7 @@ jobs:
             exit 1
           fi
 
-      - name: Start stack (db + ollama + backend)
+      - name: Start stack
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
@@ -47,6 +47,7 @@ jobs:
           AUDIT_MODEL: "llama3.1:8b"
           OLLAMA_BASE_URL: "http://ollama:11434"
           OLLAMA_TIMEOUT_S: 512
+          COMPOSE_BAKE: false
         run: |
           docker compose -f docker-compose.yml up -d --build
 
