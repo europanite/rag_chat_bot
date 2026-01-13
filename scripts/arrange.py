@@ -2,6 +2,7 @@ import os, re, json, hashlib
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any
+
 from PIL import Image, ImageFilter, ImageEnhance, ImageOps
 
 LATEST_PATH = Path(os.environ.get("LATEST_PATH", "frontend/app/public/latest.json"))
@@ -34,59 +35,26 @@ PLACE = os.environ.get("PLACE", "").strip()
 PROMPT = os.environ.get("PROMPT", "").strip()
 NEGATIVE = os.environ.get("NEGATIVE", "").strip()
 
-MIRROR_AUG = (os.environ.get("MIRROR_AUG", "0").strip() != "0")  # mirror->img2img->mirror back (double flip)
+# NOTE:
+MIRROR_AUG = (os.environ.get("MIRROR_AUG", "0").strip() != "0")
 
-PATCH_JSON = (os.environ.get("PATCH_JSON", "1").strip() != "0")  # dont update latest/feed if 0
+PATCH_JSON = (os.environ.get("PATCH_JSON", "1").strip() != "0")
 OUT_NAME = os.environ.get("OUT_NAME", "").strip()
 
 
-def load_json(p: Path):
+def load_json(p: Path) -> Any:
     return json.loads(p.read_text(encoding="utf-8"))
 
 
-def dump_json(p: Path, obj):
+def dump_json(p: Path, obj: Any) -> None:
+    p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def clean_for_prompt(text: str) -> str:
-    t = re.sub(r"https?://\S+", "", text)
+    t = re.sub(r"https?://\S+", "", text or "")
     t = re.sub(r"\s+", " ", t).strip()
-    # keep it short-ish for stable diffusion
     return t[:220]
-
-
-
-def _clip_safe_prompt(pipe: Any, text: str) -> str:
-    """
-    Truncate prompt to the CLIP tokenizer max length (typically 77 tokens),
-    to avoid: 'Token indices sequence length is longer than ... (80 > 77)'.
-    """
-    text = (text or "").strip()
-    if not text:
-        return text
-    try:
-        tok = getattr(pipe, "tokenizer", None)
-        if tok is None:
-            return text
-        max_len = int(getattr(tok, "model_max_length", 77) or 77)
-        enc = tok(text, truncation=True, max_length=max_len, return_tensors=None)
-        ids = enc.get("input_ids")
-        # tokenizer returns either List[int] or List[List[int]]
-        if isinstance(ids, list) and ids and isinstance(ids[0], list):
-            ids = ids[0]
-        if not isinstance(ids, list) or not ids:
-            return text
-        return tok.decode(ids, skip_special_tokens=True).strip()
-    except Exception:
-        return text
-
-
-def _from_pretrained_img2img(AutoPipelineForImage2Image: Any, model_id: str, dtype: Any, **kwargs: Any):
-    """Prefer new 'dtype=' API, fallback to 'torch_dtype=' for older diffusers."""
-    try:
-        return AutoPipelineForImage2Image.from_pretrained(model_id, dtype=dtype, **kwargs)
-    except TypeError:
-        return AutoPipelineForImage2Image.from_pretrained(model_id, torch_dtype=dtype, **kwargs)
 
 
 def slug(s: str) -> str:
@@ -96,206 +64,260 @@ def slug(s: str) -> str:
     return s or "x"
 
 
-def _floor_to_8(x: int) -> int:
-    # keep SD sizes valid (multiple of 8)
-    x = int(x)
-    if x <= 0:
-        return 0
-    return max(64, (x // 8) * 8)
-
 def fit_cover(img: Image.Image, w: int, h: int) -> Image.Image:
     iw, ih = img.size
     if iw <= 0 or ih <= 0:
-        return img.resize((w, h))
+        raise ValueError(f"invalid image size: {img.size}")
     scale = max(w / iw, h / ih)
-    nw, nh = int(iw * scale + 0.5), int(ih * scale + 0.5)
-    img = img.resize((nw, nh), Image.Resampling.LANCZOS)
+    nw = max(1, int(round(iw * scale)))
+    nh = max(1, int(round(ih * scale)))
+    resized = img.resize((nw, nh), Image.BICUBIC)
     left = max(0, (nw - w) // 2)
     top = max(0, (nh - h) // 2)
-    return img.crop((left, top, left + w, top + h))
+    return resized.crop((left, top, left + w, top + h))
 
 
 def pillow_arrange(img: Image.Image, style: str) -> Image.Image:
     style = (style or "grade").strip().lower()
+    out = img
 
-    if style == "oil":
-        # soft "oil-ish" look: blur + contrast + slight edge enhance
-        base = img.filter(ImageFilter.GaussianBlur(radius=1.2))
-        base = ImageEnhance.Color(base).enhance(1.15)
-        base = ImageEnhance.Contrast(base).enhance(1.18)
-        base = base.filter(ImageFilter.EDGE_ENHANCE_MORE)
-        return base
-
-    if style == "watercolor":
-        # watercolor-ish: soften + brighten + reduce contrast a bit
-        base = img.filter(ImageFilter.GaussianBlur(radius=1.8))
-        base = ImageEnhance.Brightness(base).enhance(1.05)
-        base = ImageEnhance.Contrast(base).enhance(0.95)
-        base = ImageEnhance.Color(base).enhance(1.10)
-        return base
-
-    if style == "photo":
-        # light photo grading: sharpen + mild contrast
-        base = img.filter(ImageFilter.UnsharpMask(radius=2, percent=120, threshold=3))
-        base = ImageEnhance.Contrast(base).enhance(1.08)
-        return base
-
-    # default: grade
-    base = ImageEnhance.Color(img).enhance(1.05)
-    base = ImageEnhance.Contrast(base).enhance(1.10)
-    base = base.filter(ImageFilter.UnsharpMask(radius=2, percent=110, threshold=3))
-    return base
-
-
-def img2img_arrange(base: Image.Image, prompt: str, negative: str, seed: int) -> Image.Image:
-    import torch
-    from diffusers import AutoPipelineForImage2Image
-
-    # choose device
-    if DEVICE == "cuda":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-    elif DEVICE == "cpu":
-        device = "cpu"
-    else:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    # CPU: float32 is safest. CUDA: fp16 is fastest.
-    dtype = torch.float16 if device == "cuda" else torch.float32
-
-    if TORCH_NUM_THREADS > 0:
-        try:
-            torch.set_num_threads(TORCH_NUM_THREADS)
-        except Exception:
-            pass
- 
-    # Prefer safetensors; try fp16 variant on CUDA when available
-    pipe = None
-
-    if device == "cuda":
-        try:
-            pipe = _from_pretrained_img2img(
-                AutoPipelineForImage2Image,
-                MODEL_ID,
-                dtype,
-                use_safetensors=True,
-                variant="fp16",
-            )
-        except Exception:
-            pipe = None
-    if pipe is None:
-        pipe = _from_pretrained_img2img(
-            AutoPipelineForImage2Image,
-            MODEL_ID,
-            dtype,
-            use_safetensors=True,
-        )
-    pipe = pipe.to(device)
-
-    try:
-        pipe.set_progress_bar_config(disable=True)
-    except Exception:
-        pass
-    try:
-        pipe.enable_attention_slicing()
-    except Exception:
-        pass
-    # diffusers newer API prefers pipe.vae.enable_slicing/tiling
-    try:
-        pipe.vae.enable_slicing()
-    except Exception:
-        try:
-            pipe.enable_vae_slicing()
-        except Exception:
-            pass
-    try:
-        pipe.vae.enable_tiling()
-    except Exception:
-        try:
-            pipe.enable_vae_tiling()
-        except Exception:
-            pass
-
-    g = torch.Generator(device=device).manual_seed(seed)
-
-
-    # Avoid CLIP max token warnings (77 tokens)
-    prompt = _clip_safe_prompt(pipe, prompt)
-    negative = _clip_safe_prompt(pipe, negative)
-
-
-    # Mirror-augment:
-    # - mirror input (L/R flip) before img2img
-    # - generate
-    # - mirror output back (so final orientation matches original)
-    # NOTE: flipping twice without generation is identical; the "difference" comes from the img2img step in between.
-    in_img = ImageOps.mirror(base) if MIRROR_AUG else base
-
-    with torch.inference_mode():
-        out_img = pipe(
-            prompt=prompt,
-            negative_prompt=negative,
-            image=in_img,
-            strength=max(0.05, min(0.95, STRENGTH)),
-            guidance_scale=GUIDANCE_SCALE,
-            num_inference_steps=max(1, min(4, STEPS)),
-            generator=g,
-        ).images[0].convert("RGB")
-    out = ImageOps.mirror(out_img) if MIRROR_AUG else out_img
-
+    if style == "grade":
+        out = ImageEnhance.Contrast(out).enhance(1.15)
+        out = ImageEnhance.Color(out).enhance(1.12)
+        out = ImageEnhance.Sharpness(out).enhance(1.05)
+    elif style == "oil":
+        out = out.filter(ImageFilter.SMOOTH_MORE)
+        out = ImageEnhance.Color(out).enhance(1.18)
+        out = ImageEnhance.Contrast(out).enhance(1.08)
+    elif style == "watercolor":
+        out = out.filter(ImageFilter.SMOOTH_MORE)
+        out = ImageEnhance.Color(out).enhance(0.95)
+        out = ImageEnhance.Contrast(out).enhance(1.06)
+    elif style == "photo":
+        out = ImageEnhance.Contrast(out).enhance(1.05)
+        out = ImageEnhance.Sharpness(out).enhance(1.10)
     return out
 
 
-def patch_feed_file(p: Path, *, date: str, text: str, generated_at: str, feed_stem: str, rel_url: str, prompt: str, now_iso: str) -> bool:
+def _floor_to_8(x: int) -> int:
+    if x <= 0:
+        return 0
+    return max(8, (x // 8) * 8)
+
+
+def _pick_device():
+    import torch
+
+    if DEVICE == "cpu":
+        return torch.device("cpu")
+    if DEVICE == "cuda":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # auto
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def _clip_safe_prompt(pipe, text: str, max_tokens: int = 75) -> str:
+    text = (text or "").strip()
+    if not text:
+        return "photorealistic photo"
+
+    tok = getattr(pipe, "tokenizer", None)
+    if tok is None:
+        return text
+
     try:
-        obj = load_json(p)
+        enc = tok(text, truncation=False, add_special_tokens=True)
+        ids = enc["input_ids"]
+        if len(ids) <= 77:
+            return text
+        # 先頭から残す（特殊トークン考慮してmax_tokens程度）
+        ids2 = ids[:max_tokens]
+        return tok.decode(ids2, skip_special_tokens=True).strip() or text[:200]
     except Exception:
+        return text[:200]
+
+
+def _from_pretrained_img2img(model_id: str, *, torch_dtype, **kwargs):
+    from diffusers import AutoPipelineForImage2Image
+
+    try:
+        return AutoPipelineForImage2Image.from_pretrained(model_id, torch_dtype=torch_dtype, **kwargs)
+    except TypeError as e:
+        if "torch_dtype" in str(e):
+            return AutoPipelineForImage2Image.from_pretrained(model_id, dtype=torch_dtype, **kwargs)
+        raise
+
+
+def img2img_arrange(base: Image.Image, prompt: str, negative: str, *, seed: int) -> Image.Image:
+    import torch
+
+    device = _pick_device()
+    if TORCH_NUM_THREADS > 0 and device.type == "cpu":
+        torch.set_num_threads(TORCH_NUM_THREADS)
+
+    dtype = torch.float16 if device.type == "cuda" else torch.float32
+
+    pipe = _from_pretrained_img2img(MODEL_ID, torch_dtype=dtype)
+
+    try:
+        pipe = pipe.to(device=device, dtype=dtype)
+    except TypeError:
+        pipe = pipe.to(device)
+        try:
+            pipe = pipe.to(dtype=dtype)
+        except TypeError:
+            pass
+
+    if device.type == "cpu":
+        try:
+            if getattr(pipe, "dtype", None) == torch.float16:
+                pipe = pipe.to(dtype=torch.float32)
+        except Exception:
+            pass
+
+    if hasattr(pipe, "set_progress_bar_config"):
+        pipe.set_progress_bar_config(disable=True)
+    if hasattr(pipe, "enable_attention_slicing"):
+        try:
+            pipe.enable_attention_slicing()
+        except Exception:
+            pass
+    if hasattr(pipe, "vae") and hasattr(pipe.vae, "enable_slicing"):
+        try:
+            pipe.vae.enable_slicing()
+        except Exception:
+            pass
+
+    prompt2 = _clip_safe_prompt(pipe, prompt)
+    negative2 = _clip_safe_prompt(pipe, negative) if (negative or "").strip() else ""
+
+    g = torch.Generator(device=device).manual_seed(int(seed))
+
+    img_in = base
+    if MIRROR_AUG:
+        img_in = ImageOps.mirror(img_in)
+
+    with torch.inference_mode():
+        out = pipe(
+            prompt=prompt2,
+            negative_prompt=negative2,
+            image=img_in,
+            strength=float(STRENGTH),
+            guidance_scale=float(GUIDANCE_SCALE),
+            num_inference_steps=int(STEPS),
+            generator=g,
+        )
+
+    out_img = out.images[0]
+    if MIRROR_AUG:
+        out_img = ImageOps.mirror(out_img)
+    return out_img
+
+
+def _safe_str(x: Any) -> str:
+    return str(x) if x is not None else ""
+
+
+def _match_item(item: Any, *, date: str, text: str, generated_at: str) -> bool:
+    if not isinstance(item, dict):
         return False
-    if not isinstance(obj, dict) or not isinstance(obj.get("items"), list):
+    same_dt = _safe_str(item.get("date")).strip() == date and _safe_str(item.get("text")).strip() == text
+    same_ga = bool(generated_at) and _safe_str(item.get("generated_at")).strip() == generated_at
+    return same_dt or same_ga
+
+
+def patch_feed_file(
+    feed_path: Path,
+    *,
+    date: str,
+    text: str,
+    generated_at: str,
+    feed_stem: str,
+    rel_url: str,
+    prompt: str,
+    now_iso: str,
+) -> bool:
+    if not feed_path.exists():
+        return False
+
+    try:
+        obj = load_json(feed_path)
+    except Exception:
         return False
 
     changed = False
-    for it in obj["items"]:
-        if not isinstance(it, dict):
-            continue
-        same_id = bool(generated_at) and str(it.get("id", "")) == generated_at
-        same_dt = str(it.get("date", "")) == date and str(it.get("text", "")) == text
-        if same_id or same_dt:
-            it["id"] = feed_stem
-            it["permalink"] = f"./?post={feed_stem}"
-            it["image"] = rel_url
-            it["image_url"] = rel_url
-            it["image_prompt"] = prompt
-            it["image_model"] = MODEL_ID
-            it["image_mirror_aug"] = bool(MIRROR_AUG)
-            it["image_generated_at"] = now_iso
-            changed = True
+
+    def patch_dict(d: dict) -> None:
+        nonlocal changed
+        d["image"] = rel_url
+        d["image_url"] = rel_url
+        d["image_prompt"] = prompt
+        d["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
+        d["image_mirror_aug"] = bool(MIRROR_AUG)
+        d["image_generated_at"] = now_iso
+        d["id"] = feed_stem
+        d["permalink"] = f"./?post={feed_stem}"
+        changed = True
+
+    if isinstance(obj, dict) and isinstance(obj.get("items"), list):
+        for it in obj["items"]:
+            if _match_item(it, date=date, text=text, generated_at=generated_at):
+                patch_dict(it)
+                break
+    elif isinstance(obj, list):
+        for it in obj:
+            if _match_item(it, date=date, text=text, generated_at=generated_at):
+                patch_dict(it)
+                break
+    elif isinstance(obj, dict):
+        # snapshot single-object
+        if _match_item(obj, date=date, text=text, generated_at=generated_at) or True:
+            patch_dict(obj)
 
     if changed:
-        dump_json(p, obj)
+        dump_json(feed_path, obj)
     return changed
 
 
 def main() -> int:
-    if not INPUT_IMAGE.exists():
-        raise SystemExit(f"INPUT_IMAGE not found: {INPUT_IMAGE}")
-
     latest = {}
     if LATEST_PATH.exists():
-        latest = load_json(LATEST_PATH)
+        try:
+            latest = load_json(LATEST_PATH)
+        except Exception:
+            latest = {}
 
-    # latest.json fallback
-    date = str(latest.get("date", "unknown")).strip()
-    text = str(latest.get("text", "snapshot-based image")).strip()
-    place = str(latest.get("place", "") or PLACE).strip()
-    generated_at = str(latest.get("generated_at", "")).strip()
+    feeds = []
+    if FEED_DIR.exists():
+        feeds = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.name, reverse=True)
+
+    date = _safe_str(getattr(latest, "get", lambda *_: "")("date")).strip() if isinstance(latest, dict) else ""
+    text = _safe_str(getattr(latest, "get", lambda *_: "")("text")).strip() if isinstance(latest, dict) else ""
+    generated_at = _safe_str(getattr(latest, "get", lambda *_: "")("generated_at")).strip() if isinstance(latest, dict) else ""
+    place = (PLACE or (_safe_str(latest.get("place")) if isinstance(latest, dict) else "")).strip()
+
+    if (not date or not text) and feeds:
+        try:
+            snap = load_json(feeds[0])
+            if isinstance(snap, dict):
+                date = date or _safe_str(snap.get("date")).strip()
+                text = text or _safe_str(snap.get("text")).strip()
+                generated_at = generated_at or _safe_str(snap.get("generated_at")).strip()
+                if not place:
+                    place = _safe_str(snap.get("place")).strip()
+        except Exception:
+            pass
 
     seed_src = f"{date}\n{place}\n{generated_at}\n{text}".encode("utf-8")
     seed_hex8 = hashlib.sha1(seed_src).hexdigest()[:8]
     seed = int(seed_hex8, 16)
 
-    feeds = []
-    if FEED_DIR.exists():
-        feeds = sorted(FEED_DIR.glob("feed_*.json"), key=lambda x: x.name, reverse=True)
+    if SEED_OVERRIDE:
+        try:
+            seed = int(SEED_OVERRIDE)
+        except Exception:
+            pass
+    seed += int(SEED_OFFSET)
 
     feed_stem = feeds[0].stem if feeds else f"{slug(date)}_{seed_hex8}"
 
@@ -315,74 +337,67 @@ def main() -> int:
     core = clean_for_prompt(text)
 
     if not PROMPT:
-        # realistic
-        PROMPT_LOCAL = (
+        prompt_local = (
             "photorealistic photo, natural colors, documentary style, "
             f"winter scene in {place or 'Yokosuka, Japan'}, "
             "same scene and composition as the input image. "
             f"Inspired by: {core}"
         )
     else:
-        PROMPT_LOCAL = PROMPT
+        prompt_local = PROMPT
 
     if not NEGATIVE:
-        NEGATIVE_LOCAL = (
+        negative_local = (
             "anime, illustration, cartoon, CGI, fantasy, unreal, "
             "text, watermark, logo, letters, words, typography, caption, subtitles, signature, "
             "low quality, blurry"
         )
     else:
-        NEGATIVE_LOCAL = NEGATIVE
+        negative_local = NEGATIVE
 
     if MODE == "img2img":
-        # Optional: run SD at smaller size for CPU speed
         sdw = _floor_to_8(SD_W)
         sdh = _floor_to_8(SD_H)
         sd_in = base
         if sdw and sdh and (sdw != PAGE_W or sdh != PAGE_H):
             sd_in = fit_cover(base, sdw, sdh)
 
-        arranged = img2img_arrange(sd_in, PROMPT_LOCAL, NEGATIVE_LOCAL, seed=seed)
+        arranged = img2img_arrange(sd_in, prompt_local, negative_local, seed=seed)
         arranged = fit_cover(arranged, PAGE_W, PAGE_H)
     else:
         arranged = pillow_arrange(base, STYLE)
 
     arranged.save(out_path, format="PNG", optimize=True)
 
-    # JSON PATCH_JSON=0
-    if PATCH_JSON:
+    if PATCH_JSON and isinstance(latest, dict):
         now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-
         rel_url = ""
         try:
             rel_url = "./" + str(out_path.relative_to(Path("frontend/app/public"))).replace("\\", "/")
         except Exception:
-            # OUT_DIR
             rel_url = ""
 
-        # Update latest.json (keep existing keys)
-        if isinstance(latest, dict):
-            latest["image"] = rel_url
-            latest["image_url"] = rel_url
-            latest["image_prompt"] = PROMPT_LOCAL if MODE == "img2img" else f"pillow:{STYLE}"
-            latest["id"] = feed_stem
-            latest["permalink"] = f"./?post={feed_stem}"
-            latest["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
-            latest["image_mirror_aug"] = bool(MIRROR_AUG)
-            latest["image_generated_at"] = now_iso
-            dump_json(LATEST_PATH, latest)
+        latest["image"] = rel_url
+        latest["image_url"] = rel_url
+        latest["image_prompt"] = prompt_local if MODE == "img2img" else f"pillow:{STYLE}"
+        latest["id"] = feed_stem
+        latest["permalink"] = f"./?post={feed_stem}"
+        latest["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
+        latest["image_mirror_aug"] = bool(MIRROR_AUG)
+        latest["image_generated_at"] = now_iso
+        dump_json(LATEST_PATH, latest)
 
-            if FEED_DIR.exists() and feeds:
-                patch_feed_file(
-                    feeds[0],
-                    date=date,
-                    text=text,
-                    generated_at=generated_at,
-                    feed_stem=feed_stem,
-                    rel_url=rel_url,
-                    prompt=latest["image_prompt"],
-                    now_iso=now_iso,
-                )
+        if feeds:
+            patch_feed_file(
+                feeds[0],
+                date=date,
+                text=text,
+                generated_at=generated_at,
+                feed_stem=feed_stem,
+                rel_url=rel_url,
+                prompt=latest["image_prompt"],
+                now_iso=now_iso,
+            )
 
     print("Generated:", out_path)
     return 0
