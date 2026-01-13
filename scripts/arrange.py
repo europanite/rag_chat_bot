@@ -41,6 +41,14 @@ MIRROR_AUG = (os.environ.get("MIRROR_AUG", "0").strip() != "0")
 PATCH_JSON = (os.environ.get("PATCH_JSON", "1").strip() != "0")
 OUT_NAME = os.environ.get("OUT_NAME", "").strip()
 
+def _sanitize_img2img_params(steps: int, strength: float) -> tuple[int, float]:
+    s = max(1, int(steps))
+    st = float(strength)
+    st = max(0.05, min(0.95, st))
+    min_st = (1.0 / s) + 1e-3
+    if st < min_st:
+        st = min_st
+    return s, st
 
 def load_json(p: Path) -> Any:
     return json.loads(p.read_text(encoding="utf-8"))
@@ -190,6 +198,7 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, *, seed: int)
 
     prompt2 = _clip_safe_prompt(pipe, prompt)
     negative2 = _clip_safe_prompt(pipe, negative) if (negative or "").strip() else ""
+    prompt2 = (prompt2 or "").strip() or "photorealistic photo"
 
     g = torch.Generator(device=device).manual_seed(int(seed))
 
@@ -197,14 +206,15 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, *, seed: int)
     if MIRROR_AUG:
         img_in = ImageOps.mirror(img_in)
 
+    steps_i, strength_f = _sanitize_img2img_params(STEPS, STRENGTH)
     with torch.inference_mode():
         out = pipe(
             prompt=prompt2,
             negative_prompt=negative2,
             image=img_in,
-            strength=float(STRENGTH),
+            strength=strength_f,
             guidance_scale=float(GUIDANCE_SCALE),
-            num_inference_steps=int(STEPS),
+            num_inference_steps=steps_i,
             generator=g,
         )
 
