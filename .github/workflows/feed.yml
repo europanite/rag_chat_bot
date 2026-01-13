@@ -178,6 +178,32 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Setup Python 3.12 (snapshot)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps (snapshot)
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Capture snapshot (coast-cam)
+        env:
+          SNAP_URL: "https://coast-cam.com/images/cam2.jpg"  # yokosuka
+        run: |
+          python - <<'PY'
+          import time, requests
+          url = (requests.utils.unquote("https://coast-cam.com/images/cam1.jpg")
+                 if not "${SNAP_URL}".strip() else "${SNAP_URL}".strip())
+          u2 = f"{url}?t={int(time.time())}"
+          headers = {"User-Agent":"Mozilla/5.0","Cache-Control":"no-cache","Pragma":"no-cache"}
+          r = requests.get(u2, headers=headers, timeout=30)
+          r.raise_for_status()
+          open("snapshot.jpg","wb").write(r.content)
+          print("saved snapshot.jpg bytes=", len(r.content))
+          PY
+
       - name: Sync to latest main (ff-only)
         run: |
           set -euo pipefail
@@ -227,6 +253,17 @@ jobs:
 
       - name: Generate illustrated image and patch feed (via docker-compose illustrate)
         env:
+          # arrange(img2img) 
+          INPUT_IMAGE: "snapshot.jpg"
+          MODE: "img2img"
+          PATCH_JSON: "1"
+          OUT_DIR: "frontend/app/public/image"
+          PLACE: "Yokosuka, Japan"
+          STEPS: "2"
+          STRENGTH: "0.45"
+          GUIDANCE_SCALE: "0.0"
+          MIRROR_AUG: "1"
+          SEED_OFFSET: "${{ github.run_number }}"
           SD_MODEL_ID: stabilityai/sd-turbo
         run: |
           set -euo pipefail
