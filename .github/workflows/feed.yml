@@ -190,18 +190,28 @@ jobs:
 
       - name: Capture snapshot (coast-cam)
         env:
-          SNAP_URL: "https://coast-cam.com/images/cam2.jpg"  # yokosuka
+          SNAP_URL: "https://coast-cam.com/images/cam2.jpg"  # hayama
         run: |
+          set -euo pipefail
           python - <<'PY'
-          import time, requests
-          url = (requests.utils.unquote("https://coast-cam.com/images/cam1.jpg")
-                 if not "${SNAP_URL}".strip() else "${SNAP_URL}".strip())
-          u2 = f"{url}?t={int(time.time())}"
-          headers = {"User-Agent":"Mozilla/5.0","Cache-Control":"no-cache","Pragma":"no-cache"}
-          r = requests.get(u2, headers=headers, timeout=30)
+          import os, time, requests
+          url = os.environ["SNAP_URL"].strip()
+          sep = "&" if "?" in url else "?"
+          url2 = f"{url}{sep}t={int(time.time())}"
+          headers = {
+            "User-Agent": "snapshot-safe-http/1.0 (+github-actions)",
+            "Accept": "image/*",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+          }
+          r = requests.get(url2, headers=headers, timeout=30)
           r.raise_for_status()
-          open("snapshot.jpg","wb").write(r.content)
-          print("saved snapshot.jpg bytes=", len(r.content))
+          ctype = (r.headers.get("Content-Type","") or "").lower()
+          if "image" not in ctype:
+            raise RuntimeError(f"Non-image response: Content-Type={ctype}")
+          with open("snapshot.jpg","wb") as f:
+            f.write(r.content)
+          print("OK snapshot.jpg", len(r.content), ctype)
           PY
 
       - name: Sync to latest main (ff-only)
@@ -251,7 +261,7 @@ jobs:
           set -euo pipefail
           docker compose -f docker-compose.yml build illustrate
 
-      - name: Generate illustrated image and patch feed (via docker-compose illustrate)
+      - name: Generate illustrated image and patch feed
         env:
           # arrange(img2img) 
           INPUT_IMAGE: "snapshot.jpg"
