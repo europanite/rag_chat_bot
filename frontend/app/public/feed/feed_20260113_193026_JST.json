@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-13T11:28:16Z",
+  "id": "feed_20260113_193026_JST",
   "date": "2026-01-13",
   "text": "Good evening. (YOKOSUKA Fire Department Parade 2026 (消防出初式))",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/syoubou-parade.html"
-  ]
+  ],
+  "legacy_id": "2026-01-13T11:28:16Z",
+  "permalink": "./?post=feed_20260113_193026_JST",
+  "image_url": "./image/feed_20260113_193026_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good evening. (YOKOSUKA Fire Department Parade 2026 (消防出初式))",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-13T11:31:27Z"
 }
