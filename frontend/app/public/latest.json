@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-14T16:49:43Z",
+  "id": "feed_20260115_013638_JST",
   "date": "2026-01-14",
   "text": "Good night. (2025 Yokosuka Chuo Illumination Photo Contest)",
   "place": "Yokosuka",
@@ -56,5 +56,11 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "legacy_id": "2026-01-14T16:49:43Z",
+  "permalink": "./?post=feed_20260115_013638_JST",
+  "image_url": "./image/feed_20260115_013638_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: Good night. (2025 Yokosuka Chuo Illumination Photo Contest)",
+  "image_model": "stabilityai/sd-turbo",
+  "image_generated_at": "2026-01-14T16:53:32Z"
 }
