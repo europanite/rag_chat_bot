@@ -34,6 +34,27 @@ services:
       LATEST_PATH: frontend/app/public/latest.json
       MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
       SD_MODEL_ID: ${SD_MODEL_ID:-}
+      INPUT_IMAGE: ${INPUT_IMAGE:-}
+      MODE: ${MODE:-pillow}
+      STYLE: ${STYLE:-grade}
+      PATCH_JSON: ${PATCH_JSON:-1}
+      OUT_DIR: ${OUT_DIR:-frontend/app/public/image}
+      OUT_NAME: ${OUT_NAME:-}
+      PLACE: ${PLACE:-}
+      STEPS: ${STEPS:-2}
+      STRENGTH: ${STRENGTH:-0.45}
+      GUIDANCE_SCALE: ${GUIDANCE_SCALE:-0.0}
+      MIRROR_AUG: ${MIRROR_AUG:-0}
+      SEED: ${SEED:-}
+      SEED_OFFSET: ${SEED_OFFSET:-0}
+      PAGE_W: ${PAGE_W:-640}
+      PAGE_H: ${PAGE_H:-480}
+      SD_W: ${SD_W:-0}
+      SD_H: ${SD_H:-0}
+      DEVICE: ${DEVICE:-auto}
+      TORCH_NUM_THREADS: ${TORCH_NUM_THREADS:-0}
+      PROMPT: ${PROMPT:-}
+      NEGATIVE: ${NEGATIVE:-}
     command: ["sh", "illustrate/app/run.sh"]
     restart: "no"
   backend:
