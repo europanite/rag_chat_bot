@@ -101,7 +101,7 @@ def ensure_greeting_first(
         return desired
 
     # No greeting at all -> prepend.
-    return f"{desired}\n{a}".strip()
+    return f"{desired} {a}".strip()
 
 
 # Matches URLs with a scheme. Keep it conservative to avoid capturing trailing punctuation.

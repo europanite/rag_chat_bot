@@ -25,7 +25,7 @@ import torch
 from diffusers import AutoPipelineForText2Image
 
 
-MODEL_ID = os.environ.get("SD_MODEL_ID", "stabilityai/sd-turbo").strip() or "stabilityai/sd-turbo"
+MODEL_ID = os.environ.get("SD_MODEL_ID")
 DEVICE = "cpu"  # GitHub Actions runner is typically CPU for this job
 
 def load_json(p: Path) -> Any:
@@ -119,8 +119,8 @@ def patch_feed_file(
 
 
 def main() -> int:
-    public_dir = Path(os.environ.get("FEED_PATH", "frontend/app/public"))
-    latest_path = Path(os.environ.get("LATEST_PATH", str(public_dir / "latest.json")))
+    public_dir = Path(os.environ.get("FEED_PATH")
+    latest_path = Path(os.environ.get("LATEST_PATH")
 
     if not latest_path.exists():
         print(f"ERROR: latest.json not found: {latest_path}")

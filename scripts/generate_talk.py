@@ -565,12 +565,6 @@ def build_payload(
 ) -> dict:
     # Send only a compact weather summary (condition words + temp) to the LLM.
 
-    recent_block = int(os.environ.get("RECENT_URL_BLOCK", "25"))
-    recent_files = int(os.environ.get("RECENT_URL_FILES", "40"))
-    feed_path_name = env("FEED_PATH", "")
-    feed_dir = Path(feed_path_name).parent if feed_path_name else Path("frontend/app/public/feed")
-    blocked_urls = collect_recent_primary_urls(feed_dir, max_files=recent_files, max_urls=recent_block)
-
     payload: dict = {
         "question": question,
         "top_k": top_k,
@@ -580,10 +574,6 @@ def build_payload(
         "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
     }
-    if audit is not None:
-        payload["audit"] = audit
-    if audit_rewrite is not None:
-        payload["audit_rewrite"] = audit_rewrite
     return payload
 
 def extract_tweet(resp_obj: Dict[str, Any]) -> str:

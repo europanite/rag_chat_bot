@@ -35,6 +35,7 @@ from .rag_utils import (
     finalize_answer,
     select_required_context,
     normalize_url,
+    truthy_env,
 )
 from .rag_audit import AuditLite, run_answer_audit
 
@@ -388,12 +389,6 @@ class QueryRequest(BaseModel):
 
     include_debug: bool = False
 
-    # audit
-    audit: bool = False
-    audit_model: Optional[str] = None
-    audit_rewrite: bool = False
-    audit_max_attempts: int = 1
-
     # if True, audit expects no unsupported claims
     strict_context: bool = True
 
@@ -549,10 +544,13 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     original_answer: Optional[str] = None
     last_audit: Optional[AuditResult] = None
 
-    attempts = max(1, int(payload.audit_max_attempts or 1)) if payload.audit else 1
-    # For 'upcoming event' prompts, allow at least one extra internal retry when rewrite is enabled.
-    if payload.audit and wants_future_events and payload.audit_rewrite:
-        attempts = max(attempts, 2)
+    audit_enabled = truthy_env(os.getenv("RAG_AUDIT"))
+    rewrite_enabled = truthy_env(os.getenv("RAG_AUDIT_REWRITE") or "1")
+    try:
+        attempts = int(os.getenv("RAG_AUDIT_MAX_ATTEMPTS") or ("2" if rewrite_enabled else "1"))
+    except Exception:
+        attempts = 2 if rewrite_enabled else 1
+    attempts = max(1, attempts) if (audit_enabled or rewrite_enabled) else 1
 
     answer = ""
     for attempt in range(1, attempts + 1):
@@ -593,36 +591,45 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         )
 
 
-        # Deterministic temporal lint for "upcoming event" prompts (catches obvious past-date mentions).
+        # Lint (temporal + tweet_bot format) -> if rewrite_enabled then regenerate.
+        issues: List[str] = []
         if wants_future_events and now_dt:
-            temporal_issues = _temporal_issues_future_event_answer(candidate, now_dt=now_dt)
-            if temporal_issues:
-                last_audit = AuditResult(
-                    model="temporal_lint",
-                    passed=False,
-                    score=0,
-                    confidence="high",
-                    issues=temporal_issues,
-                    fixed_answer=None,
-                    original_answer=original_answer if payload.audit_rewrite else None,
-                    raw="temporal_lint_failed" if payload.include_debug else None,
-                )
-                answer = candidate
-                if attempt < attempts and payload.audit_rewrite:
-                    feedback = "; ".join(temporal_issues[:5])
-                    user_prompt = (
-                        user_prompt
-                        + "\n\n"
-                        + f"Audit feedback: {feedback}\n"
-                        + "Rewrite to comply with rules. If mentioning a date, it must be today or in the future.\n"
-                        + "Do not call past events 'upcoming'. Do not add new facts.\n"
-                    )
-                    continue
-                break
+            issues.extend(_temporal_issues_future_event_answer(candidate, now_dt=now_dt) or [])
+
+        if (payload.output_style or "tweet_bot") == "tweet_bot":
+            t = (candidate or "").strip()
+            if "\n" in t or "\r" in t:
+                issues.append("no line breaks (single paragraph)")
+            if "http://" in t or "https://" in t:
+                issues.append("no URLs in text")
+            sents = [s for s in re.split(r"(?<=[.!?])\s+", t) if s.strip()]
+            if len(sents) != 3:
+                issues.append("exactly 3 sentences")
+            low = t.lower()
+            if not re.search(r"\b(sunny|cloudy|windy|chilly|rainy)\b", low):
+                issues.append("sentence 2 must include weather word")
+            if not re.search(r"\b-?\d{1,2}\s*°\s*c\b", low):
+                issues.append("sentence 2 must include temperature like 10°C")
+
+        answer = candidate
+        if issues and rewrite_enabled and attempt < attempts:
+            feedback = "; ".join(issues[:5])
+            user_prompt = (
+                user_prompt
+                + "\n\n"
+                + f"Format feedback: {feedback}\n"
+                + "Rewrite to comply with rules. Do not add new facts.\n"
+            )
+            continue
+        if issues:
+            break
 
         # If no audit requested, accept immediately
         if not payload.audit:
             answer = candidate
+            break
+
+        if not audit_enabled:
             break
 
         audit_model = AUDIT_MODEL
@@ -637,7 +644,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             allowed_urls=allowed_urls,
             required_url=required_url,
             strict_context=bool(payload.strict_context),
-            allow_rewrite=bool(payload.audit_rewrite),
+            allow_rewrite=bool(rewrite_enabled),
             max_chars=max_chars,
             require_required_url_in_answer=((payload.output_style or "tweet_bot") != "tweet_bot"),
             forbid_urls_in_answer=((payload.output_style or "tweet_bot") == "tweet_bot"),
@@ -650,7 +657,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             confidence=audit_lite.confidence,
             issues=audit_lite.issues,
             fixed_answer=audit_lite.fixed_answer,
-            original_answer=original_answer if payload.audit_rewrite else None,
+            ooriginal_answer=original_answer if rewrite_enabled else None,
             raw=audit_lite.raw if payload.include_debug else None,
         )
 
@@ -715,7 +722,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
 
         # If we can try again, add audit feedback to the prompt and regenerate.
         answer = candidate
-        if attempt < attempts and payload.audit_rewrite:
+        if attempt < attempts and rewrite_enabled:
             feedback = "; ".join(last_audit.issues[:5]) if last_audit else "audit_failed"
             # Tighten user prompt without altering base structure too much
             user_prompt = (
