@@ -368,6 +368,7 @@ def build_chat_prompts(
         "- Use EXACTLY 3 sentences in a single paragraph (no line breaks): (1) Greeting. (2) Weather. (3) Main.\n"
         "- The SECOND sentence must include one of: sunny/cloudy/windy/chilly/rainy AND a temperature (e.g., 'cloudy with 7°C.').\n"
         "- Keep it punchy and natural.\n"
+        "- The THIRD sentence must focus ONLY on the required mention; do NOT introduce a second place/event name.\n"
         "- If you mention relative time words like 'tonight', they must match NOW.\n"
     )
     
@@ -377,7 +378,7 @@ def build_chat_prompts(
             "Do NOT invent events, places, or dates.\n"
             "Rules:\n"
             f"{style_rules}"
-            "- You MUST mention the required mention provided in the user prompt.\n"
+            "- Try to mention the required mention provided in the user prompt.\n"
             "- If context is insufficient, say so briefly.\n"
     )
 
@@ -404,7 +405,7 @@ def build_chat_prompts(
     user_prompt += (
        "Rules:\n"
         f"{style_rules}"
-        f"- You MUST mention the required mention.\n"
+        f"- Try to mention the required mention.\n"
         f"{must_url}"
         f"{url_rule}"
         "- If context is insufficient, say so briefly.\n\n"
@@ -426,9 +427,6 @@ def finalize_answer(
 
     a = _strip_meta_preamble(a)
     a = ensure_greeting_first(a, now_dt=now_dt)
-
-    if required_mention and required_mention.lower() not in a.lower():
-        a = f"{a} ({required_mention})".strip() if a else f"{required_mention}"
 
     # Hard cap (tweet_bot: no URL tail).
 
