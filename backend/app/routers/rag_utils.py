@@ -4,6 +4,7 @@ import json
 import re
 from typing import Any, Iterable, List, Optional, Sequence, Set, Tuple
 from datetime import datetime
+from typing import Optional, Tuple
 
 # --- tweet hygiene ---
 _GREET_RE = re.compile(r"^(hi|hello|good (morning|afternoon|evening|night))\b", re.I)
@@ -361,12 +362,11 @@ def build_chat_prompts(
     style_rules = (
         f"- Output must be <= {max_chars} characters.\n"
         "- Output ONLY the post text (no preface, no quotes, no compliance notes).\n"
-        "- The FIRST line must be a time-appropriate greeting that matches NOW "
+        "- The FIRST sentence must be a time-appropriate greeting that matches NOW "
         "(Good morning/Good afternoon/Good evening/Good night).\n"
-        "- Do NOT start with the fixed greeting 'Hello, everyone.'.\n"
         "- Do NOT include any URLs in the post text. Links are shown separately.\n"
-        "- Use EXACTLY 3 lines: (1) Greeting (2) Weather (3) Main.\n"
-        "- The SECOND line must include one of: sunny/cloudy/windy/chilly/rainy AND a temperature'.\n"
+        "- Use EXACTLY 3 sentences in a single paragraph (no line breaks): (1) Greeting. (2) Weather. (3) Main.\n"
+        "- The SECOND sentence must include one of: sunny/cloudy/windy/chilly/rainy AND a temperature (e.g., 'cloudy with 7°C.').\n"
         "- Keep it punchy and natural.\n"
         "- If you mention relative time words like 'tonight', they must match NOW.\n"
     )
@@ -428,8 +428,7 @@ def finalize_answer(
     a = ensure_greeting_first(a, now_dt=now_dt)
 
     if required_mention and required_mention.lower() not in a.lower():
-        # Add a gentle mention; keep it short
-        a = f"{a}\n\n({required_mention})".strip() if a else f"{required_mention}"
+        a = f"{a} ({required_mention})".strip() if a else f"{required_mention}"
 
     # Hard cap (tweet_bot: no URL tail).
 

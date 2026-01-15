@@ -539,10 +539,10 @@ def build_question(
 
     return (
         "Write a tweet in English.\n"
-        "Follow this format EXACTLY (3 lines, no URLs in the text):\n"
-        "1) Greeting: Good morning/Good afternoon/Good evening/Good night (match HINTS.time_of_day).\n"
-        "2) Weather info: '<sunny|cloudy|windy|chilly|rainy> with <temp_c>°C.'.\n"
-        "3) Main: Introduce ONE upcoming event (today or later) OR ONE local spot from ONLY the RAG context.\n"
+        "Follow this format EXACTLY (EXACTLY 3 sentences, single paragraph, no line breaks, no URLs in the text):\n"
+        "1) Greeting sentence: Good morning/Good afternoon/Good evening/Good night (match HINTS.time_of_day).\n"
+        "2) Weather sentence: '<sunny|cloudy|windy|chilly|rainy> with <temp_c>°C.'.\n"
+        "3) Main sentence: Introduce ONE upcoming event (today or later) OR ONE local spot from ONLY the RAG context.\n"
         "   - Mention the spot/event name explicitly.\n"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
