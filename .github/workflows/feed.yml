@@ -190,7 +190,7 @@ jobs:
 
       - name: Capture snapshot (coast-cam)
         env:
-          SNAP_URL: "https://coast-cam.com/images/cam2.jpg"  # hayama
+          SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
         run: |
           set -euo pipefail
           python - <<'PY'
