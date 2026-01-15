@@ -541,14 +541,14 @@ def build_question(
         "Write a tweet in English.\n"
         "Follow this format EXACTLY (EXACTLY 3 sentences, single paragraph, no line breaks, no URLs in the text):\n"
         "1) Greeting sentence: Good morning/Good afternoon/Good evening/Good night (match HINTS.time_of_day).\n"
-        "2) Weather sentence: '<sunny|cloudy|windy|chilly|rainy> with <temp_c>°C.'.\n"
+        "2) Weather sentence: '<sunny|cloudy|windy|chilly|rainy> with your feeling'.\n"
         "3) Main sentence: Introduce ONE upcoming event (today or later) OR ONE local spot from ONLY the RAG context.\n"
         "   - Mention the spot/event name explicitly.\n"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
         f"{event_guard}"
         f"datetime: {now_local}.\n"
-        f"TOPIC: {topic_family}/{topic_mode} (keywords: {topic_keywords}).\n"
+        f"TOPIC: {topic_family}/{topic_mode}. KEYWORDS: {topic_keywords}.\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
 

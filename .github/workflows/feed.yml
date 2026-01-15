@@ -113,7 +113,7 @@ jobs:
           PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
-          MAX_CHARS: 256
+          MAX_CHARS: 512
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
           OLLAMA_TIMEOUT_S: 512
           TOPIC_VARIANT: ${{ github.run_number }}
