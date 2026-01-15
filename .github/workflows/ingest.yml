@@ -21,6 +21,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Free disk space
+        run: |
+          set -eux
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android
+          docker system prune -af || true
+          df -h
+
       - name: Prepare chroma_db dir
         run: |
           mkdir -p chroma_db
@@ -38,7 +45,12 @@ jobs:
           AUDIT_MODEL: "llama3.1:8b"
           EMBEDDING_MODEL: "mxbai-embed-large"
         run: |
-          docker compose -f docker-compose.yml up -d --build
+          set -euxo pipefail
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
+          export BUILDKIT_PROGRESS=plain
+          docker compose -f docker-compose.yml up -d --build db ollama backend
+          docker compose -f docker-compose.yml ps
 
       - name: Wait for backend
         env:
