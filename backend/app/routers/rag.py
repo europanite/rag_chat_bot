@@ -16,11 +16,10 @@ Note: The actual LLM calls are to an Ollama server at {OLLAMA_BASE_URL}/api/chat
 from __future__ import annotations
 
 import os
-import json
 import logging
 import re
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 import requests
 from fastapi import APIRouter, HTTPException, Request
@@ -35,7 +34,6 @@ from .rag_utils import (
     finalize_answer,
     select_required_context,
     normalize_url,
-    truthy_env,
 )
 from .rag_audit import AuditLite, run_answer_audit
 
@@ -60,8 +58,8 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
             {"role": "user", "content": user_prompt},
         ],
         "options": {
-            "num_predict": 128,
-            "temperature": 0.2,
+            "num_predict": 256,
+            "temperature": 0.6,
         },
     }
 
@@ -544,8 +542,8 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     original_answer: Optional[str] = None
     last_audit: Optional[AuditResult] = None
 
-    audit_enabled = truthy_env(os.getenv("RAG_AUDIT"))
-    rewrite_enabled = truthy_env(os.getenv("RAG_AUDIT_REWRITE") or "1")
+    audit_enabled = os.getenv("RAG_AUDIT")
+    rewrite_enabled = os.getenv("RAG_AUDIT_REWRITE")
     try:
         attempts = int(os.getenv("RAG_AUDIT_MAX_ATTEMPTS") or ("2" if rewrite_enabled else "1"))
     except Exception:
@@ -624,11 +622,6 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         if issues:
             break
 
-        # If no audit requested, accept immediately
-        if not payload.audit:
-            answer = candidate
-            break
-
         if not audit_enabled:
             break
 
@@ -657,7 +650,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             confidence=audit_lite.confidence,
             issues=audit_lite.issues,
             fixed_answer=audit_lite.fixed_answer,
-            ooriginal_answer=original_answer if rewrite_enabled else None,
+            original_answer=original_answer if rewrite_enabled else None,
             raw=audit_lite.raw if payload.include_debug else None,
         )
 
@@ -713,7 +706,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 confidence=audit2.confidence,
                 issues=audit2.issues,
                 fixed_answer=None,
-                original_answer=original_answer if payload.audit_rewrite else None,
+                original_answer=original_answer if rewrite_enabled else None,
                 raw=audit2.raw if payload.include_debug else None,
             )
             answer = candidate
