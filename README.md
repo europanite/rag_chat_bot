@@ -1,26 +1,6 @@
 # [RAG Chat Bot](https://github.com/europanite/rag_chat_bot "RAG Chat Bot")
 
----
-
-## Features
-
-- **Backend**
-  - FastAPI
-
-- **Frontend**
-  - Expo / React-Native
-
-- **DataBase**
-  - PostgreSQL
-
-- **RAG (Retrieval-Augmented Generation)**
-  - **Embeddings** with Ollama
-  - **Vector store** with ChromaDB
-  - **Chat / Answer generation** 
-
-- **DevOps**
-  - **Docker Compose**
-  - GitHub Actions workflows
+Under Development
 
 ---
 
@@ -34,7 +14,7 @@
 
 ```bash
 # set environment variables:
-export REACT_NATIVE_PACKAGER_HOSTNAME=192.168.2.106 
+export REACT_NATIVE_PACKAGER_HOSTNAME=${YOUR_HOST}
 
 # Build the image
 docker compose build
@@ -68,7 +48,7 @@ docker compose \
 ```
 
 ```bash
-# Chore g
+# Chore
 python3 local/md_dir_to_json.py --recursive data/md/ data/json/data.json
 ```
 
