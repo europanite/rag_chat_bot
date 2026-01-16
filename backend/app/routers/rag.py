@@ -58,8 +58,8 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
             {"role": "user", "content": user_prompt},
         ],
         "options": {
-            "num_predict": 256,
-            "temperature": 0.6,
+            "num_predict": 128,
+            "temperature": 0.8,
         },
     }
 

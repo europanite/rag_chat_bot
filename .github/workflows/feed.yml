@@ -111,12 +111,13 @@ jobs:
           LAT: "35.2810"
           LON: "139.6722"
           TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: 8
+          RAG_TOP_K: 4
           CURL_MAX_TIME: 512
+          CURL_RETRIES: 0
           PLACE: "Yokosuka"
           FEED_PATH: frontend/app/public
           LATEST_PATH: frontend/app/public/latest.json
-          MAX_CHARS: 512
+          MAX_CHARS: 256
           REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
           OLLAMA_TIMEOUT_S: 512
           TOPIC_VARIANT: ${{ github.run_number }}

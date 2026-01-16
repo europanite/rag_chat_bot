@@ -699,8 +699,8 @@ def collect_recent_primary_urls(feed_dir: Path, *, max_files: int = 40, max_urls
 def main() -> int:
     debug = env("DEBUG", "0") == "1"
     cfg = HttpConfig(
-        max_time_s=int(env("CURL_MAX_TIME", "512") or "512"),
-        retries=int(env("CURL_RETRIES", "2") or "2"),
+        max_time_s=int(env("CURL_MAX_TIME")),
+        retries=int(env("CURL_RETRIES")),
         debug=debug,
         bearer_token=env("RAG_TOKEN", ""),
     )
@@ -717,7 +717,7 @@ def main() -> int:
         return 1
 
     # Tweet config
-    top_k = int(env("RAG_TOP_K", "16") or "16")
+    top_k = int(env("RAG_TOP_K"))
     if top_k > 128:
         print(f"ERROR: RAG_TOP_K={top_k} is invalid. Backend requires top_k <= 128.", file=sys.stderr)
         return 1
