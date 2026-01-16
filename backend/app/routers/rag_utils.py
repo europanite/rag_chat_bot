@@ -392,8 +392,6 @@ def build_chat_prompts(
         f"{question.strip()}\n\n"
         f"Required mention: {required_mention}\n\n"
         f"RAG context:\n{rag_block}\n\n"
-        f"Required URL (for link section only, do NOT paste into text): {required_url}\n\n"
-        f"Allowed URLs (for link section only):\n{allowed_list}\n\n"
     )
 
     if extra_context and extra_context.strip():

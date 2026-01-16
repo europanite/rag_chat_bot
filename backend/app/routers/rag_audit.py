@@ -63,6 +63,7 @@ def build_audit_prompts(
     forbid_urls_in_answer: bool,
 ) -> tuple[str, str]:
     allowed_list = "\n".join(f"- {u}" for u in sorted(allowed_urls)) if allowed_urls else "(none)"
+    allowed_block = "" if forbid_urls_in_answer else f"- allowed_urls:\n{allowed_list}\n\n"
     rewrite_rule = (
         "If you can rewrite into a compliant answer, set fixed_answer to the rewritten answer.\n"
         if allow_rewrite
@@ -98,7 +99,7 @@ def build_audit_prompts(
         f"- max_chars: {max_chars}\n"
         f"- required_url: {required_url}\n"
         f"- strict_context: {strict_context}\n"
-        f"- allowed_urls:\n{allowed_list}\n\n"
+        f"{allowed_block}\n"
         f"Rules:\n"
         f"{must_url_rule}"
         f"{url_rules}"
