@@ -50,10 +50,9 @@ router = APIRouter(prefix="/rag", tags=["rag"])
 _session = requests.Session()
 
 def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
-    num_predict = int((os.getenv("OLLAMA_NUM_PREDICT")).strip() or "128")
-    temperature = float((os.getenv("OLLAMA_TEMPERATURE")).strip() or "0.8")
-    num_ctx = int((os.getenv("OLLAMA_NUM_CTX")).strip() or "4096")
-    num_thread = int((os.getenv("OLLAMA_NUM_THREAD")).strip() or "4")
+    num_predict = int((os.getenv("OLLAMA_NUM_PREDICT")))
+    temperature = float((os.getenv("OLLAMA_TEMPERATURE")))
+    num_thread = int((os.getenv("OLLAMA_NUM_THREAD")))
     return {
         "model": model,
         "stream": False,
@@ -64,7 +63,6 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
         "options": {
             "temperature": temperature,
             "num_predict": num_predict,
-            "num_ctx": num_ctx,
             "num_thread": num_thread,
         },
     }
