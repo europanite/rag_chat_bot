@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-17T20:36:51Z",
+  "id": "feed_20260118_053322_JST",
   "date": "2026-01-17",
   "text": "Good morning 🌞! It's a chilly day here in Yokosuka, rainy with 7°C. Why not visit Hashirimizu Beach for some scenic views despite the gloomy weather? 🏖️🌊",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/spot/hashirimizu-beach.html"
-  ]
+  ],
+  "image": "./image/feed_20260118_053322_JST.png",
+  "image_url": "./image/feed_20260118_053322_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning 🌞! It's a chilly day here in Yokosuka, rainy with 7°C. Why not visit Hashirimizu Beach for some scenic views despite the gloomy weather? 🏖️🌊",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-17T20:40:33.325429Z",
+  "permalink": "./?post=feed_20260118_053322_JST"
 }
