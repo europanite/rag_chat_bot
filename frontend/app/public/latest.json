@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-17T02:13:43Z",
+  "id": "feed_20260117_111014_JST",
   "date": "2026-01-17",
   "text": "Good afternoon! 🌞 It's a beautiful sunny day with 13°C. Let's head over to Hashirimizu Beach (走水海岸) in Yokosuka for some sea breeze and waterfront fun! 🏖️🌊",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/spot/hashirimizu-beach.html"
-  ]
+  ],
+  "image": "./image/feed_20260117_111014_JST.png",
+  "image_url": "./image/feed_20260117_111014_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's a beautiful sunny day with 13°C. Let's head over to Hashirimizu Beach (走水海岸) in Yokosuka for some sea breeze and waterfront fun! 🏖️🌊",
+  "permalink": "./?post=feed_20260117_111014_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-17T02:17:01.324583Z"
 }
