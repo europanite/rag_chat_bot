@@ -1,0 +1,67 @@
+{
+  "id": "feed_20260118_135119_JST",
+  "date": "2026-01-18",
+  "text": "Good afternoon! 🌞 It's a chilly 13°C in Yokosuka today, which is perfect weather for staying indoors and checking out the winter photos from last year's #2025YokosukaChuoIlluminationPhotoContest! 📸 The stunning displays of light and nature are sure to brig",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-18T04:54:50Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-18T04:51:22.413549+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-18T13:40:00+09:00",
+      "temp_c": 12.8,
+      "apparent_temp_c": null,
+      "humidity_pct": 36.0,
+      "precip_mm": 0.0,
+      "weather_code": 61,
+      "cloud_cover_pct": null,
+      "wind_kmh": 17.28,
+      "wind_dir_deg": 22.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-18",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夕方　から　くもり　所により　夜　雨",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
+      "date": "2026-01-19",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　昼過ぎ　から　時々　晴れ　所により　未明　雨",
+      "jma_weather_code": "210",
+      "precip_prob_pct": 20
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-18T11:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/event/photocon-illumi.html"
+  ],
+  "image": "./image/feed_20260118_135119_JST.png",
+  "image_url": "./image/feed_20260118_135119_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's a chilly 13°C in Yokosuka today, which is perfect weather for staying indoors and checking out the winter photos from last year's #2025YokosukaChuoIlluminationPhotoContest! 📸 The stunning displays ",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-18T04:58:16.142174Z",
+  "permalink": "./?post=feed_20260118_135119_JST"
+}

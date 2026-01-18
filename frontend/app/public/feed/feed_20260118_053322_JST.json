@@ -1,0 +1,67 @@
+{
+  "id": "feed_20260118_053322_JST",
+  "date": "2026-01-17",
+  "text": "Good morning 🌞! It's a chilly day here in Yokosuka, rainy with 7°C. Why not visit Hashirimizu Beach for some scenic views despite the gloomy weather? 🏖️🌊",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-17T20:36:51Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-17T20:33:23.920955+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-18T05:20:00+09:00",
+      "temp_c": 7.2,
+      "apparent_temp_c": null,
+      "humidity_pct": 53.0,
+      "precip_mm": 0.0,
+      "weather_code": 61,
+      "cloud_cover_pct": null,
+      "wind_kmh": 12.24,
+      "wind_dir_deg": 45.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-18",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夕方　から　くもり　所により　夜　雨",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
+      "date": "2026-01-19",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 10.0,
+      "temp_min_c": 3.0,
+      "weather_text_ja": "くもり　昼過ぎ　から　時々　晴れ　所により　未明　雨",
+      "jma_weather_code": "210",
+      "precip_prob_pct": 20
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-18T05:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/spot/hashirimizu-beach.html"
+  ],
+  "image": "./image/feed_20260118_053322_JST.png",
+  "image_url": "./image/feed_20260118_053322_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning 🌞! It's a chilly day here in Yokosuka, rainy with 7°C. Why not visit Hashirimizu Beach for some scenic views despite the gloomy weather? 🏖️🌊",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-17T20:40:33.325429Z",
+  "permalink": "./?post=feed_20260118_053322_JST"
+}
