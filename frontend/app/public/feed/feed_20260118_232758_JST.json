@@ -60,8 +60,8 @@
   "image": "./image/feed_20260118_232758_JST.png",
   "image_url": "./image/feed_20260118_232758_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night.",
-  "permalink": "./?post=feed_20260118_232758_JST",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-01-18T14:34:30.124522Z"
+  "image_generated_at": "2026-01-18T14:34:30.124522Z",
+  "permalink": "./?post=feed_20260118_232758_JST"
 }
