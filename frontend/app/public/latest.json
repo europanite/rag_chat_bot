@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-19T05:04:10Z",
+  "id": "feed_20260119_140029_JST",
   "date": "2026-01-19",
   "text": "Good afternoon! 🌞 It's cloudy with 13°C today. If you're a fan of photography, don't miss the Yokosuka Chuo Illumination Photo Contest that's taking place nearby - showcase your winter captures and win amazing prizes! #photography #winterwonderland #Yokosu",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "image": "./image/feed_20260119_140029_JST.png",
+  "image_url": "./image/feed_20260119_140029_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's cloudy with 13°C today. If you're a fan of photography, don't miss the Yokosuka Chuo Illumination Photo Contest that's taking place nearby - showcase your winter captures and win amazing prizes! #p",
+  "permalink": "./?post=feed_20260119_140029_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-19T05:07:55.221135Z"
 }
