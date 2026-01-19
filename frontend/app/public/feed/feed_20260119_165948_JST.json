@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260119_174605_JST",
+  "id": "feed_20260119_165948_JST",
   "date": "2026-01-19",
-  "text": "Good evening! 🌃 It's a cloudy day with 12°C here in Yokosuka. Don't miss the Yokosuka Chuo Illumination Photo Contest, where you can capture the magic of winter lights 📸 #イルミヨコスカ2025 #ノスタルジック",
+  "text": "Good afternoon.",
   "place": "Yokosuka",
-  "generated_at": "2026-01-19T08:50:13Z",
+  "generated_at": "2026-01-19T08:03:21Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-19T08:46:07.411750+00:00",
+    "generated_at": "2026-01-19T07:59:49.962203+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-19T17:30:00+09:00",
-      "temp_c": 11.5,
+      "time": "2026-01-19T16:50:00+09:00",
+      "temp_c": 11.7,
       "apparent_temp_c": null,
-      "humidity_pct": 74.0,
+      "humidity_pct": 75.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 8.28,
+      "wind_kmh": 4.32,
       "wind_dir_deg": 225.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -57,11 +57,11 @@
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
   ],
-  "image": "./image/feed_20260119_174605_JST.png",
-  "image_url": "./image/feed_20260119_174605_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! 🌃 It's a cloudy day with 12°C here in Yokosuka. Don't miss the Yokosuka Chuo Illumination Photo Contest, where you can capture the magic of winter lights 📸 #イルミヨコスカ2025 #ノスタルジック",
-  "permalink": "./?post=feed_20260119_174605_JST",
+  "image": "./image/feed_20260119_165948_JST.png",
+  "image_url": "./image/feed_20260119_165948_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon.",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-01-19T08:54:01.202475Z"
+  "image_generated_at": "2026-01-19T08:06:49.520398Z",
+  "permalink": "./?post=feed_20260119_165948_JST"
 }

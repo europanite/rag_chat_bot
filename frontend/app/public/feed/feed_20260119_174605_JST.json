@@ -60,8 +60,8 @@
   "image": "./image/feed_20260119_174605_JST.png",
   "image_url": "./image/feed_20260119_174605_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! 🌃 It's a cloudy day with 12°C here in Yokosuka. Don't miss the Yokosuka Chuo Illumination Photo Contest, where you can capture the magic of winter lights 📸 #イルミヨコスカ2025 #ノスタルジック",
-  "permalink": "./?post=feed_20260119_174605_JST",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-01-19T08:54:01.202475Z"
+  "image_generated_at": "2026-01-19T08:54:01.202475Z",
+  "permalink": "./?post=feed_20260119_174605_JST"
 }
