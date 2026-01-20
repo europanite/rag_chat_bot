@@ -7671,6 +7671,775 @@
     "text": "# Yokosuka Udon Restaurant Reports (English)\n\nThis folder contains Markdown reports for udon restaurants in Yokosuka, Kanagawa (Japan). Each report follows the requested format:\n\n- # title\n- # place\n- # detail\n- # attention\n- # link\n- # tags\n\n## Included reports\n1. Udon Kobo Sanuki\n2. Yokosuka Sarumen\n3. Tachibana Shokudo (Kamimachi Branch)\n4. Teuchi Udon Sawa\n5. Marugame Seimen (Coaska)\n6. Marugame Seimen (Yokosuka Nobi)\n7. Udon Cafe Usei\n8. Hanamaru Udon (AEON Yokosuka Kurihama)\n9. Sarashina Kyoya\n10. Don Daiko (Livin Yokosuka Food Court)\n11. Daikokudo\n12. Happy\n\nNotes:\n- Online ratings and review counts change over time. The reports reference major listing sites and a ranking page updated on 2026-01-01 where available.\n- Always verify opening hours and closures before visiting."
   },
   {
+    "id": "00_index_4c7466e4073f",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [],
+    "links": [],
+    "title": "00_index",
+    "datetime": "",
+    "place": "",
+    "text": "# Yokosuka Vegan Shops & Vegan-Friendly Spots (Reports)\n- Generated date: 2026-01-20 (JST)\n- Contents:\n  - 01_yaam.md\n  - 02_one_drop_cafe.md\n  - 03_snug_stay_door_cafe.md\n  - 04_mercure_bistro_bourgogne.md\n  - 05_cremahop_coaska.md\n  - 06_million_dollar_ice_cream_parlor.md\n  - 07_banana_juice.md\n  - 08_nirvana_indian_restaurant.md\n  - 09_coco_ichibanya_wakamatsucho.md\n  - 10_royal_host_yokosuka.md"
+  },
+  {
+    "id": "01_yaam_8b4bc215d241",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan",
+      "falafel",
+      "middle-eastern",
+      "shioiri",
+      "plant-based"
+    ],
+    "links": [
+      {
+        "label": "HappyCow",
+        "url": "https://www.happycow.net/reviews/yaam-yokosuka-440900"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/yaam.falafel/"
+      },
+      {
+        "label": "Sukaichi listing",
+        "url": "https://www.sukaichi-e.com/shop.php?id=2418"
+      },
+      {
+        "label": "Vegewel (English)",
+        "url": "https://vegewel.com/en/restaurant/2519"
+      }
+    ],
+    "title": "Yaam (Falafel Shop / ~yaam~)",
+    "datetime": "",
+    "place": "2-chōme-44 Shioirichō, Yokosuka, Kanagawa, Japan (about a 2–3 minute walk from Shioiri Station)",
+    "text": "Title: Yaam (Falafel Shop / ~yaam~)\n\nPlace:\n- 2-chōme-44 Shioirichō, Yokosuka, Kanagawa, Japan (about a 2–3 minute walk from Shioiri Station)\n\nDetail:\n- Fully vegan falafel specialty shop with a relaxed, cozy vibe.\n- Signature items include a falafel sandwich served in a house-made hemp charcoal pita, and a falafel plate with salad or rice.\n- Also offers seasonal toppings plus drinks such as craft cola, craft ginger, and coffee.\n- Reputation snapshot (online):\n- HappyCow shows a high average rating (5/5) with multiple reviews praising the food quality, friendly owner, and overall experience (e.g., “lovely conversation”, “fresh homemade”, “great background music”).\n- Local directory Sukaichi highlights the “cozy” atmosphere and notes that sauces, pita bread, and side dishes are homemade.\n\nAttention:\n- Hours (per HappyCow): Wed–Sun 11:00–15:00 and 17:00–20:00; closed Mon & Tue.\n- Alcohol is offered every other weekend (per HappyCow) — check Instagram for the latest schedule.\n- Recommend confirming seasonal menu items and sold-out status before visiting.\n\nLink:\n- HappyCow: https://www.happycow.net/reviews/yaam-yokosuka-440900\n- Instagram: https://www.instagram.com/yaam.falafel/\n- Sukaichi listing: https://www.sukaichi-e.com/shop.php?id=2418\n- Vegewel (English): https://vegewel.com/en/restaurant/2519\n\nTags: vegan, falafel, middle-eastern, shioiri, plant-based"
+  },
+  {
+    "id": "02_one_drop_cafe_35c368a5f460",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-options",
+      "cafe",
+      "dobuita",
+      "yokosuka-chuo",
+      "curry"
+    ],
+    "links": [
+      {
+        "label": "HappyCow",
+        "url": "https://www.happycow.net/reviews/one-drop-cafe-yokosuka-127721"
+      },
+      {
+        "label": "Official website",
+        "url": "https://www.one-drop-cafe.com/"
+      },
+      {
+        "label": "Guidoor article (English)",
+        "url": "https://www.guidoor.jp/en/archives/4728/"
+      }
+    ],
+    "title": "One Drop Cafe",
+    "datetime": "",
+    "place": "1 Chome-29-10 Odakicho, Yokosuka, Kanagawa, Japan (Dobuita Street area / near Yokosuka-Chuo)",
+    "text": "Title: One Drop Cafe\n\nPlace:\n- 1 Chome-29-10 Odakicho, Yokosuka, Kanagawa, Japan (Dobuita Street area / near Yokosuka-Chuo)\n\nDetail:\n- Small cafe known for vegan options (e.g., vegan vegetable curry; vegan plate depending on the day/menu).\n- Reviewers often mention colorful, fresh vegetables and a friendly atmosphere.\n- Reputation snapshot (online):\n- HappyCow lists many reviews with a very strong average rating; positive comments include “healthy and delicious” and “lovely owners.”\n- Some reviewers note practical downsides: the cafe can be hard to find (in a small alley off the main street) and prices may feel a bit high.\n\nAttention:\n- Vegan availability can vary — call ahead to confirm vegan items (HappyCow recommends confirming).\n- Lunch ends around 14:30; dinner service starts around 18:00 (per HappyCow).\n- Menus are mainly in Japanese.\n\nLink:\n- HappyCow: https://www.happycow.net/reviews/one-drop-cafe-yokosuka-127721\n- Official website: https://www.one-drop-cafe.com/\n- Guidoor article (English): https://www.guidoor.jp/en/archives/4728/\n\nTags: vegan-options, cafe, dobuita, yokosuka-chuo, curry"
+  },
+  {
+    "id": "03_snug_stay_door_cafe_850e4975551e",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-friendly",
+      "cafe",
+      "hawaiian",
+      "loco-moco",
+      "kenritsu-daigaku"
+    ],
+    "links": [
+      {
+        "label": "Tabelog",
+        "url": "https://tabelog.com/kanagawa/A1406/A140601/14013034/"
+      },
+      {
+        "label": "HotPepper",
+        "url": "https://www.hotpepper.jp/strJ003723004/map/"
+      },
+      {
+        "label": "Official site",
+        "url": "https://snugcafe.mystrikingly.com/"
+      },
+      {
+        "label": "Wanderlog",
+        "url": "https://wanderlog.com/place/details/14120619/snug-stay-door-cafe"
+      },
+      {
+        "label": "Tripadvisor",
+        "url": "https://www.tripadvisor.com/Restaurant_Review-g298174-d6045174-Reviews-Snug_Stay_Door_Cafe-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      }
+    ],
+    "title": "SNUG STAY DOOR CAFE",
+    "datetime": "",
+    "place": "1-12 Miharu-cho, Yokosuka, Kanagawa, Japan (about 9 minutes from Kenritsu-Daigaku Station)",
+    "text": "Title: SNUG STAY DOOR CAFE\n\nPlace:\n- 1-12 Miharu-cho, Yokosuka, Kanagawa, Japan (about 9 minutes from Kenritsu-Daigaku Station)\n\nDetail:\n- Island-style / Hawaiian-inspired cafe that has been known for burgers and a relaxed, “resort” vibe.\n- The shop’s concept has changed over time (the official site notes a renewal to a loco moco specialty style from late 2023).\n- Reputation snapshot (online):\n- Wanderlog aggregates strong comments describing the burgers and atmosphere positively.\n- Tripadvisor shows a very high rating (5.0/5) — but review volume may be limited.\n\nAttention:\n- Limited opening days/hours listed on Tabelog: typically Fri/Sat/Sun/holidays 11:00–15:00 (L.O. 14:30), closed most weekdays.\n- Because menus and formats change, confirm vegan/plant-based availability directly with the cafe when planning a visit.\n\nLink:\n- Tabelog: https://tabelog.com/kanagawa/A1406/A140601/14013034/\n- HotPepper: https://www.hotpepper.jp/strJ003723004/map/\n- Official site: https://snugcafe.mystrikingly.com/\n- Wanderlog: https://wanderlog.com/place/details/14120619/snug-stay-door-cafe\n- Tripadvisor: https://www.tripadvisor.com/Restaurant_Review-g298174-d6045174-Reviews-Snug_Stay_Door_Cafe-Yokosuka_Kanagawa_Prefecture_Kanto.html\n\nTags: vegan-friendly, cafe, hawaiian, loco-moco, kenritsu-daigaku"
+  },
+  {
+    "id": "04_mercure_bistro_bourgogne_29c950ca29b4",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-menu",
+      "french",
+      "hotel-restaurant",
+      "sustainable",
+      "bistro"
+    ],
+    "links": [
+      {
+        "label": "Mercure official (English vegan menu page)",
+        "url": "https://www.mercureyokosuka.jp/restaurant/vegan_en/"
+      },
+      {
+        "label": "Mercure restaurant overview",
+        "url": "https://www.mercureyokosuka.jp/restaurant/"
+      },
+      {
+        "label": "Sukaichi topic (Japanese)",
+        "url": "https://www.sukaichi.com/topics.php?ID=1065"
+      },
+      {
+        "label": "PRTimes (Japanese)",
+        "url": "https://prtimes.jp/main/html/rd/p/000000463.000052177.html"
+      },
+      {
+        "label": "Yelp (BOURGOGNE)",
+        "url": "https://www.yelp.com/biz/bourgogne-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82"
+      },
+      {
+        "label": "Tripadvisor (general)",
+        "url": "https://www.tripadvisor.com/Restaurant_Review-g298174-d4667322-Reviews-Le_Bistrot_De_Bourgogne-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      }
+    ],
+    "title": "Le Bistrot de Bourgogne (Mercure Yokosuka) — Vegan Menu Available",
+    "datetime": "",
+    "place": "Mercure Yokosuka (19th floor restaurant “Bistro Bourgogne”), Yokosuka, Kanagawa, Japan",
+    "text": "Title: Le Bistrot de Bourgogne (Mercure Yokosuka) — Vegan Menu Available\n\nPlace:\n- Mercure Yokosuka (19th floor restaurant “Bistro Bourgogne”), Yokosuka, Kanagawa, Japan\n\nDetail:\n- French restaurant inside Mercure Yokosuka with a dedicated “Vegan Menu” initiative.\n- The hotel’s restaurant page states the vegan menu is part of a sustainability commitment and is served at Bistro Bourgogne.\n- Local coverage (Sukaichi) highlights examples of vegan items introduced for breakfast/lunch buffets (e.g., a mini “green burger” with a vegan patty; hummus using chickpeas).\n- Reputation snapshot (online):\n- Yelp reviews for “BOURGOGNE” mention vegan dishes are available (noting a “healthy and sweet” taste profile and hotel-restaurant price levels).\n- Tripadvisor reviews emphasize service and bay views (general restaurant reputation, not vegan-specific).\n\nAttention:\n- Vegan options may be offered as a set/buffet component depending on season; check the current menu and reservation requirements.\n- Hotel restaurant pricing can be higher than casual cafes; review the menu and budget in advance.\n\nLink:\n- Mercure official (English vegan menu page): https://www.mercureyokosuka.jp/restaurant/vegan_en/\n- Mercure restaurant overview: https://www.mercureyokosuka.jp/restaurant/\n- Sukaichi topic (Japanese): https://www.sukaichi.com/topics.php?ID=1065\n- PRTimes (Japanese): https://prtimes.jp/main/html/rd/p/000000463.000052177.html\n- Yelp (BOURGOGNE): https://www.yelp.com/biz/bourgogne-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82\n- Tripadvisor (general): https://www.tripadvisor.com/Restaurant_Review-g298174-d4667322-Reviews-Le_Bistrot_De_Bourgogne-Yokosuka_Kanagawa_Prefecture_Kanto.html\n\nTags: vegan-menu, french, hotel-restaurant, sustainable, bistro"
+  },
+  {
+    "id": "05_cremahop_coaska_519fdf3d6181",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-options",
+      "ice-cream",
+      "dessert",
+      "coaska",
+      "cafe"
+    ],
+    "links": [
+      {
+        "label": "HappyCow (Yokosuka)",
+        "url": "https://www.happycow.net/reviews/cremahop-yokosuka-372339"
+      },
+      {
+        "label": "Official site (Japanese)",
+        "url": "https://www.cremahop.com/"
+      },
+      {
+        "label": "Uber Eats (example vegan menu items; Zushi listing)",
+        "url": "https://www.ubereats.com/jp-en/store/cremahop-%E9%80%97%E5%AD%90%E5%BA%97-cremahop-zushi-store/xWbddpOvTD-geWp43IwyGg"
+      }
+    ],
+    "title": "CREMAHOP (COASKA Bayside Stores area) — Vegan Ice Cream Options",
+    "datetime": "",
+    "place": "Yokosuka (COASKA Bayside Stores area), Kanagawa, Japan",
+    "text": "Title: CREMAHOP (COASKA Bayside Stores area) — Vegan Ice Cream Options\n\nPlace:\n- Yokosuka (COASKA Bayside Stores area), Kanagawa, Japan\n\nDetail:\n- Ice cream & coffee brand based in Kanagawa (Zushi / Yokosuka) known for small-batch, handmade ice cream.\n- Offers vegan options (e.g., coconut-cream based vegan ice cream; flavor availability may vary).\n- Reputation snapshot (online):\n- HappyCow lists multiple reviews praising the “great vegan choices,” with minor complaints about sampling policies or sweetness preferences.\n\nAttention:\n- Vegan flavors are often limited and rotate; ask staff which flavors are vegan on the day.\n- If ordering via delivery apps, double-check the “VEGAN ICE CREAM” labeling and ingredients.\n\nLink:\n- HappyCow (Yokosuka): https://www.happycow.net/reviews/cremahop-yokosuka-372339\n- Official site (Japanese): https://www.cremahop.com/\n- Uber Eats (example vegan menu items; Zushi listing): https://www.ubereats.com/jp-en/store/cremahop-%E9%80%97%E5%AD%90%E5%BA%97-cremahop-zushi-store/xWbddpOvTD-geWp43IwyGg\n\nTags: vegan-options, ice-cream, dessert, coaska, cafe"
+  },
+  {
+    "id": "06_million_dollar_ice_cream_parl_27f372b425ce",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-options",
+      "ice-cream",
+      "dessert",
+      "yokosuka-chuo",
+      "craft"
+    ],
+    "links": [
+      {
+        "label": "HappyCow",
+        "url": "https://www.happycow.net/reviews/million-dollar-ice-cream-parlor-yokosuka-450121"
+      },
+      {
+        "label": "Tabelog (English)",
+        "url": "https://s.tabelog.com/en/kanagawa/A1406/A140601/14094454/"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/milliondollaricecreamparlor/"
+      },
+      {
+        "label": "Orange Page (Japanese)",
+        "url": "https://www.orangepage.net/opeditor/trip/29686"
+      },
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/p/Million-Dollar-Ice-Cream-Parlor-61576246709577/"
+      }
+    ],
+    "title": "MILLION DOLLAR ICECREAM PARLOR",
+    "datetime": "",
+    "place": "1-9 Odakicho, Yokosuka, Kanagawa, Japan (near Yokosuka-Chuo Station)",
+    "text": "Title: MILLION DOLLAR ICECREAM PARLOR\n\nPlace:\n- 1-9 Odakicho, Yokosuka, Kanagawa, Japan (near Yokosuka-Chuo Station)\n\nDetail:\n- USA-inspired craft ice cream shop (“premium craft ice cream made in house” on social profiles).\n- HappyCow notes vegan options (example flavors include almond, blood orange, triple berry; flavors may vary).\n- Reputation snapshot (online):\n- Tabelog shows a solid overall score (3.53) with a large number of reviews (150), suggesting strong local visibility.\n- Lifestyle media coverage (Orange Page) describes it as highly repeat-worthy (“will definitely return”).\n\nAttention:\n- Vegan flavors rotate; confirm vegan status before ordering (especially for limited seasonal flavors).\n- Popular flavors may sell out during peak hours.\n\nLink:\n- HappyCow: https://www.happycow.net/reviews/million-dollar-ice-cream-parlor-yokosuka-450121\n- Tabelog (English): https://s.tabelog.com/en/kanagawa/A1406/A140601/14094454/\n- Instagram: https://www.instagram.com/milliondollaricecreamparlor/\n- Orange Page (Japanese): https://www.orangepage.net/opeditor/trip/29686\n- Facebook: https://www.facebook.com/p/Million-Dollar-Ice-Cream-Parlor-61576246709577/\n\nTags: vegan-options, ice-cream, dessert, yokosuka-chuo, craft"
+  },
+  {
+    "id": "07_banana_juice_327e905aa366",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-options",
+      "smoothie",
+      "juice-bar",
+      "takeout",
+      "plant-milk"
+    ],
+    "links": [
+      {
+        "label": "HappyCow",
+        "url": "https://www.happycow.net/reviews/banana-juice-yokosuka-318930"
+      }
+    ],
+    "title": "Banana Juice (Smoothie Stand) — Vegan Options Labeled",
+    "datetime": "",
+    "place": "4-70 Teraonaka 1-Chōme, Yokosuka, Kanagawa, Japan (address as listed on HappyCow)",
+    "text": "Title: Banana Juice (Smoothie Stand) — Vegan Options Labeled\n\nPlace:\n- 4-70 Teraonaka 1-Chōme, Yokosuka, Kanagawa, Japan (address as listed on HappyCow)\n\nDetail:\n- Small stand focusing on banana “juice” (banana smoothies).\n- HappyCow reviewers note that vegan options are clearly labeled on the menu and that plant-based milks (e.g., almond/oat) are available.\n- Reputation snapshot (online):\n- HappyCow review highlights: “simple but tasty smoothies” and “stamp cards,” with cautions that some add-ons (e.g., donuts) are not vegan and prices may feel a bit high.\n\nAttention:\n- Confirm which toppings/add-ons are vegan (the HappyCow review warns that donuts are not vegan).\n- If you have allergies (nuts/soy/oats), confirm the milk base and cross-contact handling.\n\nLink:\n- HappyCow: https://www.happycow.net/reviews/banana-juice-yokosuka-318930\n\nTags: vegan-options, smoothie, juice-bar, takeout, plant-milk"
+  },
+  {
+    "id": "08_nirvana_indian_restaurant_e01d494237aa",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-options",
+      "indian",
+      "nepali",
+      "curry",
+      "yokosuka-chuo"
+    ],
+    "links": [
+      {
+        "label": "HappyCow",
+        "url": "https://www.happycow.net/reviews/nirvana-indian-restaurant-and-curry-house-yokosuka-360251"
+      }
+    ],
+    "title": "Nirvana Indian Restaurant & Curry House — Vegan Curry Options",
+    "datetime": "",
+    "place": "Mikasa Shopping Plaza B1F, Odakicho 2-Chōme-23, Yokosuka, Kanagawa 238-0008, Japan",
+    "text": "Title: Nirvana Indian Restaurant & Curry House — Vegan Curry Options\n\nPlace:\n- Mikasa Shopping Plaza B1F, Odakicho 2-Chōme-23, Yokosuka, Kanagawa 238-0008, Japan\n\nDetail:\n- Indian & Nepalese restaurant (basement level of Mikasa Shopping Plaza).\n- HappyCow lists multiple vegan curry options (e.g., tofu curry, dal, eggplant curry), and recommends specifying “no dairy / vegan” when ordering.\n- Reputation snapshot (online):\n- HappyCow lists the restaurant as having vegan options; review volume appears limited, so verify details directly.\n\nAttention:\n- Specify “no ghee / no dairy” clearly (common in Indian/Nepalese kitchens).\n- Ask about naan (often contains dairy) and request rice/roti alternatives if needed.\n\nLink:\n- HappyCow: https://www.happycow.net/reviews/nirvana-indian-restaurant-and-curry-house-yokosuka-360251\n\nTags: vegan-options, indian, nepali, curry, yokosuka-chuo"
+  },
+  {
+    "id": "09_coco_ichibanya_wakamatsucho_4d16d4e65f0e",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-options",
+      "japanese-curry",
+      "chain",
+      "late-night",
+      "customization"
+    ],
+    "links": [
+      {
+        "label": "HappyCow",
+        "url": "https://www.happycow.net/reviews/coco-ichibanya-yokosuka-133940"
+      },
+      {
+        "label": "Official chain site",
+        "url": "https://www.ichibanya.co.jp/"
+      }
+    ],
+    "title": "CoCo Ichibanya (Wakamatsucho, Yokosuka) — Vegan Curry Base Available",
+    "datetime": "",
+    "place": "1 Chome-11-10 Wakamatsucho, Yokosuka, Kanagawa, Japan",
+    "text": "Title: CoCo Ichibanya (Wakamatsucho, Yokosuka) — Vegan Curry Base Available\n\nPlace:\n- 1 Chome-11-10 Wakamatsucho, Yokosuka, Kanagawa, Japan\n\nDetail:\n- Major Japanese curry chain with a vegan base curry (“veggie”) on the menu; you can customize toppings and spice level.\n- Reputation snapshot (online):\n- HappyCow lists multiple reviews praising the taste and variety (e.g., vegetable curry, mushroom curry, eggplant curry, soy-burger curry).\n- Reviewers also note convenience factors like tablet ordering and proximity to the station.\n\nAttention:\n- Confirm the exact vegan menu item name and available toppings at this location (chain menus can change).\n- If strict vegan, ask staff about shared fryers or cross-contact policies.\n\nLink:\n- HappyCow: https://www.happycow.net/reviews/coco-ichibanya-yokosuka-133940\n- Official chain site: https://www.ichibanya.co.jp/\n\nTags: vegan-options, japanese-curry, chain, late-night, customization"
+  },
+  {
+    "id": "10_royal_host_yokosuka_c9b8c0852550",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "vegan-options",
+      "family-restaurant",
+      "chain",
+      "breakfast",
+      "english-menu"
+    ],
+    "links": [
+      {
+        "label": "HappyCow",
+        "url": "https://www.happycow.net/reviews/royal-host-yokosuka-416210"
+      },
+      {
+        "label": "Official chain site",
+        "url": "https://www.royalhost.jp/"
+      }
+    ],
+    "title": "Royal Host (Yokosuka area) — Vegan-Friendly Options at a Chain Restaurant",
+    "datetime": "",
+    "place": "1 Chome-8-7 Sahara, Yokosuka, Kanagawa, Japan (as listed on HappyCow)",
+    "text": "Title: Royal Host (Yokosuka area) — Vegan-Friendly Options at a Chain Restaurant\n\nPlace:\n- 1 Chome-8-7 Sahara, Yokosuka, Kanagawa, Japan (as listed on HappyCow)\n\nDetail:\n- Family-restaurant chain with an English menu; HappyCow notes “several vegan-friendly vegetarian options.”\n- Reputation snapshot (online):\n- HappyCow lists this location as offering vegan options; review volume may be limited. As a chain, menu items can change by season.\n\nAttention:\n- Ask staff to confirm which items are fully vegan (avoid hidden animal ingredients like dairy, egg, honey, fish stock).\n- If ordering delivery, review ingredient notes carefully and request “no dairy / no egg” where possible.\n\nLink:\n- HappyCow: https://www.happycow.net/reviews/royal-host-yokosuka-416210\n- Official chain site: https://www.royalhost.jp/\n\nTags: vegan-options, family-restaurant, chain, breakfast, english-menu"
+  },
+  {
+    "id": "01_verny_park_7efd9d56e9a8",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#park",
+      "#waterfront",
+      "#easy-walk",
+      "#roses",
+      "#harbor-views",
+      "#photography"
+    ],
+    "links": [
+      {
+        "label": "Kanagawa Official Tourism (Verny Park)",
+        "url": "https://trip.pref.kanagawa.jp/destination/verny-park/243"
+      },
+      {
+        "label": "Yokosuka Route Museum (basic info / address)",
+        "url": "https://routemuseum.jp/en/area/b/b07/"
+      },
+      {
+        "label": "JapanTravel (overview)",
+        "url": "https://en.japantravel.com/places/kanagawa/verny-park/686"
+      },
+      {
+        "label": "TripAdvisor (visitor reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1311413-Reviews-Verny_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Guidoor (local overview)",
+        "url": "https://www.guidoor.jp/en/places/731"
+      }
+    ],
+    "title": "Verny Park (Verny Koen)",
+    "datetime": "",
+    "place": "1-1 Shioiri-cho, Yokosuka, Kanagawa (near JR Yokosuka Station / Keikyu Shioiri Station)",
+    "text": "Title: Verny Park (Verny Koen)\n\nPlace:\n- 1-1 Shioiri-cho, Yokosuka, Kanagawa (near JR Yokosuka Station / Keikyu Shioiri Station)\n\nDetail:\n- A French-style waterfront garden known for roses, seasonal flowers, and harbor views.\n- The park sits beside the port, so your walk can include ship-watching and photo spots with the waterfront as a backdrop.\n- Online descriptions emphasize the park’s connection to Léonce Verny and Yokosuka’s modernization.\n\nAttention:\n- Online reputation highlights it as a calm, photogenic place for a short, easy stroll—especially during rose season.\n- Because access is extremely convenient (near major stations), it can get busier on weekends and during peak bloom.\n\nLink:\n- Kanagawa Official Tourism (Verny Park): https://trip.pref.kanagawa.jp/destination/verny-park/243\n- Yokosuka Route Museum (basic info / address): https://routemuseum.jp/en/area/b/b07/\n- JapanTravel (overview): https://en.japantravel.com/places/kanagawa/verny-park/686\n- TripAdvisor (visitor reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d1311413-Reviews-Verny_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Guidoor (local overview): https://www.guidoor.jp/en/places/731\n\nTags: #park, #waterfront, #easy-walk, #roses, #harbor-views, #photography"
+  },
+  {
+    "id": "02_mikasa_park_c0906b5741ba",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#park",
+      "#waterfront",
+      "#easy-walk",
+      "#history",
+      "#memorial-ship",
+      "#photo-spots"
+    ],
+    "links": [
+      {
+        "label": "Kanagawa Official Tourism (Mikasa Park)",
+        "url": "https://trip.pref.kanagawa.jp/destination/mikasa-park/1773"
+      },
+      {
+        "label": "GLTJP (highlights)",
+        "url": "https://www.gltjp.com/en/directory/item/15388/"
+      },
+      {
+        "label": "Memorial Ship Mikasa (official access page)",
+        "url": "https://www.kinenkan-mikasa.or.jp/en/access.html"
+      },
+      {
+        "label": "TripAdvisor (visitor reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1225078-Reviews-Mikasa_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      }
+    ],
+    "title": "Mikasa Park (Mikasa Koen)",
+    "datetime": "",
+    "place": "82 Inaoka, Yokosuka, Kanagawa 238-0003 (walkable from Keikyu Yokosuka-Chuo Station)",
+    "text": "Title: Mikasa Park (Mikasa Koen)\n\nPlace:\n- 82 Inaoka, Yokosuka, Kanagawa 238-0003 (walkable from Keikyu Yokosuka-Chuo Station)\n\nDetail:\n- A central waterfront park featuring open plazas, sea views, and the historic Memorial Ship Mikasa (ticketed entry for the ship).\n- Visitors often pair a relaxed seaside walk with the ship’s exhibits and nearby harbor scenery.\n- Travel guides frequently recommend it as one of Yokosuka’s signature city parks.\n\nAttention:\n- Online reviews commonly describe the park as well-maintained and good for photos.\n- If you eat outdoors, some visitors mention birds of prey may try to snatch food—stay aware.\n- Ship entry is separate from the park walk (the park itself is free).\n\nLink:\n- Kanagawa Official Tourism (Mikasa Park): https://trip.pref.kanagawa.jp/destination/mikasa-park/1773\n- GLTJP (highlights): https://www.gltjp.com/en/directory/item/15388/\n- Memorial Ship Mikasa (official access page): https://www.kinenkan-mikasa.or.jp/en/access.html\n- TripAdvisor (visitor reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d1225078-Reviews-Mikasa_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n\nTags: #park, #waterfront, #easy-walk, #history, #memorial-ship, #photo-spots"
+  },
+  {
+    "id": "03_sarushima_island_3e1675aaa910",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#island",
+      "#walking-loop",
+      "#history",
+      "#fort-ruins",
+      "#sea-views",
+      "#day-trip"
+    ],
+    "links": [
+      {
+        "label": "Sarushima official (information / directions)",
+        "url": "https://sarushima.jp/en/information/"
+      },
+      {
+        "label": "Japan National Tourism Organization (overview)",
+        "url": "https://www.japan.travel/en/spot/1565/"
+      },
+      {
+        "label": "Yokosuka Route Museum (access + ferry info)",
+        "url": "https://routemuseum.jp/en/theme/navy/b03/"
+      },
+      {
+        "label": "TripAdvisor (visitor reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g14138199-d1311417-Reviews-Sarushima_Island_Monkey_Island-Saru_jima_Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "JapanTravel (access note + background)",
+        "url": "https://en.japantravel.com/kanagawa/sarushima-monkey-island/2409"
+      }
+    ],
+    "title": "Sarushima (Monkey Island)",
+    "datetime": "",
+    "place": "Sarushima, Yokosuka, Kanagawa (boat access from Mikasa Pier / Mikasa Terminal near Mikasa Park)",
+    "text": "Title: Sarushima (Monkey Island)\n\nPlace:\n- Sarushima, Yokosuka, Kanagawa (boat access from Mikasa Pier / Mikasa Terminal near Mikasa Park)\n\nDetail:\n- An uninhabited island reached by a short ferry ride, popular for a scenic loop walk mixing forest paths, coastal views, and historical fortifications.\n- The island walk is often described as “just the right size” for a half-day outing, with opportunities for photos, exploration, and sea breezes.\n- Many reviews note the nickname “Monkey Island,” but visitors also point out that the island is known for ruins, beaches, and views—not actual monkeys.\n\nAttention:\n- Online reviews frequently praise the sea views, quiet atmosphere, and the “adventure” feel of exploring old military facilities.\n- Plan around ferry schedules and weather; crossings can be affected by sea conditions.\n- Bring comfortable walking shoes (uneven ground and steps are common), and pack water/snacks if you plan to spend several hours.\n\nLink:\n- Sarushima official (information / directions): https://sarushima.jp/en/information/\n- Japan National Tourism Organization (overview): https://www.japan.travel/en/spot/1565/\n- Yokosuka Route Museum (access + ferry info): https://routemuseum.jp/en/theme/navy/b03/\n- TripAdvisor (visitor reviews): https://www.tripadvisor.com/Attraction_Review-g14138199-d1311417-Reviews-Sarushima_Island_Monkey_Island-Saru_jima_Yokosuka_Kanagawa_Prefecture_Kanto.html\n- JapanTravel (access note + background): https://en.japantravel.com/kanagawa/sarushima-monkey-island/2409\n\nTags: #island, #walking-loop, #history, #fort-ruins, #sea-views, #day-trip"
+  },
+  {
+    "id": "04_kannonzaki_park_c152429c2489",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#prefectural-park",
+      "#trails",
+      "#forest-walk",
+      "#coast",
+      "#ship-watching",
+      "#views"
+    ],
+    "links": [
+      {
+        "label": "Kanagawa Official Tourism (Kannonzaki Park)",
+        "url": "https://trip.pref.kanagawa.jp/destination/kannonzaki-park/1386"
+      },
+      {
+        "label": "GLTJP (overview)",
+        "url": "https://www.gltjp.com/en/directory/item/15420/"
+      },
+      {
+        "label": "Feel Shonan (park overview)",
+        "url": "https://www.feelshonan.jp/en/sightseeing/3685"
+      },
+      {
+        "label": "TripAdvisor (visitor reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1238912-Reviews-Kannonzaki_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      }
+    ],
+    "title": "Kannonzaki Prefectural Park (Kannonzaki Koen)",
+    "datetime": "",
+    "place": "4-1262 Kamoi, Yokosuka City, Kanagawa (Cape Kannonzaki area)",
+    "text": "Title: Kannonzaki Prefectural Park (Kannonzaki Koen)\n\nPlace:\n- 4-1262 Kamoi, Yokosuka City, Kanagawa (Cape Kannonzaki area)\n\nDetail:\n- A large coastal prefectural park covering much of Cape Kannonzaki, with forest walks, beaches, viewpoints, and multiple trail options.\n- Walkers can combine shaded woodland paths with open coastal stretches and Tokyo Bay ship-watching.\n- The area is often treated as a “choose-your-own-route” walk: short flat paths or longer, more strenuous hillside trails.\n\nAttention:\n- Online reputation is generally positive for variety (many trails and scenery) and for being less crowded than major tourist hubs.\n- Some visitors mention maintenance can vary by season (expect “natural” conditions in places).\n- If your goal includes the lighthouse/cape viewpoints, plan a route that includes uphill segments.\n\nLink:\n- Kanagawa Official Tourism (Kannonzaki Park): https://trip.pref.kanagawa.jp/destination/kannonzaki-park/1386\n- GLTJP (overview): https://www.gltjp.com/en/directory/item/15420/\n- Feel Shonan (park overview): https://www.feelshonan.jp/en/sightseeing/3685\n- TripAdvisor (visitor reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d1238912-Reviews-Kannonzaki_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n\nTags: #prefectural-park, #trails, #forest-walk, #coast, #ship-watching, #views"
+  },
+  {
+    "id": "05_kannonzaki_lighthouse_cd91006e232a",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#lighthouse",
+      "#scenic-walk",
+      "#tokyo-bay",
+      "#views",
+      "#coastal-trail"
+    ],
+    "links": [
+      {
+        "label": "Yokosuka Route Museum (address, fee, hours)",
+        "url": "https://routemuseum.jp/en/theme/technology/c02/"
+      },
+      {
+        "label": "TripAdvisor (reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1958894-Reviews-Kannonzaki_Lighthouse-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "TripAdvisor (Cape Kannonzaki)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1311429-Reviews-Cape_Kannonzaki-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "JapanTravel (park context)",
+        "url": "https://en.japantravel.com/kanagawa/kannonzaki-beach-and-park/14470"
+      }
+    ],
+    "title": "Kannonzaki Lighthouse Walk",
+    "datetime": "",
+    "place": "4-1187 Kamoi, Yokosuka, Kanagawa (near Cape Kannonzaki / Kannonzaki Park)",
+    "text": "Title: Kannonzaki Lighthouse Walk\n\nPlace:\n- 4-1187 Kamoi, Yokosuka, Kanagawa (near Cape Kannonzaki / Kannonzaki Park)\n\nDetail:\n- A scenic walk within the Cape Kannonzaki area leading to the lighthouse and nearby viewpoints.\n- The route is popular for Tokyo Bay views and watching frequent ship traffic through the Uraga Channel.\n- You can also visit the lighthouse interior (ticketed) during opening hours.\n\nAttention:\n- Online reviews often say the lighthouse itself is small but “worth it” for the views.\n- Multiple reviewers caution that some paths can be slippery; wear shoes with grip, especially after rain.\n- Check opening hours before you go if you plan to climb/enter.\n\nLink:\n- Yokosuka Route Museum (address, fee, hours): https://routemuseum.jp/en/theme/technology/c02/\n- TripAdvisor (reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d1958894-Reviews-Kannonzaki_Lighthouse-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- TripAdvisor (Cape Kannonzaki): https://www.tripadvisor.com/Attraction_Review-g298174-d1311429-Reviews-Cape_Kannonzaki-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- JapanTravel (park context): https://en.japantravel.com/kanagawa/kannonzaki-beach-and-park/14470\n\nTags: #lighthouse, #scenic-walk, #tokyo-bay, #views, #coastal-trail"
+  },
+  {
+    "id": "06_kurihama_flower_park_77b2a3ac3f79",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#park",
+      "#flowers",
+      "#long-walk",
+      "#family-friendly",
+      "#seasonal",
+      "#views"
+    ],
+    "links": [
+      {
+        "label": "Yokosuka Route Museum (address / access / official site link)",
+        "url": "https://routemuseum.jp/en/theme/e02/"
+      },
+      {
+        "label": "TripAdvisor (visitor reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1311430-Reviews-Kurihama_Flower_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "JapanTravel (overview)",
+        "url": "https://en.japantravel.com/places/kanagawa/kurihama-flower-park/757"
+      },
+      {
+        "label": "Live Japan (guide article)",
+        "url": "https://livejapan.com/en/in-tokyo/in-pref-kanagawa/in-kanagawa_suburbs/article-a0003144/"
+      }
+    ],
+    "title": "Kurihama Flower Park (Hana-no-Kuni)",
+    "datetime": "",
+    "place": "1 Shinmei-cho, Yokosuka, Kanagawa (about 15 minutes on foot from Keikyu Kurihama Station / JR Kurihama Station)",
+    "text": "Title: Kurihama Flower Park (Hana-no-Kuni)\n\nPlace:\n- 1 Shinmei-cho, Yokosuka, Kanagawa (about 15 minutes on foot from Keikyu Kurihama Station / JR Kurihama Station)\n\nDetail:\n- A spacious park designed for long, gentle walks through seasonal flower areas (notably spring blooms).\n- The internal promenade network supports casual strolling as well as longer hill walks; many visitors mention the “Godzilla” playground area as a landmark.\n- Often recommended as an easy day-trip-style walking spot with wide paths and scenic viewpoints.\n\nAttention:\n- Online reviews frequently describe it as a great place to walk and enjoy scenery; some note you’ll do a fair amount of walking to reach key areas.\n- Flower peak seasons can draw families and photographers; weekdays are typically calmer.\n\nLink:\n- Yokosuka Route Museum (address / access / official site link): https://routemuseum.jp/en/theme/e02/\n- TripAdvisor (visitor reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d1311430-Reviews-Kurihama_Flower_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- JapanTravel (overview): https://en.japantravel.com/places/kanagawa/kurihama-flower-park/757\n- Live Japan (guide article): https://livejapan.com/en/in-tokyo/in-pref-kanagawa/in-kanagawa_suburbs/article-a0003144/\n\nTags: #park, #flowers, #long-walk, #family-friendly, #seasonal, #views"
+  },
+  {
+    "id": "07_soleil_hill_117c2520f983",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#park",
+      "#views",
+      "#walking",
+      "#family-friendly",
+      "#west-coast",
+      "#nature"
+    ],
+    "links": [
+      {
+        "label": "Kanagawa Official Tourism (Soleil Hill)",
+        "url": "https://trip.pref.kanagawa.jp/destination/nagai-uminote-park-soleil-hill/45"
+      },
+      {
+        "label": "Official site (access / address)",
+        "url": "https://soleil-park.jp/en/access"
+      },
+      {
+        "label": "Yokosuka Route Museum (basic info)",
+        "url": "https://routemuseum.jp/en/theme/experience/f02/"
+      },
+      {
+        "label": "GLTJP (overview)",
+        "url": "https://www.gltjp.com/en/directory/item/15355/"
+      },
+      {
+        "label": "TripAdvisor (visitor reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1771069-Reviews-Nagai_Uminote_Park_Soleil_Hill-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Guidoor (overview / transportation)",
+        "url": "https://www.guidoor.jp/en/places/726"
+      }
+    ],
+    "title": "Nagai Uminote Park “Soleil Hill”",
+    "datetime": "",
+    "place": "4 Nagai (4-chome), Yokosuka, Kanagawa",
+    "text": "Title: Nagai Uminote Park “Soleil Hill”\n\nPlace:\n- 4 Nagai (4-chome), Yokosuka, Kanagawa\n\nDetail:\n- A large hilltop park on Yokosuka’s west coast with open-space walking and wide views toward Sagami Bay.\n- The site is frequently presented as a “nature + activities” destination: you can enjoy simple walks even if you skip the paid attractions.\n- On clear days, guides often highlight the wide coastal scenery (commonly including Mt. Fuji views).\n\nAttention:\n- Online reputation is strong for family outings and the variety of things to do.\n- Some reviewers note costs for certain attractions/food can feel pricey; if your goal is walking, plan a “walk-first” route and treat paid activities as optional.\n- Check opening times for facilities if you want to combine walking with attractions.\n\nLink:\n- Kanagawa Official Tourism (Soleil Hill): https://trip.pref.kanagawa.jp/destination/nagai-uminote-park-soleil-hill/45\n- Official site (access / address): https://soleil-park.jp/en/access\n- Yokosuka Route Museum (basic info): https://routemuseum.jp/en/theme/experience/f02/\n- GLTJP (overview): https://www.gltjp.com/en/directory/item/15355/\n- TripAdvisor (visitor reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d1771069-Reviews-Nagai_Uminote_Park_Soleil_Hill-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Guidoor (overview / transportation): https://www.guidoor.jp/en/places/726\n\nTags: #park, #views, #walking, #family-friendly, #west-coast, #nature"
+  },
+  {
+    "id": "08_tateishi_park_6a5cfeb6650b",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#sunset",
+      "#mtfuji-view",
+      "#coast",
+      "#scenic",
+      "#photography",
+      "#short-walk"
+    ],
+    "links": [
+      {
+        "label": "TripAdvisor (reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d2057552-Reviews-Tateishi_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "JapanTravel (access / overview)",
+        "url": "https://en.japantravel.com/places/kanagawa/tateishi-park/758"
+      },
+      {
+        "label": "Stripes Japan (photo spot notes)",
+        "url": "https://japan.stripes.com/travel/tateishi-park-yokosuka.html"
+      },
+      {
+        "label": "Guidoor (access details)",
+        "url": "https://www.guidoor.jp/yokosuka/new-and-now/tateishi-park-yokosuka-mt-fuji-sunset/"
+      }
+    ],
+    "title": "Tateishi Park",
+    "datetime": "",
+    "place": "3-5 Akiya, Yokosuka, Kanagawa",
+    "text": "Title: Tateishi Park\n\nPlace:\n- 3-5 Akiya, Yokosuka, Kanagawa\n\nDetail:\n- A compact coastal viewpoint park known for dramatic rock formations offshore and, on clear days, Mt. Fuji in the distance.\n- The main walk is short and easy inside the park, but it pairs well with longer coastal strolling nearby.\n- It’s widely featured online as a sunset/photo spot.\n\nAttention:\n- Online reputation centers on “big views in a small place”: many people recommend combining it with other nearby stops rather than visiting only for this park.\n- Sunset hours can be crowded, and parking can be a challenge at popular times.\n- Tides affect how close you can get to the iconic rock; check tide times if that matters to you.\n\nLink:\n- TripAdvisor (reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d2057552-Reviews-Tateishi_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- JapanTravel (access / overview): https://en.japantravel.com/places/kanagawa/tateishi-park/758\n- Stripes Japan (photo spot notes): https://japan.stripes.com/travel/tateishi-park-yokosuka.html\n- Guidoor (access details): https://www.guidoor.jp/yokosuka/new-and-now/tateishi-park-yokosuka-mt-fuji-sunset/\n\nTags: #sunset, #mtfuji-view, #coast, #scenic, #photography, #short-walk"
+  },
+  {
+    "id": "09_akiya_tateishi_coast_91a512cbfde4",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#coast",
+      "#quiet",
+      "#scenic",
+      "#mtfuji-view",
+      "#stroll",
+      "#relax"
+    ],
+    "links": [
+      {
+        "label": "TripAdvisor (reviews + location)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d8505145-Reviews-Akiya_Tateishi_Coast-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Yokosuka tourism (Kokosil: Tateishi & Akiya Coast): https://yokosuka.kokosil.net/en/place/00001c0000000000000100000023007a",
+        "url": "https://yokosuka.kokosil.net/en/place/00001c0000000000000100000023007a"
+      },
+      {
+        "label": "Yokosuka Route Museum (Akiya Beach & Tateishi Park)",
+        "url": "https://routemuseum.jp/en/theme/f07/"
+      }
+    ],
+    "title": "Akiya, Tateishi Coast",
+    "datetime": "",
+    "place": "Akiya area, Yokosuka, Kanagawa (near Tateishi rock formation)",
+    "text": "Title: Akiya, Tateishi Coast\n\nPlace:\n- Akiya area, Yokosuka, Kanagawa (near Tateishi rock formation)\n\nDetail:\n- A relaxed coastal stretch for strolling by the sea, often discussed online together with the Tateishi rock scenery.\n- The vibe is typically described as quieter and less busy than central Yokosuka waterfront areas.\n- Good for slow walks, people-watching, and “sit and relax” time.\n\nAttention:\n- Online reviews frequently emphasize calmness and a “peaceful” atmosphere.\n- As a natural coast, facilities may be limited compared with major parks—plan water/snacks and basic needs accordingly.\n\nLink:\n- TripAdvisor (reviews + location): https://www.tripadvisor.com/Attraction_Review-g298174-d8505145-Reviews-Akiya_Tateishi_Coast-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Yokosuka tourism (Kokosil: Tateishi & Akiya Coast): https://yokosuka.kokosil.net/en/place/00001c0000000000000100000023007a\n- Yokosuka Route Museum (Akiya Beach & Tateishi Park): https://routemuseum.jp/en/theme/f07/\n\nTags: #coast, #quiet, #scenic, #mtfuji-view, #stroll, #relax"
+  },
+  {
+    "id": "10_tsukayama_park_b08ec5969f42",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#park",
+      "#hill-walk",
+      "#viewpoint",
+      "#sakura",
+      "#history",
+      "#moderate-walk"
+    ],
+    "links": [
+      {
+        "label": "Kanagawa Prefectural Park official site (JP)",
+        "url": "https://www.kanagawa-park.or.jp/tsukayama/"
+      },
+      {
+        "label": "Yokosuka Route Museum (basic info / access)",
+        "url": "https://routemuseum.jp/en/area/b/b17/"
+      },
+      {
+        "label": "NAVITIME (overview / context)",
+        "url": "https://japantravel.navitime.com/en/area/jp/spot/02301-t6093/"
+      },
+      {
+        "label": "TripAdvisor (visitor reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d8707045-Reviews-Tsukayama_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "AllTrails (example point-to-point walk)",
+        "url": "https://www.alltrails.com/trail/japan/kanagawa/anjinzuka-station-tsukayama-park-yokosuka-station"
+      }
+    ],
+    "title": "Tsukayama Park (Anjinzuka / hilltop viewpoints)",
+    "datetime": "",
+    "place": "Nishihemi-cho / Yamanaka-cho / Nagaura-cho area, Yokosuka, Kanagawa (walkable from Anjinzuka Station)",
+    "text": "Title: Tsukayama Park (Anjinzuka / hilltop viewpoints)\n\nPlace:\n- Nishihemi-cho / Yamanaka-cho / Nagaura-cho area, Yokosuka, Kanagawa (walkable from Anjinzuka Station)\n\nDetail:\n- A hilltop park walk with green paths and viewpoint areas overlooking Yokosuka and Tokyo Bay.\n- The park is also known for cherry blossoms in season and for being slightly “off the beaten path.”\n- Some routes connect to historical points of interest related to Miura Anjin (William Adams).\n\nAttention:\n- Online reputation strongly mentions panoramic views as the “reward,” but also notes uphill access and occasional navigation/entrance confusion.\n- If you go during sakura season, expect more visitors than usual.\n- There is no parking at the park (many sources recommend coming by train and walking up).\n\nLink:\n- Kanagawa Prefectural Park official site (JP): https://www.kanagawa-park.or.jp/tsukayama/\n- Yokosuka Route Museum (basic info / access): https://routemuseum.jp/en/area/b/b17/\n- NAVITIME (overview / context): https://japantravel.navitime.com/en/area/jp/spot/02301-t6093/\n- TripAdvisor (visitor reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d8707045-Reviews-Tsukayama_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- AllTrails (example point-to-point walk): https://www.alltrails.com/trail/japan/kanagawa/anjinzuka-station-tsukayama-park-yokosuka-station\n\nTags: #park, #hill-walk, #viewpoint, #sakura, #history, #moderate-walk"
+  },
+  {
+    "id": "11_hashirimizu_coast_42fae4725901",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#coast",
+      "#seaside-walk",
+      "#tokyo-bay",
+      "#beach",
+      "#seasonal",
+      "#relax"
+    ],
+    "links": [
+      {
+        "label": "NAVITIME (Hashirimizu Coast)",
+        "url": "https://japantravel.navitime.com/en/area/jp/spot/02301-2203164/"
+      },
+      {
+        "label": "TripAdvisor (Hashirimizu Beach Shiohigari)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d20887233-Reviews-Hashirimizu_Beach_Shiohigari-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      }
+    ],
+    "title": "Hashirimizu Coast / Beach (Tokyo Bay Seaside Walk)",
+    "datetime": "",
+    "place": "Hashirimizu 1-chome area, Yokosuka, Kanagawa",
+    "text": "Title: Hashirimizu Coast / Beach (Tokyo Bay Seaside Walk)\n\nPlace:\n- Hashirimizu 1-chome area, Yokosuka, Kanagawa\n\nDetail:\n- A Tokyo Bay coastal area used for casual seaside walking, with seasonal activities (including clamming / shiohigari when available).\n- A simple “sea and sky” stroll option, especially if you want a quieter waterfront compared with downtown Yokosuka.\n\nAttention:\n- Online reviews suggest bringing what you need (food, supplies) because nearby amenities can be limited depending on the exact season/event setup.\n- Check seasonal restrictions and parking fees before visiting.\n\nLink:\n- NAVITIME (Hashirimizu Coast): https://japantravel.navitime.com/en/area/jp/spot/02301-2203164/\n- TripAdvisor (Hashirimizu Beach Shiohigari): https://www.tripadvisor.com/Attraction_Review-g298174-d20887233-Reviews-Hashirimizu_Beach_Shiohigari-Yokosuka_Kanagawa_Prefecture_Kanto.html\n\nTags: #coast, #seaside-walk, #tokyo-bay, #beach, #seasonal, #relax"
+  },
+  {
+    "id": "12_umibe_no_sampomichi_ad7af6f24837",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#promenade",
+      "#flat-walk",
+      "#running",
+      "#dog-walk",
+      "#sea-breeze",
+      "#sunset"
+    ],
+    "links": [
+      {
+        "label": "TripAdvisor (reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d9743221-Reviews-Umibe_no_Sampomichi_Beach_Promenade-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Yelp (\"Umikaze no Michi\" promenade note)",
+        "url": "https://www.yelp.com/biz/%E3%81%86%E3%81%BF%E3%81%8B%E3%81%9C%E3%81%AE%E8%B7%AF-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82-2"
+      }
+    ],
+    "title": "Umibe no Sampomichi (Beach Promenade)",
+    "datetime": "",
+    "place": "Mabori-Kaigan coastal area, Yokosuka, Kanagawa (promenade-style seaside walkway)",
+    "text": "Title: Umibe no Sampomichi (Beach Promenade)\n\nPlace:\n- Mabori-Kaigan coastal area, Yokosuka, Kanagawa (promenade-style seaside walkway)\n\nDetail:\n- A flat, paved promenade used for walking, running, dog-walking, and casual seaside time.\n- Walkers often mention sea-life viewing from above the water (fish/jellyfish) and the open-air feeling.\n\nAttention:\n- Online reviews emphasize that it’s flat and easy, but also note limited shade—sun protection helps in warmer months.\n- Expect wind off the water, especially in colder seasons.\n\nLink:\n- TripAdvisor (reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d9743221-Reviews-Umibe_no_Sampomichi_Beach_Promenade-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Yelp (\"Umikaze no Michi\" promenade note): https://www.yelp.com/biz/%E3%81%86%E3%81%BF%E3%81%8B%E3%81%9C%E3%81%AE%E8%B7%AF-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82-2\n\nTags: #promenade, #flat-walk, #running, #dog-walk, #sea-breeze, #sunset"
+  },
+  {
+    "id": "13_umikaze_park_edc7b511b3f8",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "#park",
+      "#waterfront",
+      "#easy-walk",
+      "#sunset",
+      "#family-friendly",
+      "#sea-breeze"
+    ],
+    "links": [
+      {
+        "label": "Feel Shonan (basic info / address / access)",
+        "url": "https://www.feelshonan.jp/en/sightseeing/3680"
+      },
+      {
+        "label": "TripAdvisor (reviews)",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1627535-Reviews-Umikaze_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "JapanTravel (park overview)",
+        "url": "https://en.japantravel.com/kanagawa/umikaze-promenade-park-in-yokosuka/7396"
+      }
+    ],
+    "title": "Umikaze Park (Sea Breeze Park)",
+    "datetime": "",
+    "place": "3-23 Heisei-cho, Yokosuka, Kanagawa (walkable from Keikyu Kenritsu-Daigaku Station)",
+    "text": "Title: Umikaze Park (Sea Breeze Park)\n\nPlace:\n- 3-23 Heisei-cho, Yokosuka, Kanagawa (walkable from Keikyu Kenritsu-Daigaku Station)\n\nDetail:\n- A large waterfront park suitable for long, easy walking loops along the sea wall and open lawn areas.\n- Online write-ups highlight broad ocean views (including Sarushima visible offshore) plus lots of activity zones (skate/BMX, courts, playground) that can make the walk feel lively.\n- Good “sunset walk” reputation thanks to the open horizon and sea breeze.\n\nAttention:\n- Online reviews frequently praise ample facilities and a relaxed picnic vibe.\n- Weekends can be busy, especially in warm seasons; bring mosquito repellent in summer.\n- BBQ areas may have fees or reservation rules; check before planning a BBQ walk.\n\nLink:\n- Feel Shonan (basic info / address / access): https://www.feelshonan.jp/en/sightseeing/3680\n- TripAdvisor (reviews): https://www.tripadvisor.com/Attraction_Review-g298174-d1627535-Reviews-Umikaze_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- JapanTravel (park overview): https://en.japantravel.com/kanagawa/umikaze-promenade-park-in-yokosuka/7396\n\nTags: #park, #waterfront, #easy-walk, #sunset, #family-friendly, #sea-breeze"
+  },
+  {
     "id": "01_sumibi_yakiniku_shin_yokosuka_5fb1d8fd1944",
     "source": "markdown",
     "lang": "ja",
@@ -8875,6 +9644,363 @@
     "text": "Title: Kurihama\n\nDatetime:\n- \n\nPlace:\n- Kurihama\n\nDetail:\n- Aside from Kaigun Curry, the curry at \\\"Bengal\\\" in front of Yokosuka Chuo Station was delicious.\n- The sweets at Sakamotoya in front of Yokosuka Chuo Station were delicious.\n\nAttention:\n- \n\nLink:\n- \n\nTags: Yokosuka"
   },
   {
+    "id": "01_yokosuka_seaside_fishing_park_f09d31fc9d79",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "managed fishing park",
+      "family-friendly",
+      "pier fishing",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://www.kanagawaparks.com/umibeturi/"
+      },
+      {
+        "label": "",
+        "url": "https://www.kanagawaparks.com/umibeturi/about/"
+      },
+      {
+        "label": "",
+        "url": "https://www.kanagawaparks.com/umibeturi/access/"
+      },
+      {
+        "label": "",
+        "url": "https://www.kanagawaparks.com/umibeturi/fishing/"
+      }
+    ],
+    "title": "Yokosuka City Seaside Fishing Park (Umibe Tsuri Koen / 海辺つり公園)",
+    "datetime": "",
+    "place": "Yokosuka, Kanagawa (managed pier-style fishing facility).",
+    "text": "Title: Yokosuka City Seaside Fishing Park (Umibe Tsuri Koen / 海辺つり公園)\n\nPlace:\n- Yokosuka, Kanagawa (managed pier-style fishing facility).\n\nDetail:\n- A dedicated, managed fishing facility designed for safe shore fishing (good for families and beginners). The operator publishes frequent updates and a catch log/summary, which makes it easier to judge seasonal targets and recent activity. Because it is an official facility, it is one of the safest “sure bet” options when other ports or seawalls are restricted.\n\nAttention:\n- Check the latest opening hours (they vary by season/day) and any temporary closures before visiting. Follow on-site rules for tackle, chumming, safety rails, and waste. Parking is limited and has fees/time rules.\n\nLink:\n- https://www.kanagawaparks.com/umibeturi/\n- https://www.kanagawaparks.com/umibeturi/about/\n- https://www.kanagawaparks.com/umibeturi/access/\n- https://www.kanagawaparks.com/umibeturi/fishing/\n\nTags: fishing, managed fishing park, family-friendly, pier fishing, yokosuka"
+  },
+  {
+    "id": "02_umikaze_park_8128be9c974d",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "shore fishing",
+      "park",
+      "weekday-only",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://www.city.yokosuka.kanagawa.jp/5820/minato/amenity_kouen/umikaze/index.html"
+      },
+      {
+        "label": "",
+        "url": "https://www.city.yokosuka.kanagawa.jp/5820/sisetu/fc00000441.html"
+      },
+      {
+        "label": "",
+        "url": "https://www.kanagawaparks.com/umikaze/access.html"
+      },
+      {
+        "label": "",
+        "url": "https://www.kanagawaparks.com/umikaze/facility.html"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/83"
+      },
+      {
+        "label": "",
+        "url": "https://www.johshuya.co.jp/shop/choka.php?s=191"
+      }
+    ],
+    "title": "Umikaze Park (うみかぜ公園) – Waterside Seawall Fishing (Weekdays Only)",
+    "datetime": "",
+    "place": "Umikaze Park, 3-23 Heiseicho, Yokosuka, Kanagawa.",
+    "text": "Title: Umikaze Park (うみかぜ公園) – Waterside Seawall Fishing (Weekdays Only)\n\nPlace:\n- Umikaze Park, 3-23 Heiseicho, Yokosuka, Kanagawa.\n\nDetail:\n- A large waterfront park with a stepped “waterside seawall” where fishing is allowed on weekdays (and prohibited on weekends/holidays). Online, it is widely mentioned as a convenient urban-style shore spot with easy access, and it appears frequently in catch-report sites and tackle-shop updates. When fishing is not allowed (weekends/holidays), the nearby Seaside Fishing Park (Umibe Tsuri Koen) is often recommended as an alternative.\n\nAttention:\n- Rule highlight: Fishing is allowed only on weekdays in the designated seawall area; weekends/holidays are prohibited, and some lookout areas are always no-fishing. There are no trash bins in the park—carry out everything. Check signage and park announcements for the most current rules. The adjacent “Yokogishi / seawall” area is often discussed by anglers; rules can differ by exact location—verify locally.\n\nLink:\n- https://www.city.yokosuka.kanagawa.jp/5820/minato/amenity_kouen/umikaze/index.html\n- https://www.city.yokosuka.kanagawa.jp/5820/sisetu/fc00000441.html\n- https://www.kanagawaparks.com/umikaze/access.html\n- https://www.kanagawaparks.com/umikaze/facility.html\n- https://anglers.jp/areas/83\n- https://www.johshuya.co.jp/shop/choka.php?s=191\n\nTags: fishing, shore fishing, park, weekday-only, yokosuka"
+  },
+  {
+    "id": "03_kurihama_hirasaku_river_mouth_16d2127ba73b",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "fishing",
+      "surf casting",
+      "river mouth",
+      "kisu",
+      "kurihama",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://yokosan-fishing.shink.net/%E4%B9%85%E9%87%8C%E6%B5%9C%E6%B5%B7%E5%B2%B8/"
+      },
+      {
+        "label": "",
+        "url": "https://fish-on-search.jp/fishingspots/543/"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/79"
+      },
+      {
+        "label": "",
+        "url": "https://tsurinews.jp/365465/"
+      }
+    ],
+    "title": "Kurihama Coast & Hirasaku River Mouth (incl. Kaikokubashi Jetty)",
+    "datetime": "",
+    "place": "Kurihama area, Yokosuka, Kanagawa.",
+    "text": "Title: Kurihama Coast & Hirasaku River Mouth (incl. Kaikokubashi Jetty)\n\nPlace:\n- Kurihama area, Yokosuka, Kanagawa.\n\nDetail:\n- A popular “surf + river mouth” area known for casting and light shore fishing. It is frequently covered by fishing media and community catch platforms, especially for whiting (kisu) and seasonal surf targets. The Kaikokubashi Jetty is a well-known landmark for accessing the river-mouth zone.\n\nAttention:\n- Be careful on the jetty: surfaces can be slippery, and waves/wind can make footing unsafe. In swimming-season periods, beach rules and crowding can limit comfortable fishing—check local signage and timing. Carry out trash, and avoid blocking pathways/parking areas.\n\nLink:\n- https://yokosan-fishing.shink.net/%E4%B9%85%E9%87%8C%E6%B5%9C%E6%B5%B7%E5%B2%B8/\n- https://fish-on-search.jp/fishingspots/543/\n- https://anglers.jp/areas/79\n- https://tsurinews.jp/365465/\n\nTags: fishing, surf casting, river mouth, kisu, kurihama, yokosuka"
+  },
+  {
+    "id": "04_tsukuihama_beach_8ae50431cc31",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "surf casting",
+      "beach",
+      "tsukuihama",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://yokosan-fishing.shink.net/%E6%B4%A5%E4%B9%85%E4%BA%95%E6%B5%9C/"
+      },
+      {
+        "label": "",
+        "url": "https://www.miura168.com/tsukuihama/"
+      },
+      {
+        "label": "",
+        "url": "https://esano.jp/fishing/28850"
+      },
+      {
+        "label": "",
+        "url": "https://4travel.jp/domestic/area/kanto/kanagawa/yokosuka/tsukuihama/hotel/"
+      }
+    ],
+    "title": "Tsukuihama Beach (津久井浜) – Surf Casting / Seasonal Shore Fishing",
+    "datetime": "",
+    "place": "Tsukuihama, Yokosuka, Kanagawa (near Keikyu “Tsukuihama Station”).",
+    "text": "Title: Tsukuihama Beach (津久井浜) – Surf Casting / Seasonal Shore Fishing\n\nPlace:\n- Tsukuihama, Yokosuka, Kanagawa (near Keikyu “Tsukuihama Station”).\n\nDetail:\n- A well-known sandy beach on the Miura Peninsula used for surf casting and shore fishing. Online reports often focus on whiting (kisu) in warm seasons and occasional flatfish/nearshore predators depending on conditions. The area is also recognized as a beach destination, so it tends to have plenty of general visitor information and access guidance.\n\nAttention:\n- During swimming season and busy weekends, prioritize early/late hours and respect designated swimming/activity zones. Watch wind and surf conditions; sudden waves can be hazardous. Follow local rules on parking, fires, and waste.\n\nLink:\n- https://yokosan-fishing.shink.net/%E6%B4%A5%E4%B9%85%E4%BA%95%E6%B5%9C/\n- https://www.miura168.com/tsukuihama/\n- https://esano.jp/fishing/28850\n- https://4travel.jp/domestic/area/kanto/kanagawa/yokosuka/tsukuihama/hotel/\n\nTags: fishing, surf casting, beach, tsukuihama, yokosuka"
+  },
+  {
+    "id": "05_nobi_beach_cc5fb5b8786e",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "surf",
+      "tetrapods",
+      "flatfish",
+      "nobi",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://yokosan-fishing.shink.net/%E9%87%8E%E6%AF%94%E6%B5%B7%E5%B2%B8/"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/78"
+      },
+      {
+        "label": "",
+        "url": "https://tsurimap.net/kanagawa/nobikaigan"
+      }
+    ],
+    "title": "Nobi Beach (野比海岸) – Tetrapod Lines & Surf Zone",
+    "datetime": "",
+    "place": "Nobi area, Yokosuka, Kanagawa (east-coast shoreline of the Miura Peninsula).",
+    "text": "Title: Nobi Beach (野比海岸) – Tetrapod Lines & Surf Zone\n\nPlace:\n- Nobi area, Yokosuka, Kanagawa (east-coast shoreline of the Miura Peninsula).\n\nDetail:\n- A long stretch of coastline featuring offshore tetrapods and mixed bottom (sand + structure). Online fishing guides describe it as having strong fish presence, including flatfish around the surf zone and rockfish around structure. It is also very active on community catch platforms, suggesting consistent local use across seasons.\n\nAttention:\n- Some tip/river-mouth areas may be off-limits—do not enter restricted zones. Expect snags due to reefs/seaweed; bring spare rigs and adjust casting lines. Parking availability can be seasonal or day-limited; confirm before driving.\n\nLink:\n- https://yokosan-fishing.shink.net/%E9%87%8E%E6%AF%94%E6%B5%B7%E5%B2%B8/\n- https://anglers.jp/areas/78\n- https://tsurimap.net/kanagawa/nobikaigan\n\nTags: fishing, surf, tetrapods, flatfish, nobi, yokosuka"
+  },
+  {
+    "id": "06_nagasawa_beach_05ad043874a8",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "surf",
+      "public-transport friendly",
+      "nagasawa",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://yokosan-fishing.shink.net/%E9%95%B7%E6%B2%A2%E6%B5%B7%E5%B2%B8/"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/128"
+      },
+      {
+        "label": "",
+        "url": "https://www.m-beach.com/blog/beach-photo/3424/"
+      }
+    ],
+    "title": "Nagasawa Beach (長沢海岸) – Quiet Surf Zone (No On-site Parking)",
+    "datetime": "",
+    "place": "2-5 Nagasawa, Yokosuka, Kanagawa.",
+    "text": "Title: Nagasawa Beach (長沢海岸) – Quiet Surf Zone (No On-site Parking)\n\nPlace:\n- 2-5 Nagasawa, Yokosuka, Kanagawa.\n\nDetail:\n- A continuation of the east-coast shoreline, often described as similar to Nobi but gradually becoming less snag-prone as you head west. Online guides highlight summer whiting (kisu) and seasonal targets such as seabass and flatfish; anglers also report shore-jigging-style activity in autumn depending on bait movement. Because there is typically no dedicated parking, it is often recommended for train-based trips.\n\nAttention:\n- No convenient on-site parking is a common constraint—plan for public transit or walk-in access. Some nearby ports may be marked as no-fishing; follow signage and avoid interfering with fishing/boating operations. As with other surf zones, watch tides and wave sets, especially at night.\n\nLink:\n- https://yokosan-fishing.shink.net/%E9%95%B7%E6%B2%A2%E6%B5%B7%E5%B2%B8/\n- https://anglers.jp/areas/128\n- https://www.m-beach.com/blog/beach-photo/3424/\n\nTags: fishing, surf, public-transport friendly, nagasawa, yokosuka"
+  },
+  {
+    "id": "07_hashirimizu_hatayamazaki_882960ec7c16",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "surf",
+      "rock fishing",
+      "hashirimizu",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://yokosan-fishing.shink.net/%E6%97%97%E5%B1%B1%E5%B4%8E/"
+      },
+      {
+        "label": "",
+        "url": "https://gedoudaiou.com/contents/points/yokosuka_hashirimizu.html"
+      },
+      {
+        "label": "",
+        "url": "https://www.tokyobay.jp/map/bay08.html"
+      }
+    ],
+    "title": "Hashirimizu (走水) – Hatayamazaki (旗山崎) Small Park Surf/Rock Mix",
+    "datetime": "",
+    "place": "Hatayamazaki area, Hashirimizu 2-698, Yokosuka, Kanagawa.",
+    "text": "Title: Hashirimizu (走水) – Hatayamazaki (旗山崎) Small Park Surf/Rock Mix\n\nPlace:\n- Hatayamazaki area, Hashirimizu 2-698, Yokosuka, Kanagawa.\n\nDetail:\n- A smaller, quieter spot in the Hashirimizu area that combines a small surf zone with rock/structure fishing. Online guides describe it as a “hidden gem” because access is less convenient and the area is not large—often resulting in fewer crowds. Typical shore methods include light casting on the beach and targeting rockfish around structure/tetrapods.\n\nAttention:\n- Parking is limited and may require using more distant lots; some nearby port parking is reserved for boat users. The area can be shallow and tide-dependent; wading should be done only with proper equipment and in safe conditions. Respect local residents and keep noise/lights controlled for night fishing.\n\nLink:\n- https://yokosan-fishing.shink.net/%E6%97%97%E5%B1%B1%E5%B4%8E/\n- https://gedoudaiou.com/contents/points/yokosuka_hashirimizu.html\n- https://www.tokyobay.jp/map/bay08.html\n\nTags: fishing, surf, rock fishing, hashirimizu, yokosuka"
+  },
+  {
+    "id": "08_kannonzaki_area_b153ad6dbb12",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "rock fishing",
+      "scenic",
+      "kannonzaki",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://fishing-walker.com/detail/14201/100026/"
+      },
+      {
+        "label": "",
+        "url": "https://bonjourphoto.yokohama/kannonzaki.html"
+      }
+    ],
+    "title": "Kannonzaki Area (観音崎) – Shore/Rock Fishing in the Cape Zone",
+    "datetime": "",
+    "place": "Kannonzaki area, Yokosuka, Kanagawa (cape zone facing the Uraga Channel).",
+    "text": "Title: Kannonzaki Area (観音崎) – Shore/Rock Fishing in the Cape Zone\n\nPlace:\n- Kannonzaki area, Yokosuka, Kanagawa (cape zone facing the Uraga Channel).\n\nDetail:\n- The Kannonzaki cape zone is widely known for scenic coastal walks and is also discussed as a shore/rock fishing area. Because it is a popular destination, online information tends to emphasize safety, footing, and tide/wave awareness as much as fishing. Expect mixed targets depending on season and exact micro-spot (rockfish near structure, casting targets from the beachy edges, etc.).\n\nAttention:\n- Some areas may be restricted due to park management, cliff safety, or conservation—follow posted signs. Rocks can be extremely slippery, and wave splash is common near the cape. Wear appropriate footwear and avoid rough-sea days. Bring a headlamp and keep distance from the waterline for night sessions.\n\nLink:\n- https://fishing-walker.com/detail/14201/100026/\n- https://bonjourphoto.yokohama/kannonzaki.html\n\nTags: fishing, rock fishing, scenic, kannonzaki, yokosuka"
+  },
+  {
+    "id": "09_uraga_army_pier_c6530c9962ad",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "restricted area",
+      "pier fishing",
+      "uraga",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/80"
+      },
+      {
+        "label": "",
+        "url": "https://bonjourphoto.yokohama/uraga-port.html"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/fields/877"
+      }
+    ],
+    "title": "Uraga Port (浦賀港) – Army Pier Only (陸軍桟橋)",
+    "datetime": "",
+    "place": "Uraga, Yokosuka, Kanagawa (Uraga Port area).",
+    "text": "Title: Uraga Port (浦賀港) – Army Pier Only (陸軍桟橋)\n\nPlace:\n- Uraga, Yokosuka, Kanagawa (Uraga Port area).\n\nDetail:\n- A compact local fishing spot with a strong rule constraint: community platforms and local guidance repeatedly note that fishing is only permitted at the Army Pier, while other Uraga Port areas are prohibited. Because it is a small-capacity spot, online comments often mention that it can get crowded and is mainly a local hangout rather than a “destination” spot.\n\nAttention:\n- Do not fish anywhere in Uraga Port outside the Army Pier—multiple sources note official restrictions. Space is limited, so practice good etiquette and avoid leaving gear unattended or blocking pedestrians. Check tide/current and keep safety distance from edges, especially at night.\n\nLink:\n- https://anglers.jp/areas/80\n- https://bonjourphoto.yokohama/uraga-port.html\n- https://anglers.jp/fields/877\n\nTags: fishing, restricted area, pier fishing, uraga, yokosuka"
+  },
+  {
+    "id": "10_akiya_bonten_no_hana_tateishi_5503665d4540",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "rock fishing",
+      "scenic spot",
+      "akiya",
+      "tateishi",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://bonjourphoto.yokohama/bonten.html"
+      },
+      {
+        "label": "",
+        "url": "https://yokosan-fishing.shink.net/%E6%A2%B5%E5%A4%A9%E3%81%AE%E9%BC%BB/"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/2456"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/58"
+      }
+    ],
+    "title": "Akiya / Tateishi – Bonten-no-Hana (梵天の鼻) Rocky Shore",
+    "datetime": "",
+    "place": "Akiya 3-chome area (near Tateishi Park), Yokosuka, Kanagawa.",
+    "text": "Title: Akiya / Tateishi – Bonten-no-Hana (梵天の鼻) Rocky Shore\n\nPlace:\n- Akiya 3-chome area (near Tateishi Park), Yokosuka, Kanagawa.\n\nDetail:\n- A scenic rocky shoreline near the famous Tateishi landscape. Online spot guides describe a wide range of potential targets (rockfish, squid, black sea bream, etc.) depending on season and conditions. It is frequently described as accessible for casual visits (via the park area), while still requiring caution due to rocks, shallow shelves, and wave wash.\n\nAttention:\n- Rocky footing: expect slippery surfaces, sudden splash, and frequent snags—bring spare rigs and wear proper shoes. Even when “no formal prohibited zone” is mentioned by some guides, you must still follow any local signage and avoid nuisance behavior (noise, long occupancy, trash, chumming residue). If seas are rough, do not approach low rocks.\n\nLink:\n- https://bonjourphoto.yokohama/bonten.html\n- https://yokosan-fishing.shink.net/%E6%A2%B5%E5%A4%A9%E3%81%AE%E9%BC%BB/\n- https://anglers.jp/areas/2456\n- https://anglers.jp/areas/58\n\nTags: fishing, rock fishing, scenic spot, akiya, tateishi, yokosuka"
+  },
+  {
+    "id": "11_akiya_port_70fe072f77e9",
+    "source": "markdown",
+    "lang": "ja",
+    "tags": [
+      "fishing",
+      "harbor",
+      "breakwater",
+      "akiya",
+      "yokosuka"
+    ],
+    "links": [
+      {
+        "label": "",
+        "url": "https://tsurimap.net/kanagawa/akiyakou"
+      },
+      {
+        "label": "",
+        "url": "https://www.fishing-spots.net/akiya.html"
+      },
+      {
+        "label": "",
+        "url": "https://anglers.jp/areas/55"
+      }
+    ],
+    "title": "Akiya Port (秋谷港) – Breakwater/Harbor Fishing (Check Access Rules)",
+    "datetime": "",
+    "place": "Akiya Port, Yokosuka, Kanagawa (west coast of the Miura Peninsula).",
+    "text": "Title: Akiya Port (秋谷港) – Breakwater/Harbor Fishing (Check Access Rules)\n\nPlace:\n- Akiya Port, Yokosuka, Kanagawa (west coast of the Miura Peninsula).\n\nDetail:\n- A small harbor where online point guides highlight a mix of rocky and sandy bottom features plus river inflow nearby—conditions that can support diverse targets. It is a known local-style harbor spot, but like many working ports, rules and access constraints matter as much as fishing technique.\n\nAttention:\n- Harbor rules can be strict: some guides warn about gate/closure times and emphasize not obstructing port operations. Always prioritize safety, do not enter private/restricted areas, and follow local signage. If fishing is restricted on a given day, switch to nearby public shoreline spots instead.\n\nLink:\n- https://tsurimap.net/kanagawa/akiyakou\n- https://www.fishing-spots.net/akiya.html\n- https://anglers.jp/areas/55\n\nTags: fishing, harbor, breakwater, akiya, yokosuka"
+  },
+  {
     "id": "MIura_Peninsula_dd88f1b8063b",
     "source": "markdown",
     "lang": "en",
@@ -9427,6 +10553,341 @@
     "datetime": "",
     "place": "Address (historic listing): 1F, 1-11-9 Wakamatsucho, Yokosuka, Kanagawa, Japan\nNearest station (historic listing): Yokosuka-Chuo Station (Keikyu) ~180m",
     "text": "Title: RED BAR Shell / “YOKOSUKA Shell Aka Bar” — a former dining bar listing in central Yokosuka (listed as CLOSED on Tabelog)\n\nPlace:\n- Address (historic listing): 1F, 1-11-9 Wakamatsucho, Yokosuka, Kanagawa, Japan\n- Nearest station (historic listing): Yokosuka-Chuo Station (Keikyu) ~180m\n\nDetail:\n- What it is: A dining-bar style venue that appears in older listings under names like “RED BAR Shell” and “YOKOSUKA Shell Aka Bar”.\n- Current status online:\n- Tabelog lists this venue as CLOSED.\n- Some other directories still show it (with hours and phone numbers), suggesting listings may be outdated or the shop may have rebranded.\n\nAttention:\n- Treat as closed unless you can confirm a re-opening/rebranding.\n- If you find a listing that still appears active, call ahead or check the most recent social posts before visiting.\n\nLink:\n- https://tabelog.com/kanagawa/A1406/A140601/14064170/dtlratings/\n- https://retty.me/area/PRE14/ARE40/SUB4001/100000843075/\n- https://map.yahoo.co.jp/place?gid=i2qFj20Q9xo\n\nTags: yokosuka, yokosuka-chuo, dining bar, closed, wakamatsucho, old listing"
+  },
+  {
+    "id": "01_iriyamazu_park_d45e8ad921c2",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "sports park",
+      "athletics track",
+      "tennis",
+      "baseball/softball",
+      "archery (kyudo)",
+      "family-friendly"
+    ],
+    "links": [
+      {
+        "label": "Official (Yokosuka City)",
+        "url": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html"
+      },
+      {
+        "label": "Manager site (designated administrator)",
+        "url": "https://iriyamazu.y-parks.jp/"
+      },
+      {
+        "label": "Wanderlog",
+        "url": "https://wanderlog.com/place/details/106392/iriyamazu-park-sports-facilities"
+      }
+    ],
+    "title": "Iriyamazu Park (Iriyamazu Koen) — Sports Facilities",
+    "datetime": "",
+    "place": "Address: 1-2-1 Iriyamazu-cho, Yokosuka, Kanagawa 238-0051, Japan\nAccess: See the official city page for the latest access (public transit/parking) information.\nPhone: +81-46-823-9360",
+    "text": "Title: Iriyamazu Park (Iriyamazu Koen) — Sports Facilities\n\nPlace:\n- Address: 1-2-1 Iriyamazu-cho, Yokosuka, Kanagawa 238-0051, Japan\n- Access: See the official city page for the latest access (public transit/parking) information.\n- Phone: +81-46-823-9360\n\nDetail:\n- What it is: A large municipal sports park that bundles multiple outdoor facilities (fields/courts) plus nearby indoor sports buildings.\n- Main facilities (publicly listed):\n- 2 softball/baseball fields\n- Athletics track/stadium (general use possible when not reserved)\n- Tennis courts (8 courts; artificial turf)\n- Archery range (kyudo)\n- Practical notes from the city:\n- Parking is paid; weekends/holidays can get very crowded when tournaments are held.\n- The city notes a planned fee revision starting April 2026, and recommends checking the official guidance.\n- Online reputation (summary):\n- Reviews commonly describe it as a “one-stop” sports park with many facility types in one area.\n- Expect crowding and parking congestion during events.\n\nAttention:\n- If you are visiting for a match/event, plan extra buffer time for parking and walking to your venue.\n- If you want to use the athletics track or courts casually, confirm that the slot is not reserved (municipal reservation systems are commonly used for these facilities).\n- For kyudo/archery, facility-specific rules may apply (bring your own equipment; skill-level requirements may be enforced).\n\nLink:\n- Official (Yokosuka City): https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000043.html\n- Manager site (designated administrator): https://iriyamazu.y-parks.jp/\n- Reviews/roundups:\n- Wanderlog: https://wanderlog.com/place/details/106392/iriyamazu-park-sports-facilities\n\nTags: sports park, athletics track, tennis, baseball/softball, archery (kyudo), family-friendly"
+  },
+  {
+    "id": "02_yokosuka_arena_main_arena_f9e0bcaa56d1",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "indoor arena",
+      "basketball",
+      "volleyball",
+      "badminton",
+      "table tennis",
+      "events"
+    ],
+    "links": [
+      {
+        "label": "Official (Yokosuka Arena)",
+        "url": "https://yokosuka-arena.jp/mainarena/"
+      },
+      {
+        "label": "Yahoo! Maps",
+        "url": "https://map.yahoo.co.jp/v3/place/PqXEy9btsf"
+      }
+    ],
+    "title": "Yokosuka Arena (Main Arena) — Indoor Multi-Sport Gymnasium",
+    "datetime": "",
+    "place": "Address: 1-2 Iriyamazu-cho, Yokosuka, Kanagawa 238-0051, Japan\nPhone: +81-46-826-2800\nHours (typical): 09:00–21:00",
+    "text": "Title: Yokosuka Arena (Main Arena) — Indoor Multi-Sport Gymnasium\n\nPlace:\n- Address: 1-2 Iriyamazu-cho, Yokosuka, Kanagawa 238-0051, Japan\n- Phone: +81-46-826-2800\n- Hours (typical): 09:00–21:00\n\nDetail:\n- What it is: A major indoor arena used for tournaments, community sports, and events.\n- Sports & facilities (typical for the venue): badminton, basketball, volleyball, table tennis, and multipurpose court setups.\n- Online reputation (summary):\n- Review platforms describe it as clean and well-maintained, with good usability for both spectators and participants.\n- Some visitors note that the surrounding park/parking can be busy during large events.\n\nAttention:\n- Large event days can bring parking congestion; public transport or early arrival helps.\n- If you plan to play (not spectate), check booking/reservation rules and footwear requirements.\n\nLink:\n- Official (Yokosuka Arena): https://yokosuka-arena.jp/mainarena/\n- Map/Reviews:\n- Yahoo! Maps: https://map.yahoo.co.jp/v3/place/PqXEy9btsf.\n\nTags: indoor arena, basketball, volleyball, badminton, table tennis, events"
+  },
+  {
+    "id": "03_sub_arena_heated_pool_a9b0aaa20299",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "indoor pool",
+      "heated pool",
+      "swimming",
+      "family",
+      "year-round"
+    ],
+    "links": [
+      {
+        "label": "Official (Sub Arena Heated Pool)",
+        "url": "https://yokosuka-arena.jp/subarenapool/"
+      },
+      {
+        "label": "Official (How to use pools / rules)",
+        "url": "https://yokosuka-arena.jp/pooluse/"
+      },
+      {
+        "label": "Yahoo! Maps (listing)",
+        "url": "https://map.yahoo.co.jp/v3/place/oxG1eD0w-l-"
+      },
+      {
+        "label": "Iko-Yo (family review site)",
+        "url": "https://iko-yo.net/facilities/4298"
+      }
+    ],
+    "title": "Yokosuka Sub Arena — Heated Indoor Pool",
+    "datetime": "",
+    "place": "Area: Iriyamazu Park complex (Iriyamazu-cho area), Yokosuka, Kanagawa\nNote: See the official page for the most current access details and any temporary closures.",
+    "text": "Title: Yokosuka Sub Arena — Heated Indoor Pool\n\nPlace:\n- Area: Iriyamazu Park complex (Iriyamazu-cho area), Yokosuka, Kanagawa\n- Note: See the official page for the most current access details and any temporary closures.\n\nDetail:\n- What it is: A heated (indoor) pool facility managed under the Yokosuka Arena group.\n- Typical hours shown on the official pool-use guidance: 09:30–21:00 (hours can vary by season/event days).\n- Facility rules emphasized online:\n- Swimming cap is required.\n- Basic pool etiquette is strictly enforced (e.g., no disruptive behavior; follow staff instructions).\n- Online reputation (summary):\n- Family-oriented review sites highlight it as a convenient year-round pool option.\n- Some reviews mention peak-time crowding and lane management as common pain points.\n\nAttention:\n- Bring a swimming cap; also bring a small towel and coins/card as needed for lockers or tickets.\n- If you want lane swimming, consider off-peak hours.\n\nLink:\n- Official (Sub Arena Heated Pool): https://yokosuka-arena.jp/subarenapool/\n- Official (How to use pools / rules): https://yokosuka-arena.jp/pooluse/\n- Map/Reviews:\n- Yahoo! Maps (listing): https://map.yahoo.co.jp/v3/place/oxG1eD0w-l-\n- Iko-Yo (family review site): https://iko-yo.net/facilities/4298\n\nTags: indoor pool, heated pool, swimming, family, year-round"
+  },
+  {
+    "id": "04_yokosuka_stadium_oppama_7d9bed9fc3f9",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "baseball stadium",
+      "BayStars farm",
+      "sports event",
+      "Oppama",
+      "family outing"
+    ],
+    "links": [
+      {
+        "label": "Official (Yokosuka City)",
+        "url": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000437.html"
+      },
+      {
+        "label": "Wanderlog",
+        "url": "https://wanderlog.com/place/details/2865197/yokosuka-stadium"
+      }
+    ],
+    "title": "Yokosuka Stadium — Baseball Stadium (Oppama / Natsushima)",
+    "datetime": "",
+    "place": "Address: 2-2 Natsushima-cho, Yokosuka, Kanagawa 237-0061, Japan\nAccess (official): From Keikyu Oppama Station, bus via Fukaura bound for JR Taura Station; get off at “L Wing Mae,” then ~2 minutes on foot. Also ~15 minutes on foot from Oppama Station.\nPhone: +81-46-865-3307",
+    "text": "Title: Yokosuka Stadium — Baseball Stadium (Oppama / Natsushima)\n\nPlace:\n- Address: 2-2 Natsushima-cho, Yokosuka, Kanagawa 237-0061, Japan\n- Access (official): From Keikyu Oppama Station, bus via Fukaura bound for JR Taura Station; get off at “L Wing Mae,” then ~2 minutes on foot. Also ~15 minutes on foot from Oppama Station.\n- Phone: +81-46-865-3307\n\nDetail:\n- What it is: A full-scale hardball baseball stadium opened in 1997.\n- Notable usage (official): Home/Franchise stadium for the Yokohama DeNA BayStars farm team, hosting Eastern League official games (roughly ~30 per year).\n- Features highlighted by the city:\n- Full-color LED scoreboard capable of images/videos and pitch-speed display.\n- Parking exists but can be crowded; the city notes fee rules and congestion on weekends.\n- Online reputation (summary):\n- Review roundups often praise the “pro baseball atmosphere” for farm-team games and the good sightlines.\n- Common negatives include event-day crowding and limited parking.\n\nAttention:\n- For game days, check the event schedule and arrive early (parking and local roads may be busy).\n- If you are coming as a tourist, consider walking from Oppama Station to avoid parking stress.\n\nLink:\n- Official (Yokosuka City): https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000437.html\n- Reviews/roundups:\n- Wanderlog: https://wanderlog.com/place/details/2865197/yokosuka-stadium\n\nTags: baseball stadium, BayStars farm, sports event, Oppama, family outing"
+  },
+  {
+    "id": "05_umikaze_park_6462dd881faa",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "park",
+      "skateboarding",
+      "BMX",
+      "3x3 basketball",
+      "waterfront",
+      "family-friendly"
+    ],
+    "links": [
+      {
+        "label": "Official (Kanagawa Parks — Umikaze Park)",
+        "url": "https://www.kanagawaparks.com/umikaze/"
+      },
+      {
+        "label": "Tripadvisor",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1627535-Reviews-Umikaze_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Wanderlog",
+        "url": "https://wanderlog.com/place/details/600445/umikaze-park"
+      },
+      {
+        "label": "Yelp",
+        "url": "https://www.yelp.com/biz/%E3%81%86%E3%81%BF%E3%81%8B%E3%81%9C%E5%85%AC%E5%9C%92-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82"
+      }
+    ],
+    "title": "Umikaze Park — Outdoor Sports & Action-Sports Park (Skate/BMX/3x3)",
+    "datetime": "",
+    "place": "Address: 3-23 Heisei-cho, Yokosuka, Kanagawa 238-0013, Japan\nPhone: +81-46-826-2899",
+    "text": "Title: Umikaze Park — Outdoor Sports & Action-Sports Park (Skate/BMX/3x3)\n\nPlace:\n- Address: 3-23 Heisei-cho, Yokosuka, Kanagawa 238-0013, Japan\n- Phone: +81-46-826-2899\n\nDetail:\n- What it is: A large waterfront park known for action sports facilities (skateboard/BMX) and casual outdoor sports.\n- Facilities commonly highlighted online:\n- Skateboard & BMX areas (one of the best-known “watch spots” in Yokosuka)\n- 3x3 / street basketball area\n- Other multipurpose outdoor areas, restrooms, vending machines, and paid parking.\n- Online reputation (summary):\n- Visitors frequently mention that it’s fun to watch skaters/BMX riders, and that the park is spacious with sea views.\n- Peak times (weekends, summer) can be crowded; some reviews note that parking is paid and can fill up.\n\nAttention:\n- If you are going for skating/BMX, check any posted rules and recommended protective gear.\n- If you want a quieter visit, weekdays are typically calmer than weekends.\n\nLink:\n- Official (Kanagawa Parks — Umikaze Park): https://www.kanagawaparks.com/umikaze/\n- Reviews:\n- Tripadvisor: https://www.tripadvisor.com/Attraction_Review-g298174-d1627535-Reviews-Umikaze_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Wanderlog: https://wanderlog.com/place/details/600445/umikaze-park\n- Yelp: https://www.yelp.com/biz/%E3%81%86%E3%81%BF%E3%81%8B%E3%81%9C%E5%85%AC%E5%9C%92-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82\n\nTags: park, skateboarding, BMX, 3x3 basketball, waterfront, family-friendly"
+  },
+  {
+    "id": "06_otsu_park_cadad674fc9c",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "sports ground",
+      "tennis",
+      "baseball",
+      "sumo",
+      "tournament venue",
+      "local park"
+    ],
+    "links": [
+      {
+        "label": "Official (Park manager site)",
+        "url": "https://ootsu.y-parks.jp/"
+      },
+      {
+        "label": "Tripadvisor (JP)",
+        "url": "https://www.tripadvisor.jp/Attraction_Review-g298174-d1741576-Reviews-Otsu_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      }
+    ],
+    "title": "Otsu Park — Sports Grounds, Baseball, Sumo & Tennis Courts",
+    "datetime": "",
+    "place": "Address: 5-4-1 Otsu-cho, Yokosuka, Kanagawa 239-0808, Japan\nPhone: +81-46-823-1550",
+    "text": "Title: Otsu Park — Sports Grounds, Baseball, Sumo & Tennis Courts\n\nPlace:\n- Address: 5-4-1 Otsu-cho, Yokosuka, Kanagawa 239-0808, Japan\n- Phone: +81-46-823-1550\n\nDetail:\n- What it is: A long-running municipal park developed from a former military site (per the park manager’s description) and now used for many sports.\n- Sports facilities (publicly listed):\n- Sports ground\n- Baseball field (softball/baseball use)\n- Sumo ring\n- Tennis courts (artificial turf; 11 courts)\n- Online reputation (summary):\n- Reviews and roundups describe it as a practical “local tournament” venue with many courts.\n- Visitors often mention it’s convenient for organized matches but can get busy on tournament days.\n\nAttention:\n- If you are coming for tennis, reservations may be required for certain time slots.\n- Like other tournament venues, parking can become constrained on weekends/holidays.\n\nLink:\n- Official (Park manager site): https://ootsu.y-parks.jp/\n- Reviews:\n- Tripadvisor (JP): https://www.tripadvisor.jp/Attraction_Review-g298174-d1741576-Reviews-Otsu_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n\nTags: sports ground, tennis, baseball, sumo, tournament venue, local park"
+  },
+  {
+    "id": "07_north_gymnasium_heated_pool_c2a4bec55782",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "public gym",
+      "indoor court sports",
+      "heated pool",
+      "futsal",
+      "table tennis",
+      "martial arts"
+    ],
+    "links": [
+      {
+        "label": "Official (North facility page)",
+        "url": "https://yokosuka-arena.jp/north/"
+      }
+    ],
+    "title": "North Gymnasium (Kita Taiikukaikan) & Heated Pool",
+    "datetime": "",
+    "place": "Address: 2 Natsushima-cho, Yokosuka, Kanagawa 237-0061, Japan\nPhone: +81-46-865-9333\nHours (official):\nGymnasium: 09:00–21:00\nHeated pool: 09:30–21:00",
+    "text": "Title: North Gymnasium (Kita Taiikukaikan) & Heated Pool\n\nPlace:\n- Address: 2 Natsushima-cho, Yokosuka, Kanagawa 237-0061, Japan\n- Phone: +81-46-865-9333\n- Hours (official):\n- Gymnasium: 09:00–21:00\n- Heated pool: 09:30–21:00\n\nDetail:\n- What it is: A municipal gymnasium with a heated pool, supporting both court sports and martial arts/fitness classes.\n- Sports & equipment (officially listed examples):\n- Badminton (up to 8 courts), basketball (2), volleyball (2), handball (1), table tennis (up to 21 tables), futsal, bound tennis.\n- Small gym room for activities like kendo/judo/karate/aikido, aerobics, and dance.\n- Heated pool, showers, changing rooms, meeting room.\n- Rules highlighted on the official page:\n- Swimming cap is required.\n- Online reputation (summary):\n- Reviews often frame it as a “solid everyday” public facility: good value, practical, and easy to use for local residents.\n\nAttention:\n- Bring a swim cap if you plan to use the pool.\n- For groups or tournaments, confirm court layout and equipment availability in advance.\n\nLink:\n- Official (North facility page): https://yokosuka-arena.jp/north/\n\nTags: public gym, indoor court sports, heated pool, futsal, table tennis, martial arts"
+  },
+  {
+    "id": "08_west_gymnasium_b32ecd26c399",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "public gym",
+      "indoor sports",
+      "badminton",
+      "basketball",
+      "volleyball",
+      "futsal",
+      "table tennis"
+    ],
+    "links": [
+      {
+        "label": "Official (West facility page)",
+        "url": "https://yokosuka-arena.jp/west/"
+      }
+    ],
+    "title": "West Gymnasium (Nishi Taiikukaikan)",
+    "datetime": "",
+    "place": "Address: 1-2-3 Nagasaka, Yokosuka, Kanagawa 240-0101, Japan\nPhone: +81-46-856-8199\nHours (official): 09:00–21:00",
+    "text": "Title: West Gymnasium (Nishi Taiikukaikan)\n\nPlace:\n- Address: 1-2-3 Nagasaka, Yokosuka, Kanagawa 240-0101, Japan\n- Phone: +81-46-856-8199\n- Hours (official): 09:00–21:00\n\nDetail:\n- What it is: A municipal gymnasium supporting a wide range of indoor sports and community activities.\n- Sports & equipment (officially listed examples):\n- Badminton (up to 8 courts), basketball (2), volleyball (2), handball (1), table tennis (up to 20 tables), bound tennis, futsal.\n- Small gym room for martial arts and classes.\n- Spectator seating (316 seats), showers, changing rooms, meeting/consultation rooms.\n- Online reputation (summary):\n- Review snippets tend to describe it as a straightforward, functional public facility; users appreciate the range of supported sports.\n\nAttention:\n- If you need spectator seating, confirm which configuration is used for your event.\n- For team practices, advance reservation is typically required.\n\nLink:\n- Official (West facility page): https://yokosuka-arena.jp/west/\n\nTags: public gym, indoor sports, badminton, basketball, volleyball, futsal, table tennis"
+  },
+  {
+    "id": "09_kurihama_flower_park_heated_p_b4f9599d14b6",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "heated pool",
+      "gym",
+      "family",
+      "Kurihama",
+      "park + workout"
+    ],
+    "links": [
+      {
+        "label": "Official (Kurihama Pool)",
+        "url": "https://yokosuka-arena.jp/kurihamapool/"
+      },
+      {
+        "label": "Official (Kurihama Training Room)",
+        "url": "https://yokosuka-arena.jp/kurihamatraining/"
+      }
+    ],
+    "title": "Kurihama Flower Park (Kurihama Hana-no-Kuni) — Heated Pool & Training Room",
+    "datetime": "",
+    "place": "Area: Kurihama / Flower Park zone, Yokosuka, Kanagawa\nAccess (official example): From Keikyu Kurihama Station, take a bus (e.g., toward Nobi Kaigan or the ferry port), get off at “Ohama,” then ~7 minutes on foot.",
+    "text": "Title: Kurihama Flower Park (Kurihama Hana-no-Kuni) — Heated Pool & Training Room\n\nPlace:\n- Area: Kurihama / Flower Park zone, Yokosuka, Kanagawa\n- Access (official example): From Keikyu Kurihama Station, take a bus (e.g., toward Nobi Kaigan or the ferry port), get off at “Ohama,” then ~7 minutes on foot.\n\nDetail:\n- What it is: A sports facility package tied to the Kurihama Flower Park area, including a heated pool and training room.\n- The official site emphasizes:\n- Indoor/heated pool\n- Training room (gym equipment)\n- Parking guidance and discounts/fee reductions depending on which parking lot you use.\n- Online reputation (summary):\n- Review platforms tend to describe it as a convenient “exercise + park visit” combination, especially for families.\n- Some reviews note that it can get busy in peak seasons when the park is popular.\n\nAttention:\n- If you drive, check parking rules and possible discounts (the official page mentions reduction procedures).\n- Bring a swim cap for the pool (pool facilities in Yokosuka commonly require it).\n\nLink:\n- Official (Kurihama Pool): https://yokosuka-arena.jp/kurihamapool/\n- Official (Kurihama Training Room): https://yokosuka-arena.jp/kurihamatraining/\n\nTags: heated pool, gym, family, Kurihama, park + workout"
+  },
+  {
+    "id": "10_sukoyakan_health_promotion_ce_d86583799df3",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "public health center",
+      "indoor pool",
+      "gym",
+      "studio classes",
+      "wellness"
+    ],
+    "links": [
+      {
+        "label": "Official (Yokosuka City)",
+        "url": "https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000117.html"
+      },
+      {
+        "label": "Yuru-to (facility listing)",
+        "url": "https://yuru-to.net/detail.php?cid=1055"
+      },
+      {
+        "label": "Sauna Ikitai (sauna community)",
+        "url": "https://sauna-ikitai.com/saunas/3278"
+      }
+    ],
+    "title": "Sukoyakan (Health Promotion Center) — Pool, Training Gym, Studio",
+    "datetime": "",
+    "place": "Location: Yokosuka City (municipal facility)\nNote: See the official city page for the latest address, hours, and program schedules.",
+    "text": "Title: Sukoyakan (Health Promotion Center) — Pool, Training Gym, Studio\n\nPlace:\n- Location: Yokosuka City (municipal facility)\n- Note: See the official city page for the latest address, hours, and program schedules.\n\nDetail:\n- What it is: A city-run health promotion center that typically bundles wellness services with sports/fitness facilities.\n- Facilities (as commonly described online):\n- Indoor pool\n- Training room / gym\n- Exercise studio programs\n- Online reputation (summary):\n- Sauna and wellness communities frequently mention it as a practical “local health hub,” especially when combining cardio, pool, and sauna-style recovery.\n\nAttention:\n- This is a public wellness facility; expect rules around health checks, hygiene, and program reservations.\n- If you are not a resident, confirm pricing categories and any ID requirements.\n\nLink:\n- Official (Yokosuka City): https://www.city.yokosuka.kanagawa.jp/5560/sisetu/fc00000117.html\n- Roundups / user communities:\n- Yuru-to (facility listing): https://yuru-to.net/detail.php?cid=1055\n- Sauna Ikitai (sauna community): https://sauna-ikitai.com/saunas/3278\n\nTags: public health center, indoor pool, gym, studio classes, wellness"
+  },
+  {
+    "id": "11_purdy_fitness_center_us_base_1588da8c2a3b",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "gym",
+      "weight training",
+      "cardio",
+      "US Navy",
+      "access restricted"
+    ],
+    "links": [
+      {
+        "label": "Official (Navy MWR / base fitness programs)",
+        "url": "https://yokosuka.navylifesw.com/programs"
+      },
+      {
+        "label": "Yelp",
+        "url": "https://www.yelp.com/biz/purdy-gym-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82"
+      }
+    ],
+    "title": "Purdy Fitness Center (Purdy Gym) — US Navy Facility (Yokosuka)",
+    "datetime": "",
+    "place": "Location: Yokosuka Naval Base area (access restrictions apply)",
+    "text": "Title: Purdy Fitness Center (Purdy Gym) — US Navy Facility (Yokosuka)\n\nPlace:\n- Location: Yokosuka Naval Base area (access restrictions apply)\n\nDetail:\n- What it is: A well-known fitness gym used by the US Navy community in Yokosuka.\n- Typical offerings described online:\n- Weight training and cardio equipment\n- Fitness classes (varies)\n- Online reputation (summary):\n- Reviews often praise the amount of equipment and the “serious gym” vibe.\n- Some reviews mention peak-time crowding (typical for a popular base gym).\n\nAttention:\n- Access is generally limited to eligible DoD/SOFA personnel and visitors who can enter the base.\n- Bring your ID and follow base entry procedures.\n\nLink:\n- Official (Navy MWR / base fitness programs): https://yokosuka.navylifesw.com/programs\n- Reviews:\n- Yelp: https://www.yelp.com/biz/purdy-gym-%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82\n\nTags: gym, weight training, cardio, US Navy, access restricted"
+  },
+  {
+    "id": "12_golds_gym_yokosuka_500a235f34d6",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "gym",
+      "strength training",
+      "commercial gym",
+      "international friendly",
+      "Yokosuka"
+    ],
+    "links": [
+      {
+        "label": "Official (Gold’s Gym Japan — Yokosuka shop page)",
+        "url": "https://www.goldsgym.jp/shop/14070"
+      },
+      {
+        "label": "Yelp",
+        "url": "https://www.yelp.com/biz/golds-gym-yokosuka-kanagawa"
+      }
+    ],
+    "title": "Gold’s Gym Yokosuka (Kanagawa) — Commercial Gym",
+    "datetime": "",
+    "place": "Location: Yokosuka City, Kanagawa (see the official page for the latest address and access)",
+    "text": "Title: Gold’s Gym Yokosuka (Kanagawa) — Commercial Gym\n\nPlace:\n- Location: Yokosuka City, Kanagawa (see the official page for the latest address and access)\n\nDetail:\n- What it is: A well-known commercial gym chain location serving locals and international residents.\n- Typical offerings:\n- Free weights and machines\n- Cardio equipment\n- Studio classes (varies by schedule)\n- Online reputation (summary):\n- Reviews tend to highlight the strength-training environment and range of equipment.\n- Some user comments discuss gym etiquette and policies (e.g., tattoos, visitor rules), so it’s worth checking ahead.\n\nAttention:\n- Confirm membership type (drop-in vs monthly) and any facility rules before your first visit.\n- If you have visible tattoos, check the store policy in advance.\n\nLink:\n- Official (Gold’s Gym Japan — Yokosuka shop page): https://www.goldsgym.jp/shop/14070\n- Reviews:\n- Yelp: https://www.yelp.com/biz/golds-gym-yokosuka-kanagawa\n\nTags: gym, strength training, commercial gym, international friendly, Yokosuka"
   },
   {
     "id": "01_kimama_oppama_forweb_r6_03_9600bcf88f0a",
