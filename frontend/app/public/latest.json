@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-20T04:59:20Z",
+  "id": "feed_20260120_135506_JST",
   "date": "2026-01-20",
   "text": "Good afternoon! 🌞 It's a cloudy day with 8°C in Yokosuka. Don't forget to check out the winner of the 2025 Yokosuka Chuo Illumination Photo Contest, it's going to be amazing! 📸💡",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "image": "./image/feed_20260120_135506_JST.png",
+  "image_url": "./image/feed_20260120_135506_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's a cloudy day with 8°C in Yokosuka. Don't forget to check out the winner of the 2025 Yokosuka Chuo Illumination Photo Contest, it's going to be amazing! 📸💡",
+  "permalink": "./?post=feed_20260120_135506_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-20T05:03:03.588124Z"
 }
