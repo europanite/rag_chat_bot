@@ -357,174 +357,74 @@ def _weather_brief_for_llm(snap_obj: Dict[str, Any]) -> str:
     condition, temp_i = _weather_condition_and_temp(snap_obj)
     return f"weather={condition}\ntemp_c={temp_i}\n"
 
-def pick_topic(now_local: datetime, snap_obj: Dict[str, Any]) -> Tuple[str, str]:
-    """
-    Pick topic as (family, mode) where family ∈ {event, place, chat}.
-    mode adds variety while keeping the 3-family constraint.
-    """
-    cur = (snap_obj or {}).get("current") or {}
-    temp = _as_float(cur.get("temp_c"))
-    precip = _as_float(cur.get("precip_mm"))
-    code = cur.get("weather_code")
-
-    tod = _time_of_day_bucket(now_local.hour)
-    season = _season_bucket(now_local.month)
-    hint = _weather_hint(cur)
-
-    # 1) Choose family: event/place/chat (as requested)
-    family_w = {"event": 34, "place": 33, "chat": 33}
-
-    # Weather bias
-    if precip is not None and precip >= 0.2:
-        family_w["place"] -= 12
-        family_w["chat"] += 8
-        family_w["event"] += 4
-    if temp is not None and temp <= 8:
-        family_w["place"] -= 6
-        family_w["chat"] += 6
-        # winter events (illumination, seasonal) remain viable
-        family_w["event"] += 0
-    if temp is not None and temp >= 24 and (precip is None or precip < 0.2):
-        family_w["place"] += 6
-        family_w["event"] += 3
-        family_w["chat"] -= 4
-
-    # Time-of-day bias
-    if tod in ("evening", "night"):
-        family_w["event"] += 10
-        family_w["chat"] += 4
-        family_w["place"] -= 6
-    elif tod == "morning":
-        family_w["place"] += 6
-        family_w["chat"] += 2
-        family_w["event"] -= 2
-    elif tod == "afternoon":
-        family_w["place"] += 4
-        family_w["event"] += 2
-
-    # Seasonal bias
-    if season == "winter":
-        family_w["event"] += 6   # illumination / holiday / new year
-        family_w["chat"] += 2    # warm food/drinks
-    elif season == "summer":
-        family_w["place"] += 6   # coast / outdoor
-        family_w["event"] += 4   # matsuri
-        family_w["chat"] -= 4
-
-    for k in list(family_w.keys()):
-        family_w[k] = max(1, int(family_w[k]))
-
-
-    # Deterministic per-hour by default. To increase topic variety across runs,
-    # allow an external variant (e.g., GitHub Actions run_number) to perturb the seed.
-    try:
-        topic_variant = int(os.getenv("TOPIC_VARIANT", "0") or "0")
-    except Exception:
-        topic_variant = 0
-    seed_str = f"{now_local.strftime('%Y-%m-%d-%H:%M:%S')}|{season}|{tod}|{hint}|{code}|v{topic_variant}"
-
-
-    seed = int(hashlib.sha256(seed_str.encode("utf-8")).hexdigest()[:8], 16)
-    rng = random.Random(seed)
-
-    families = list(family_w.keys())
-    family = rng.choices(families, weights=[family_w[f] for f in families], k=1)[0]
-
-    # 2) Choose mode inside family
-    if family == "place":
-        modes = ["coast", "park", "viewpoint", "shrine", "museum", "walk"]
-        w =     [  20,     18,       18,       16,       14,     14]
-        if precip is not None and precip >= 0.2:
-            # rain -> prefer indoor / short routes (but don't force a single mode)
-            w[0] = max(6, w[0] - 8)   # coast
-            w[2] = max(8, w[2] - 6)   # viewpoint
-            w[4] += 18                # museum
-            w[5] += 6                 # walk
-        if season == "winter" and tod in ("evening", "night"):
-            # winter evening -> more night-view, but keep variety
-            w[2] += 10                # viewpoint
-            w[4] += 4                 # museum (indoor option)
-            w[1] = max(8, w[1] - 4)   # park a bit less
-    elif family == "event":
-        modes = ["illumination", "festival", "market", "exhibition", "seasonal"]
-        w =     [      26,        20,       18,          18,        18]
-        if season == "winter":
-            # winter: illumination/seasonal up, but not a hard lock
-            w[0] += 8                 # illumination
-            w[4] += 6                 # seasonal
-            w[3] += 2                 # exhibition
-            w[1] = max(10, w[1] - 4)  # festival a bit less
-            w[2] = max(10, w[2] - 4)  # market a bit less
-        if tod in ("evening", "night"):
-            # night: still illumination-friendly, but keep alternatives
-            w[0] += 6
-            w[4] += 2
-            w[3] += 2
-        if precip is not None and precip >= 0.2:
-            # rain -> exhibitions/indoor events
-            w[3] += 18                # exhibition
-            w[0] = max(10, w[0] - 8)  # illumination down a bit
-            w[1] = max(8,  w[1] - 8)  # festival down
-            w[2] = max(8,  w[2] - 8)  # market down
-            w[4] += 6                 # seasonal still ok
-    else:  # chat
-        modes = ["food", "trivia", "history", "activity"]
-        w =     [  30,      25,       20,        25]
-        if precip is not None and precip >= 0.2:
-            w[0] += 12                # food
-            w[2] += 4                 # history (indoor topics)
-            w[3] = max(6, w[3] - 12)  # activity
-        if temp is not None and temp <= 8:
-            w[0] += 12
-            w[2] += 4
-            w[3] = max(6, w[3] - 12)
-        if temp is not None and temp >= 24 and (precip is None or precip < 0.2):
-            w[3] += 16
-            w[0] = max(12, w[0] - 8)
-        if tod in ("evening", "night"):
-            w[0] += 10
-            w[1] += 2
-            w[3] = max(6, w[3] - 8)
-
-    # Final clamp (avoid zero/negative weights)
-    w = [max(1, int(x)) for x in w]
-    mode = rng.choices(modes, weights=w, k=1)[0]
-    return family, mode
-
-
-def build_question(
-    topic_family: str,
-    topic_mode: str,
-    now_local: datetime,
-    snap_obj: dict,
-) -> str:
-
+def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> Tuple[str, str]:
+    # (focus_id, focus_keywords)
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
     season = _season_bucket(now_local.month)
     condition, temp_i = _weather_condition_and_temp(cur)
+    is_weekend = (now_local.weekday() >= 5)
 
-    # Keywords help retrieval; family/mode enforce "event/place/chat"
-    keyword_map: Dict[Tuple[str, str], str] = {
-        # place
-        ("place", "coast"): "coast beach sea bay port waterfront marina pier",
-        ("place", "park"): "park garden green nature trail flower",
-        ("place", "viewpoint"): "viewpoint hill lookout skyline sunset night-view observation deck",
-        ("place", "shrine"): "shrine temple heritage tradition seasonal",
-        ("place", "museum"): "museum exhibition indoor history culture art",
-        ("place", "walk"): "walk stroll promenade shopping street arcade",
-        # event
-        ("event", "festival"): "festival matsuri parade performance music dance",
-        ("event", "market"): "market fair flea local vendors farmers",
-        ("event", "exhibition"): "exhibition art museum gallery indoor showcase",
-        ("event", "seasonal"): "seasonal holiday event limited-time",
-        # chat
-        ("chat", "food"): "navy curry burger ramen cafe bakery warm drink",
-        ("chat", "trivia"): "fun fact local tip small story",
-        ("chat", "history"): "history navy port heritage museum",
-        ("chat", "activity"): "running fishing hike workout",
-    }
-    topic_keywords = keyword_map.get((topic_family, topic_mode), "local tip short story")
+    candidates: List[Tuple[str, str]] = []
+    def add(fid: str, keywords: str) -> None:
+        candidates.append((fid, keywords))
+
+    # --- Base seeds (always available) ---
+    add("food", "navy curry seafood ramen cafe bakery burger")
+    add("history", "navy history heritage museum memorial")
+    add("walk", "shopping street arcade promenade local tip")
+
+    # --- Weather driven ---
+    if condition == "rainy":
+        add("indoor", "museum exhibition indoor culture art cafe")
+        add("cozy", "warm drink cafe bakery bookshop indoor")
+    else:
+        add("nature", "park garden trail viewpoint lookout")
+        add("coast", "coast beach sea bay port waterfront")
+        if tod in ("afternoon", "evening", "night"):
+            add("view", "sunset night-view observation deck skyline")
+
+    if condition == "windy":
+        add("windy", "windy day viewpoint harbor breakwater")
+
+    # --- Temperature / season ---
+    if temp_i <= 8 or condition == "chilly":
+        add("warm", "hot drink ramen soup curry warm cafe")
+        if season == "winter" and tod in ("evening", "night"):
+            add("winter_night", "illumination winter night-view seasonal")
+    if season == "summer" and condition != "rainy":
+        add("summer", "beach sea breeze sunset cold drink")
+
+    # --- Calendar / time of day ---
+    if is_weekend:
+        add("weekend", "weekend event festival market fair")
+    if tod == "morning":
+        add("morning", "morning coffee breakfast bakery")
+    if tod in ("evening", "night"):
+        add("dinner", "dinner izakaya bar curry ramen burger")
+
+    # De-dup exact duplicates (cheap)
+    candidates = list(dict.fromkeys(candidates))
+
+    # Deterministic seed (rename: SEED_VARIANT; keep TOPIC_VARIANT as fallback for back-compat)
+    try:
+        seed_variant = int(os.getenv("SEED_VARIANT", os.getenv("TOPIC_VARIANT", "0")) or "0")
+    except Exception:
+        seed_variant = 0
+    hint = _weather_hint(cur)
+    seed_str = f"{now_local.strftime('%Y-%m-%d-%H:%M:%S')}|{season}|{tod}|{condition}|{temp_i}|{hint}|v{seed_variant}"
+    seed = int(hashlib.sha256(seed_str.encode("utf-8")).hexdigest()[:8], 16)
+    rng = random.Random(seed)
+
+    focus_id, focus_keywords = rng.choice(candidates)
+    return focus_id, focus_keywords
+
+def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> str:
+    event_guard = (
+        "IMPORTANT: If you mention an event, it must be today or later in the provided context. "
+        "Do NOT mention past events. If there is no upcoming event in context, "
+        "choose a local spot or restaurant instead.\n"
+    )
     if topic_family == "event" and topic_mode == "seasonal":
         topic_keywords = _seasonal_event_keywords(now_local)
 
@@ -548,7 +448,7 @@ def build_question(
         "Rules: Use emojis. Keep it punchy.\n"
         f"{event_guard}"
         f"datetime: {now_local}.\n"
-        f"TOPIC: {topic_family}/{topic_mode}. KEYWORDS: {topic_keywords}.\n"
+        f"FOCUS: {focus_id}. KEYWORDS: {focus_keywords}.\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
 
@@ -792,10 +692,10 @@ def main() -> int:
         raise RuntimeError("BUG: warmup payload missing max_chars")
     _ = http_json("POST", query_url, warm_payload, cfg)
 
-    topic_family, topic_mode = pick_topic(now_local=now_dt_local, snap_obj=snap_obj)
+    focus_id, focus_keywords = pick_focus(now_local=now_dt_local, snap_obj=snap_obj)
     question = build_question(
-        topic_family=topic_family,
-        topic_mode=topic_mode,
+        focus_id=focus_id,
+        focus_keywords=focus_keywords,
         now_local=now_dt_local,
         snap_obj=snap_obj,
     )

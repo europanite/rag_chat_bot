@@ -255,13 +255,9 @@ def _postprocess_retrieved_chunks(
     question: str,
     now_dt: Optional[datetime],
 ) -> List[Any]:
-    """Post-process retrieved chunks to avoid selecting past events for 'upcoming' prompts.
-
-    This is intentionally conservative: it only activates when the prompt explicitly
-    requests upcoming events and declares TOPIC FAMILY: event.
-    """
+    # Post-process retrieved chunks to avoid selecting past events for 'upcoming' prompts.
     family = _extract_topic_family(question)
-    if family != "event":
+    if family and family != "event":
         return chunks
     if not _wants_future_events(question):
         return chunks
@@ -466,7 +462,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
 
     now_dt = _safe_parse_datetime(payload.datetime)
     topic_family = _extract_topic_family(question)
-    wants_future_events = (topic_family == "event") and _wants_future_events(question)
+    wants_future_events = _wants_future_events(question) and (topic_family in (None, "event"))
 
     # Retrieve context
     try:
