@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260120_092840_JST",
-  "date": "2026-01-20",
-  "text": "Good morning! 🌞 It's a cloudy day with 9°C. Now that winter has kicked in, I'd recommend checking out the Yokosuka Chuo Illumination Photo Contest from last year - it was truly magical with all those sparkling lights and beautiful submissions!",
+  "id": "feed_20260120_053556_JST",
+  "date": "2026-01-19",
+  "text": "Good morning! 🌞 It's cloudy with 15°C in Yokosuka today. If you're a photography enthusiast, don't miss the 2025 Yokosuka Chuo Illumination Photo Contest, where you can share your winter wonderland memories with the hashtag #Sukageni!",
   "place": "Yokosuka",
-  "generated_at": "2026-01-20T00:32:19Z",
+  "generated_at": "2026-01-19T20:39:43Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-20T00:28:43.202942+00:00",
+    "generated_at": "2026-01-19T20:35:58.836743+00:00",
     "place": "Yokosuka",
     "latitude": 35.281,
     "longitude": 139.6722,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-20T09:20:00+09:00",
-      "temp_c": 9.4,
+      "time": "2026-01-20T05:20:00+09:00",
+      "temp_c": 14.6,
       "apparent_temp_c": null,
-      "humidity_pct": 43.0,
+      "humidity_pct": 57.0,
       "precip_mm": 0.0,
       "weather_code": 3,
       "cloud_cover_pct": null,
-      "wind_kmh": 21.6,
-      "wind_dir_deg": 22.5,
+      "wind_kmh": 12.96,
+      "wind_dir_deg": 270.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -57,11 +57,11 @@
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
   ],
-  "image": "./image/feed_20260120_092840_JST.png",
-  "image_url": "./image/feed_20260120_092840_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 🌞 It's a cloudy day with 9°C. Now that winter has kicked in, I'd recommend checking out the Yokosuka Chuo Illumination Photo Contest from last year - it was truly magical with all those sparkling lights and",
-  "permalink": "./?post=feed_20260120_092840_JST",
+  "image": "./image/feed_20260120_053556_JST.png",
+  "image_url": "./image/feed_20260120_053556_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 🌞 It's cloudy with 15°C in Yokosuka today. If you're a photography enthusiast, don't miss the 2025 Yokosuka Chuo Illumination Photo Contest, where you can share your winter wonderland memories with the hash",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-01-20T00:35:19.341162Z"
+  "image_generated_at": "2026-01-19T20:43:44.043923Z",
+  "permalink": "./?post=feed_20260120_053556_JST"
 }
