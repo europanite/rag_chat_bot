@@ -20,38 +20,32 @@ from zoneinfo import ZoneInfo
 # -----------------------------
 # Utilities
 # -----------------------------
-GOMI_REMINDER_URL = "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/gomi-bunbetsu.html"
+GARBAGE_REMINDER_URL = "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/gomi-bunbetsu.html"
 
 def _scheduled_kind_by_hour(hour: int) -> str:
-    """
-    Decide what kind of post to generate based on LOCAL hour.
-      20-22: junk (garbage reminder)
-      22-05: spot (tourist spot)
-      05-07: junk
-      07-13: restaurant
-      13-17: event (upcoming)
-      17-20: activity
-    """
     h = int(hour)
-    if 20 <= h < 22:
-        return "junk"
-    if h >= 22 or h < 5:
+    if 0 <= h < 5:
         return "spot"
     if 5 <= h < 7:
-        return "junk"
+        return "garbage"
     if 7 <= h < 13:
         return "restaurant"
     if 13 <= h < 17:
         return "event"
     if 17 <= h < 20:
         return "activity"
+    if 20 <= h < 22:
+        return "garbage"
+    if 20 <= h < 24:
+        return "spot"
+
     return "spot"
 
 def build_gomi_post(*, place: str) -> str:
     # URL is provided via links[] (NOT in text).
     if place:
-        return f"🗑️ Garbage reminder ({place}): please check today’s collection day and sorting rules."
-    return "🗑️ Garbage reminder: please check today’s collection day and sorting rules."
+        return f"🗑️ Garbage reminder ({place}): please check today's collection day and sorting rules."
+    return "🗑️ Garbage reminder: please check today's collection day and sorting rules."
 
 
 def env(name: str, default: str = "") -> str:
@@ -301,26 +295,6 @@ def _season_bucket(month: int) -> str:
     return "autumn"
 
 
-def _seasonal_event_keywords(now_local: datetime) -> str:
-    """Keywords for seasonal events.
-
-    Avoid hard-biasing 'new year' unless we are near that period, to reduce retrieval of past New Year events.
-    """
-    base = "seasonal holiday event"
-    mth = now_local.month
-    day = now_local.day
-    extra: list[str] = []
-    # Christmas window (approx): Dec 15 - Dec 26
-    if mth == 12 and 15 <= day <= 26:
-        extra.append("christmas")
-    # New Year window (approx): Dec 26 - Jan 5
-    if (mth == 12 and day >= 26) or (mth == 1 and day <= 5):
-        extra.append("new year")
-    if extra:
-        return base + " " + " ".join(extra)
-    return base
-
-
 def _weather_condition_and_temp(obj: Dict[str, Any]) -> tuple[str, int]:
     """Derive a single weather condition + temperature.
 
@@ -373,11 +347,6 @@ def _weather_condition_and_temp(obj: Dict[str, Any]) -> tuple[str, int]:
     return condition, temp_i
 
 
-def _weather_hint(obj: Dict[str, Any]) -> str:
-    """Backward-compatible hint: condition + temperature only."""
-    condition, temp_i = _weather_condition_and_temp(obj)
-    return f"{condition},{temp_i}C"
-
 def _weather_brief_for_llm(snap_obj: Dict[str, Any]) -> str:
     """Return a *minimal* weather summary for the LLM.
 
@@ -391,106 +360,12 @@ def _weather_brief_for_llm(snap_obj: Dict[str, Any]) -> str:
     condition, temp_i = _weather_condition_and_temp(snap_obj)
     return f"weather={condition}\ntemp_c={temp_i}\n"
 
-def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], scheduled_kind: str | None = None) -> Tuple[str, str]:
-    # (focus_id, focus_keywords)
-    cur = (snap_obj or {}).get("current") or {}
-    tod = _time_of_day_bucket(now_local.hour)
-    season = _season_bucket(now_local.month)
-    condition, temp_i = _weather_condition_and_temp(cur)
-    is_weekend = (now_local.weekday() >= 5)
-
-    candidates: List[Tuple[str, str]] = []
-    def add(fid: str, keywords: str) -> None:
-        candidates.append((fid, keywords))
-
-    # --- Base seeds (always available) ---
-    add("food", "navy curry seafood ramen cafe bakery burger")
-    add("history", "navy history heritage museum memorial")
-    add("walk", "shopping street arcade promenade local tip")
-
-    # --- Weather driven ---
-    if condition == "rainy":
-        add("indoor", "museum exhibition indoor culture art cafe")
-        add("cozy", "warm drink cafe bakery bookshop indoor")
-    else:
-        add("nature", "park garden trail viewpoint lookout")
-        add("coast", "coast beach sea bay port waterfront")
-        if tod in ("afternoon", "evening", "night"):
-            add("view", "sunset night-view observation deck skyline")
-
-    if condition == "windy":
-        add("windy", "windy day viewpoint harbor breakwater")
-
-    # --- Temperature / season ---
-    if temp_i <= 8 or condition == "chilly":
-        add("warm", "hot drink ramen soup curry warm cafe")
-        if season == "winter" and tod in ("evening", "night"):
-            add("winter_night", "illumination winter night-view seasonal")
-    if season == "summer" and condition != "rainy":
-        add("summer", "beach sea breeze sunset cold drink")
-
-    # --- Calendar / time of day ---
-    if is_weekend:
-        add("weekend", "weekend event festival market fair")
-    if tod == "morning":
-        add("morning", "morning coffee breakfast bakery")
-    if tod in ("evening", "night"):
-        add("dinner", "dinner izakaya bar curry ramen burger")
-
-    # De-dup exact duplicates (cheap)
-    candidates = list(dict.fromkeys(candidates))
-
-    # --- Schedule-driven bias (python-side) ---
-    sk = (scheduled_kind or "").strip().lower()
-    if sk:
-        # Add a forced seed so we don't "miss" a category (e.g., weekday events).
-        if sk == "event":
-            add("event", "upcoming event festival market fair")
-        elif sk == "restaurant":
-            add("restaurant", "lunch cafe ramen curry bakery")
-        elif sk == "activity":
-            add("activity", "outdoor activity park waterfront trail")
-        elif sk == "spot":
-            add("spot", "sightseeing spot landmark museum shrine park")
-
-        allow: dict[str, set[str]] = {
-            "spot": {"history", "walk", "nature", "coast", "view", "indoor", "spot"},
-            "restaurant": {"food", "morning", "dinner", "warm", "cozy", "restaurant"},
-            "event": {"weekend", "winter_night", "event"},
-            "activity": {"walk", "nature", "coast", "view", "windy", "activity"},
-        }
-        allowed = allow.get(sk)
-        if allowed:
-            filtered = [(fid, kw) for (fid, kw) in candidates if fid in allowed]
-            if filtered:
-                candidates = filtered
-
-    candidates = list(dict.fromkeys(candidates))
-
-    # Deterministic seed (rename: SEED_VARIANT; keep TOPIC_VARIANT as fallback for back-compat)
-    try:
-        seed_variant = int(os.getenv("SEED_VARIANT", os.getenv("TOPIC_VARIANT", "0")) or "0")
-    except Exception:
-        seed_variant = 0
-    hint = _weather_hint(cur)
-    seed_str = f"{now_local.strftime('%Y-%m-%d-%H:%M:%S')}|{season}|{tod}|{condition}|{temp_i}|{hint}|v{seed_variant}"
-    seed = int(hashlib.sha256(seed_str.encode("utf-8")).hexdigest()[:8], 16)
-    rng = random.Random(seed)
-
-    focus_id, focus_keywords = rng.choice(candidates)
-    return focus_id, focus_keywords
 
 def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> str:
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
     season = _season_bucket(now_local.month)
     condition, temp_i = _weather_condition_and_temp(cur)
-
-    event_guard = (
-        "Do NOT mention past events."
-        "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
-    )
-
 
     return (
         "Write a tweet in English.\n"
@@ -501,7 +376,8 @@ def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -
         "   - Mention the spot/event name explicitly.\n"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
-        f"{event_guard}"
+        "Do NOT mention past events."
+        "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
         f"datetime: {now_local}.\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
@@ -513,9 +389,6 @@ def build_payload(
     max_chars: int,
     include_debug: bool,
     datetime: str | None = None,
-    *,
-    audit: bool | None = None,
-    audit_rewrite: bool | None = None,
 ) -> dict:
     # Send only a compact weather summary (condition words + temp) to the LLM.
 
@@ -711,10 +584,10 @@ def main() -> int:
     now_dt_local = datetime.now(ZoneInfo(tz_name))
     scheduled_kind = _scheduled_kind_by_hour(now_dt_local.hour)
 
-    # JUNK posts: DO NOT call RAG. Just reminder + 1 URL in links[].
-    if scheduled_kind == "junk":
+    # garbage posts: DO NOT call RAG. Just reminder + 1 URL in links[].
+    if scheduled_kind == "garbage":
         tweet = build_gomi_post(place=place)
-        links = [GOMI_REMINDER_URL]
+        links = [GARBAGE_REMINDER_URL]
 
         if hashtags and "#" not in tweet:
             tweet = f"{tweet} {hashtags}"
@@ -754,8 +627,6 @@ def main() -> int:
         max_chars=max_chars,
         include_debug=True,
         datetime=now_dt_local.isoformat(),
-        audit=False,
-        audit_rewrite=False,
     )
     # Hard fail if payload shape regresses again
     if warm_payload.get("max_chars") is None:
@@ -779,8 +650,6 @@ def main() -> int:
         max_chars=max_chars,
         include_debug=include_debug,
         datetime=str(now_dt_local), 
-        audit=audit,
-        audit_rewrite=audit_rewrite,
     )
 
     if debug:
