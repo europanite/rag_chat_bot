@@ -5666,6 +5666,333 @@
     "text": "Title: Yokosuka Navy Curry Honpo (横須賀海軍カレー本舗) — Navy Curry\n\nPlace:\n- 2-8-1 Honcho, Yokosuka, Kanagawa, Japan (神奈川県横須賀市本町2-8-1). Central Yokosuka / Dobuita area.\n\nDetail:\n- A go-to spot for Yokosuka’s signature “Navy Curry,” offering curry plates and souvenir products. On Tabelog it is rated 3.45 with 563 reviews, making it one of the most reviewed ‘local specialty’ curry options in the city.\n\nAttention:\n- Popular with tourists—expect lines on weekends and during holiday seasons. Menu and hours can change; confirm the latest details on the linked page before going.\n\nLink:\n- https://tabelog.com/kanagawa/A1406/A140601/14008537/\n\nTags: curry, navy-curry, local-specialty, tourist-friendly, yokosuka"
   },
   {
+    "id": "00_INDEX_933ca5ecc863",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [],
+    "links": [],
+    "title": "00_INDEX",
+    "datetime": "",
+    "place": "",
+    "text": "# Yokosuka Running Spots (Index)\n\nThis folder contains running-spot markdown reports for Yokosuka City, Kanagawa, Japan.\n\nIncluded spots:\n\n1. 10,000 Meter Promenade (Umikaze Road)\n2. Verny Park Waterfront Loop\n3. Mabori Coast Promenade (Mabori Kaigan Yuhodo)\n4. Umikaze Park (Sea Breeze Park)\n5. Nobi Kaigan Park & Beach Promenade\n6. Kannonzaki Park & Cape Kannonzaki Coastal Trails\n7. Kurihama Flower Park (Hana-no-Kuni)\n8. Tsukayama Park Hill Route\n9. Sarushima Island Trail Loop\n10. Kinugasayama Park Loop & Mt. Ogusu Link\n11. JERA park YOKOSUKA Oval Course\n12. Peace Central Park (Heiwa Chuo Koen) Viewpoint Loop"
+  },
+  {
+    "id": "01_10000m_promenade_umikaze_road_8257fb9048f8",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, waterfront, promenade, long-run, flat-to-rolling, scenic, beginner-friendly"
+    ],
+    "links": [
+      {
+        "label": "Kanagawa Tourism: 10000m Promenade Course (overview, waypoints) – https://trip.pref.kanagawa.jp/destination/10000m-promenade-course/1576",
+        "url": "https://trip.pref.kanagawa.jp/destination/10000m-promenade-course/1576"
+      },
+      {
+        "label": "Feel SHONAN: 10,000 m Promenade course (rest areas, surrounding spots) – https://www.feelshonan.jp/en/sightseeing/3347",
+        "url": "https://www.feelshonan.jp/en/sightseeing/3347"
+      },
+      {
+        "label": "Yokosuka City (event page for the promenade walk; course context) – https://www.city.yokosuka.kanagawa.jp/2130/sports/walk.html",
+        "url": "https://www.city.yokosuka.kanagawa.jp/2130/sports/walk.html"
+      }
+    ],
+    "title": "10,000 Meter Promenade (Umikaze Road) – JR Yokosuka → Uraga Seaside Route",
+    "datetime": "",
+    "place": "Seaside corridor connecting central Yokosuka to Uraga (key waypoints include Verny Park, Mikasa Park, Umikaze Park, and the Yokosuka Museum of Art).",
+    "text": "Title: 10,000 Meter Promenade (Umikaze Road) – JR Yokosuka → Uraga Seaside Route\n\nPlace:\n- Seaside corridor connecting central Yokosuka to Uraga (key waypoints include Verny Park, Mikasa Park, Umikaze Park, and the Yokosuka Museum of Art).\n\nDetail:\n- A long, waterfront-friendly route often introduced as the ‘10,000 Meter Promenade (Umikaze Road).’ Guides describe it as a seaside walkway starting near JR Yokosuka Station and heading toward the Uraga area, passing major bayside parks and cultural spots. It’s popular for steady, scenic runs with frequent restrooms/rest areas. Some official tourism pages describe a longer sightseeing course (around 15 km) when including additional segments and stops, so you can scale the run from a short park-to-park jog to a longer point-to-point effort.\n\nAttention:\n- Shared-use path: expect walkers, families, and cyclists (slow down in busy sections).\n- Wind and sun exposure can be strong along the bay—bring layers and hydration.\n- If you run point-to-point, plan your return via Keikyu/JR or buses.\n\nLink:\n- Kanagawa Tourism: 10000m Promenade Course (overview, waypoints) – https://trip.pref.kanagawa.jp/destination/10000m-promenade-course/1576\n- Feel SHONAN: 10,000 m Promenade course (rest areas, surrounding spots) – https://www.feelshonan.jp/en/sightseeing/3347\n- Yokosuka City (event page for the promenade walk; course context) – https://www.city.yokosuka.kanagawa.jp/2130/sports/walk.html\n\nTags: running, waterfront, promenade, long-run, flat-to-rolling, scenic, beginner-friendly"
+  },
+  {
+    "id": "02_verny_park_waterfront_loop_c065d779734c",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, park, waterfront, flat, recovery-run, sightseeing"
+    ],
+    "links": [
+      {
+        "label": "Tripadvisor: Verny Park (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1311413-Reviews-Verny_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1311413-Reviews-Verny_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Kanagawa Tourism: Verny Park (destination info) – https://trip.pref.kanagawa.jp/destination/verny-park/243",
+        "url": "https://trip.pref.kanagawa.jp/destination/verny-park/243"
+      },
+      {
+        "label": "JapanTravel (article): Yokosuka's Verny Park – https://jal.japantravel.com/kanagawa/yokosuka-s-verny-park/1186",
+        "url": "https://jal.japantravel.com/kanagawa/yokosuka-s-verny-park/1186"
+      }
+    ],
+    "title": "Verny Park – Harborfront Jogging & Recovery Walk",
+    "datetime": "",
+    "place": "1-1 Shioiri-cho, Yokosuka City (near JR Yokosuka / Keikyu Shioiri area).",
+    "text": "Title: Verny Park – Harborfront Jogging & Recovery Walk\n\nPlace:\n- 1-1 Shioiri-cho, Yokosuka City (near JR Yokosuka / Keikyu Shioiri area).\n\nDetail:\n- A flat waterfront park with wide paths, roses (seasonal), and open views of Yokosuka Harbor. Online reviews frequently highlight it as a great place for a run or walk thanks to the scenery and easy footing. It also works well as a warm-up/cool-down spot before extending onto the bayside promenade network.\n\nAttention:\n- Can be busy during rose season, weekends, and event days—expect slower sections.\n- Watch for pedestrians and photo-takers near viewpoint areas.\n- If you continue beyond the park, use safe crossings when transitioning to roads/promenades.\n\nLink:\n- Tripadvisor: Verny Park (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1311413-Reviews-Verny_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Kanagawa Tourism: Verny Park (destination info) – https://trip.pref.kanagawa.jp/destination/verny-park/243\n- JapanTravel (article): Yokosuka's Verny Park – https://jal.japantravel.com/kanagawa/yokosuka-s-verny-park/1186\n\nTags: running, park, waterfront, flat, recovery-run, sightseeing"
+  },
+  {
+    "id": "03_mabori_coast_promenade_parkru_21276a2b2429",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, promenade, flat, speedwork, waterfront, parkrun"
+    ],
+    "links": [
+      {
+        "label": "parkrun Japan: Maborikaigan Yuhodo parkrun (course context) – https://www.parkrun.jp/maborikaiganyuhodo/",
+        "url": "https://www.parkrun.jp/maborikaiganyuhodo/"
+      },
+      {
+        "label": "Kanagawa Tourism: Umabori Coastal Storm Surge Protection Seawall (promenade; jogging/strolling) – https://trip.pref.kanagawa.jp/destination/umabori-coastal-storm-surge-protection-seawall/1238",
+        "url": "https://trip.pref.kanagawa.jp/destination/umabori-coastal-storm-surge-protection-seawall/1238"
+      },
+      {
+        "label": "AllTrails: Yokosuka Seaside Running Route (mentions Mabori Coast from Mikasa Park) – https://www.alltrails.com/trail/japan/kanagawa/yokosuka-seaside-running-route",
+        "url": "https://www.alltrails.com/trail/japan/kanagawa/yokosuka-seaside-running-route"
+      },
+      {
+        "label": "Plotaroute: Popular running routes from Yokosuka-shi (includes Mabori area routes) – https://www.plotaroute.com/routes/running/popular/1?Locality=Yokosuka-shi",
+        "url": "https://www.plotaroute.com/routes/running/popular/1?Locality=Yokosuka-shi"
+      }
+    ],
+    "title": "Mabori Coast Promenade (Mabori Kaigan Yuhodo) – Fast, Flat Seaside Straight",
+    "datetime": "",
+    "place": "Mabori Coast area, Yokosuka City (seaside promenade; access via Keikyu Maborikaigan Station area).",
+    "text": "Title: Mabori Coast Promenade (Mabori Kaigan Yuhodo) – Fast, Flat Seaside Straight\n\nPlace:\n- Mabori Coast area, Yokosuka City (seaside promenade; access via Keikyu Maborikaigan Station area).\n\nDetail:\n- A long, mostly straight seaside promenade that’s well-suited to tempo runs, intervals, and casual jogging with ocean views. A weekly 5 km community event (‘parkrun’) is hosted here, indicating the route’s popularity and run-friendly layout. You can also combine this section with nearby bayside routes such as the Mikasa/Umikaze corridor.\n\nAttention:\n- Shared-use path with walkers and cyclists—keep left, call passes early, and avoid peak family hours.\n- Strong coastal winds can affect pacing.\n- Night running: bring lights and stay visible.\n\nLink:\n- parkrun Japan: Maborikaigan Yuhodo parkrun (course context) – https://www.parkrun.jp/maborikaiganyuhodo/\n- Kanagawa Tourism: Umabori Coastal Storm Surge Protection Seawall (promenade; jogging/strolling) – https://trip.pref.kanagawa.jp/destination/umabori-coastal-storm-surge-protection-seawall/1238\n- AllTrails: Yokosuka Seaside Running Route (mentions Mabori Coast from Mikasa Park) – https://www.alltrails.com/trail/japan/kanagawa/yokosuka-seaside-running-route\n- Plotaroute: Popular running routes from Yokosuka-shi (includes Mabori area routes) – https://www.plotaroute.com/routes/running/popular/1?Locality=Yokosuka-shi\n\nTags: running, promenade, flat, speedwork, waterfront, parkrun"
+  },
+  {
+    "id": "04_nobi_kaigan_park_promenade_0fcd6efa3e98",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, beach, promenade, flat, quiet, scenic, easy"
+    ],
+    "links": [
+      {
+        "label": "Tripadvisor: Nobi Kaigan Park (reviews; run/walk/cycle mentions) – https://www.tripadvisor.com/Attraction_Review-g298174-d8837678-Reviews-Nobi_Kaigan_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d8837678-Reviews-Nobi_Kaigan_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Guidoor: Nobi Beach / Kitashitaura Beach (2.5 km path description) – https://www.guidoor.jp/en/places/3371",
+        "url": "https://www.guidoor.jp/en/places/3371"
+      },
+      {
+        "label": "Airial: Nobi Beach (promenade note; overview) – https://www.airial.travel/attractions/japan/%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82/nobi-beach-Qf9NRkeK",
+        "url": "https://www.airial.travel/attractions/japan/%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82/nobi-beach-Qf9NRkeK"
+      }
+    ],
+    "title": "Nobi Kaigan Park & Beach Promenade – Quiet 2.5 km Coastal Path",
+    "datetime": "",
+    "place": "Nobi / Kitashitaura area, Yokosuka City (around YRP Nobi Station and Nobi Beach Park).",
+    "text": "Title: Nobi Kaigan Park & Beach Promenade – Quiet 2.5 km Coastal Path\n\nPlace:\n- Nobi / Kitashitaura area, Yokosuka City (around YRP Nobi Station and Nobi Beach Park).\n\nDetail:\n- A coastal stretch known for a maintained promenade and open sea views across Tokyo Bay. Local travel guides describe an approximately 2.5 km seaside path that’s ideal for breezy walks and easy runs. Reviewers often describe the park/promenade as clean and suitable for running, walking, or cycling—making it a good choice for relaxed mileage.\n\nAttention:\n- Some beach sections have strong currents and may be marked as no-swimming areas—stay on the promenade.\n- Limited shade: plan hydration in warmer months.\n- If you extend the run, check pavement continuity and road crossings along the coast.\n\nLink:\n- Tripadvisor: Nobi Kaigan Park (reviews; run/walk/cycle mentions) – https://www.tripadvisor.com/Attraction_Review-g298174-d8837678-Reviews-Nobi_Kaigan_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Guidoor: Nobi Beach / Kitashitaura Beach (2.5 km path description) – https://www.guidoor.jp/en/places/3371\n- Airial: Nobi Beach (promenade note; overview) – https://www.airial.travel/attractions/japan/%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B8%82/nobi-beach-Qf9NRkeK\n\nTags: running, beach, promenade, flat, quiet, scenic, easy"
+  },
+  {
+    "id": "05_kannonzaki_park_cape_trails_449a1cf3b422",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, trail-running, coastal, hills, lighthouse, nature"
+    ],
+    "links": [
+      {
+        "label": "Tripadvisor: Kannonzaki Park (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1238912-Reviews-Kannonzaki_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1238912-Reviews-Kannonzaki_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Tripadvisor: Cape Kannonzaki (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1311429-Reviews-Cape_Kannonzaki-Yokosuka_Kanagawa_Prefecture_Kanto.html",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1311429-Reviews-Cape_Kannonzaki-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "NAVITIME Travel: Kanagawa Prefectural Kannonzaki Park (trail/lighthouse access notes) – https://japantravel.navitime.com/en/area/jp/spot/02301-14300251n/",
+        "url": "https://japantravel.navitime.com/en/area/jp/spot/02301-14300251n/"
+      }
+    ],
+    "title": "Kannonzaki Park & Cape Kannonzaki – Coastal Trail Running with Views",
+    "datetime": "",
+    "place": "Kannonzaki area, Yokosuka City (bus access from central Yokosuka / Mabori / Uraga areas).",
+    "text": "Title: Kannonzaki Park & Cape Kannonzaki – Coastal Trail Running with Views\n\nPlace:\n- Kannonzaki area, Yokosuka City (bus access from central Yokosuka / Mabori / Uraga areas).\n\nDetail:\n- A large coastal park and cape area with a mix of paved paths, forest trails, and rolling climbs toward viewpoints such as the lighthouse. Tripadvisor reviewers and trail guides often frame it as excellent for running/walking with developed paths and restrooms. It’s a strong choice if you want ‘easy-to-moderate trail’ flavor without leaving the city—great for hill repeats and varied footing.\n\nAttention:\n- Expect stairs/ramps and uneven trail sections; trail shoes help after rain.\n- Some areas are steep—pace conservatively and watch footing on descents.\n- Bayside wind and winter chill can be stronger near the cape.\n\nLink:\n- Tripadvisor: Kannonzaki Park (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1238912-Reviews-Kannonzaki_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Tripadvisor: Cape Kannonzaki (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1311429-Reviews-Cape_Kannonzaki-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- NAVITIME Travel: Kanagawa Prefectural Kannonzaki Park (trail/lighthouse access notes) – https://japantravel.navitime.com/en/area/jp/spot/02301-14300251n/\n\nTags: running, trail-running, coastal, hills, lighthouse, nature"
+  },
+  {
+    "id": "06_kurihama_flower_park_9bb323eceaef",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, park, hills, paved-path, flowers, family-friendly"
+    ],
+    "links": [
+      {
+        "label": "Yokosuka Route Museum: Kurihama Flower Park (overview) – https://routemuseum.jp/en/theme/e02/",
+        "url": "https://routemuseum.jp/en/theme/e02/"
+      },
+      {
+        "label": "Tripadvisor: Kurihama Flower Park (reviews; paved trail mentions) – https://www.tripadvisor.com/Attraction_Review-g298174-d1311430-Reviews-Kurihama_Flower_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1311430-Reviews-Kurihama_Flower_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Live Japan (guide): Kurihama Flower Park – https://livejapan.com/en/in-tokyo/in-pref-kanagawa/in-kanagawa_suburbs/article-a0003144/",
+        "url": "https://livejapan.com/en/in-tokyo/in-pref-kanagawa/in-kanagawa_suburbs/article-a0003144/"
+      }
+    ],
+    "title": "Kurihama Flower Park (Hana-no-Kuni) – Hilly Park Loops & Long Paved Paths",
+    "datetime": "",
+    "place": "Kurihama area, Yokosuka City (large park; access via Kurihama Station area + walk/bus).",
+    "text": "Title: Kurihama Flower Park (Hana-no-Kuni) – Hilly Park Loops & Long Paved Paths\n\nPlace:\n- Kurihama area, Yokosuka City (large park; access via Kurihama Station area + walk/bus).\n\nDetail:\n- A spacious park famous for seasonal flower fields and a giant Godzilla playground feature. Visitors frequently note the presence of easy paved paths for walking, plus longer internal routes that become hillier as you explore. For runners, it works well for steady climbs, short hill repeats, and scenic recovery loops—especially on quieter weekdays.\n\nAttention:\n- It can be hilly in sections—good for strength work, but pace accordingly.\n- Flower seasons and weekends draw families and tourists; expect congestion near signature photo spots.\n- Carry water in summer; shaded areas vary by route.\n\nLink:\n- Yokosuka Route Museum: Kurihama Flower Park (overview) – https://routemuseum.jp/en/theme/e02/\n- Tripadvisor: Kurihama Flower Park (reviews; paved trail mentions) – https://www.tripadvisor.com/Attraction_Review-g298174-d1311430-Reviews-Kurihama_Flower_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Live Japan (guide): Kurihama Flower Park – https://livejapan.com/en/in-tokyo/in-pref-kanagawa/in-kanagawa_suburbs/article-a0003144/\n\nTags: running, park, hills, paved-path, flowers, family-friendly"
+  },
+  {
+    "id": "07_tsukayama_park_hill_route_f17c66112ecc",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, hill-repeats, trail-running, viewpoint, cherry-blossoms, workout"
+    ],
+    "links": [
+      {
+        "label": "Yokosuka Route Museum: Tsukayama Park (overview) – https://routemuseum.jp/en/area/b/b17/",
+        "url": "https://routemuseum.jp/en/area/b/b17/"
+      },
+      {
+        "label": "AllTrails: Mount Nyuto – Tsukayama Park – Yokosuka Station (route stats) – https://www.alltrails.com/trail/japan/kanagawa/mount-nyuto-tsukayama-park-yokosuka-station",
+        "url": "https://www.alltrails.com/trail/japan/kanagawa/mount-nyuto-tsukayama-park-yokosuka-station"
+      },
+      {
+        "label": "NAVITIME Travel: Tsukayama Park (access info) – https://japantravel.navitime.com/en/area/jp/spot/02301-t6093/",
+        "url": "https://japantravel.navitime.com/en/area/jp/spot/02301-t6093/"
+      }
+    ],
+    "title": "Tsukayama Park – Viewpoint Hill Route (Anjinzuka Area)",
+    "datetime": "",
+    "place": "Shioiri / Yokosuka Chuo / Hemi area, Yokosuka City (near Keikyu Anjinzuka Station).",
+    "text": "Title: Tsukayama Park – Viewpoint Hill Route (Anjinzuka Area)\n\nPlace:\n- Shioiri / Yokosuka Chuo / Hemi area, Yokosuka City (near Keikyu Anjinzuka Station).\n\nDetail:\n- A hilltop park known for panoramic views over Yokosuka Port and across Tokyo Bay. It’s often introduced as a scenic cherry-blossom spot, and hiking/trail resources describe moderate routes connecting Anjinzuka Station, Tsukayama Park, and Yokosuka Station. For runners, it’s useful for uphill training: short steep climbs, mixed surfaces, and rewarding overlooks.\n\nAttention:\n- Elevation gain is significant on many routes—warm up first and watch your knees on descents.\n- Some paths may be darker/forested; carry a light if running near dusk.\n- After rain, trail sections can be slippery.\n\nLink:\n- Yokosuka Route Museum: Tsukayama Park (overview) – https://routemuseum.jp/en/area/b/b17/\n- AllTrails: Mount Nyuto – Tsukayama Park – Yokosuka Station (route stats) – https://www.alltrails.com/trail/japan/kanagawa/mount-nyuto-tsukayama-park-yokosuka-station\n- NAVITIME Travel: Tsukayama Park (access info) – https://japantravel.navitime.com/en/area/jp/spot/02301-t6093/\n\nTags: running, hill-repeats, trail-running, viewpoint, cherry-blossoms, workout"
+  },
+  {
+    "id": "08_sarushima_island_trail_loop_47871422d067",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, trail, island, stairs, adventure, ruins, ferry"
+    ],
+    "links": [
+      {
+        "label": "Tripadvisor: Sarushima Island (reviews) – https://www.tripadvisor.com/Attraction_Review-g14138199-d1311417-Reviews-Sarushima_Island_Monkey_Island-Saru_jima_Yokosuka_Kanagawa_Prefecture_Kanto.html",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g14138199-d1311417-Reviews-Sarushima_Island_Monkey_Island-Saru_jima_Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Guidoor: Sarushima Island (ferry time + loop duration) – https://www.guidoor.jp/en/places/722",
+        "url": "https://www.guidoor.jp/en/places/722"
+      },
+      {
+        "label": "JapanTravel: Desert Island Sarushima (steps/route notes) – https://en.japantravel.com/kanagawa/desert-island-sarushima/45342",
+        "url": "https://en.japantravel.com/kanagawa/desert-island-sarushima/45342"
+      }
+    ],
+    "title": "Sarushima Island (Monkey Island) – Short Trail Loop + Stairs",
+    "datetime": "",
+    "place": "Off Yokosuka Port (10-minute ferry from Mikasa Pier, Yokosuka).",
+    "text": "Title: Sarushima Island (Monkey Island) – Short Trail Loop + Stairs\n\nPlace:\n- Off Yokosuka Port (10-minute ferry from Mikasa Pier, Yokosuka).\n\nDetail:\n- Tokyo Bay’s only natural uninhabited island, reachable by a short ferry ride from Yokosuka. Multiple guides and reviewers describe an island loop that can be explored on foot in about an hour, passing through nature trails and historic military ruins. For runners, it’s best as an ‘adventure jog’: short bursts, stairs, and uneven paths rather than continuous pacing.\n\nAttention:\n- Ferry schedule/last boat matters—check times and avoid getting stranded.\n- Many steps/ramps and uneven surfaces; stable shoes recommended.\n- Bring water and sun protection; services are limited compared to the mainland.\n\nLink:\n- Tripadvisor: Sarushima Island (reviews) – https://www.tripadvisor.com/Attraction_Review-g14138199-d1311417-Reviews-Sarushima_Island_Monkey_Island-Saru_jima_Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Guidoor: Sarushima Island (ferry time + loop duration) – https://www.guidoor.jp/en/places/722\n- JapanTravel: Desert Island Sarushima (steps/route notes) – https://en.japantravel.com/kanagawa/desert-island-sarushima/45342\n\nTags: running, trail, island, stairs, adventure, ruins, ferry"
+  },
+  {
+    "id": "09_kinugasayama_park_loop_mt_ogu_8e251901ba7c",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, park-loop, hills, cherry-blossoms, trail-extension, views"
+    ],
+    "links": [
+      {
+        "label": "AllTrails: Kinugasayama Park Loop (run suitability + stats) – https://www.alltrails.com/trail/japan/kanagawa/kinugasayama-park-loop",
+        "url": "https://www.alltrails.com/trail/japan/kanagawa/kinugasayama-park-loop"
+      },
+      {
+        "label": "Kanagawa Tourism: Kinugasayama Park (overview) – https://trip.pref.kanagawa.jp/destination/kinugasayama-park/44",
+        "url": "https://trip.pref.kanagawa.jp/destination/kinugasayama-park/44"
+      },
+      {
+        "label": "Nippon.com: Kinugasayama Park (mentions trail to Mt. Ōgusu) – https://www.nippon.com/en/guide-to-japan/sakura00114064/japan%E2%80%99s-top-100-blossoms-kinugasayama-park-kanagawa.html",
+        "url": "https://www.nippon.com/en/guide-to-japan/sakura00114064/japan%E2%80%99s-top-100-blossoms-kinugasayama-park-kanagawa.html"
+      }
+    ],
+    "title": "Kinugasayama Park Loop (+ Mt. Ōgusu Link) – Short Climb, Big Views",
+    "datetime": "",
+    "place": "Kinugasayama Park, Yokosuka City (north/central Yokosuka area).",
+    "text": "Title: Kinugasayama Park Loop (+ Mt. Ōgusu Link) – Short Climb, Big Views\n\nPlace:\n- Kinugasayama Park, Yokosuka City (north/central Yokosuka area).\n\nDetail:\n- A well-known cherry blossom park with walking/running-friendly paved sections and a small hill to the top. Trail resources list a short loop (around 1.9 miles / 3 km) with moderate elevation gain and explicitly note that it’s good for running. Some travel writing also highlights a hiking trail connection from the park toward Mt. Ōgusu (the tallest peak on the Miura Peninsula), letting stronger runners extend into a longer trail day.\n\nAttention:\n- During peak cherry blossom season, the park can be crowded—avoid speedwork at busy times.\n- The loop includes climbing; adjust intensity and watch your footing on descents.\n- If extending toward Mt. Ōgusu, confirm route signage and allow extra time.\n\nLink:\n- AllTrails: Kinugasayama Park Loop (run suitability + stats) – https://www.alltrails.com/trail/japan/kanagawa/kinugasayama-park-loop\n- Kanagawa Tourism: Kinugasayama Park (overview) – https://trip.pref.kanagawa.jp/destination/kinugasayama-park/44\n- Nippon.com: Kinugasayama Park (mentions trail to Mt. Ōgusu) – https://www.nippon.com/en/guide-to-japan/sakura00114064/japan%E2%80%99s-top-100-blossoms-kinugasayama-park-kanagawa.html\n\nTags: running, park-loop, hills, cherry-blossoms, trail-extension, views"
+  },
+  {
+    "id": "10_jera_park_yokosuka_oval_cours_a9dc2fc1dcea",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, oval-course, separated-lanes, safe, intervals, seaside"
+    ],
+    "links": [
+      {
+        "label": "JERA (official): JERA park YOKOSUKA (oval course note) – https://www.jera.co.jp/en/pr_yokosuka",
+        "url": "https://www.jera.co.jp/en/pr_yokosuka"
+      },
+      {
+        "label": "Keikyu AD (Japanese): JERA park YOKOSUKA (facility overview) – https://www.keikyu-ad.co.jp/jpyokosuka/",
+        "url": "https://www.keikyu-ad.co.jp/jpyokosuka/"
+      },
+      {
+        "label": "Blog (local): JERA park YOKOSUKA opening impressions – https://ameblo.jp/rikujonetsu/entry-12943459663.html",
+        "url": "https://ameblo.jp/rikujonetsu/entry-12943459663.html"
+      }
+    ],
+    "title": "JERA park YOKOSUKA – Dedicated Oval Course (Separated Lanes)",
+    "datetime": "",
+    "place": "Kurihama area, Yokosuka City (JERA park YOKOSUKA site; seaside open space).",
+    "text": "Title: JERA park YOKOSUKA – Dedicated Oval Course (Separated Lanes)\n\nPlace:\n- Kurihama area, Yokosuka City (JERA park YOKOSUKA site; seaside open space).\n\nDetail:\n- A newer seaside park facility that advertises a scenic open-air oval course around its lawn/hill area. The official site states that the course is divided for pedestrians, runners, and cyclists, which is unusually runner-friendly for a shared space. This makes it a strong option for controlled pacing (loops), easy intervals, or safe jogging while enjoying sea views.\n\nAttention:\n- Confirm opening hours and event usage (parts of the site may be reserved for events or sports).\n- Even with separated lanes, stay alert for crossings and family groups.\n- Coastal weather (wind/salt) can be strong; protect electronics and hydrate.\n\nLink:\n- JERA (official): JERA park YOKOSUKA (oval course note) – https://www.jera.co.jp/en/pr_yokosuka\n- Keikyu AD (Japanese): JERA park YOKOSUKA (facility overview) – https://www.keikyu-ad.co.jp/jpyokosuka/\n- Blog (local): JERA park YOKOSUKA opening impressions – https://ameblo.jp/rikujonetsu/entry-12943459663.html\n\nTags: running, oval-course, separated-lanes, safe, intervals, seaside"
+  },
+  {
+    "id": "11_peace_central_park_heiwa_chuo_3362b7a240cc",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, hill, viewpoint, city-views, park, short-workout"
+    ],
+    "links": [
+      {
+        "label": "Kanagawa Tourism: Peace Central Park (access) – https://trip.pref.kanagawa.jp/destination/peace-central-park/1474",
+        "url": "https://trip.pref.kanagawa.jp/destination/peace-central-park/1474"
+      },
+      {
+        "label": "Kanagawa Parks (official): Heiwa Chuo Park – https://www.kanagawaparks.com/heiwacyuou/",
+        "url": "https://www.kanagawaparks.com/heiwacyuou/"
+      },
+      {
+        "label": "Local blog (English): Central Peace Park jogging note – https://us.iino.cc/blog/blog.html?eid=00055",
+        "url": "https://us.iino.cc/blog/blog.html?eid=00055"
+      }
+    ],
+    "title": "Peace Central Park (Heiwa Chuo Koen) – Breezy Hilltop Jog with City Views",
+    "datetime": "",
+    "place": "19 Fukadadai, Yokosuka City (walkable from Keikyu Yokosuka Chuo Station area).",
+    "text": "Title: Peace Central Park (Heiwa Chuo Koen) – Breezy Hilltop Jog with City Views\n\nPlace:\n- 19 Fukadadai, Yokosuka City (walkable from Keikyu Yokosuka Chuo Station area).\n\nDetail:\n- A hilltop park known for open views over Yokosuka and Tokyo Bay, with monuments and seasonal cherry blossoms. English-language local blogging describes it as a green, breezy place suitable for jogging, walking, or picnics, and official park pages emphasize its viewpoint character and monuments. For runners, it’s good for short loops plus hill effort—ideal when you want a quick workout with a view.\n\nAttention:\n- Expect climbs on the way in (good workout, but factor it into pacing).\n- No dedicated parking in some guides; consider public transport.\n- Viewpoint areas can be busy during events or blossom season.\n\nLink:\n- Kanagawa Tourism: Peace Central Park (access) – https://trip.pref.kanagawa.jp/destination/peace-central-park/1474\n- Kanagawa Parks (official): Heiwa Chuo Park – https://www.kanagawaparks.com/heiwacyuou/\n- Local blog (English): Central Peace Park jogging note – https://us.iino.cc/blog/blog.html?eid=00055\n\nTags: running, hill, viewpoint, city-views, park, short-workout"
+  },
+  {
+    "id": "12_umikaze_park_sea_breeze_9a03ed202016",
+    "source": "markdown",
+    "lang": "en",
+    "tags": [
+      "running, park, waterfront, loop, short-run, family-area, scenic"
+    ],
+    "links": [
+      {
+        "label": "Tripadvisor: Umikaze Park (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1627535-Reviews-Umikaze_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html",
+        "url": "https://www.tripadvisor.com/Attraction_Review-g298174-d1627535-Reviews-Umikaze_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html"
+      },
+      {
+        "label": "Yokosuka Travel Guide (Guidoor): Umikaze Park (overview) – https://www.guidoor.jp/en/places/3373",
+        "url": "https://www.guidoor.jp/en/places/3373"
+      },
+      {
+        "label": "NAVITIME: Umikaze Park (access & facilities) – https://japantravel.navitime.com/en/area/jp/spot/02301-2203014/",
+        "url": "https://japantravel.navitime.com/en/area/jp/spot/02301-2203014/"
+      }
+    ],
+    "title": "Umikaze Park (Sea Breeze Park) – Bayside Loop with Big Views",
+    "datetime": "",
+    "place": "Bayside area between Mikasa Park and the Art Museum side of the waterfront (popularly accessed from the Coaska Bayside/“LIVIN” shopping area).",
+    "text": "Title: Umikaze Park (Sea Breeze Park) – Bayside Loop with Big Views\n\nPlace:\n- Bayside area between Mikasa Park and the Art Museum side of the waterfront (popularly accessed from the Coaska Bayside/“LIVIN” shopping area).\n\nDetail:\n- A large bayside park with wide open space and an easy, run-friendly layout for short loops and relaxed jogging by the water. Online reviews often mention the ocean view (including Sarushima), well-kept landscaping, and convenient facilities such as restrooms and vending machines. It also connects naturally into longer waterfront runs via the 10,000 Meter Promenade (Umikaze Road).\n\nAttention:\n- Expect mixed users (families, skaters, cyclists) and occasional events—stay alert at intersections and crowded corners.\n- In summer, heat and glare on open pavement can be intense; plan hydration.\n- If you extend onto promenade sections, follow shared-path etiquette.\n\nLink:\n- Tripadvisor: Umikaze Park (reviews) – https://www.tripadvisor.com/Attraction_Review-g298174-d1627535-Reviews-Umikaze_Park-Yokosuka_Kanagawa_Prefecture_Kanto.html\n- Yokosuka Travel Guide (Guidoor): Umikaze Park (overview) – https://www.guidoor.jp/en/places/3373\n- NAVITIME: Umikaze Park (access & facilities) – https://japantravel.navitime.com/en/area/jp/spot/02301-2203014/\n\nTags: running, park, waterfront, loop, short-run, family-area, scenic"
+  },
+  {
     "id": "isomaru_suisan_yokosuka_chuo_0e7f1f005ef3",
     "source": "markdown",
     "lang": "en",
@@ -11412,320 +11739,6 @@
     "datetime": "Published: March 2024 (brochure)",
     "place": "Arasaki walking course area, Yokosuka City, Kanagawa Prefecture, Japan",
     "text": "Title: Scenic Highlights on the Course — Seabreeze Hill, “View The” Deck, and the Miracle Bridge\n\nDatetime:\n- Published: March 2024 (brochure)\n\nPlace:\n- Arasaki walking course area, Yokosuka City, Kanagawa Prefecture, Japan\n\nDetail:\n- **Hill Seabreeze (Shio-kaze no Oka)** is noted for a viewpoint selected as one of the “Best 50 Scenic Views in Kanagawa.”\n- **“View The” Deck**: the brochure describes climbing stairs to a lookout deck with expansive water views—on clear days you may even see **Mt. Fuji** across Sagami Bay.\n- **Miracle Bridge**: described as a hidden spot where a bridge girder was knocked loose by a typhoon and ended up fitting perfectly beside the stairs—creating a memorable “miracle” photo spot.\n- The course map also indicates **Nagahama Beach**, **Bentenjima (Benten Island area)**, and other small landmarks along the route.\n\nAttention:\n- The Miracle Bridge and coastal lookout areas may be exposed to wind and spray; wear stable shoes.\n- Keep a safe distance from wave-washed rocks, especially during high tide.\n\nLink:\n- Google Maps search (Arasaki Park / course area): https://www.google.com/maps/search/?api=1&query=Arasaki+Park+Yokosuka\n- Google Maps search (Nagahama Beach): https://www.google.com/maps/search/?api=1&query=Nagahama+Beach+Miura+Peninsula\n- Google Maps search (Bentenjima Arasaki): https://www.google.com/maps/search/?api=1&query=Bentenjima+Arasaki\n\nTags: Viewpoint, Seabreeze Hill, Observation deck, Miracle Bridge, Photo spot, Hiking route"
-  },
-  {
-    "id": "curryguide2025_718078927ec6",
-    "source": "markdown",
-    "lang": "ja",
-    "tags": [
-      "curry-town-yokosuka",
-      "jmsdf-curry",
-      "shopping",
-      "souvenir",
-      "yokosuka"
-    ],
-    "links": [
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%A6%E3%83%83%E3%83%89%E3%82%A2%E3%82%A4%E3%83%A9%E3%83%B3%E3%83%89%20%E3%82%AB%E3%83%AC%E3%83%BC%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20%E5%A4%A7%E6%BB%9D%E7%94%BA1-4%EF%BC%88%E7%B1%B3%E6%B5%B7%E8%BB%8D%E5%9F%BA%E5%9C%B0%E8%A3%8F%E9%96%80%E6%A8%AA%EF%BC%89"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%B3%E3%83%BC%E3%83%A9%E3%83%AB%20%E4%B9%85%E9%87%8C%E6%B5%9C8-17-20"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%AB%E3%83%AC%E3%83%BC%E3%83%8F%E3%82%A6%E3%82%B9%20CoCo%E5%A3%B1%E7%95%AA%E5%B1%8B%20%E6%A8%AA%E9%A0%88%E8%B3%80%E4%B8%AD%E5%A4%AE%E9%A7%85%E5%89%8D%E5%BA%97%20%E3%82%B3%E3%82%B3%E3%82%A4%E3%83%81%E4%BC%9D%E7%B5%B1%E3%81%AE%E3%83%93%E3%83%BC%E3%83%95%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%92%E3%83%99%E3%83%BC%E3%82%B9%E3%81%AB%E3%81%97%E3%81%9F%E6%B5%B7%E8%BB%8D%20%E8%8B%A5%E6%9D%BE%E7%94%BA1-11-10%201F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E2%98%85%E7%94%98%E5%8F%A3%20%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E7%94%98%20%E2%98%85%E2%98%85%E2%98%85%E4%B8%AD%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E8%BE%9B%E5%8F%A3%20%E7%8C%BF%E5%B3%B6%E3%82%AA%E3%83%BC%E3%82%B7%E3%83%A3%E3%83%B3%E3%82%BA%E3%82%AD%E3%83%83%E3%83%81%E3%83%B3%20%E6%A8%AA%E9%A0%88%E8%B3%80%E9%87%8E%E8%8F%9C%E3%82%92%E3%81%98%E3%81%A3%E3%81%8F%E3%82%8A%E7%85%AE%E8%BE%BC%E3%82%93%E3%81%A7%E6%97%A8%E5%91%B3%E3%82%92%E5%BC%95%E3%81%8D%E5%87%BA%E3%81%97%E3%81%9F%20%E7%8C%BF%E5%B3%B61"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20%E3%82%AA%E3%83%BC%E3%83%AB%E3%82%B7%E3%83%BC%E3%82%BA%E3%83%B3%20%EF%BC%92%E6%97%A5%E9%96%93%E7%85%AE%E8%BE%BC%E3%82%93%E3%81%A0%E3%83%AB%E3%83%BC%E3%81%AB%E3%83%AA%E3%83%B3%E3%82%B4%E3%81%A8%E3%83%90%E3%83%8A%E3%83%8A%E3%82%92%E9%9A%A0%E3%81%97%E5%91%B3%E3%81%AB%20%E4%B8%8D%E5%85%A5%E6%96%97%E7%94%BA1-2%E3%82%B5%E3%83%96%E3%82%A2%E3%83%AA%E3%83%BC%E3%83%8A1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E6%B5%9C%E6%A8%AA%E9%A0%88%E8%B3%80%E9%81%93%E8%B7%AF%20%E6%A8%AA%E9%A0%88%E8%B3%80PA%EF%BC%88%E4%B8%8A%E3%82%8A%E7%B7%9A%EF%BC%89%20%E5%B9%B3%E4%BD%9C4-729-4"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E9%A0%88%E8%B3%80%E6%B5%B7%E8%BB%8D%E3%82%AB%E3%83%AC%E3%83%BC%E6%9C%AC%E8%88%97%20%E8%8B%A5%E6%9D%BE%E7%94%BA1-11-8"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%81%E3%83%BC%E3%82%BA%E3%83%A2%E3%83%83%E3%82%AFin%E3%81%99%E3%81%88%E3%81%B2%E3%82%8D%20%E9%9A%A0%E3%81%97%E5%91%B3%E3%81%AB%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E7%89%9B%E8%82%89%E3%81%AE%E8%83%8C%E8%84%82%E3%81%A8%E9%85%B8%E5%91%B3%E3%82%92%E6%8A%9C%E3%81%84%E3%81%9F%20%E5%AE%89%E6%B5%A6%E7%94%BA2-26"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=YOKOSUKA%20SHELL%20%E3%83%9B%E3%83%AD%E3%83%9B%E3%83%AD%E3%81%AB%E3%81%AA%E3%82%8B%E3%81%BE%E3%81%A7%E7%85%AE%E8%BE%BC%E3%82%93%E3%81%A0%E3%83%81%E3%82%AD%E3%83%B3%E3%81%AB%E7%A8%8B%E3%82%88%E3%81%84%E3%82%B9%E3%83%91%20%E6%9C%AC%E7%94%BA1-9%20%E9%88%B4%E6%9C%A8%E7%AC%AC2%E3%83%93%E3%83%AB1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%81%A9%E3%81%B6%E6%9D%BF%E9%A3%9F%E5%A0%82Perry%20%E6%9C%AC%E7%94%BA2-19"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E2%98%85%E7%94%98%E5%8F%A3%20%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E7%94%98%20%E2%98%85%E2%98%85%E2%98%85%E4%B8%AD%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E8%BE%9B%E5%8F%A3%20%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20TSUNAMI%20%E6%9C%AC%E7%94%BA2-1-9%20%E9%A3%AF%E7%94%B0%E3%83%93%E3%83%AB"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%80%E3%83%83%E3%82%AD%E3%83%BC%E3%83%80%E3%83%83%E3%82%AF%20%E6%9C%AC%E7%94%BA2-1-12%20%E3%82%B3%E3%83%BC%E3%82%B9%E3%82%AB%E3%83%99%E3%82%A4%E3%82%B5%E3%82%A4%E3%83%89%E3%82%B9%E3%83%88%E3%82%A2%E3%83%BC%E3%82%BA3F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E9%A0%88%E8%B3%80%E6%B8%A9%E6%B3%89%E6%B9%AF%E6%A5%BD%E3%81%AE%E9%87%8C%20%E3%81%8A%E9%A3%9F%E4%BA%8B%E5%87%A6%20%E5%A4%A9%E9%A2%A8%20%E9%A6%AC%E5%A0%80%E6%B5%B7%E5%B2%B84-1-23"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%A4%E3%83%B3%E3%83%89%E3%83%BB%E3%83%8D%E3%83%91%E3%83%BC%E3%83%AB%E6%96%99%E7%90%86%20%E3%83%8B%E3%83%AB%E3%83%B4%E3%82%A1%E3%83%BC%E3%83%8A%20%E5%A4%A7%E6%BB%9D%E7%94%BA2-23%20B1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20Rico%20%E3%82%AB%E3%82%A6%E3%83%99%E3%83%AB%20%E9%87%8E%E8%8F%9C%E3%81%A8%E7%89%9B%E8%82%89%E3%82%92%EF%BC%91%E3%81%8B%E6%9C%88%E7%85%AE%E8%BE%BC%E3%82%93%E3%81%A0%E6%BF%83%E5%8E%9A%E3%83%95%E3%82%A9%E3%83%B3%E3%83%89%E3%83%9C%E3%83%BC%E3%81%A7%20%E8%A1%A3%E7%AC%A0%E6%A0%84%E7%94%BA1-70%20%E3%83%97%E3%83%A9%E3%82%B6%E8%A1%A3%E7%AC%A0%E4%BB%B2%E9%80%9A%E3%82%8A%E3%83%93%E3%83%AB1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=TSUNAMI%20BOX%20%E6%9C%AC%E7%94%BA2-5-4"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=MIKASA%20CAFE%20%E6%9C%AC%E7%94%BA3-33-3"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E2%98%85%E7%94%98%E5%8F%A3%20%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E7%94%98%20%E2%98%85%E2%98%85%E2%98%85%E4%B8%AD%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E8%BE%9B%E5%8F%A3%20%E3%82%A4%E3%83%B3%E3%83%89%E3%83%BB%E3%83%8D%E3%83%91%E3%83%BC%E3%83%AB%E3%82%AB%E3%83%AC%E3%83%BC%E3%83%8F%E3%82%A6%E3%82%B9%20%E3%82%B5%E3%83%AA%E3%83%8A%20%E5%A4%A7%E6%BB%9D%E7%94%BA2-21%20%E6%96%B0%E8%8F%AF%E3%83%93%E3%83%AB2F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20LAUNA%20%E6%9C%AC%E7%94%BA1-15-11"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=HONEY%20BEE%20%EF%BC%95%E6%99%82%E9%96%93%E7%85%AE%E8%BE%BC%E3%82%93%E3%81%A0%E3%83%93%E3%83%BC%E3%83%95%E3%81%A8%E3%81%9D%E3%81%AE%E5%87%BA%E6%B1%81%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F%E3%82%AB%E3%83%AC%E3%83%BC%20%E6%9C%AC%E7%94%BA2-1%20%E6%9C%AC%E7%94%BA%E3%83%93%E3%83%AB2F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=CHARA%20%E6%9C%AC%E7%94%BA1-2"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=HONCH%20SHELL%20%E3%82%84%E3%82%8F%E3%82%89%E3%81%8B%E3%81%8F%E7%85%AE%E8%BE%BC%E3%81%BE%E3%82%8C%E3%81%9F%E5%85%B7%E6%9D%90%E3%81%8C%E6%BF%83%E5%8E%9A%E3%81%AA%E3%83%AB%E3%83%BC%E3%81%A8%E3%81%AE%E4%B8%80%E4%BD%93%20%E6%9C%AC%E7%94%BA3-6"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%B4%E3%83%AB%E3%82%AB%E3%83%91%E3%83%AC%E3%82%B9%20GORKA%20PALACE%20%E5%A4%A7%E6%BB%9D%E7%94%BA1-21%20%E3%82%B8%E3%83%A5%E3%83%8D%E3%82%B9%E6%A8%AA%E9%A0%88%E8%B3%801F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E9%AD%9A%E8%97%8D%E4%BA%AD%20%E8%8B%A5%E6%9D%BE%E7%94%BA3-13-1"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E2%98%85%E7%94%98%E5%8F%A3%20%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E7%94%98%20%E2%98%85%E2%98%85%E2%98%85%E4%B8%AD%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E8%BE%9B%E5%8F%A3%20%E6%A8%AA%E9%A0%88%E8%B3%80%E3%83%93%E3%83%BC%E3%83%AB%20%E5%A4%A7%E6%BB%9D%E7%94%BA1-23"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E7%82%AD%E7%81%AB%E7%84%BC%20%E3%82%BF%E3%82%A4%E3%82%AC%E3%83%BC%20%E8%8B%A5%E6%9D%BE%E7%94%BA2-7%20%E3%83%9F%E3%82%A6%E3%83%A9%E3%83%97%E3%83%A9%E3%82%B6%E3%83%93%E3%83%AB4F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E9%A0%88%E8%B3%80%E6%B5%B7%E8%BB%8D%E3%82%AB%E3%83%AC%E3%83%BC%E6%9C%AC%E8%88%97%20%E3%83%99%E3%82%A4%E3%82%B5%E3%82%A4%E3%83%89%E3%82%AD%E3%83%83%E3%83%81%E3%83%B3%20%E5%B0%8F%E3%81%95%E3%81%8F%E8%A7%92%E5%88%87%E3%82%8A%E3%81%97%E3%81%9F%E3%81%9F%E3%81%A3%E3%81%B7%E3%82%8A%E3%81%AE%E5%85%B7%E6%9D%90%E3%81%8B%E3%82%89%E6%BA%B6%E3%81%91%E3%81%A0%E3%81%97%E3%81%9F%20%E6%9C%AC%E7%94%BA2-1-12%20%E3%82%B3%E3%83%BC%E3%82%B9%E3%82%AB%E3%83%99%E3%82%A4%E3%82%B5%E3%82%A4%E3%83%89%E3%82%B9%E3%83%88%E3%82%A2%E3%83%BC%E3%82%BA1F%20102"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%B0%E3%83%AB%E3%83%A1%E8%89%A6%E9%9A%8A%21%21%20%E6%9C%AC%E7%94%BA2-1-12%20%E3%82%B3%E3%83%BC%E3%82%B9%E3%82%AB%E3%83%99%E3%82%A4%E3%82%B5%E3%82%A4%E3%83%89%E3%82%B9%E3%83%88%E3%82%A2%E3%83%BC%E3%82%BA%202F%20%E3%82%A4%E3%82%AA%E3%83%B3%E3%83%95%E3%83%BC%E3%83%89%E3%82%B3%E3%83%BC%E3%83%88%E5%86%85"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%84%E3%82%93%E3%81%A1%E3%82%83%E5%AE%B6%20%E7%82%AD%E7%81%AB%E3%81%A7%E7%82%99%E3%81%A3%E3%81%9F%E9%B6%8F%E8%82%89%E3%81%A8%E8%87%AA%E5%AE%B6%E9%85%8D%E5%90%88%E3%81%AE%E3%82%B9%E3%83%91%E3%82%A4%E3%82%B9%E3%81%8C%E5%91%B3%E3%81%AE%E6%B1%BA%20%E8%8B%A5%E6%9D%BE%E7%94%BA3-6"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC%E4%B9%9D%E5%B7%9E%E3%83%95%E3%82%A7%E3%83%AA%E3%83%BC%20%E6%A8%AA%E9%A0%88%E8%B3%80%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB%20%E6%96%B0%E6%B8%AF%E7%94%BA11-4"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC%E4%B9%9D%E5%B7%9E%E3%83%95%E3%82%A7%E3%83%AA%E3%83%BC%20%E3%81%AF%E3%81%BE%E3%82%86%E3%81%86%E3%83%BB%E3%81%9D%E3%82%8C%E3%81%84%E3%82%86%20%E5%A4%AA%E5%B9%B3%E6%B4%8B%E3%81%AE%E5%A4%A7%E6%B5%B7%E5%8E%9F%E3%82%92%E7%9C%BA%E3%82%81%E3%81%AA%E3%81%8C%E3%82%89%E9%A3%9F%E3%81%B9%E3%82%8B%E7%89%9B%E8%82%89%E3%81%9F%E3%81%A3%E3%81%B7%E3%82%8A%20%E6%96%B0%E6%B8%AF%E7%94%BA11-4"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E2%98%85%E7%94%98%E5%8F%A3%20%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E7%94%98%20%E2%98%85%E2%98%85%E2%98%85%E4%B8%AD%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E3%82%84%E3%82%84%E8%BE%9B%20%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E8%BE%9B%E5%8F%A3%20HONEY%20BEE%20%E3%81%84%E3%81%A1%E3%81%94%E3%82%88%E3%81%93%E3%81%99%E3%81%8B%E3%83%9D%E3%83%BC%E3%83%88%E3%83%9E%E3%83%BC%E3%82%B1%E3%83%83%E3%83%88%E5%BA%97%20%E6%96%B0%E6%B8%AF%E7%94%BA6"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%B0%E3%83%AA%E3%83%AB%E3%81%A8%E3%81%BD%20%E6%9C%AC%E7%94%BA2-1-12%20%E3%82%B3%E3%83%BC%E3%82%B9%E3%82%AB%E3%83%99%E3%82%A4%E3%82%B5%E3%82%A4%E3%83%89%E3%82%B9%E3%83%88%E3%82%A2%E3%83%BC%E3%82%BA3F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%81%B1%E3%82%93%E3%83%97%E3%82%AD%E3%83%B3%20%E6%B1%90%E5%85%A5%E7%94%BA2-40%20%E9%9D%92%E6%9F%B3%E3%83%93%E3%83%AB1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%9D%E3%83%B3%E3%83%91%E3%83%89%E3%82%A6%E3%83%AB%20%E4%B9%85%E9%87%8C%E6%B5%9C%E5%BA%97%20%E4%B9%85%E9%87%8C%E6%B5%9C4-4-10%20%E4%BA%AC%E6%80%A5%E3%82%A6%E3%82%A3%E3%83%B3%E3%82%B0%E4%B9%85%E9%87%8C%E6%B5%9C1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%B3%95%E5%A1%94%E3%83%99%E3%83%BC%E3%82%AB%E3%83%AA%E3%83%BC%20%E4%B9%85%E9%87%8C%E6%B5%9C8-30-1"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%AB%E3%83%B3%E3%83%86%E3%83%9C%E3%83%BC%E3%83%AC%20%E4%B9%85%E9%87%8C%E6%B5%9C%E5%BA%97%20%E4%B9%85%E9%87%8C%E6%B5%9C5-13-1%20%E3%82%A4%E3%82%AA%E3%83%B3%E4%B9%85%E9%87%8C%E6%B5%9C%E5%BA%97%E5%86%851F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%BA%B6%E5%B2%A9%E7%AA%AF%E3%83%91%E3%83%B3%E5%B7%A5%E6%88%BF%20%E3%83%96%E3%83%AD%E3%83%BC%E3%83%88%E3%83%90%E3%82%A6%E3%83%A0%20%E6%96%B0%E6%B8%AF%E7%94%BA6"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E5%88%A5%E5%AD%90%E9%A3%B4%E6%9C%AC%E8%88%97%20%E6%84%9B%E5%AA%9B%E7%9C%8C%E6%96%B0%E5%B1%85%E6%B5%9C%E5%B8%82%E9%83%B72-6-5"
-      },
-      {
-        "label": "",
-        "url": "https://www.choumi.jp"
-      },
-      {
-        "label": "",
-        "url": "https://www.saikaya.co.jp/"
-      },
-      {
-        "label": "",
-        "url": "https://www.yachiyo-gr.com"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E9%A0%88%E8%B3%80%E9%A3%9F%E8%82%89%E4%BA%8B%E6%A5%AD%E5%8D%94%E5%90%8C%E7%B5%84%E5%90%88%20%E4%B8%89%E6%98%A5%E7%94%BA3-20-3"
-      },
-      {
-        "label": "",
-        "url": "http://www.koshikiya.com"
-      },
-      {
-        "label": "",
-        "url": "https://dobuita-st.com"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E9%A0%88%E8%B3%80%20%E8%89%A6%E3%83%9E%E3%83%8B%E3%82%A2%20%E6%9C%AC%E7%94%BA2-19"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%A8%E3%82%B3%E3%82%B9%E3%82%AB%E3%82%BB%E3%83%B3%E3%83%88%E3%83%A9%E3%83%AB%E3%82%AD%E3%83%83%E3%83%81%E3%83%B3%20%E5%B0%8F%E5%B7%9D%E7%94%BA11%20B1"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%88%B1%E7%99%BD%E5%AD%90%20%E6%9D%B1%E4%BA%AC%E9%83%BD%E6%B1%9F%E6%88%B8%E5%B7%9D%E5%8C%BA%E4%B8%AD%E8%91%9B%E8%A5%BF7-5-9"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20TSUNAMI%20%E6%9C%AC%E7%94%BA2-1-9%20%E9%A3%AF%E7%94%B0%E3%83%93%E3%83%AB"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=YOKOSUKA%20SHELL%20%E6%9C%AC%E7%94%BA1-9%20%E9%88%B4%E6%9C%A8%E7%AC%AC2%E3%83%93%E3%83%AB1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%A1%E3%83%AB%E3%82%AD%E3%83%A5%E3%83%BC%E3%83%AB%E6%A8%AA%E9%A0%88%E8%B3%80%20%E6%9C%AC%E7%94%BA3-27"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E9%A0%88%E8%B3%80%E6%B5%B7%E8%BB%8D%E3%82%AB%E3%83%AC%E3%83%BC%E6%9C%AC%E8%88%97%20%E3%83%99%E3%82%A4%E3%82%B5%E3%82%A4%E3%83%89%E3%82%AD%E3%83%83%E3%83%81%E3%83%B3%201F%20102"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=CHARA%20%E6%8E%83%E6%B5%B7%E8%89%87%20%E6%9C%AC%E7%94%BA1-2"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%8F%E3%83%B3%E3%82%B0%E3%83%AA%E3%83%BC%E3%82%BA%20%E6%9C%AC%E7%94%BA2-4%202F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E4%BD%90%E9%87%8E%E5%A4%A9%E7%84%B6%E6%B8%A9%E6%B3%89%20%E6%B9%AF%E5%87%A6%E3%81%AE%E3%81%BC%E3%82%8A%E9%9B%B2%20%E4%BD%90%E9%87%8E%E7%94%BA4-5"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=HONCH%20SHELL%20%E6%9C%AC%E7%94%BA3-6"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=HONEY%20BEE%20%E6%9C%AC%E7%94%BA2-1%20%E6%9C%AC%E7%94%BA%E3%83%93%E3%83%AB2F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%81%B2%E3%82%8C%E3%82%AB%E3%83%84%20%E3%82%84%E3%81%AA%E3%81%9B%E6%94%AF%E5%BA%97%20%E8%8B%A5%E6%9D%BE%E7%94%BA1-9"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%88%B2%E5%B1%B1%E6%9C%AC%E7%B2%BE%E8%82%89%E5%BA%97%20%E4%B8%89%E6%98%A5%E7%94%BA3-46"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%97%A5%E6%9C%AC%E3%83%95%E3%83%BC%E3%82%BA%20%E9%95%B7%E5%9D%823-10-5"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%83%99%E3%82%A4%E3%82%B5%E3%82%A4%E3%83%89%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%20%E3%82%AB%E3%83%95%E3%82%A7%20%E3%83%A2%E3%82%A2%20%E4%BD%90%E5%B3%B63-7-4%20%E4%BD%90%E5%B3%B6%E3%83%9E%E3%83%AA%E3%83%BC%E3%83%8A%E3%83%9B%E3%83%86%E3%83%AB%E5%86%85"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E7%84%BC%E8%82%89%20%E6%B5%B7%E7%89%9B%20%E7%A7%8B%E8%B0%B72-5-36"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%81%AF%E3%81%BE%E3%82%86%E3%81%86%E5%B1%B1%E8%8D%98%20%E7%BE%A4%E9%A6%AC%E7%9C%8C%E9%AB%98%E5%B4%8E%E5%B8%82%E5%80%89%E6%B8%95%E7%94%BA%E5%B7%9D%E6%B5%A627-80"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%A8%AA%E9%A0%88%E8%B3%80%E6%9D%BE%E5%9D%82%E5%B1%8B%20%E4%B8%8A%E7%94%BA1-44"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E5%B1%85%E9%85%92%E5%B1%8B%20%E5%92%8C%E8%B2%B4%20%E8%A1%A3%E7%AC%A0%E6%A0%84%E7%94%BA2-66"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E4%B8%89%E5%AF%8C%E5%B1%8B%20%E7%9B%B4%E5%A3%B2%E6%89%80%20%E4%B9%85%E9%87%8C%E6%B5%9C8-17-27"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%82%89%E3%80%9C%E9%BA%BA%E9%85%92%E6%88%BF%20%E5%92%8C%E3%82%89%E3%81%8F%20%E5%AE%89%E6%B5%A6%E7%94%BA1-3-11%20%E3%83%88%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%82%B0%E3%83%AB1F"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%81%86%E3%81%A9%E3%82%93%E5%B7%A5%E6%88%BF%20%E3%81%95%E3%81%AC%E3%81%8D%20%E5%A4%A7%E6%BB%9D%E7%94%BA2-24"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E8%8F%93%E5%AD%90%E5%B7%A5%E6%88%BF%20%E3%83%A2%E3%83%AA%20%E5%9D%82%E6%9C%AC%E7%94%BA3-43"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E6%B0%B8%E6%B2%BB%E5%A0%82%20%E8%A1%A3%E7%AC%A0%E6%A0%84%E7%94%BA1-4"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%88%B1%E6%9F%B3%E5%B1%8B%20%E4%B8%8A%E7%94%BA1-45"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%81%82%E3%81%99%E3%81%AA%E3%82%8D%E3%83%95%E3%82%A1%E3%83%BC%E3%83%A0%20%E5%B0%8F%E7%9F%A2%E9%83%A84-19-4"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E9%A3%9F%E5%99%A8%E3%83%BB%E7%B7%9A%E9%A6%99%E3%83%BB%E5%92%8C%E9%9B%91%E8%B2%A8%E3%81%AE%E5%BA%97%20%E8%A1%A3%E7%AC%A0%E6%A0%84%E7%94%BA1-70"
-      },
-      {
-        "label": "",
-        "url": "https://www.google.com/maps/search/?api=1&query=%E3%88%B1%E6%A8%AA%E9%A0%88%E8%B3%80%E5%B1%8B%20%E5%85%AC%E9%83%B7%E7%94%BA2-12-4"
-      }
-    ],
-    "title": "よこすか海軍カ チャリティ",
-    "datetime": "As of May 2025 (guide information)",
-    "place": "N/A",
-    "text": "Title: よこすか海軍カ チャリティ\n\nDatetime:\n- As of May 2025 (guide information)\n\nPlace:\n- N/A\n\nDetail:\n- Menu / item (tax included or as listed): 500円以上の募金をしてくださった\n\nAttention:\n- Guide note: information is stated as of May 2025; hours, prices, and availability may change.\n\nLink:\n- N/A\n\nTags: curry-town-yokosuka, jmsdf-curry, shopping, souvenir, yokosuka"
   },
   {
     "id": "cycling2020en_e5308537982b",
