@@ -6,14 +6,63 @@ from typing import Any, Iterable, List, Optional, Sequence, Set, Tuple
 from datetime import datetime
 from typing import Optional, Tuple
 
+import math
+import random
+from typing import List, Sequence
+
 # --- tweet hygiene ---
-_GREET_RE = re.compile(r"^(hi|hello|good (morning|afternoon|evening|night))\b", re.I)
-_META_PREFIX_RE = re.compile(r"^\s*here[’']?s a possible answer:\s*", re.I)
+_META_PREFIX_RE = re.compile(r"^\s*here['']?s a possible answer:\s*", re.I)
 _META_LINE_RE = re.compile(
     r"^\s*(?:[\*\-]\s*)?(note:|i included\b|i also mentioned\b|the answer is within\b)\b",
     re.I,
 )
 
+
+def _chunk_has_mention(c: object) -> bool:
+    meta = getattr(c, "metadata", None) or {}
+    for k in ("title", "name", "spot", "place", "event", "location"):
+        v = meta.get(k)
+        if isinstance(v, str) and v.strip():
+            return True
+    return False
+
+def reorder_chunks_for_variety(
+    *,
+    chunks: Sequence[object],
+    seed: int,
+    top_n: int = 8,
+    variety: float = 0.35,
+) -> List[object]:
+    """
+    Pick an 'anchor' chunk from top-N (weighted) and move it to index 0.
+    - variety=0.0: legacy behavior (no reorder)
+    - variety>0 : more diverse anchors
+    """
+    if not chunks or variety <= 0:
+        return list(chunks or [])
+
+    n = min(len(chunks), max(1, int(top_n)))
+    if n <= 1:
+        return list(chunks)
+
+    # Prefer chunks that actually have a usable mention in metadata
+    candidate_idxs = [i for i in range(n) if _chunk_has_mention(chunks[i])]
+    if not candidate_idxs:
+        candidate_idxs = list(range(n))
+
+    # Rank-based weights (robust to distance scale)
+    # temp grows with variety => flatter distribution
+    temp = 0.25 + 8.0 * float(variety)   # 0.35 -> ~3.05
+    weights = [math.exp(-i / temp) for i in range(n)]
+    cand_weights = [weights[i] for i in candidate_idxs]
+
+    rng = random.Random(int(seed))
+    anchor_idx = rng.choices(candidate_idxs, weights=cand_weights, k=1)[0]
+
+    out = list(chunks)
+    anchor = out.pop(anchor_idx)
+    out.insert(0, anchor)
+    return out
 
 def _time_greeting(now_dt: Optional[datetime]) -> str:
     """Return a time-of-day greeting. Never returns 'Hello, everyone.'."""
@@ -110,7 +159,7 @@ _URL_RE = re.compile(r"https?://[^\s\)\]\}>\",']+")
 _BARE_SCHEME_RE = re.compile(r"(https?://)(?=($|[\s\)\]\}>\",']))")
 
 # Common trailing punctuation we want to strip from URLs after regex extraction.
-_URL_TRAIL_TRIM = ".,;:!?)>]\"'”’"
+_URL_TRAIL_TRIM = ".,;:!?)>]\"'”'"
 
 
 def truthy_env(val: Optional[str]) -> bool:

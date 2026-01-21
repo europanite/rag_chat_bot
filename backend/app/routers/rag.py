@@ -26,15 +26,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
 import rag_store
-from .rag_utils import (
-    build_chat_prompts,
-    collect_source_links,
-    collect_allowed_urls,
-    filter_answer_urls,
-    finalize_answer,
-    select_required_context,
-    normalize_url,
-)
+from .rag_utils import *
 from .rag_audit import AuditLite, run_answer_audit
 
 RAG_MODEL = os.getenv("RAG_MODEL")
@@ -384,6 +376,10 @@ class QueryRequest(BaseModel):
     blocked_urls: List[str] = Field(default_factory=list)
     max_chars: Optional[int] = None
     include_debug: bool = True
+    # Variety controls (optional)
+    variety: float = 0.0          # 0.0 = legacy(top1), 0.2~0.5 = good
+    seed: Optional[int] = None    # deterministic shuffle/sampling
+    anchor_top_n: int = 8         # sample within top N (<= top_k )
 
     # if True, audit expects no unsupported claims
     strict_context: bool = True
@@ -495,6 +491,22 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
 
     if not chunks:
         raise HTTPException(status_code=404, detail="No relevant context.")
+
+
+    # Optional: diversify topic by reordering chunks before picking required_mention
+    try:
+        v = float(getattr(payload, "variety", 0.0) or 0.0)
+    except Exception:
+        v = 0.0
+    if v > 0 and chunks:
+        s = getattr(payload, "seed", None)
+        if s is None:
+            # deterministic-ish rotation by hour if datetime exists
+            s = int(now_dt.strftime("%Y%m%d%H")) if now_dt else 0
+        top_n = int(getattr(payload, "anchor_top_n", 8) or 8)
+        top_n = max(2, min(top_n, len(chunks), int(payload.top_k or 5)))
+        chunks = reorder_chunks_for_variety(chunks=chunks, seed=int(s), top_n=top_n, variety=v)
+ 
 
     context_texts = [(getattr(c, "text", "") or "").strip() for c in chunks]
     context_texts = [t for t in context_texts if t]

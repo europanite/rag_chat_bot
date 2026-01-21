@@ -399,6 +399,9 @@ def build_payload(
         "include_debug": include_debug,
         "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
+        "variety": float(os.getenv("RAG_VARIETY", "0.35")),
+        "seed": int(os.getenv("TOPIC_VARIANT", "0")),
+        "anchor_top_n": int(os.getenv("RAG_ANCHOR_TOP_N")),
     }
     return payload
 
@@ -639,9 +642,6 @@ def main() -> int:
     )
 
     include_debug = 1 if debug else 0
-    # Default OFF
-    audit = env_bool("RAG_AUDIT", default=False)
-    audit_rewrite = env_bool("RAG_AUDIT_REWRITE", default=False)
 
     payload = build_payload(
         question=question,
