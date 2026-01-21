@@ -445,13 +445,13 @@ def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], sched
     if sk:
         # Add a forced seed so we don't "miss" a category (e.g., weekday events).
         if sk == "event":
-            candidates.append(("event", "upevent","festival","market","fair"))
+            add("event", "upcoming event festival market fair")
         elif sk == "restaurant":
-            candidates.append(("restaurant", "lunch","cafe","ramen","curry","bakery"))
+            add("restaurant", "lunch cafe ramen curry bakery")
         elif sk == "activity":
-            candidates.append(("activity", "outdoor","activity","park","waterfront","trail"))
+            add("activity", "outdoor activity park waterfront trail")
         elif sk == "spot":
-            candidates.append(("spot", "sightseeing","spot","landmark","museum","shrine","park"))
+            add("spot", "sightseeing spot landmark museum shrine park")
 
         allow: dict[str, set[str]] = {
             "spot": {"history", "walk", "nature", "coast", "view", "indoor", "spot"},
