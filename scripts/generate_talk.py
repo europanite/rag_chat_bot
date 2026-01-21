@@ -27,7 +27,7 @@ def _scheduled_kind_by_hour(hour: int) -> str:
     if 0 <= h < 5:
         return "spot"
     if 5 <= h < 7:
-        return "garbage"
+        return "garbage_today"
     if 7 <= h < 13:
         return "restaurant"
     if 13 <= h < 17:
@@ -35,17 +35,15 @@ def _scheduled_kind_by_hour(hour: int) -> str:
     if 17 <= h < 20:
         return "activity"
     if 20 <= h < 22:
-        return "garbage"
+        return "garbage_tomorrow"
     if 20 <= h < 24:
         return "spot"
 
     return "spot"
 
-def build_gomi_post(*, place: str) -> str:
+def build_garbage_post(*, place: str, date: str) -> str:
     # URL is provided via links[] (NOT in text).
-    if place:
-        return f"🗑️ Garbage reminder ({place}): please check today's collection day and sorting rules."
-    return "🗑️ Garbage reminder: please check today's collection day and sorting rules."
+    return f"🗑️ Garbage reminder: please check {date}'s collection and sorting rules."
 
 
 def env(name: str, default: str = "") -> str:
@@ -588,8 +586,22 @@ def main() -> int:
     scheduled_kind = _scheduled_kind_by_hour(now_dt_local.hour)
 
     # garbage posts: DO NOT call RAG. Just reminder + 1 URL in links[].
-    if scheduled_kind == "garbage":
-        tweet = build_gomi_post(place=place)
+    if scheduled_kind == "garbage_tomorrow":
+        tweet = build_garbage_post(place=place, date="tomorrow")
+        links = [GARBAGE_REMINDER_URL]
+
+        if hashtags and "#" not in tweet:
+            tweet = f"{tweet} {hashtags}"
+
+        today = utc_date()
+        now_iso = utc_now_iso_z()
+        entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj, links=links)
+        for feed_path, latest_path in pair_paths(feeds, latests):
+            write_outputs(feed_path=feed_path, latest_path=latest_path, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
+        return 0
+    
+    if scheduled_kind == "garbage_today":
+        tweet = build_garbage_post(place=place, date="tomorrow")
         links = [GARBAGE_REMINDER_URL]
 
         if hashtags and "#" not in tweet:
