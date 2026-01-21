@@ -60,8 +60,8 @@
   "image": "./image/feed_20260121_125959_JST.png",
   "image_url": "./image/feed_20260121_125959_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon 🌞! Rainy with 4°C today... But let's focus on something bright - this weekend is the YOKOSUKA Fire Department Parade 2026, showcasing their bravery and dedication to our community! Don't miss it! 😊",
-  "permalink": "./?post=feed_20260121_125959_JST",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-01-21T04:07:15.015244Z"
+  "image_generated_at": "2026-01-21T04:07:15.015244Z",
+  "permalink": "./?post=feed_20260121_125959_JST"
 }
