@@ -399,8 +399,8 @@ def build_payload(
         "include_debug": include_debug,
         "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
-        "variety": float(os.getenv("RAG_VARIETY", "0.35")),
-        "seed": int(os.getenv("TOPIC_VARIANT", "0")),
+        "variety": float(os.getenv("RAG_VARIETY")),
+        "seed": int(os.getenv("TOPIC_VARIANT")),
         "anchor_top_n": int(os.getenv("RAG_TOP_K")),
     }
     return payload
