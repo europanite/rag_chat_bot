@@ -480,46 +480,17 @@ def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], sched
     focus_id, focus_keywords = rng.choice(candidates)
     return focus_id, focus_keywords
 
-def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, snap_obj: Optional[Dict[str, Any]], scheduled_kind: str | None = None) -> str:
+def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> str:
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
     season = _season_bucket(now_local.month)
     condition, temp_i = _weather_condition_and_temp(cur)
 
-    topic_keywords = focus_keywords
-
-    if focus_id in ("winter_night",) or "seasonal" in (focus_keywords or "").lower():
-        topic_keywords = _seasonal_event_keywords(now_local)
-
-    kw = (topic_keywords or "").lower()
-    is_eventish = (
-        ("event" in kw)
-        or ("festival" in kw)
-        or ("market" in kw)
-        or ("matsuri" in kw)
-        or ("illumination" in kw)
-        or (focus_id in ("weekend", "winter_night"))
+    event_guard = (
+        "Do NOT mention past events."
+        "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
     )
 
-    event_guard = ""
-    if is_eventish:
-        event_guard = (
-            "IMPORTANT(event): 'upcoming' means today or later (based on datetime above). "
-            "Do NOT mention past events or any date earlier than today. "
-            "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
-        )
-
-
-    schedule_guard = ""
-    sk = (scheduled_kind or "").strip().lower()
-    if sk == "restaurant":
-        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE local restaurant from the RAG context (not an event/spot).\n"
-    elif sk == "event":
-        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE upcoming event (today or later) from the RAG context. If none, choose a restaurant.\n"
-    elif sk == "activity":
-        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE local spot that fits an activity (park/waterfront/trail) from the RAG context (not a restaurant).\n"
-    elif sk == "spot":
-        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE sightseeing spot from the RAG context (not a restaurant).\n"
 
     return (
         "Write a tweet in English.\n"
@@ -530,10 +501,8 @@ def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, s
         "   - Mention the spot/event name explicitly.\n"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
-        # f"{schedule_guard}"
         f"{event_guard}"
         f"datetime: {now_local}.\n"
-        # f"FOCUS: {focus_id}. KEYWORDS: {topic_keywords}.\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
 
@@ -793,10 +762,7 @@ def main() -> int:
         raise RuntimeError("BUG: warmup payload missing max_chars")
     _ = http_json("POST", query_url, warm_payload, cfg)
 
-    focus_id, focus_keywords = pick_focus(now_local=now_dt_local, snap_obj=snap_obj, scheduled_kind=scheduled_kind)
     question = build_question(
-        focus_id=focus_id,
-        focus_keywords=focus_keywords,
         now_local=now_dt_local,
         snap_obj=snap_obj,
     )
