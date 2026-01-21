@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-21T02:30:48Z",
+  "id": "feed_20260121_112658_JST",
   "date": "2026-01-21",
   "text": "Good afternoon! 🌞 It's a chilly day today, rainy with 4°C. Unfortunately, the YOKOSUKA Fire Department Parade 2026 scheduled for January 11th is still in our history books, but let's reminisce about this nostalgic event #ノスタルジック",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/syoubou-parade.html"
-  ]
+  ],
+  "image": "./image/feed_20260121_112658_JST.png",
+  "image_url": "./image/feed_20260121_112658_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's a chilly day today, rainy with 4°C. Unfortunately, the YOKOSUKA Fire Department Parade 2026 scheduled for January 11th is still in our history books, but let's reminisce about this nostalgic event ",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-21T02:35:03.538016Z",
+  "permalink": "./?post=feed_20260121_112658_JST"
 }
