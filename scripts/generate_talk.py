@@ -530,10 +530,10 @@ def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, s
         "   - Mention the spot/event name explicitly.\n"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
-        f"{schedule_guard}"
+        # f"{schedule_guard}"
         f"{event_guard}"
         f"datetime: {now_local}.\n"
-        f"FOCUS: {focus_id}. KEYWORDS: {topic_keywords}.\n"
+        # f"FOCUS: {focus_id}. KEYWORDS: {topic_keywords}.\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
 
