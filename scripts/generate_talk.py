@@ -420,21 +420,32 @@ def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> Tu
     return focus_id, focus_keywords
 
 def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> str:
-    event_guard = (
-        "IMPORTANT: If you mention an event, it must be today or later in the provided context. "
-        "Do NOT mention past events. If there is no upcoming event in context, "
-        "choose a local spot or restaurant instead.\n"
-    )
-    if topic_family == "event" and topic_mode == "seasonal":
+    cur = (snap_obj or {}).get("current") or {}
+    tod = _time_of_day_bucket(now_local.hour)
+    season = _season_bucket(now_local.month)
+    condition, temp_i = _weather_condition_and_temp(cur)
+
+    topic_keywords = focus_keywords
+
+    if focus_id in ("winter_night",) or "seasonal" in (focus_keywords or "").lower():
         topic_keywords = _seasonal_event_keywords(now_local)
 
-    # Strong guardrails: prevent "upcoming" from referencing past events.
+    kw = (topic_keywords or "").lower()
+    is_eventish = (
+        ("event" in kw)
+        or ("festival" in kw)
+        or ("market" in kw)
+        or ("matsuri" in kw)
+        or ("illumination" in kw)
+        or (focus_id in ("weekend", "winter_night"))
+    )
+
     event_guard = ""
-    if topic_family == "event":
+    if is_eventish:
         event_guard = (
             "IMPORTANT(event): 'upcoming' means today or later (based on datetime above). "
             "Do NOT mention past events or any date earlier than today. "
-            "If you cannot find a future event in the RAG Context, write about a local spot instead (still from RAG Context).\n"
+            "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
         )
 
     return (
@@ -448,7 +459,7 @@ def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, s
         "Rules: Use emojis. Keep it punchy.\n"
         f"{event_guard}"
         f"datetime: {now_local}.\n"
-        f"FOCUS: {focus_id}. KEYWORDS: {focus_keywords}.\n"
+        f"FOCUS: {focus_id}. KEYWORDS: {topic_keywords}.\n"
         f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
 
