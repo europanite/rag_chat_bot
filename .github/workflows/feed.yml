@@ -111,7 +111,7 @@ jobs:
           LAT: "35.2810"
           LON: "139.6722"
           TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: 4
+          RAG_TOP_K: 16
           CURL_MAX_TIME: 512
           CURL_RETRIES: 0
           PLACE: "Yokosuka"
