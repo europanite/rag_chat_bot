@@ -481,7 +481,6 @@ def build_payload(
         "top_k": top_k,
         "max_chars": max_chars,
         "include_debug": include_debug,
-        "output_style": "tweet_bot",
         "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
     }
@@ -693,7 +692,7 @@ def main() -> int:
         top_k=1,
         snap_obj=snap_obj,
         max_chars=max_chars,
-        include_debug=False,
+        include_debug=True,
         datetime=now_dt_local.isoformat(),
         audit=False,
         audit_rewrite=False,

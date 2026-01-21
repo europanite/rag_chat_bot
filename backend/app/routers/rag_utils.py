@@ -246,7 +246,7 @@ def collect_allowed_urls(
     return set(ordered)
 
 
-def filter_answer_urls(answer: str, allowed_urls: Set[str], *, keep_allowed: bool = True) -> Tuple[str, List[str]]:
+def filter_answer_urls(answer: str, allowed_urls: Set[str]) -> Tuple[str, List[str]]:
     """
     Remove URLs from answer that are not in allowed_urls.
     Returns (filtered_answer, removed_urls).
@@ -258,7 +258,7 @@ def filter_answer_urls(answer: str, allowed_urls: Set[str], *, keep_allowed: boo
 
     def _replace(match: re.Match) -> str:
         url = normalize_url(match.group(0))
-        if keep_allowed and (url in allowed_norm):
+        if url in allowed_norm:
             return url
         removed.append(url)
         return ""
@@ -351,7 +351,6 @@ def build_chat_prompts(
     required_mention: str,
     required_url: str,
     allowed_urls: Set[str],
-    output_style: str = "tweet_bot",
     max_chars: int = 280,
 ) -> Tuple[str, str]:
     """
@@ -397,7 +396,7 @@ def build_chat_prompts(
     if extra_context and extra_context.strip():
         user_prompt += f"[Live context]\n{extra_context.strip()}\n\n"
 
-    must_url = ""  # tweet_bot: never require URL in text
+    must_url = ""  
     url_rule = "- Do NOT include any URL in the post text.\n"
 
     user_prompt += (
@@ -425,8 +424,6 @@ def finalize_answer(
 
     a = _strip_meta_preamble(a)
     a = ensure_greeting_first(a, now_dt=now_dt)
-
-    # Hard cap (tweet_bot: no URL tail).
 
     if max_chars > 0 and len(a) > max_chars:
         a = a[:max_chars].rstrip()

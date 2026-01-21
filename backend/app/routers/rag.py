@@ -382,10 +382,8 @@ class QueryRequest(BaseModel):
     top_k: int = 5
     extra_context: Optional[str] = None
     blocked_urls: List[str] = Field(default_factory=list)
-    output_style: str = "tweet_bot"
     max_chars: Optional[int] = None
-
-    include_debug: bool = False
+    include_debug: bool = True
 
     # if True, audit expects no unsupported claims
     strict_context: bool = True
@@ -533,7 +531,6 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         required_mention=required_mention,
         required_url=required_url,
         allowed_urls=allowed_urls,
-        output_style=payload.output_style or "tweet_bot",
         max_chars=max_chars,
     )
 
@@ -572,11 +569,9 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             now_dt=now_dt,
         )
 
-        keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
         candidate, removed = filter_answer_urls(
             candidate,
             allowed_urls,
-            keep_allowed=keep_allowed,
         )
 
         removed_urls_total.extend(removed)
@@ -588,26 +583,23 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             now_dt=now_dt,
         )
 
-
-        # Lint (temporal + tweet_bot format) -> if rewrite_enabled then regenerate.
         issues: List[str] = []
         if wants_future_events and now_dt:
             issues.extend(_temporal_issues_future_event_answer(candidate, now_dt=now_dt) or [])
 
-        if (payload.output_style or "tweet_bot") == "tweet_bot":
-            t = (candidate or "").strip()
-            if "\n" in t or "\r" in t:
-                issues.append("no line breaks (single paragraph)")
-            if "http://" in t or "https://" in t:
-                issues.append("no URLs in text")
-            sents = [s for s in re.split(r"(?<=[.!?])\s+", t) if s.strip()]
-            if len(sents) != 3:
-                issues.append("exactly 3 sentences")
-            low = t.lower()
-            if not re.search(r"\b(sunny|cloudy|windy|chilly|rainy)\b", low):
-                issues.append("sentence 2 must include weather word")
-            if not re.search(r"\b-?\d{1,2}\s*°\s*c\b", low):
-                issues.append("sentence 2 must include temperature like 10°C")
+        t = (candidate or "").strip()
+        if "\n" in t or "\r" in t:
+            issues.append("no line breaks (single paragraph)")
+        if "http://" in t or "https://" in t:
+            issues.append("no URLs in text")
+        sents = [s for s in re.split(r"(?<=[.!?])\s+", t) if s.strip()]
+        if len(sents) != 3:
+            issues.append("exactly 3 sentences")
+        low = t.lower()
+        if not re.search(r"\b(sunny|cloudy|windy|chilly|rainy)\b", low):
+            issues.append("sentence 2 must include weather word")
+        if not re.search(r"\b-?\d{1,2}\s*°\s*c\b", low):
+            issues.append("sentence 2 must include temperature like 10°C")
 
         answer = candidate
         if issues and rewrite_enabled and attempt < attempts:
@@ -639,8 +631,6 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             strict_context=bool(payload.strict_context),
             allow_rewrite=bool(rewrite_enabled),
             max_chars=max_chars,
-            require_required_url_in_answer=((payload.output_style or "tweet_bot") != "tweet_bot"),
-            forbid_urls_in_answer=((payload.output_style or "tweet_bot") == "tweet_bot"),
         )
 
         last_audit = AuditResult(
@@ -667,11 +657,9 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 now_dt=now_dt,
             )
                                   
-            keep_allowed = (payload.output_style or "tweet_bot") != "tweet_bot"
             fixed, removed2 = filter_answer_urls(
                 fixed,
                 allowed_urls,
-                keep_allowed=keep_allowed,
             )
 
             removed_urls_total.extend(removed2)
@@ -696,8 +684,6 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
                 strict_context=bool(payload.strict_context),
                 allow_rewrite=False,
                 max_chars=max_chars,
-                require_required_url_in_answer=((payload.output_style or "tweet_bot") != "tweet_bot"),
-                forbid_urls_in_answer=((payload.output_style or "tweet_bot") == "tweet_bot"),
             )
             last_audit = AuditResult(
                 model=audit_model,

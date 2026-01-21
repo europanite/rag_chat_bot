@@ -25,7 +25,6 @@ jobs:
         run: |
           set -eux
           mkdir -p chroma_db
-          # delete everything INCLUDING dotfiles
           find chroma_db -mindepth 1 -delete
           touch chroma_db/.gitkeep
 
