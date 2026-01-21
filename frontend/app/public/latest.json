@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-21T11:04:45Z",
+  "id": "feed_20260121_195949_JST",
   "date": "2026-01-21",
   "text": "Good evening! It's a chilly night with 4°C. Let's look back at last year's Yokosuka Chuo Illumination Photo Contest, which had a Nostalgic theme.",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "image": "./image/feed_20260121_195949_JST.png",
+  "image_url": "./image/feed_20260121_195949_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a chilly night with 4°C. Let's look back at last year's Yokosuka Chuo Illumination Photo Contest, which had a Nostalgic theme.",
+  "permalink": "./?post=feed_20260121_195949_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-21T11:08:37.673517Z"
 }
