@@ -20,6 +20,40 @@ from zoneinfo import ZoneInfo
 # -----------------------------
 # Utilities
 # -----------------------------
+GOMI_REMINDER_URL = "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/gomi-bunbetsu.html"
+
+def _scheduled_kind_by_hour(hour: int) -> str:
+    """
+    Decide what kind of post to generate based on LOCAL hour.
+      20-22: junk (garbage reminder)
+      22-05: spot (tourist spot)
+      05-07: junk
+      07-13: restaurant
+      13-17: event (upcoming)
+      17-20: activity
+    """
+    h = int(hour)
+    if 20 <= h < 22:
+        return "junk"
+    if h >= 22 or h < 5:
+        return "spot"
+    if 5 <= h < 7:
+        return "junk"
+    if 7 <= h < 13:
+        return "restaurant"
+    if 13 <= h < 17:
+        return "event"
+    if 17 <= h < 20:
+        return "activity"
+    return "spot"
+
+def build_gomi_post(*, place: str) -> str:
+    # URL is provided via links[] (NOT in text).
+    if place:
+        return f"🗑️ Garbage reminder ({place}): please check today’s collection day and sorting rules."
+    return "🗑️ Garbage reminder: please check today’s collection day and sorting rules."
+
+
 def env(name: str, default: str = "") -> str:
     v = os.getenv(name)
     return default if v is None else v
@@ -357,7 +391,7 @@ def _weather_brief_for_llm(snap_obj: Dict[str, Any]) -> str:
     condition, temp_i = _weather_condition_and_temp(snap_obj)
     return f"weather={condition}\ntemp_c={temp_i}\n"
 
-def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> Tuple[str, str]:
+def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], scheduled_kind: str | None = None) -> Tuple[str, str]:
     # (focus_id, focus_keywords)
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
@@ -406,6 +440,33 @@ def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> Tu
     # De-dup exact duplicates (cheap)
     candidates = list(dict.fromkeys(candidates))
 
+    # --- Schedule-driven bias (python-side) ---
+    sk = (scheduled_kind or "").strip().lower()
+    if sk:
+        # Add a forced seed so we don't "miss" a category (e.g., weekday events).
+        if sk == "event":
+            candidates.append(("event", "upevent","festival","market","fair"))
+        elif sk == "restaurant":
+            candidates.append(("restaurant", "lunch","cafe","ramen","curry","bakery"))
+        elif sk == "activity":
+            candidates.append(("activity", "outdoor","activity","park","waterfront","trail"))
+        elif sk == "spot":
+            candidates.append(("spot", "sightseeing","spot","landmark","museum","shrine","park"))
+
+        allow: dict[str, set[str]] = {
+            "spot": {"history", "walk", "nature", "coast", "view", "indoor", "spot"},
+            "restaurant": {"food", "morning", "dinner", "warm", "cozy", "restaurant"},
+            "event": {"weekend", "winter_night", "event"},
+            "activity": {"walk", "nature", "coast", "view", "windy", "activity"},
+        }
+        allowed = allow.get(sk)
+        if allowed:
+            filtered = [(fid, kw) for (fid, kw) in candidates if fid in allowed]
+            if filtered:
+                candidates = filtered
+
+    candidates = list(dict.fromkeys(candidates))
+
     # Deterministic seed (rename: SEED_VARIANT; keep TOPIC_VARIANT as fallback for back-compat)
     try:
         seed_variant = int(os.getenv("SEED_VARIANT", os.getenv("TOPIC_VARIANT", "0")) or "0")
@@ -419,7 +480,7 @@ def pick_focus(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> Tu
     focus_id, focus_keywords = rng.choice(candidates)
     return focus_id, focus_keywords
 
-def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> str:
+def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, snap_obj: Optional[Dict[str, Any]], scheduled_kind: str | None = None) -> str:
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
     season = _season_bucket(now_local.month)
@@ -448,6 +509,18 @@ def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, s
             "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
         )
 
+
+    schedule_guard = ""
+    sk = (scheduled_kind or "").strip().lower()
+    if sk == "restaurant":
+        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE local restaurant from the RAG context (not an event/spot).\n"
+    elif sk == "event":
+        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE upcoming event (today or later) from the RAG context. If none, choose a restaurant.\n"
+    elif sk == "activity":
+        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE local spot that fits an activity (park/waterfront/trail) from the RAG context (not a restaurant).\n"
+    elif sk == "spot":
+        schedule_guard = "IMPORTANT(schedule): In sentence 3, choose ONE sightseeing spot from the RAG context (not a restaurant).\n"
+
     return (
         "Write a tweet in English.\n"
         "Follow this format EXACTLY (EXACTLY 3 sentences, single paragraph, no line breaks, no URLs in the text):\n"
@@ -457,6 +530,7 @@ def build_question(*, focus_id: str, focus_keywords: str, now_local: datetime, s
         "   - Mention the spot/event name explicitly.\n"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
+        f"{schedule_guard}"
         f"{event_guard}"
         f"datetime: {now_local}.\n"
         f"FOCUS: {focus_id}. KEYWORDS: {topic_keywords}.\n"
@@ -663,6 +737,26 @@ def main() -> int:
     if debug:
         print(f"DEBUG: SNAP_JSON bytes={len(snap_json_raw.encode('utf-8'))}", file=sys.stderr)
 
+
+    # Schedule kind (python-side)
+    now_dt_local = datetime.now(ZoneInfo(tz_name))
+    scheduled_kind = _scheduled_kind_by_hour(now_dt_local.hour)
+
+    # JUNK posts: DO NOT call RAG. Just reminder + 1 URL in links[].
+    if scheduled_kind == "junk":
+        tweet = build_gomi_post(place=place)
+        links = [GOMI_REMINDER_URL]
+
+        if hashtags and "#" not in tweet:
+            tweet = f"{tweet} {hashtags}"
+
+        today = utc_date()
+        now_iso = utc_now_iso_z()
+        entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj, links=links)
+        for feed_path, latest_path in pair_paths(feeds, latests):
+            write_outputs(feed_path=feed_path, latest_path=latest_path, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
+        return 0
+
     # 2) Ensure backend ready + index
     wait_for_backend(api_base, cfg)
 
@@ -683,9 +777,6 @@ def main() -> int:
     q = {"place": place, "lat": str(lat), "lon": str(lon), "tz": tz_name}
     query_url = f"{api_base}/rag/query?{urllib.parse.urlencode(q)}"
 
-    # 3) Query backend for today's tweet
-    now_dt_local = datetime.now(ZoneInfo(tz_name))
-
     # Warm up once: DO NOT bypass build_payload; keep request schema consistent.
     warm_payload = build_payload(
         question="ping",
@@ -702,7 +793,7 @@ def main() -> int:
         raise RuntimeError("BUG: warmup payload missing max_chars")
     _ = http_json("POST", query_url, warm_payload, cfg)
 
-    focus_id, focus_keywords = pick_focus(now_local=now_dt_local, snap_obj=snap_obj)
+    focus_id, focus_keywords = pick_focus(now_local=now_dt_local, snap_obj=snap_obj, scheduled_kind=scheduled_kind)
     question = build_question(
         focus_id=focus_id,
         focus_keywords=focus_keywords,
