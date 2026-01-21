@@ -401,7 +401,7 @@ def build_payload(
         "datetime": datetime,
         "variety": float(os.getenv("RAG_VARIETY", "0.35")),
         "seed": int(os.getenv("TOPIC_VARIANT", "0")),
-        "anchor_top_n": int(os.getenv("RAG_ANCHOR_TOP_N")),
+        "anchor_top_n": int(os.getenv("RAG_TOP_K")),
     }
     return payload
 
