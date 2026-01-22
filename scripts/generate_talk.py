@@ -5,8 +5,6 @@ import os
 import re
 import sys
 import time
-import hashlib
-import random
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -20,7 +18,7 @@ from zoneinfo import ZoneInfo
 # -----------------------------
 # Utilities
 # -----------------------------
-GARBAGE_REMINDER_URL = "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/gomi-bunbetsu.html"
+GARBAGE_REMINDER_URL = "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/documents/english2023.pdf"
 
 def _scheduled_kind_by_hour(hour: int) -> str:
     h = int(hour)
@@ -601,7 +599,7 @@ def main() -> int:
         return 0
     
     if scheduled_kind == "garbage_today":
-        tweet = build_garbage_post(place=place, date="tomorrow")
+        tweet = build_garbage_post(place=place, date="today")
         links = [GARBAGE_REMINDER_URL]
 
         if hashtags and "#" not in tweet:
