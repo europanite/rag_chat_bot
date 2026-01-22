@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-22T02:33:05Z",
+  "id": "feed_20260122_112819_JST",
   "date": "2026-01-22",
   "text": "Good afternoon! It's a sunny day with 6°C today. Let's head over to Kurihama for some delicious food at the famous ramen restaurant \"Ohako\"! 🍜🌞",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "image": "./image/feed_20260122_112819_JST.png",
+  "image_url": "./image/feed_20260122_112819_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a sunny day with 6°C today. Let's head over to Kurihama for some delicious food at the famous ramen restaurant \"Ohako\"! 🍜🌞",
+  "permalink": "./?post=feed_20260122_112819_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-22T02:37:20.907715Z"
 }
