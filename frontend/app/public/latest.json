@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-22T22:39:34Z",
+  "id": "feed_20260123_073359_JST",
   "date": "2026-01-22",
   "text": "Good morning! Chilly with -1°C today ☁️. If you're looking for a warm and cozy meal in Yokosuka, head over to Sumibi Yakiniku Shin Yokosuka Chuo for some delicious grilled meats 🍖🔥! Their winter cool menu is not to be missed 🎉",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14033065/"
-  ]
+  ],
+  "image": "./image/feed_20260123_073359_JST.png",
+  "image_url": "./image/feed_20260123_073359_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! Chilly with -1°C today ☁️. If you're looking for a warm and cozy meal in Yokosuka, head over to Sumibi Yakiniku Shin Yokosuka Chuo for some delicious grilled meats 🍖🔥! Their winter cool menu is not to be mi",
+  "permalink": "./?post=feed_20260123_073359_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-22T22:45:15.087702Z"
 }
