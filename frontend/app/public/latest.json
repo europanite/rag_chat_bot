@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-22T13:14:34Z",
+  "id": "feed_20260122_220941_JST",
   "date": "2026-01-22",
   "text": "Good night.",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "image": "./image/feed_20260122_220941_JST.png",
+  "image_url": "./image/feed_20260122_220941_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night.",
+  "permalink": "./?post=feed_20260122_220941_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-22T13:17:59.792405Z"
 }
