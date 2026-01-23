@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-23T08:48:31Z",
+  "id": "feed_20260123_174334_JST",
   "date": "2026-01-23",
   "text": "Good evening! It's a chilly evening in Yokosuka tonight, but the sunset is lovely. Get ready to shine at the upcoming 2025 Yokosuka Chuo Illumination Photo Contest 📸💡",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/event/photocon-illumi.html"
-  ]
+  ],
+  "image": "./image/feed_20260123_174334_JST.png",
+  "image_url": "./image/feed_20260123_174334_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a chilly evening in Yokosuka tonight, but the sunset is lovely. Get ready to shine at the upcoming 2025 Yokosuka Chuo Illumination Photo Contest 📸💡",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-23T08:52:30.138049Z",
+  "permalink": "./?post=feed_20260123_174334_JST"
 }
