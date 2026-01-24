@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-24T06:50:11Z",
+  "id": "feed_20260124_154520_JST",
   "date": "2026-01-24",
   "text": "Good afternoon! It's a chilly day in Yokosuka with windy conditions and 9°C. Let's warm up with some delicious cake from Cake-ya popo! 🍰👍",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14052518/"
-  ]
+  ],
+  "image": "./image/feed_20260124_154520_JST.png",
+  "image_url": "./image/feed_20260124_154520_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a chilly day in Yokosuka with windy conditions and 9°C. Let's warm up with some delicious cake from Cake-ya popo! 🍰👍",
+  "permalink": "./?post=feed_20260124_154520_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-24T06:53:24.402042Z"
 }
