@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-24T08:43:21Z",
+  "id": "feed_20260124_173837_JST",
   "date": "2026-01-24",
   "text": "Good evening! It's quite chilly with 8°C tonight. We're craving some sweet treats at Cake-ya popo in Yokosuka.",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14052518/"
-  ]
+  ],
+  "image": "./image/feed_20260124_173837_JST.png",
+  "image_url": "./image/feed_20260124_173837_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's quite chilly with 8°C tonight. We're craving some sweet treats at Cake-ya popo in Yokosuka.",
+  "permalink": "./?post=feed_20260124_173837_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-24T08:47:21.577144Z"
 }
