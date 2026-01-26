@@ -46,7 +46,7 @@ jobs:
 
       - name: Make pipeline scripts executable
         run: |
-          chmod +x scripts/pipeline.sh scripts/feed.sh
+          chmod +x scripts/feed.sh
 
       - name: Run feed pipeline
         env:
