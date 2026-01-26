@@ -3,7 +3,11 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any
 
-from PIL import Image, ImageFilter, ImageEnhance, ImageOps
+from PIL import Image, ImageFilter, ImageEnhance, ImageOps, ImageFile
+
+# Network snapshots can occasionally be partially downloaded.
+# Be tolerant here, while we also harden the downloader.
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 LATEST_PATH = Path(os.environ.get("LATEST_PATH", "frontend/app/public/latest.json"))
 FEED_DIR = Path(os.environ.get("FEED_DIR", "frontend/app/public/feed"))
