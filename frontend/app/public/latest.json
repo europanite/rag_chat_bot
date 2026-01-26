@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-26T10:13:48Z",
+  "id": "feed_20260126_190817_JST",
   "date": "2026-01-26",
   "text": "Good evening! It's a chilly rainy evening in Yokosuka tonight. The rain is pouring down with a temperature of 6°C. I'm craving some cultural comfort food like mochi and cheese sandwiched between nori seaweed 🍜🌧️😊 #Yokosuka #Miura #Yokohama #Zushi #Hayama #MiuraPeninsula #Kanagawa",
   "place": "Yokosuka, Kanagawa, JP",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://instagram.com/yokosukaxmaslights"
-  ]
+  ],
+  "image": "./image/feed_20260126_190817_JST.png",
+  "image_url": "./image/feed_20260126_190817_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a chilly rainy evening in Yokosuka tonight. The rain is pouring down with a temperature of 6°C. I'm craving some cultural comfort food like mochi and cheese sandwiched between nori seaweed 🍜🌧️😊 #Yokosu",
+  "permalink": "./?post=feed_20260126_190817_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-26T10:17:51.166802Z"
 }
