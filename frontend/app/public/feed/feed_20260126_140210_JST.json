@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-26T05:07:09Z",
+  "id": "feed_20260126_140210_JST",
   "date": "2026-01-26",
   "text": "Good afternoon! It's a chilly rainy day in Yokosuka today with 8°C. Let's take some amazing photos at the popular shopping district, Yokosuka Genic Street, and share them on social media using #Sukageni hashtag! 🌧️📸🎉",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://www.cocoyoko.net/spot/sukageni.html"
-  ]
+  ],
+  "image": "./image/feed_20260126_140210_JST.png",
+  "image_url": "./image/feed_20260126_140210_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a chilly rainy day in Yokosuka today with 8°C. Let's take some amazing photos at the popular shopping district, Yokosuka Genic Street, and share them on social media using #Sukageni hashtag! 🌧️📸🎉",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-26T05:10:26.489972Z",
+  "permalink": "./?post=feed_20260126_140210_JST"
 }
