@@ -82,9 +82,11 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
 
 
 def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
-    llm = _get_ollama_llm(model)
+    llm = _get_ollama_llm(model=model)
+
+    payload = _ollama_chat_payload(model=model, system_prompt=system_prompt, user_prompt=user_prompt)
     lc_messages = []
-    for m in messages:
+    for m in payload["messages"]:
         role = m.get("role")
         content = m.get("content", "") or ""
         if role == "system":
