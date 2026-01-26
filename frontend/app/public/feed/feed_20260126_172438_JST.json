@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260126_174635_JST",
+  "id": "feed_20260126_172438_JST",
   "date": "2026-01-26",
-  "text": "Good evening! 🌃 It's rainy with 6°C tonight. I'm craving delicious ramen at Kurihama's Ohako restaurant right now, hope it stays open late despite the rain! #Yokosuka #Miura #Yokohama #Zushi #Hayama #MiuraPeninsula #Kanagawa",
+  "text": "Good evening! It's a chilly rainy evening in Yokosuka tonight. If you're looking for some warmth, head over to Sumibi Yakiniku Shin Yokosuka Chuo and enjoy their delicious yakiniku 🌧️🔥🍜 #Yokosuka #Miura #Yokohama #Zushi #Hayama #MiuraPeninsula #Kanagawa",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-01-26T08:50:12Z",
+  "generated_at": "2026-01-26T08:28:45Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-26T08:46:37.335368+00:00",
+    "generated_at": "2026-01-26T08:24:40.742536+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-26T17:30:00+09:00",
-      "temp_c": 6.2,
+      "time": "2026-01-26T17:10:00+09:00",
+      "temp_c": 6.4,
       "apparent_temp_c": null,
       "humidity_pct": 49.0,
       "precip_mm": 0.0,
       "weather_code": 71,
       "cloud_cover_pct": null,
-      "wind_kmh": 9.360000000000001,
-      "wind_dir_deg": 157.5,
+      "wind_kmh": 10.08,
+      "wind_dir_deg": 180.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -55,13 +55,13 @@
     }
   },
   "links": [
-    "https://www.instagram.com/aoitsuki.aosagi/"
+    "https://tabelog.com/kanagawa/A1406/A140601/14033065/"
   ],
-  "image": "./image/feed_20260126_174635_JST.png",
-  "image_url": "./image/feed_20260126_174635_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! 🌃 It's rainy with 6°C tonight. I'm craving delicious ramen at Kurihama's Ohako restaurant right now, hope it stays open late despite the rain! #Yokosuka #Miura #Yokohama #Zushi #Hayama #MiuraPeninsula #Kana",
-  "permalink": "./?post=feed_20260126_174635_JST",
+  "image": "./image/feed_20260126_172438_JST.png",
+  "image_url": "./image/feed_20260126_172438_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a chilly rainy evening in Yokosuka tonight. If you're looking for some warmth, head over to Sumibi Yakiniku Shin Yokosuka Chuo and enjoy their delicious yakiniku 🌧️🔥🍜 #Yokosuka #Miura #Yokohama #Zushi ",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-01-26T08:54:23.290178Z"
+  "image_generated_at": "2026-01-26T08:33:20.831141Z",
+  "permalink": "./?post=feed_20260126_172438_JST"
 }
