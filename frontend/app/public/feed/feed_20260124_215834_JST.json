@@ -1,0 +1,67 @@
+{
+  "id": "feed_20260124_215834_JST",
+  "date": "2026-01-24",
+  "text": "🗑️ Garbage reminder: please check tomorrow's collection and sorting rules.",
+  "place": "Yokosuka",
+  "generated_at": "2026-01-24T12:58:36Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-24T12:58:36.619181+00:00",
+    "place": "Yokosuka",
+    "latitude": 35.281,
+    "longitude": 139.6722,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-24T21:50:00+09:00",
+      "temp_c": 7.0,
+      "apparent_temp_c": null,
+      "humidity_pct": 49.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 20.88,
+      "wind_dir_deg": 270.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-24",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 10
+    },
+    "tomorrow": {
+      "date": "2026-01-25",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　朝　から　昼前　くもり",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-24T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/documents/english2023.pdf"
+  ],
+  "image": "./image/feed_20260124_215834_JST.png",
+  "image_url": "./image/feed_20260124_215834_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: 🗑️ Garbage reminder: please check tomorrow's collection and sorting rules.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-24T13:02:18.675619Z",
+  "permalink": "./?post=feed_20260124_215834_JST"
+}
