@@ -61,6 +61,27 @@ def env_bool(name: str, default: bool = False) -> bool:
     return True
 
 
+
+def env_int(name: str, default: int) -> int:
+    v = env(name, None)
+    if v is None or str(v).strip() == "":
+        return int(default)
+    try:
+        return int(str(v).strip())
+    except Exception:
+        print(f"WARN: invalid int env {name}={v!r}; using default {default}", file=sys.stderr)
+        return int(default)
+
+def env_float(name: str, default: float) -> float:
+    v = env(name, None)
+    if v is None or str(v).strip() == "":
+        return float(default)
+    try:
+        return float(str(v).strip())
+    except Exception:
+        print(f"WARN: invalid float env {name}={v!r}; using default {default}", file=sys.stderr)
+        return float(default)
+
 def is_blank(s: str) -> bool:
     return not s or not s.strip()
 
@@ -384,6 +405,7 @@ def build_payload(
     snap_obj: Dict[str, Any] | None,
     max_chars: int,
     include_debug: bool,
+    blocked_urls: List[str] | None = None,
     datetime: str | None = None,
 ) -> dict:
     # Send only a compact weather summary (condition words + temp) to the LLM.
@@ -395,10 +417,12 @@ def build_payload(
         "include_debug": include_debug,
         "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
-        "variety": float(os.getenv("RAG_VARIETY")),
-        "seed": int(os.getenv("TOPIC_VARIANT")),
-        "anchor_top_n": int(os.getenv("RAG_TOP_K")),
+        "variety": env_float("RAG_VARIETY", 0.0),
+        "seed": env_int("TOPIC_VARIANT", 0),
+        "anchor_top_n": env_int("RAG_ANCHOR_TOP_N", env_int("RAG_TOP_K", min(8, max(2, int(top_k or 5))))),
     }
+    if blocked_urls:
+        payload["blocked_urls"] = [u for u in blocked_urls if isinstance(u, str) and u.strip()]
     return payload
 
 def extract_tweet(resp_obj: Dict[str, Any]) -> str:
@@ -417,6 +441,97 @@ def extract_links(resp_obj: Any) -> List[str]:
         if v:
             links = [v]
     return links[:1]
+
+
+def _read_json_file(path: Path) -> Any:
+    try:
+        txt = path.read_text(encoding="utf-8", errors="ignore").strip()
+        if not txt:
+            return None
+        try:
+            return json.loads(txt)
+        except json.JSONDecodeError:
+            # tolerate accidental multiple JSON objects in one file
+            objs = parse_json_objects(txt)
+            return objs[-1] if objs else None
+    except Exception:
+        return None
+
+def _urls_from_item(obj: Any) -> List[str]:
+    if not isinstance(obj, dict):
+        return []
+    urls: List[str] = []
+    urls.extend(extract_links(obj))
+    # Legacy/alternate shapes
+    link = obj.get("link")
+    if isinstance(link, str) and link.strip():
+        urls.append(link.strip())
+    url = obj.get("url")
+    if isinstance(url, str) and url.strip():
+        urls.append(url.strip())
+    # Deduplicate while preserving order
+    seen: set[str] = set()
+    out: List[str] = []
+    for u in urls:
+        if not isinstance(u, str):
+            continue
+        u2 = u.strip()
+        if not u2 or u2 in seen:
+            continue
+        seen.add(u2)
+        out.append(u2)
+    return out
+
+def collect_recent_urls(latest_paths: List[str], feed_paths: List[str], max_files: int = 20, max_urls: int = 64) -> List[str]:
+    """Collect recently used URLs from latest.json and recent feed_*.json files (to avoid repeats)."""
+    seen: set[str] = set()
+    out: List[str] = []
+
+    def add(u: str) -> None:
+        if not u or u in seen:
+            return
+        seen.add(u)
+        out.append(u)
+
+    # 1) latest.json first (usually the most recent)
+    for lp in latest_paths:
+        p = Path(lp)
+        if not p.exists():
+            continue
+        obj = _read_json_file(p)
+        for u in _urls_from_item(obj):
+            add(u)
+        if len(out) >= max_urls:
+            return out[:max_urls]
+
+    # 2) then recent feed snapshots
+    dirs: List[Path] = []
+    dir_seen: set[Path] = set()
+    for fp in feed_paths:
+        d = Path(fp).parent
+        if d not in dir_seen:
+            dir_seen.add(d)
+            dirs.append(d)
+    for lp in latest_paths:
+        d = Path(lp).parent / "feed"
+        if d not in dir_seen:
+            dir_seen.add(d)
+            dirs.append(d)
+
+    for d in dirs:
+        if not d.exists():
+            continue
+        files = sorted(d.glob("feed_*.json"))
+        if not files:
+            continue
+        for f in reversed(files[-max_files:]):
+            obj = _read_json_file(f)
+            for u in _urls_from_item(obj):
+                add(u)
+            if len(out) >= max_urls:
+                return out[:max_urls]
+
+    return out[:max_urls]
 
 def extract_detail(resp_obj: Dict[str, Any]) -> str:
     d = resp_obj.get("detail")
@@ -633,12 +748,20 @@ def main() -> int:
     query_url = f"{api_base}/rag/query?{urllib.parse.urlencode(q)}"
 
     # Warm up once: DO NOT bypass build_payload; keep request schema consistent.
+    # Avoid repeating the same URL/content across runs by blocking recently used links
+    blocked_urls = collect_recent_urls(
+        latest_paths=latests,
+        feed_paths=feeds,
+        max_files=env_int("RAG_BLOCKED_FILES_MAX", 20),
+        max_urls=env_int("RAG_BLOCKED_URLS_MAX", 64),
+    )
     warm_payload = build_payload(
         question="ping",
         top_k=1,
         snap_obj=snap_obj,
         max_chars=max_chars,
         include_debug=True,
+        blocked_urls=blocked_urls,
         datetime=now_dt_local.isoformat(),
     )
     # Hard fail if payload shape regresses again
@@ -659,6 +782,7 @@ def main() -> int:
         snap_obj=snap_obj,
         max_chars=max_chars,
         include_debug=include_debug,
+        blocked_urls=blocked_urls,
         datetime=str(now_dt_local), 
     )
 
