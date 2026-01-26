@@ -250,7 +250,7 @@ function makeAnchor(anchorId: string): SlotItem {
 }
 
 function interleaveAds(posts: FeedItem[]): TimelineItem[] {
-  // "5件に1件" = every Nth item is an ad (i.e. after N-1 posts)
+  // every Nth item is an ad (i.e. after N-1 posts)
   const n = ITEM_EVERY_N;
   const afterPosts = Math.max(1, n - 1);
 
