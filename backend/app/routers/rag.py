@@ -365,41 +365,24 @@ def _env_float(name: str, default: float) -> float:
     except ValueError:
         return default
 
-def _env_bool(name: str, default: bool = False) -> bool:
-    v = os.getenv(name)
-    if v is None:
-        return default
-    s = str(v).strip().lower()
-    if s in ("1", "true", "t", "yes", "y", "on"):
-        return True
-    if s in ("0", "false", "f", "no", "n", "off", ""):
-        return False
-    return default
-
-def _ollama_chat_payload(*, model: Optional[str], system_prompt: str, user_prompt: str) -> Dict[str, Any]:
-    """Build an Ollama /api/chat payload (safe defaults)."""
-    resolved_model = model or os.getenv("RAG_MODEL") or "llama3.1"
-
-    temperature = _env_float("OLLAMA_TEMPERATURE", 0.7)
-    num_predict = _env_int("OLLAMA_NUM_PREDICT", 256)
-    num_thread = _env_int("OLLAMA_NUM_THREAD", 0)
-
-    options: Dict[str, Any] = {
-        "temperature": temperature,
-        "num_predict": num_predict,
-    }
-    if num_thread and num_thread > 0:
-        options["num_thread"] = num_thread
-
+def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
+    num_predict = int((os.getenv("OLLAMA_NUM_PREDICT")))
+    temperature = float((os.getenv("OLLAMA_TEMPERATURE")))
+    num_thread = int((os.getenv("OLLAMA_NUM_THREAD")))
     return {
-        "model": resolved_model,
+        "model": model,
         "stream": False,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        "options": options,
+        "options": {
+            "temperature": temperature,
+            "num_predict": num_predict,
+            "num_thread": num_thread,
+        },
     }
+
 
 def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
     llm = _get_ollama_llm(model=model)
@@ -835,8 +818,6 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
 
     # Retrieve context
     try:
-        chunks = rag_store.query_similar_chunks(question, top_k=top_k)
-
         # Normalize blocked URLs (recently used primary links)
         blocked: Set[str] = set()
         for u in (payload.blocked_urls or []):
@@ -844,16 +825,36 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             if nu:
                 blocked.add(nu)
 
-        # If we can, prefer chunks that don't point to recently-used URLs
+        # Oversample retrieval when we want to avoid repeats or add variety.
+        retrieval_k = top_k
+        try:
+            v_for_retrieval = float(getattr(payload, "variety", 0.0) or 0.0)
+        except Exception:
+            v_for_retrieval = 0.0
+        if v_for_retrieval < 0:
+            v_for_retrieval = 0.0
+        try:
+            anchor_top_n = int(getattr(payload, "anchor_top_n", 8) or 8)
+        except Exception:
+            anchor_top_n = 8
+        anchor_top_n = max(2, min(50, anchor_top_n))
+        if blocked or v_for_retrieval > 0:
+            retrieval_k = max(retrieval_k, anchor_top_n, top_k * 5)
+        retrieval_k = max(1, min(50, retrieval_k))
+
+        chunks = rag_store.query_similar_chunks(question, top_k=retrieval_k)
+        # Prefer chunks that don't point to recently-used URLs, but keep blocked hits as fallback.
         if blocked and chunks:
-            filtered = []
+            unblocked = []
+            blocked_hits = []
             for c in chunks:
                 c_links = collect_source_links(chunks=[c], limit=16)
-                if any(u in blocked for u in c_links):
-                    continue
-                filtered.append(c)
-            if filtered:
-                chunks = filtered
+                if any((normalize_url(u) in blocked) for u in c_links):
+                    blocked_hits.append(c)
+                else:
+                    unblocked.append(c)
+            if unblocked:
+                chunks = unblocked + blocked_hits
 
         chunks = _postprocess_retrieved_chunks(
             chunks,
@@ -879,9 +880,12 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
             # deterministic-ish rotation by hour if datetime exists
             s = int(now_dt.strftime("%Y%m%d%H")) if now_dt else 0
         top_n = int(getattr(payload, "anchor_top_n", 8) or 8)
-        top_n = max(2, min(top_n, len(chunks), int(payload.top_k or 5)))
+        top_n = max(2, min(top_n, len(chunks)))
         chunks = reorder_chunks_for_variety(chunks=chunks, seed=int(s), top_n=top_n, variety=v)
- 
+
+    # Trim back to requested context size (we may have oversampled retrieval above).
+    if len(chunks) > top_k:
+        chunks = chunks[:top_k]
 
     context_texts = [(getattr(c, "text", "") or "").strip() for c in chunks]
     context_texts = [t for t in context_texts if t]
@@ -908,11 +912,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     )
 
     now_block = _now_block(request, payload.datetime)
-    try:
-        max_chars = int(payload.max_chars) if payload.max_chars is not None else _env_int("MAX_CHARS", 256)
-    except Exception:
-        max_chars = _env_int("MAX_CHARS", 256)
-    max_chars = max(60, min(512, max_chars))
+    max_chars = int(payload.max_chars)
 
     sys_prompt, user_prompt = build_chat_prompts(
         question=question,
@@ -925,56 +925,183 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         max_chars=max_chars,
     )
 
-    # Generation (LangGraph / LangChain)
-    audit_enabled = _env_bool("RAG_AUDIT", False)
-    rewrite_enabled = _env_bool("RAG_AUDIT_REWRITE", True)
+    # Generation (+ optional audit loop)
+    removed_urls_total: List[str] = []
+    original_answer: Optional[str] = None
+    last_audit: Optional[AuditResult] = None
 
-    attempts = _env_int("RAG_AUDIT_MAX_ATTEMPTS", 2 if rewrite_enabled else 1)
-    if not (audit_enabled or rewrite_enabled):
-        attempts = 1
-    attempts = max(1, min(5, attempts))
+    audit_enabled = os.getenv("RAG_AUDIT")
+    rewrite_enabled = os.getenv("RAG_AUDIT_REWRITE")
+    attempts = int(os.getenv("RAG_AUDIT_MAX_ATTEMPTS"))
 
-    try:
-        graph = _get_generation_graph()
-        st: _GenState = graph.invoke(
-            {
-                "question": question,
-                "sys_prompt": sys_prompt,
-                "user_prompt": user_prompt,
-                "required_mention": required_mention,
-                "required_url": required_url,
-                "allowed_urls": allowed_urls,
-                "max_chars": max_chars,
-                "now_dt": now_dt,
-                "now_block": now_block,
-                "wants_future_events": wants_future_events,
-                "strict_context": bool(getattr(payload, "strict_context", False)),
-                "include_debug": bool(getattr(payload, "include_debug", False)),
-                "audit_enabled": audit_enabled,
-                "rewrite_enabled": rewrite_enabled,
-                "attempt": 1,
-                "attempts": attempts,
-                "removed_urls_total": [],
-                "original_answer": None,
-                "last_audit": None,
-            }
+    answer = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            candidate = _call_ollama_chat(
+                question=question,
+                system_prompt=sys_prompt,
+                user_prompt=user_prompt,
+            )
+        except Exception as e:
+            logger.exception("ollama chat failed")
+            raise HTTPException(status_code=502, detail=f"LLM call failed: {e}")
+
+        if original_answer is None:
+            original_answer = candidate
+
+        candidate = finalize_answer(
+            answer=candidate,
+            required_mention=required_mention,
+            max_chars=max_chars,
+            now_dt=now_dt,
         )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.exception("generation graph failed")
-        raise HTTPException(status_code=502, detail=f"LLM call failed: {e}")
 
-    answer = (st.get("answer") or "").strip()
-    removed_urls_total = list(st.get("removed_urls_total") or [])
-    original_answer = st.get("original_answer")
-    last_audit = st.get("last_audit")
+        candidate, removed = filter_answer_urls(
+            candidate,
+            allowed_urls,
+        )
 
-    if not answer:
-        raise HTTPException(status_code=502, detail="LLM returned empty answer")
+        removed_urls_total.extend(removed)
+
+        candidate = finalize_answer(
+            answer=candidate,
+            required_mention=required_mention,
+            max_chars=max_chars,
+            now_dt=now_dt,
+        )
+
+        issues: List[str] = []
+        if wants_future_events and now_dt:
+            issues.extend(_temporal_issues_future_event_answer(candidate, now_dt=now_dt) or [])
+
+        t = (candidate or "").strip()
+        if "\n" in t or "\r" in t:
+            issues.append("no line breaks (single paragraph)")
+        if "http://" in t or "https://" in t:
+            issues.append("no URLs in text")
+        sents = [s for s in re.split(r"(?<=[.!?])\s+", t) if s.strip()]
+        if len(sents) != 3:
+            issues.append("exactly 3 sentences")
+        low = t.lower()
+        if not re.search(r"\b(sunny|cloudy|windy|chilly|rainy)\b", low):
+            issues.append("sentence 2 must include weather word")
+        if not re.search(r"\b-?\d{1,2}\s*°\s*c\b", low):
+            issues.append("sentence 2 must include temperature like 10°C")
+
+        answer = candidate
+        if issues and rewrite_enabled and attempt < attempts:
+            feedback = "; ".join(issues[:5])
+            user_prompt = (
+                user_prompt
+                + "\n\n"
+                + f"Format feedback: {feedback}\n"
+                + "Rewrite to comply with rules. Do not add new facts.\n"
+            )
+            continue
+        if issues:
+            break
+
+        if not audit_enabled:
+            break
+
+        audit_model = AUDIT_MODEL
+        audit_lite: AuditLite = run_answer_audit(
+            call_chat_with_model=lambda m, sp, up: _call_ollama_chat_with_model(
+                model=m, system_prompt=sp, user_prompt=up
+            ),
+            model=audit_model,
+            answer=candidate,
+            question=question,
+            now_block=now_block,
+            allowed_urls=allowed_urls,
+            required_url=required_url,
+            strict_context=bool(payload.strict_context),
+            allow_rewrite=bool(rewrite_enabled),
+            max_chars=max_chars,
+        )
+
+        last_audit = AuditResult(
+            model=audit_model,
+            passed=audit_lite.passed,
+            score=audit_lite.score,
+            confidence=audit_lite.confidence,
+            issues=audit_lite.issues,
+            fixed_answer=audit_lite.fixed_answer,
+            original_answer=original_answer if rewrite_enabled else None,
+            raw=audit_lite.raw if payload.include_debug else None,
+        )
+
+        if audit_lite.passed:
+            answer = candidate
+            break
+
+        # If audit suggests a fixed answer, apply it once and re-audit (without rewrite).
+        if audit_lite.fixed_answer:
+            fixed = finalize_answer(
+                answer=audit_lite.fixed_answer,
+                required_mention=required_mention,
+                max_chars=max_chars,
+                now_dt=now_dt,
+            )
+                                  
+            fixed, removed2 = filter_answer_urls(
+                fixed,
+                allowed_urls,
+            )
+
+            removed_urls_total.extend(removed2)
+            fixed = finalize_answer(
+                answer=fixed,
+                required_mention=required_mention,
+                max_chars=max_chars,
+                now_dt=now_dt,
+            )
+            candidate = fixed
+
+            audit2 = run_answer_audit(
+                call_chat_with_model=lambda m, sp, up: _call_ollama_chat_with_model(
+                    model=m, system_prompt=sp, user_prompt=up
+                ),
+                model=audit_model,
+                answer=candidate,
+                question=question,
+                now_block=now_block,
+                allowed_urls=allowed_urls,
+                required_url=required_url,
+                strict_context=bool(payload.strict_context),
+                allow_rewrite=False,
+                max_chars=max_chars,
+            )
+            last_audit = AuditResult(
+                model=audit_model,
+                passed=audit2.passed,
+                score=audit2.score,
+                confidence=audit2.confidence,
+                issues=audit2.issues,
+                fixed_answer=None,
+                original_answer=original_answer if rewrite_enabled else None,
+                raw=audit2.raw if payload.include_debug else None,
+            )
+            answer = candidate
+            if audit2.passed:
+                break
+
+        # If we can try again, add audit feedback to the prompt and regenerate.
+        answer = candidate
+        if attempt < attempts and rewrite_enabled:
+            feedback = "; ".join(last_audit.issues[:5]) if last_audit else "audit_failed"
+            # Tighten user prompt without altering base structure too much
+            user_prompt = (
+                user_prompt
+                + "\n\n"
+                + f"Audit feedback: {feedback}\n"
+                + "Rewrite to comply with rules. Do not add new facts.\n"
+            )
+            continue
+
+        break
 
     # Build links out:
-
     # - explicit links (caller)
     # - source links (data.json metadata)
     # - ensure required_url is included
