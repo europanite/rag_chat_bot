@@ -44,15 +44,11 @@ jobs:
           docker system prune -af || true
           df -h
 
-      - name: Start stack (build)
+      - name: Make pipeline scripts executable
         run: |
-          set -euxo pipefail
-          export DOCKER_BUILDKIT=1
-          export COMPOSE_DOCKER_CLI_BUILD=1
-          export BUILDKIT_PROGRESS=plain
-          docker compose -f docker-compose.yml build --pull
+          chmod +x scripts/pipeline.sh scripts/feed.sh
 
-      - name: Start stack (up)
+      - name: Run feed pipeline
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
@@ -61,15 +57,29 @@ jobs:
           EMBEDDING_MODEL: "mxbai-embed-large"
           RAG_MODEL: "llama3.1:8b"
           AUDIT_MODEL: "llama3.2:3b"
-          RAG_AUDIT: 0
-          RAG_AUDIT_REWRITE: 1
-          RAG_AUDIT_MAX_ATTEMPTS: 2
-        run: |
-          set -euxo pipefail
-          docker compose -f docker-compose.yml up -d
-          docker compose -f docker-compose.yml ps
+          RAG_AUDIT: "0"
+          RAG_AUDIT_REWRITE: "1"
+          RAG_AUDIT_MAX_ATTEMPTS: "2"
 
-      - name: Dump docker logs on failure
+          # (generate_talk.py env)
+          LAT: "35.2810"
+          LON: "139.6722"
+          TZ_NAME: "Asia/Tokyo"
+          RAG_TOP_K: "16"
+          CURL_MAX_TIME: "512"
+          CURL_RETRIES: "0"
+          PLACE: "Yokosuka"
+          FEED_PATH: "frontend/app/public"
+          LATEST_PATH: "frontend/app/public/latest.json"
+          MAX_CHARS: "256"
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
+          TOPIC_VARIANT: ${{ github.run_number }}
+          RAG_VARIETY: "1.0"
+          DEBUG: "1"
+        run: |
+          bash scripts/feed.sh --ci
+
+      - name: Dump logs on failure
         if: failure()
         run: |
           docker compose -f docker-compose.yml ps || true
@@ -77,65 +87,10 @@ jobs:
           docker system df || true
           df -h || true
 
-      - name: Wait for backend
-        env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-        run: |
-          ok=0
-          for i in {1..600}; do
-            if curl -fsS --connect-timeout 1 --max-time 2 http://localhost:8000/health >/dev/null 2>&1; then
-              ok=$((ok+1))
-              [ "$ok" -ge 3 ] && break
-            else
-              ok=0
-            fi
-            sleep 2
-          done
-
-          if [ "$ok" -ge 3 ]; then
-            echo "backend is stable"
-          else
-            echo "Backend did not become ready in time"
-            docker compose -f docker-compose.yml ps || true
-            docker compose -f docker-compose.yml logs --no-color --tail=400 backend ollama db || true
-            exit 1
-          fi
-
-      - name: Fix permissions for feed dirs
-        run: |
-          sudo chown -R "$USER:$USER" frontend/app/public || true
-          chmod -R u+rwX frontend/app/public || true
-
-      - name: Generate post
-        env:
-          LAT: "35.2810"
-          LON: "139.6722"
-          TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: 16
-          CURL_MAX_TIME: 512
-          CURL_RETRIES: 0
-          PLACE: "Yokosuka"
-          FEED_PATH: frontend/app/public
-          LATEST_PATH: frontend/app/public/latest.json
-          MAX_CHARS: 256
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-          OLLAMA_TIMEOUT_S: 512
-          TOPIC_VARIANT: ${{ github.run_number }}
-          RAG_VARIETY: 1.0
-          DEBUG: 1
-        run: |
-          python scripts/generate_talk.py
-      - name: Dump logs on failure
-        if: failure()
-        run: |
-          docker compose logs --no-color --tail=200 ollama
-          docker compose logs --no-color --tail=200 backend
       - name: Stop stack
-        env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
         if: always()
         run: |
-          docker compose down
+          docker compose -f docker-compose.yml down || true
 
       - name: Commit & push if changed
         id: commit
@@ -248,7 +203,7 @@ jobs:
 
       - name: Generate illustrated image and patch feed
         env:
-          # arrange(img2img) 
+          # arrange(img2img)
           INPUT_IMAGE: "snapshot.jpg"
           MODE: "img2img"
           PATCH_JSON: "1"

@@ -20,8 +20,10 @@ import logging
 import re
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Set
-
 import requests
+from functools import lru_cache
+from langchain_ollama import ChatOllama
+from langchain_core.messages import SystemMessage, HumanMessage
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
@@ -40,6 +42,25 @@ router = APIRouter(prefix="/rag", tags=["rag"])
 
 # Reused HTTP session for Ollama calls (tests monkeypatch this).
 _session = requests.Session()
+
+def _env_int(name: str, default: int) -> int:
+    v = os.getenv(name)
+    if not v:
+        return default
+    try:
+        return int(v)
+    except ValueError:
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    v = os.getenv(name)
+    if not v:
+        return default
+    try:
+        return float(v)
+    except ValueError:
+        return default
 
 def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
     num_predict = int((os.getenv("OLLAMA_NUM_PREDICT")))
@@ -61,14 +82,46 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
 
 
 def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
-    """Direct Ollama call for a specific model (tests may monkeypatch this)."""
-    url = f"{OLLAMA_BASE_URL}/api/chat"
-    payload = _ollama_chat_payload(model=model, system_prompt=system_prompt, user_prompt=user_prompt)
-    resp = _session.post(url, json=payload, timeout=(5, OLLAMA_TIMEOUT_S))
-    resp.raise_for_status()
-    data = resp.json() or {}
-    return ((data.get("message") or {}).get("content") or "").strip()
+    llm = _get_ollama_llm(model)
+    lc_messages = []
+    for m in messages:
+        role = m.get("role")
+        content = m.get("content", "") or ""
+        if role == "system":
+            lc_messages.append(SystemMessage(content=content))
+        else:
+            lc_messages.append(HumanMessage(content=content))
 
+    result = llm.invoke(lc_messages)
+    return (getattr(result, "content", "") or "").strip()
+
+
+@lru_cache(maxsize=16)
+def _get_ollama_llm(
+    model: Optional[str] = None,
+    *,
+    base_url: Optional[str] = None,
+    temperature: Optional[float] = None,
+    num_predict: Optional[int] = None,
+    num_thread: Optional[int] = None,
+    timeout_s: Optional[float] = None,
+) -> ChatOllama:
+    model = model or os.getenv("RAG_MODEL") or "llama3.1"
+    base_url = (base_url or os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434").rstrip("/")
+
+    temperature = temperature if temperature is not None else _env_float("OLLAMA_TEMPERATURE", 0.2)
+    num_predict = num_predict if num_predict is not None else _env_int("OLLAMA_NUM_PREDICT", 256)
+    num_thread = num_thread if num_thread is not None else _env_int("OLLAMA_NUM_THREAD", 4)
+    timeout_s = timeout_s if timeout_s is not None else float(_env_int("OLLAMA_TIMEOUT_S", 60))
+
+    return ChatOllama(
+        model=model,
+        base_url=base_url,
+        temperature=temperature,
+        num_predict=num_predict,
+        num_thread=num_thread,
+        client_kwargs={"timeout": timeout_s},
+    )
 
 def _call_ollama_chat(
     *,

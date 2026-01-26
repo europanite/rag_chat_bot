@@ -1,10 +1,6 @@
 name: Ingest
 
-# Run manually after updating data/json/**
-
 on:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
 
 permissions:
@@ -35,78 +31,28 @@ jobs:
           docker system prune -af || true
           df -h
 
-      - name: Prepare chroma_db dir
+      - name: Ensure pipeline script is executable
         run: |
-          mkdir -p chroma_db
-          rm -rf chroma_db/*
-          touch chroma_db/.gitkeep
+          set -eux
+          chmod +x scripts/ingest.sh
 
-      - name: Start stack (db + ollama + backend)
+      - name: Ingest (via shared pipeline script)
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
           RAG_REINDEX_ENABLED: "true"
-          OLLAMA_TIMEOUT_S: 512
+          OLLAMA_TIMEOUT_S: "512"
           OLLAMA_BASE_URL: "http://ollama:11434"
           RAG_MODEL: "llama3.1:8b"
           AUDIT_MODEL: "llama3.1:8b"
           EMBEDDING_MODEL: "mxbai-embed-large"
         run: |
-          set -euxo pipefail
-          export DOCKER_BUILDKIT=1
-          export COMPOSE_DOCKER_CLI_BUILD=1
-          export BUILDKIT_PROGRESS=plain
-          docker compose -f docker-compose.yml up -d --build db ollama backend
-          docker compose -f docker-compose.yml ps
-
-      - name: Wait for backend
-        env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: 127.0.0.1
-          OLLAMA_TIMEOUT_S:  512
-        run: |
-          ok=0
-          for i in {1..600}; do
-            if curl -fsS http://localhost:8000/rag/status >/dev/null 2>&1; then
-              ok=1
-              break
-            fi
-            sleep 1
-          done
-          if [ "$ok" != "1" ]; then
-            echo "backend not ready"
-            docker compose logs --no-color backend || true
-            exit 1
-          fi
-          curl -sS http://localhost:8000/rag/status
-
-      - name: Reindex (ingest)
-        run: |
           set -euo pipefail
-
-          set +e
-          curl -sS --fail-with-body \
-            --retry 10 --retry-all-errors --retry-delay 5 \
-            -X POST http://localhost:8000/rag/reindex \
-            -D /tmp/reindex.headers -o /tmp/reindex.body
-          rc=$?
-          set -e
-
-          echo "---- headers ----"
-          cat /tmp/reindex.headers || true
-          echo "---- body ----"
-          cat /tmp/reindex.body || true
-          echo "-------------"
-
-          curl -sS http://localhost:8000/rag/status || true
-          if [ "$rc" -ne 0 ]; then
-            docker compose logs --no-color ollama --tail 200 || true
-            docker compose logs --no-color backend --tail 200 || true
-          fi
-
-          exit "$rc"
+          bash scripts/pipeline.sh ingest --ci
 
       - name: Verify chroma_db written
         run: |
+          set -euo pipefail
           echo "chroma_db file count:"
           find chroma_db -type f | wc -l
           echo "chroma_db size:"
@@ -121,10 +67,12 @@ jobs:
 
       - name: Commit & push chroma_db
         run: |
+          set -euo pipefail
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull
+          git pull --ff-only origin main
 
           git add -A chroma_db
           if git diff --cached --quiet; then
