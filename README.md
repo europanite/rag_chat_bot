@@ -47,6 +47,7 @@ docker compose \
   --rm frontend_test
 ```
 
+### 4. Operations:
 ```bash
 # Update info
 python3 local/md_dir_to_json.py --recursive data/md/ data/json/data.json
