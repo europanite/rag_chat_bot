@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-26T02:38:40Z",
+  "id": "feed_20260126_113346_JST",
   "date": "2026-01-26",
   "text": "Good afternoon! It's a chilly day in Yokosuka today, rainy with 7°C. If you need a cozy spot to escape the rain, head to 5F SHELL / Gokai Shell on the 5th floor near Yokosuka-Chuo for some delicious food and drinks!",
   "place": "Yokosuka",
@@ -56,5 +56,12 @@
   },
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14081625/"
-  ]
+  ],
+  "image": "./image/feed_20260126_113346_JST.png",
+  "image_url": "./image/feed_20260126_113346_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a chilly day in Yokosuka today, rainy with 7°C. If you need a cozy spot to escape the rain, head to 5F SHELL / Gokai Shell on the 5th floor near Yokosuka-Chuo for some delicious food and drinks!",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-26T02:42:39.917397Z",
+  "permalink": "./?post=feed_20260126_113346_JST"
 }
