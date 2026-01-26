@@ -46,7 +46,7 @@ docker compose \
   -f docker-compose.test.yml run \
   --rm frontend_test
 ```
-
+---
 ### 4. Operations:
 ```bash
 # Update info
