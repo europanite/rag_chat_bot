@@ -48,8 +48,30 @@ docker compose \
 ```
 
 ```bash
-# Chore
+# Update info
 python3 local/md_dir_to_json.py --recursive data/md/ data/json/data.json
+```
+
+```bash
+# Ingest
+docker compose up -d --build db ollama backend
+until curl -fsS http://localhost:8000/rag/status >/dev/null; do sleep 2; done
+curl -sS --fail-with-body -X POST http://localhost:8000/rag/reindex
+docker compose down
+```
+
+```bash
+# Feed
+docker compose -f docker-compose.yml build --pull
+docker compose -f docker-compose.yml up -d
+for i in {1..600}; do
+  if curl -fsS --connect-timeout 1 --max-time 2 http://localhost:8000/health >/dev/null 2>&1; then
+    echo "backend ok"; break
+  fi
+  sleep 2
+done
+python scripts/generate_talk.py
+docker compose -f docker-compose.yml down
 ```
 
 ---
