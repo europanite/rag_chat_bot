@@ -406,6 +406,7 @@ def build_payload(
     max_chars: int,
     include_debug: bool,
     blocked_urls: List[str] | None = None,
+    blocked_terms: List[str] | None = None,
     datetime: str | None = None,
 ) -> dict:
     # Send only a compact weather summary (condition words + temp) to the LLM.
@@ -423,6 +424,8 @@ def build_payload(
     }
     if blocked_urls:
         payload["blocked_urls"] = [u for u in blocked_urls if isinstance(u, str) and u.strip()]
+    if blocked_terms:
+        payload["blocked_terms"] = [t for t in blocked_terms if isinstance(t, str) and t.strip()]
     return payload
 
 def extract_tweet(resp_obj: Dict[str, Any]) -> str:
@@ -533,6 +536,130 @@ def collect_recent_urls(latest_paths: List[str], feed_paths: List[str], max_file
 
     return out[:max_urls]
 
+def extract_required_mention(resp_obj: Any) -> str:
+    if not isinstance(resp_obj, dict):
+        return ""
+    # Prefer top-level fields (Phase5 backend), fallback to debug
+    rm = resp_obj.get("required_mention")
+    if isinstance(rm, str) and rm.strip():
+        return rm.strip()
+    dbg = resp_obj.get("debug")
+    if isinstance(dbg, dict):
+        rm2 = dbg.get("required_mention")
+        if isinstance(rm2, str) and rm2.strip():
+            return rm2.strip()
+    return ""
+
+_BLOCK_TERM_STOP = {
+    "yokosuka",
+    "yokosuka city",
+    "miura peninsula",
+    "kanagawa",
+    "japan",
+    "tokyo",
+    "vrchat",
+    "metaverse yokosuka",
+}
+
+def _normalize_term(s: str) -> str:
+    s2 = (s or "").strip()
+    s2 = re.sub(r"\s+", " ", s2)
+    return s2
+
+def _term_ok(term: str) -> bool:
+    t = _normalize_term(term)
+    if not t:
+        return False
+    low = t.lower()
+    if low in _BLOCK_TERM_STOP:
+        return False
+    # Avoid blocking too-short generic ASCII tokens (but allow short JP names)
+    if len(low) < 3 and all("a" <= ch <= "z" for ch in low):
+        return False
+    return True
+
+def _terms_from_item(obj: Any) -> List[str]:
+    if not isinstance(obj, dict):
+        return []
+    out: List[str] = []
+    rm = obj.get("required_mention")
+    if isinstance(rm, str) and rm.strip():
+        out.append(rm.strip())
+    meta = obj.get("meta")
+    if isinstance(meta, dict):
+        rm2 = meta.get("required_mention")
+        if isinstance(rm2, str) and rm2.strip():
+            out.append(rm2.strip())
+    tp = obj.get("topic")
+    if isinstance(tp, str) and tp.strip():
+        out.append(tp.strip())
+
+    seen: set[str] = set()
+    uniq: List[str] = []
+    for t in out:
+        nt = _normalize_term(t)
+        if not _term_ok(nt):
+            continue
+        if nt in seen:
+            continue
+        seen.add(nt)
+        uniq.append(nt)
+    return uniq
+
+def collect_recent_terms(latest_paths: List[str], feed_paths: List[str], max_files: int = 20, max_terms: int = 32) -> List[str]:
+    """Collect recently used topic terms (required_mention) from latest.json and feed snapshots."""
+    seen: set[str] = set()
+    out: List[str] = []
+
+    def add(t: str) -> None:
+        if not t:
+            return
+        nt = _normalize_term(t)
+        if not _term_ok(nt):
+            return
+        if nt in seen:
+            return
+        seen.add(nt)
+        out.append(nt)
+
+    for lp in latest_paths:
+        p = Path(lp)
+        if not p.exists():
+            continue
+        obj = _read_json_file(p)
+        for t in _terms_from_item(obj):
+            add(t)
+        if len(out) >= max_terms:
+            return out[:max_terms]
+
+    dirs: List[Path] = []
+    dir_seen: set[Path] = set()
+    for fp in feed_paths:
+        d = Path(fp).parent
+        if d not in dir_seen:
+            dir_seen.add(d)
+            dirs.append(d)
+    for lp in latest_paths:
+        d = Path(lp).parent / "feed"
+        if d not in dir_seen:
+            dir_seen.add(d)
+            dirs.append(d)
+
+    for d in dirs:
+        if not d.exists():
+            continue
+        files = sorted(d.glob("feed_*.json"))
+        if not files:
+            continue
+        for f in reversed(files[-max_files:]):
+            obj = _read_json_file(f)
+            for t in _terms_from_item(obj):
+                add(t)
+            if len(out) >= max_terms:
+                return out[:max_terms]
+
+    return out[:max_terms]
+
 def extract_detail(resp_obj: Dict[str, Any]) -> str:
     d = resp_obj.get("detail")
     if isinstance(d, (list, dict)):
@@ -542,7 +669,7 @@ def extract_detail(resp_obj: Dict[str, Any]) -> str:
     return str(d)
 
 
-def build_entry(today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict[str, Any], links: Optional[List[str]] = None) -> Dict[str, Any]:
+def build_entry(today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict[str, Any], links: Optional[List[str]] = None, required_mention: str = "") -> Dict[str, Any]:
     if not today or not now_iso or not tweet:
         missing = [k for k, v in [("today", today), ("now_iso", now_iso), ("tweet", tweet)] if not v]
         raise RuntimeError(f"missing values for entry: {', '.join(missing)}")
@@ -554,7 +681,8 @@ def build_entry(today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict
         "text": tweet,
         "place": place or "",
         "weather": snap_obj,
-        "links": links
+        "links": links,
+        "required_mention": (required_mention or "").strip(),
     }
 
 
@@ -573,6 +701,7 @@ def to_item(entry: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "generated_at": entry.get("generated_at"),
         "weather": entry.get("weather"),
         "links": entry.get("links") or [],
+        "required_mention": (entry.get("required_mention") or "").strip(),
     }
 
 
@@ -755,6 +884,12 @@ def main() -> int:
         max_files=env_int("RAG_BLOCKED_FILES_MAX", 20),
         max_urls=env_int("RAG_BLOCKED_URLS_MAX", 64),
     )
+    blocked_terms = collect_recent_terms(
+        latest_paths=latests,
+        feed_paths=feeds,
+        max_files=env_int("RAG_BLOCKED_FILES_MAX", 20),
+        max_terms=env_int("RAG_BLOCKED_TERMS_MAX", 32),
+    )
     warm_payload = build_payload(
         question="ping",
         top_k=1,
@@ -762,6 +897,7 @@ def main() -> int:
         max_chars=max_chars,
         include_debug=True,
         blocked_urls=blocked_urls,
+        blocked_terms=blocked_terms,
         datetime=now_dt_local.isoformat(),
     )
     # Hard fail if payload shape regresses again
@@ -783,6 +919,7 @@ def main() -> int:
         max_chars=max_chars,
         include_debug=include_debug,
         blocked_urls=blocked_urls,
+        blocked_terms=blocked_terms,
         datetime=str(now_dt_local), 
     )
 
@@ -829,7 +966,8 @@ def main() -> int:
     # 4) Write outputs
     today = utc_date()
     now_iso = utc_now_iso_z()
-    entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj,links=links)
+    required_mention = extract_required_mention(resp_obj)
+    entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj,links=links, required_mention=required_mention)
 
     for feed_p, latest_p in pair_paths(feeds, latests):
         write_outputs(feed_p, latest_p, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
