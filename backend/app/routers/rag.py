@@ -150,6 +150,7 @@ def _node_audit(state: _GenState) -> _GenState:
         strict_context=bool(state.get("strict_context")),
         allow_rewrite=bool(state["rewrite_enabled"]),
         max_chars=int(state["max_chars"]),
+        require_required_url_in_answer=False,
     )
     state["last_audit"] = AuditResult(
         model=audit_model,
@@ -208,6 +209,7 @@ def _node_apply_fixed_then_reaudit(state: _GenState) -> _GenState:
         strict_context=bool(state.get("strict_context")),
         allow_rewrite=False,
         max_chars=int(state["max_chars"]),
+        require_required_url_in_answer=False,
     )
     state["last_audit"] = AuditResult(
         model=audit_model,
