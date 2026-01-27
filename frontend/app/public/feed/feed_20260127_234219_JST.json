@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-27T14:47:18Z",
+  "id": "feed_20260127_234219_JST",
   "date": "2026-01-27",
   "text": "Good night Yokosuka 🌃🏙️ It's chilly with 5°C outside, perfect excuse for a warm cake at Cake-ya popo 🍰 We should totally try their winter special menu tonight and stay cozy 😊",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.instagram.com/leeget/"
   ],
-  "required_mention": "cake屋popo (Cake-ya popo)"
+  "required_mention": "cake屋popo (Cake-ya popo)",
+  "image": "./image/feed_20260127_234219_JST.png",
+  "image_url": "./image/feed_20260127_234219_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night Yokosuka 🌃🏙️ It's chilly with 5°C outside, perfect excuse for a warm cake at Cake-ya popo 🍰 We should totally try their winter special menu tonight and stay cozy 😊",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-27T14:51:48.019189Z",
+  "permalink": "./?post=feed_20260127_234219_JST"
 }
