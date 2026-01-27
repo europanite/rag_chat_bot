@@ -870,7 +870,7 @@ def main() -> int:
     if scheduled_kind == "garbage_today":
         tweet = build_garbage_post(place=place, date="today")
         links = [GARBAGE_REMINDER_URL]
-
+            
         if hashtags and "#" not in tweet:
             picked = _pick_hashtags(hashtags, k=3, seed=now_local)
             tweet = _append_if_fit(tweet, picked, max_chars)
@@ -987,7 +987,8 @@ def main() -> int:
         return 1
 
     if hashtags and "#" not in tweet:
-        tweet = f"{tweet} {hashtags}"
+        picked = _pick_hashtags(hashtags, k=3, seed=now_local)
+        tweet = _append_if_fit(tweet, picked, max_chars)
 
     # 4) Write outputs
     today = utc_date()
