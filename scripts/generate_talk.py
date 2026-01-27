@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import time
+import random
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -19,6 +20,29 @@ from zoneinfo import ZoneInfo
 # Utilities
 # -----------------------------
 GARBAGE_REMINDER_URL = "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/documents/english2023.pdf"
+
+def _pick_hashtags(s: str, k: int, seed: str) -> str:
+    tags = [t.strip() for t in (s or "").split() if t.strip().startswith("#")]
+    uniq = []
+    seen = set()
+    for t in tags:
+        if t not in seen:
+            seen.add(t)
+            uniq.append(t)
+
+    if not uniq:
+        return ""
+
+    rng = random.Random(seed) 
+    if len(uniq) <= k:
+        return " ".join(uniq)
+    return " ".join(rng.sample(uniq, k))
+
+def _append_if_fit(tweet: str, extra: str, max_chars: int) -> str:
+    if not extra:
+        return tweet
+    candidate = f"{tweet} {extra}".strip()
+    return candidate if len(candidate) <= max_chars else tweet
 
 def _scheduled_kind_by_hour(hour: int) -> str:
     h = int(hour)
@@ -833,7 +857,8 @@ def main() -> int:
         links = [GARBAGE_REMINDER_URL]
 
         if hashtags and "#" not in tweet:
-            tweet = f"{tweet} {hashtags}"
+            picked = _pick_hashtags(hashtags, k=3, seed=now_local)
+            tweet = _append_if_fit(tweet, picked, max_chars)
 
         today = utc_date()
         now_iso = utc_now_iso_z()
@@ -847,7 +872,8 @@ def main() -> int:
         links = [GARBAGE_REMINDER_URL]
 
         if hashtags and "#" not in tweet:
-            tweet = f"{tweet} {hashtags}"
+            picked = _pick_hashtags(hashtags, k=3, seed=now_local)
+            tweet = _append_if_fit(tweet, picked, max_chars)
 
         today = utc_date()
         now_iso = utc_now_iso_z()
