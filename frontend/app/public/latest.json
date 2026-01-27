@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-27T13:14:55Z",
+  "id": "feed_20260127_220949_JST",
   "date": "2026-01-27",
   "text": "Good night.\nI'll visit Goshogasaki for some winter cool moments 🌃💡.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/spot/sukageni.html"
   ],
-  "required_mention": "Goshogasaki (御所ヶ崎)"
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "image": "./image/feed_20260127_220949_JST.png",
+  "image_url": "./image/feed_20260127_220949_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night. I'll visit Goshogasaki for some winter cool moments 🌃💡.",
+  "permalink": "./?post=feed_20260127_220949_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-27T13:18:30.109013Z"
 }
