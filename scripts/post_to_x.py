@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""Post the latest generated feed to X (Twitter).
+
+Reads JSON from LATEST_PATH (default: frontend/app/public/latest.json) and posts
+a tweet to X API v2 using OAuth 1.0a user context.
+
+Required env vars:
+  - X_API_KEY
+  - X_API_SECRET
+  - X_ACCESS_TOKEN
+  - X_ACCESS_TOKEN_SECRET
+
+Optional env vars:
+  - LATEST_PATH (default: frontend/app/public/latest.json)
+  - SITE_URL (default: https://<owner>.github.io)
+  - BASE_PATH (default: <repo> for project pages, empty for <owner>.github.io)
+  - DRY_RUN=1  (prints the tweet without posting)
+"""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import hmac
+import json
+import os
+import random
+import re
+import time
+import urllib.parse
+import urllib.request
+from typing import Dict, Tuple
+
+API_URL = "https://api.x.com/2/tweets"
+URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
+
+def pct(s: str) -> str:
+    return urllib.parse.quote(s, safe="~")
+
+def strip_urls(s: str) -> str:
+    s = URL_RE.sub("", s or "")
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+def truncate_utf8(s: str, max_chars: int) -> str:
+    if len(s) <= max_chars:
+        return s
+    # Keep it simple: truncate by characters (Python uses Unicode codepoints)
+    return s[: max_chars - 1].rstrip() + "…"
+
+def compute_site_and_base() -> Tuple[str, str]:
+    owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "").strip()
+    repo_full = os.environ.get("GITHUB_REPOSITORY", "").strip()  # owner/repo
+    repo = repo_full.split("/", 1)[1] if "/" in repo_full else os.environ.get("GITHUB_EVENT_REPOSITORY_NAME", "").strip()
+
+    site = (os.environ.get("SITE_URL") or "").strip().rstrip("/")
+    base = (os.environ.get("BASE_PATH") or "").strip().strip("/")
+
+    if not site and owner:
+        site = f"https://{owner}.github.io"
+    if base == "" and owner and repo:
+        # Default base path: project pages -> /repo, user/organization pages -> ""
+        if repo.lower() == f"{owner.lower()}.github.io":
+            base = ""
+        else:
+            base = repo
+
+    return site, base
+
+def make_share_url(site: str, base: str, post_id: str) -> str:
+    base_part = f"/{base}" if base else ""
+    if post_id:
+        return f"{site}{base_part}/p/{post_id}/"
+    return f"{site}{base_part}/"
+
+def oauth1_header(
+    method: str,
+    url: str,
+    consumer_key: str,
+    consumer_secret: str,
+    token: str,
+    token_secret: str,
+) -> str:
+    nonce = base64.b64encode(os.urandom(16)).decode("ascii").rstrip("=")
+    timestamp = str(int(time.time()))
+
+    oauth_params: Dict[str, str] = {
+        "oauth_consumer_key": consumer_key,
+        "oauth_nonce": nonce,
+        "oauth_signature_method": "HMAC-SHA1",
+        "oauth_timestamp": timestamp,
+        "oauth_token": token,
+        "oauth_version": "1.0",
+    }
+
+    # Signature base string
+    # For JSON body requests, request parameters are empty; only OAuth params are included.
+    param_items = [(pct(k), pct(v)) for k, v in oauth_params.items()]
+    param_items.sort()
+    param_str = "&".join([f"{k}={v}" for k, v in param_items])
+
+    base_elems = [method.upper(), pct(url), pct(param_str)]
+    base_str = "&".join(base_elems)
+
+    signing_key = f"{pct(consumer_secret)}&{pct(token_secret)}"
+    signature = base64.b64encode(hmac.new(signing_key.encode("utf-8"), base_str.encode("utf-8"), hashlib.sha1).digest()).decode("ascii")
+    oauth_params["oauth_signature"] = signature
+
+    # Authorization header
+    header_params = ", ".join([f'{pct(k)}="{pct(v)}"' for k, v in sorted(oauth_params.items())])
+    return f"OAuth {header_params}"
+
+def main() -> int:
+    api_key = os.environ.get("X_API_KEY", "")
+    api_secret = os.environ.get("X_API_SECRET", "")
+    access_token = os.environ.get("X_ACCESS_TOKEN", "")
+    access_secret = os.environ.get("X_ACCESS_TOKEN_SECRET", "")
+
+    missing = [k for k, v in [
+        ("X_API_KEY", api_key),
+        ("X_API_SECRET", api_secret),
+        ("X_ACCESS_TOKEN", access_token),
+        ("X_ACCESS_TOKEN_SECRET", access_secret),
+    ] if not v]
+    if missing:
+        raise SystemExit(f"Missing required env vars: {', '.join(missing)}")
+
+    latest_path = os.environ.get("LATEST_PATH", "frontend/app/public/latest.json")
+    with open(latest_path, "r", encoding="utf-8") as f:
+        obj = json.load(f)
+
+    post_id = str(obj.get("id") or obj.get("focus_id") or obj.get("doc_id") or "").strip()
+    raw_text = str(obj.get("text") or obj.get("title") or obj.get("summary") or "").strip()
+    raw_text = strip_urls(raw_text)
+
+    site, base = compute_site_and_base()
+    if not site:
+        raise SystemExit("Could not determine SITE_URL. Set SITE_URL env var or provide GITHUB_REPOSITORY_OWNER.")
+
+    share_url = make_share_url(site, base, post_id)
+
+    # Compose tweet
+    # Leave room for newline + URL (t.co length differs, but 23 chars is typical; be conservative).
+    # We'll enforce hard 280 char limit anyway.
+    core = raw_text if raw_text else "GOODDAY YOKOSUKA"
+    tweet = f"{core}\n{share_url}".strip()
+
+    if len(tweet) > 280:
+        # Try truncating core
+        # Reserve 1 newline + url length
+        reserve = 1 + len(share_url)
+        max_core = max(0, 280 - reserve)
+        core2 = truncate_utf8(core, max_core)
+        tweet = f"{core2}\n{share_url}".strip()
+        if len(tweet) > 280:
+            tweet = truncate_utf8(tweet, 280)
+
+    if os.environ.get("DRY_RUN", "").strip() == "1":
+        print(tweet)
+        return 0
+
+    payload = json.dumps({"text": tweet}).encode("utf-8")
+    auth = oauth1_header("POST", API_URL, api_key, api_secret, access_token, access_secret)
+
+    req = urllib.request.Request(
+        API_URL,
+        data=payload,
+        method="POST",
+        headers={
+            "Authorization": auth,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "rag_chat_bot-gha",
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            if resp.status not in (200, 201):
+                raise SystemExit(f"X API error: HTTP {resp.status}: {body}")
+            print(body)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace") if hasattr(e, "read") else str(e)
+        raise SystemExit(f"X API HTTPError: {e.code}: {body}") from e
+
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

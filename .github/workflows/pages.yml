@@ -114,6 +114,26 @@ jobs:
             exit 1
           fi
 
+
+      - name: Compute site base path (GitHub Pages)
+        run: |
+          set -euo pipefail
+          OWNER="${{ github.repository_owner }}"
+          REPO="${{ github.event.repository.name }}"
+          SITE_URL="https://${OWNER}.github.io"
+          BASE_PATH="$REPO"
+          if [ "$REPO" = "${OWNER}.github.io" ]; then
+            BASE_PATH=""
+          fi
+          echo "SITE_URL=$SITE_URL" >> "$GITHUB_ENV"
+          echo "BASE_PATH=$BASE_PATH" >> "$GITHUB_ENV"
+
+      - name: Build social share pages (OG tags)
+        env:
+          PUBLIC_DIR: frontend/app/web-build
+        run: |
+          set -euo pipefail
+          python scripts/build_social_pages.py
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
