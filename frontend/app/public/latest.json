@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-28T02:52:53Z",
+  "id": "feed_20260128_114742_JST",
   "date": "2026-01-28",
   "text": "Good afternoon! It's a cloudy day with 7°C. Let's warm up at Sumibi Yakiniku Shin Yokosuka Chuo for some delicious grilled meat 🍖️🔥, their cozy winter menu is waiting for you to try!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://r.gnavi.co.jp/e828200/"
   ],
-  "required_mention": "Sumibi Yakiniku Shin Yokosuka Chuo (炭火焼肉 眞 横須賀中央店)"
+  "required_mention": "Sumibi Yakiniku Shin Yokosuka Chuo (炭火焼肉 眞 横須賀中央店)",
+  "image": "./image/feed_20260128_114742_JST.png",
+  "image_url": "./image/feed_20260128_114742_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a cloudy day with 7°C. Let's warm up at Sumibi Yakiniku Shin Yokosuka Chuo for some delicious grilled meat 🍖️🔥, their cozy winter menu is waiting for you to try!",
+  "permalink": "./?post=feed_20260128_114742_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-28T02:56:59.108303Z"
 }
