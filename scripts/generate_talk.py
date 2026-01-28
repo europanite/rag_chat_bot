@@ -6,6 +6,7 @@ import re
 import sys
 import time
 import random
+import zlib
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -58,9 +59,8 @@ def _scheduled_kind_by_hour(hour: int) -> str:
         return "activity"
     if 20 <= h < 22:
         return "garbage_tomorrow"
-    if 20 <= h < 24:
+    if 22 <= h < 24:
         return "spot"
-
     return "spot"
 
 def build_garbage_post(*, place: str, date: str) -> str:
@@ -402,25 +402,91 @@ def _weather_brief_for_llm(snap_obj: Dict[str, Any]) -> str:
     return f"weather={condition}\ntemp_c={temp_i}\n"
 
 
-def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]]) -> str:
+def _topic_prompt_for_kind(*, kind: str, weather: str, temp_c: int) -> Tuple[str, str]:
+    """Return (main_sentence, preference_line) for the prompt.
+
+    The goal is to make the retrieval query *specific* (event vs restaurant vs spot vs activity),
+    so the vector search does not keep hitting the same generic chunk.
+    """
+    k = (kind or "").strip().lower()
+    w = (weather or "").strip().lower()
+
+    # Simple comfort heuristics to nudge the model without forcing unsupported claims.
+    chilly = (w == "chilly") or (isinstance(temp_c, int) and temp_c <= 7)
+    rainy = (w == "rainy")
+    windy = (w == "windy")
+    sunny = (w == "sunny")
+
+    if k == "restaurant":
+        pref = "a cozy place / warm food" if (rainy or chilly) else ("a place with a nice view" if sunny else "a popular local place")
+        main = "Introduce ONE local restaurant (or cafe)."
+        return main, f"   - Prefer {pref}.\n"
+
+    if k == "event":
+        pref = "an indoor event" if rainy else "a fun upcoming event"
+        main = "Introduce ONE upcoming event."
+        return main, f"   - Prefer {pref} if possible.\n"
+
+    if k == "activity":
+        pref = "an indoor activity idea" if rainy else "an outdoor activity idea"
+        main = "Introduce ONE local activity idea (something to do today)."
+        return main, f"   - Prefer {pref}.\n"
+
+    # Default: spot / attraction
+    pref = "an indoor-friendly spot" if rainy else ("a scenic spot" if not windy else "a spot sheltered from wind")
+    main = "Introduce ONE local spot/attraction."
+    return main, f"   - Prefer {pref}.\n"
+
+
+def _compute_variety_seed(*, now_local: datetime, scheduled_kind: str, snap_obj: Optional[Dict[str, Any]]) -> int:
+    """Derive a stable-ish seed that changes across time-of-day, weather, and scheduled kind.
+
+    This helps the backend's 'anchor reordering' pick different chunks even when the same
+    generic context would otherwise be returned.
+    """
+    base = env_int("TOPIC_VARIANT", 0)
     cur = (snap_obj or {}).get("current") or {}
     tod = _time_of_day_bucket(now_local.hour)
     season = _season_bucket(now_local.month)
     condition, temp_i = _weather_condition_and_temp(cur)
+
+    key = f"{now_local:%Y%m%d%H}|{scheduled_kind}|{tod}|{season}|{condition}|{temp_i}"
+    h = zlib.crc32(key.encode("utf-8")) & 0xFFFFFFFF
+    return int((base + h) & 0x7FFFFFFF)
+
+
+def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], scheduled_kind: str) -> str:
+    cur = (snap_obj or {}).get("current") or {}
+    tod = _time_of_day_bucket(now_local.hour)
+    season = _season_bucket(now_local.month)
+    condition, temp_i = _weather_condition_and_temp(cur)
+
+    main_sentence, pref_line = _topic_prompt_for_kind(kind=scheduled_kind, weather=condition, temp_c=temp_i)
+
+    # Fallback instruction depends on the scheduled kind.
+    if (scheduled_kind or "").strip().lower() == "event":
+        fallback = (
+            "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
+        )
+    else:
+        fallback = (
+            f"If you cannot find a good {scheduled_kind} in the RAG Context, write about a local spot instead (still from RAG Context).\n"
+        )
 
     return (
         "Write a tweet in English.\n"
         "Follow this format EXACTLY (EXACTLY 3 sentences, single paragraph, no line breaks, no URLs in the text):\n"
         "1) Greeting sentence: Good morning/Good afternoon/Good evening/Good night (match HINTS.time_of_day).\n"
         "2) Weather sentence: '<sunny|cloudy|windy|chilly|rainy> with your feelings'.\n"
-        "3) Main sentence: Introduce ONE upcoming event OR ONE local spot OR ONE local restaurant from ONLY the RAG context.\n"
-        "   - Mention the spot/event name explicitly.\n"
+        f"3) Main sentence: {main_sentence} from ONLY the RAG context.\n"
+        "   - Mention the name explicitly.\n"
+        f"{pref_line}"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
-        "Do NOT mention past events."
-        "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
+        "Do NOT mention past events.\n"
+        f"{fallback}"
         f"datetime: {now_local}.\n"
-        f"HINTS: time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
+        f"HINTS: topic_kind={scheduled_kind}, time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
 
 def build_payload(
@@ -432,8 +498,15 @@ def build_payload(
     blocked_urls: List[str] | None = None,
     blocked_terms: List[str] | None = None,
     datetime: str | None = None,
+    seed: int | None = None,
+    anchor_top_n: int | None = None,
 ) -> dict:
     # Send only a compact weather summary (condition words + temp) to the LLM.
+
+    # anchor selection for variety should look beyond top_k. Default is bigger than top_k, but still capped by backend.
+    default_anchor_top_n = max(8, min(20, int(top_k or 5) * 3))
+    anchor_top_n_final = int(anchor_top_n) if anchor_top_n is not None else env_int("RAG_ANCHOR_TOP_N", default_anchor_top_n)
+    seed_final = int(seed) if seed is not None else env_int("TOPIC_VARIANT", 0)
 
     payload: dict = {
         "question": question,
@@ -443,8 +516,8 @@ def build_payload(
         "extra_context": _weather_brief_for_llm(snap_obj),
         "datetime": datetime,
         "variety": env_float("RAG_VARIETY", 0.0),
-        "seed": env_int("TOPIC_VARIANT", 0),
-        "anchor_top_n": env_int("RAG_ANCHOR_TOP_N", env_int("RAG_TOP_K", min(8, max(2, int(top_k or 5))))),
+        "seed": seed_final,
+        "anchor_top_n": anchor_top_n_final,
     }
     if blocked_urls:
         payload["blocked_urls"] = [u for u in blocked_urls if isinstance(u, str) and u.strip()]
@@ -934,9 +1007,12 @@ def main() -> int:
     question = build_question(
         now_local=now_dt_local,
         snap_obj=snap_obj,
+        scheduled_kind=scheduled_kind,
     )
 
     include_debug = 1 if debug else 0
+
+    variety_seed = _compute_variety_seed(now_local=now_dt_local, scheduled_kind=scheduled_kind, snap_obj=snap_obj)
 
     payload = build_payload(
         question=question,
@@ -944,6 +1020,7 @@ def main() -> int:
         snap_obj=snap_obj,
         max_chars=max_chars,
         include_debug=include_debug,
+        seed=variety_seed,
         blocked_urls=blocked_urls,
         blocked_terms=blocked_terms,
         datetime=str(now_dt_local), 

@@ -967,7 +967,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         s_seed = getattr(payload, "seed", None)
         if s_seed is None:
             s_seed = int(now_dt.strftime("%Y%m%d%H")) if now_dt else 0
-        top_n = max(2, min(anchor_top_n, len(chunks), int(payload.top_k or 5)))
+        top_n = max(2, min(anchor_top_n, len(chunks)))
         chunks = reorder_chunks_for_variety(chunks=chunks, seed=int(s_seed), top_n=top_n, variety=v)
     # Trim to requested context size
     if len(chunks) > top_k:

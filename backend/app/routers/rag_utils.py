@@ -45,16 +45,23 @@ def reorder_chunks_for_variety(
     if n <= 1:
         return list(chunks)
 
-    # Prefer chunks that actually have a usable mention in metadata
-    candidate_idxs = [i for i in range(n) if _chunk_has_mention(chunks[i])]
-    if not candidate_idxs:
-        candidate_idxs = list(range(n))
+    # Prefer chunks that actually have a usable mention in metadata,
+    # but still allow non-mention chunks so variety can work even when metadata is sparse.
+    candidate_idxs = list(range(n))
 
     # Rank-based weights (robust to distance scale)
     # temp grows with variety => flatter distribution
     temp = 0.25 + 8.0 * float(variety)   # 0.35 -> ~3.05
     weights = [math.exp(-i / temp) for i in range(n)]
-    cand_weights = [weights[i] for i in candidate_idxs]
+
+    # Boost chunks that have a usable mention in metadata (helps link/mention selection),
+    # without making variety collapse to a single chunk when only one has metadata.
+    cand_weights: list[float] = []
+    for i in candidate_idxs:
+        w = weights[i]
+        if _chunk_has_mention(chunks[i]):
+            w *= 1.6
+        cand_weights.append(w)
 
     rng = random.Random(int(seed))
     anchor_idx = rng.choices(candidate_idxs, weights=cand_weights, k=1)[0]
