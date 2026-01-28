@@ -285,20 +285,20 @@ jobs:
           path: .x-posted
           key: x-posted-${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}
 
-      - name: Post latest to X
-        if: steps.cache.outputs.cache-hit != 'true'
-        env:
-          X_API_KEY: ${{ secrets.X_API_KEY }}
-          X_API_SECRET: ${{ secrets.X_API_SECRET }}
-          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
-          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-          LATEST_PATH: frontend/app/public/latest.json
-        run: |
-          set -euo pipefail
-          python scripts/post_to_x.py
-          mkdir -p .x-posted
-          echo "${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" > .x-posted/sha
+      # - name: Post latest to X
+      #   if: steps.cache.outputs.cache-hit != 'true'
+      #   env:
+      #     X_API_KEY: ${{ secrets.X_API_KEY }}
+      #     X_API_SECRET: ${{ secrets.X_API_SECRET }}
+      #     X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+      #     X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+      #     LATEST_PATH: frontend/app/public/latest.json
+      #   run: |
+      #     set -euo pipefail
+      #     python scripts/post_to_x.py
+      #     mkdir -p .x-posted
+      #     echo "${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" > .x-posted/sha
 
-      - name: Skip (already posted)
-        if: steps.cache.outputs.cache-hit == 'true'
-        run: echo "Already posted for this commit."
+      # - name: Skip (already posted)
+      #   if: steps.cache.outputs.cache-hit == 'true'
+      #   run: echo "Already posted for this commit."
