@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-29T16:59:29Z",
+  "id": "feed_20260130_015439_JST",
   "date": "2026-01-29",
   "text": "Good night 🌃🏙️ Chilly with 1°C ❄️. As we explore Yokosuka's winter wonderland, let's revisit the 2025 Yokosuka Chuo Illumination Photo Contest 📸, where the city shines brightly during this time of year. Its magical atmosphere is perfect for capturing unfor",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14033065/"
   ],
-  "required_mention": "2025 Yokosuka Chuo Illumination Photo Contest"
+  "required_mention": "2025 Yokosuka Chuo Illumination Photo Contest",
+  "image": "./image/feed_20260130_015439_JST.png",
+  "image_url": "./image/feed_20260130_015439_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night 🌃🏙️ Chilly with 1°C ❄️. As we explore Yokosuka's winter wonderland, let's revisit the 2025 Yokosuka Chuo Illumination Photo Contest 📸, where the city shines brightly during this time of year. Its magical atmos",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-29T17:03:13.492771Z",
+  "permalink": "./?post=feed_20260130_015439_JST"
 }
