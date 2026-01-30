@@ -298,7 +298,6 @@ jobs:
       #     python scripts/post_to_x.py
       #     mkdir -p .x-posted
       #     echo "${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" > .x-posted/sha
-
       # - name: Skip (already posted)
       #   if: steps.cache.outputs.cache-hit == 'true'
       #   run: echo "Already posted for this commit."
