@@ -1,0 +1,68 @@
+{
+  "id": "feed_20260130_141451_JST",
+  "date": "2026-01-30",
+  "text": "Good afternoon! It's a beautiful and chilly day with 7°C today in Yokosuka. Get ready for the upcoming Unagi no Kagawa - Saikaya Yokosuka Branch Department Store Lunch 🍣🌞️",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-01-30T05:20:37Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-30T05:14:54.457551+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-30T14:00:00+09:00",
+      "temp_c": 6.6,
+      "apparent_temp_c": null,
+      "humidity_pct": 29.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 9.72,
+      "wind_dir_deg": 90.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-30",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-01-31",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夕方　から　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-30T12:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://tabelog.com/kanagawa/A1406/A140601/14094225/"
+  ],
+  "required_mention": "Unagi no Kagawa (うなぎの佳川) — Saikaya Yokosuka Branch (Department Store Lunch)",
+  "image": "./image/feed_20260130_141451_JST.png",
+  "image_url": "./image/feed_20260130_141451_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a beautiful and chilly day with 7°C today in Yokosuka. Get ready for the upcoming Unagi no Kagawa - Saikaya Yokosuka Branch Department Store Lunch 🍣🌞️",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-30T05:24:45.688301Z",
+  "permalink": "./?post=feed_20260130_141451_JST"
+}

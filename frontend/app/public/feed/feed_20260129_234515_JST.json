@@ -1,0 +1,68 @@
+{
+  "id": "feed_20260129_234515_JST",
+  "date": "2026-01-29",
+  "text": "Good night! It's chilly with 3°C. If you're looking for a sweet escape from the rain tonight, head over to Cake-ya popo and indulge in their delicious treats.",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-01-29T14:49:54Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-01-29T14:45:16.835108+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-01-29T23:30:00+09:00",
+      "temp_c": 2.7,
+      "apparent_temp_c": null,
+      "humidity_pct": 57.0,
+      "precip_mm": 0.0,
+      "weather_code": 95,
+      "cloud_cover_pct": null,
+      "wind_kmh": 6.12,
+      "wind_dir_deg": 0.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-01-29",
+      "weather_code": 95,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夜　くもり　所により　雪か雨　で　雷を伴う",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
+      "date": "2026-01-30",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-01-29T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.instagram.com/cakeshop_popo/"
+  ],
+  "required_mention": "cake屋popo (Cake-ya popo)",
+  "image": "./image/feed_20260129_234515_JST.png",
+  "image_url": "./image/feed_20260129_234515_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night! It's chilly with 3°C. If you're looking for a sweet escape from the rain tonight, head over to Cake-ya popo and indulge in their delicious treats.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-29T14:54:16.812272Z",
+  "permalink": "./?post=feed_20260129_234515_JST"
+}

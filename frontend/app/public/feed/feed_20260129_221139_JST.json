@@ -1,30 +1,41 @@
 {
-  "id": "feed_20260130_220912_JST",
-  "date": "2026-01-30",
+  "id": "feed_20260129_221139_JST",
+  "date": "2026-01-29",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-01-30T13:15:20Z",
+  "generated_at": "2026-01-29T13:16:41Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-01-30T13:09:14.382022+00:00",
+    "generated_at": "2026-01-29T13:11:41.489302+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-01-30T22:00:00+09:00",
-      "temp_c": 3.0,
+      "time": "2026-01-29T22:00:00+09:00",
+      "temp_c": 4.0,
       "apparent_temp_c": null,
-      "humidity_pct": 35.0,
+      "humidity_pct": 69.0,
       "precip_mm": 0.0,
-      "weather_code": 0,
+      "weather_code": 95,
       "cloud_cover_pct": null,
-      "wind_kmh": 9.72,
+      "wind_kmh": 8.28,
       "wind_dir_deg": 45.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
     "today": {
+      "date": "2026-01-29",
+      "weather_code": 95,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夜　くもり　所により　雪か雨　で　雷を伴う",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
       "date": "2026-01-30",
       "weather_code": 0,
       "precip_sum_mm": null,
@@ -35,34 +46,23 @@
       "jma_weather_code": "100",
       "precip_prob_pct": 10
     },
-    "tomorrow": {
-      "date": "2026-01-31",
-      "weather_code": 2,
-      "precip_sum_mm": null,
-      "wind_max_kmh": null,
-      "temp_max_c": null,
-      "temp_min_c": null,
-      "weather_text_ja": "晴れ　夜　くもり",
-      "jma_weather_code": "100",
-      "precip_prob_pct": 10
-    },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
-      "report_datetime": "2026-01-30T17:00:00+09:00",
+      "report_datetime": "2026-01-29T17:00:00+09:00",
       "office_code": "140000",
       "area_code": null,
       "temp_city_code": null
     }
   },
   "links": [
-    "https://r.gnavi.co.jp/e828200/"
+    "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
   "required_mention": "2025 Yokosuka Chuo Illumination Photo Contest",
-  "image": "./image/feed_20260130_220912_JST.png",
-  "image_url": "./image/feed_20260130_220912_JST.png",
+  "image": "./image/feed_20260129_221139_JST.png",
+  "image_url": "./image/feed_20260129_221139_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night.",
-  "permalink": "./?post=feed_20260130_220912_JST",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-01-30T13:19:31.360079Z"
+  "image_generated_at": "2026-01-29T13:20:09.183524Z",
+  "permalink": "./?post=feed_20260129_221139_JST"
 }
