@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-30T10:48:52Z",
+  "id": "feed_20260130_194407_JST",
   "date": "2026-01-30",
   "text": "Good evening 🌃 It's chilly with 5°C outside. Now that winter has arrived, why not participate in the 2025 Yokosuka Chuo Illumination Photo Contest and capture the beauty of the city's lights?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://kinugasa.yokosuka-kanko.com/tourist/%E8%BF%91%E6%AE%BF%EF%BC%88%E3%81%A1%E3%81%8B%E3%81%9F%EF%BC%89%E7%A5%9E%E7%A4%BE/"
   ],
-  "required_mention": "2025 Yokosuka Chuo Illumination Photo Contest"
+  "required_mention": "2025 Yokosuka Chuo Illumination Photo Contest",
+  "image": "./image/feed_20260130_194407_JST.png",
+  "image_url": "./image/feed_20260130_194407_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening 🌃 It's chilly with 5°C outside. Now that winter has arrived, why not participate in the 2025 Yokosuka Chuo Illumination Photo Contest and capture the beauty of the city's lights?",
+  "permalink": "./?post=feed_20260130_194407_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-30T10:52:18.971392Z"
 }
