@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-30T02:39:05Z",
+  "id": "feed_20260130_113323_JST",
   "date": "2026-01-30",
   "text": "Good afternoon! It's a beautiful sunny day with 8°C today 🌞. If you're looking for a great view, head over to Kurihama and try the delicious food at Ohako, my favorite ramen restaurant!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14046772/"
   ],
-  "required_mention": "Kurihama"
+  "required_mention": "Kurihama",
+  "image": "./image/feed_20260130_113323_JST.png",
+  "image_url": "./image/feed_20260130_113323_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a beautiful sunny day with 8°C today 🌞. If you're looking for a great view, head over to Kurihama and try the delicious food at Ohako, my favorite ramen restaurant!",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-30T02:42:41.725095Z",
+  "permalink": "./?post=feed_20260130_113323_JST"
 }
