@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-31T16:43:45Z",
+  "id": "feed_20260201_013858_JST",
   "date": "2026-01-31",
   "text": "Good night Yokosuka! It's chilly with 3°C tonight. Let's take a romantic stroll at Goshogasaki, surrounded by winter beauty 🌃❄️💕",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://4travel.jp/dm_shisetsu_tips/14842461"
   ],
-  "required_mention": "Goshogasaki (御所ヶ崎)"
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "image": "./image/feed_20260201_013858_JST.png",
+  "image_url": "./image/feed_20260201_013858_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night Yokosuka! It's chilly with 3°C tonight. Let's take a romantic stroll at Goshogasaki, surrounded by winter beauty 🌃❄️💕",
+  "permalink": "./?post=feed_20260201_013858_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-31T16:47:04.538782Z"
 }
