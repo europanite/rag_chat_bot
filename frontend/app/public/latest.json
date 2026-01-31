@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-31T14:37:19Z",
+  "id": "feed_20260131_233227_JST",
   "date": "2026-01-31",
   "text": "Good night Yokosuka! It's chilly with 4°C outside. If you're looking for a warm dinner spot, try Sumibi Yakiniku Shin Yokosuka Chuo, known for their delicious grilled meats and cozy atmosphere 🍴🔥👌",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14033065/"
   ],
-  "required_mention": "Sumibi Yakiniku Shin Yokosuka Chuo (炭火焼肉 眞 横須賀中央店)"
+  "required_mention": "Sumibi Yakiniku Shin Yokosuka Chuo (炭火焼肉 眞 横須賀中央店)",
+  "image": "./image/feed_20260131_233227_JST.png",
+  "image_url": "./image/feed_20260131_233227_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night Yokosuka! It's chilly with 4°C outside. If you're looking for a warm dinner spot, try Sumibi Yakiniku Shin Yokosuka Chuo, known for their delicious grilled meats and cozy atmosphere 🍴🔥👌",
+  "permalink": "./?post=feed_20260131_233227_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-31T14:41:15.551585Z"
 }
