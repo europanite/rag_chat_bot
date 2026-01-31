@@ -17,13 +17,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reset chroma_db dir (hard)
-        run: |
-          set -eux
-          mkdir -p chroma_db
-          find chroma_db -mindepth 1 -delete
-          touch chroma_db/.gitkeep
-
       - name: Free disk space
         run: |
           set -eux
