@@ -1,5 +1,5 @@
 {
-  "id": "2026-01-31T13:07:22Z",
+  "id": "feed_20260131_220201_JST",
   "date": "2026-01-31",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
-  "required_mention": "2025 Yokosuka Chuo Illumination Photo Contest"
+  "required_mention": "2025 Yokosuka Chuo Illumination Photo Contest",
+  "image": "./image/feed_20260131_220201_JST.png",
+  "image_url": "./image/feed_20260131_220201_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-01-31T13:10:46.965083Z",
+  "permalink": "./?post=feed_20260131_220201_JST"
 }
