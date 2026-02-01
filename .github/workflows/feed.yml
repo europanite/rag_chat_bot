@@ -156,11 +156,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Capture snapshot (coast-cam)
-        env:
-          SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
-        run: |
-          python scripts/retrieve_snapshot.py
 
       - name: Sync to latest main (ff-only)
         run: |
@@ -179,6 +174,16 @@ jobs:
               git reset --hard "${RAG_SHA}"
             }
           fi
+
+      - name: Capture snapshot (rag image url preferred)
+        env:
+          # Fallback fixed camera (used if latest.json doesn't contain a direct image URL)
+          SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
+          # latest.json produced by the rag job (contains links/text that may include an image URL)
+          LATEST_PATH: "frontend/app/public/latest.json"
+          REF_MAX_CANDIDATES: "8"
+        run: |
+          python scripts/retrieve_snapshot.py
 
       - name: Free disk space
         run: |
