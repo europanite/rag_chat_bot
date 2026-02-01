@@ -39,6 +39,7 @@ jobs:
           RAG_MODEL: "llama3.1:8b"
           AUDIT_MODEL: "llama3.1:8b"
           EMBEDDING_MODEL: "mxbai-embed-large"
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
         run: |
           set -euo pipefail
           bash scripts/ingest.sh ingest --ci
