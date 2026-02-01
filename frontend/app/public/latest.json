@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-01T02:59:29Z",
+  "id": "feed_20260201_115416_JST",
   "date": "2026-02-01",
   "text": "Good afternoon! It's a lovely sunny day with 10°C in Yokosuka 🌞😊. Culture enthusiasts will love trying mochi and cheese sandwiched between nori seaweed and dipped in soy sauce, a traditional Japanese winter treat 👍.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://bluemoonyokosuka.com/"
   ],
-  "required_mention": "Culture"
+  "required_mention": "Culture",
+  "image": "./image/feed_20260201_115416_JST.png",
+  "image_url": "./image/feed_20260201_115416_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a lovely sunny day with 10°C in Yokosuka 🌞😊. Culture enthusiasts will love trying mochi and cheese sandwiched between nori seaweed and dipped in soy sauce, a traditional Japanese winter treat 👍.",
+  "permalink": "./?post=feed_20260201_115416_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-01T03:03:31.758877Z"
 }
