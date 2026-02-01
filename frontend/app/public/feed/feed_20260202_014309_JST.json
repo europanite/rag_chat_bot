@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-01T16:48:11Z",
+  "id": "feed_20260202_014309_JST",
   "date": "2026-02-01",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://sarushima.jp/leisure/bbq/"
   ],
-  "required_mention": "Sarushima BBQ — Uninhabited Island BBQ (Rental-Only Fire Equipment)"
+  "required_mention": "Sarushima BBQ — Uninhabited Island BBQ (Rental-Only Fire Equipment)",
+  "image": "./image/feed_20260202_014309_JST.png",
+  "image_url": "./image/feed_20260202_014309_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-01T16:51:50.943068Z",
+  "permalink": "./?post=feed_20260202_014309_JST"
 }
