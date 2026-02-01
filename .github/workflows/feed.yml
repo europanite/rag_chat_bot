@@ -1,12 +1,24 @@
 name: Feed
 
 on:
+  workflow_call:
+    outputs:
+      changed:
+        description: "1 if feed files were updated"
+        value: ${{ jobs.export.outputs.changed }}
+      sha:
+        description: "Commit SHA that contains the generated feed"
+        value: ${{ jobs.export.outputs.sha }}
   workflow_dispatch:
 
 permissions:
   contents: write
   pages: write
   id-token: write
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
 
 jobs:
   rag:
@@ -259,26 +271,16 @@ jobs:
       pages: write
       id-token: write
 
-  x_post:
+  export:
     needs: [rag, illustrate, pages]
-    if: needs.rag.outputs.changed == '1' && needs.pages.result == 'success'
+    if: always()
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    outputs:
+      changed: ${{ steps.out.outputs.changed }}
+      sha: ${{ steps.out.outputs.sha }}
     steps:
-      - name: Checkout (main)
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Cache posted marker (per commit)
-        id: cache
-        uses: actions/cache@v4
-        with:
-          path: .x-posted
-          key: x-posted-${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}
+      - name: Export outputs
+        id: out
+        run: |
+          echo "changed=${{ needs.rag.outputs.changed }}" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" >> "$GITHUB_OUTPUT"

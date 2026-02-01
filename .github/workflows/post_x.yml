@@ -10,260 +10,17 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: post-x
+  cancel-in-progress: false
+
 jobs:
-  rag:
-    runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Sanity check (repo chroma_db exists)
-        run: |
-          echo "chroma_db file count:"
-          find chroma_db -type f | wc -l
-          n=$(find chroma_db -type f | wc -l)
-          if [ "$n" -lt 5 ]; then
-            echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
-            exit 1
-          fi
-
-      - name: Free disk space
-        run: |
-          set -eux
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android
-          docker system prune -af || true
-          df -h
-
-      - name: Make pipeline scripts executable
-        run: |
-          chmod +x scripts/feed.sh
-
-      - name: Run feed pipeline
-        env:
-          RAG_AUTO_INDEX: "false"
-          RAG_REBUILD_ON_START: "false"
-          OLLAMA_BASE_URL: "http://ollama:11434"
-          OLLAMA_TIMEOUT_S: "512"
-          EMBEDDING_MODEL: "mxbai-embed-large"
-          RAG_MODEL: "llama3.1:8b"
-          AUDIT_MODEL: "llama3.2:3b"
-          RAG_AUDIT: "0"
-          RAG_AUDIT_REWRITE: "1"
-          RAG_AUDIT_MAX_ATTEMPTS: "2"
-          LAT: "35.2810"
-          LON: "139.6722"
-          TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: "16"
-          CURL_MAX_TIME: "512"
-          CURL_RETRIES: "1"
-          PLACE: "Yokosuka"
-          FEED_PATH: "frontend/app/public"
-          LATEST_PATH: "frontend/app/public/latest.json"
-          MAX_CHARS: "256"
-          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
-          TOPIC_VARIANT: ${{ github.run_number }}
-          RAG_VARIETY: "1.0"
-          DEBUG: "1"
-        run: |
-          bash scripts/feed.sh --ci
-
-      - name: Dump logs on failure
-        if: failure()
-        run: |
-          docker compose -f docker-compose.yml ps || true
-          docker compose -f docker-compose.yml logs --no-color --tail=400 || true
-          docker system df || true
-          df -h || true
-
-      - name: Stop stack
-        if: always()
-        run: |
-          docker compose -f docker-compose.yml down || true
-
-      - name: Commit & push if changed
-        id: commit
-        run: |
-          if git diff --quiet; then
-            echo "No changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git pull --ff-only origin main
-
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
-
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git commit -m "chore: image feed"
-          git push origin HEAD:main
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-  illustrate:
-    needs: rag
-    if: needs.rag.outputs.changed == '1'
-    runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
-    steps:
-      - name: Checkout (main)
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Setup Python 3.12 (snapshot)
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install deps (snapshot)
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-
-      - name: Capture snapshot (coast-cam)
-        env:
-          SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
-        run: |
-          python scripts/retrieve_snapshot.py
-
-      - name: Sync to latest main (ff-only)
-        run: |
-          set -euo pipefail
-          git pull --ff-only origin main
-
-      - name: Verify rag commit is included
-        env:
-          RAG_SHA: ${{ needs.rag.outputs.sha }}
-        run: |
-          set -euo pipefail
-          if [ -n "${RAG_SHA}" ]; then
-            git merge-base --is-ancestor "${RAG_SHA}" HEAD || {
-              echo "HEAD does not include rag sha yet; fetching and resetting."
-              git fetch origin "${RAG_SHA}"
-              git reset --hard "${RAG_SHA}"
-            }
-          fi
-
-      - name: Free disk space
-        run: |
-          set -euo pipefail
-          df -h
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
-          sudo docker system prune -af --volumes 2>/dev/null || true
-          df -h
-
-      - name: Cache Hugging Face + Torch
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/huggingface
-            ~/.cache/torch
-          key: ${{ runner.os }}-hf-torch-sdturbo-v1
-          restore-keys: |
-            ${{ runner.os }}-hf-torch-sdturbo-
-            ${{ runner.os }}-hf-torch-
-
-      - name: Wire cache dirs into docker-compose
-        run: |
-          echo "HF_CACHE_DIR=$HOME/.cache/huggingface" >> $GITHUB_ENV
-          echo "TORCH_CACHE_DIR=$HOME/.cache/torch" >> $GITHUB_ENV
-
-      - name: Build illustrate image
-        run: |
-          set -euo pipefail
-          docker compose -f docker-compose.yml build illustrate
-
-      - name: Generate illustrated image and patch feed
-        env:
-          # arrange(img2img)
-          INPUT_IMAGE: "snapshot.jpg"
-          MODE: "img2img"
-          PATCH_JSON: "1"
-          OUT_DIR: "frontend/app/public/image"
-          PLACE: "Yokosuka, Japan"
-          STEPS: "4"
-          STRENGTH: "0.7"
-          GUIDANCE_SCALE: "0.0"
-          MIRROR_AUG: "1"
-          SEED_OFFSET: "${{ github.run_number }}"
-          SD_MODEL_ID: stabilityai/sd-turbo
-        run: |
-          set -euo pipefail
-          test -f frontend/app/public/latest.json
-          docker compose -f docker-compose.yml run --rm illustrate
-
-      - name: Commit & push illustrated changes if any
-        id: commit
-        run: |
-          if git diff --quiet; then
-            echo "No changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git pull --ff-only origin main
-
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/image/*.png || true
-
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git commit -m "chore: illustrated image"
-          git push origin HEAD:main
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-  pages:
-    needs: [rag, illustrate]
-    if: needs.rag.outputs.changed == '1'
-    uses: ./.github/workflows/pages.yml
-    with:
-      ref: main
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
+  feed:
+    uses: ./.github/workflows/feed.yml
 
   x_post:
-    needs: [rag, illustrate, pages]
-    if: needs.rag.outputs.changed == '1' && needs.pages.result == 'success'
+    needs: feed
+    if: needs.feed.result == 'success' && needs.feed.outputs.changed == '1'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -272,6 +29,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
+
+      - name: Ensure latest remote (main)
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git reset --hard origin/main
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -283,7 +47,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .x-posted
-          key: x-posted-${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}
+          key: x-posted-${{ needs.feed.outputs.sha }}
 
       - name: Post latest to X
         if: steps.cache.outputs.cache-hit != 'true'
@@ -297,7 +61,8 @@ jobs:
           set -euo pipefail
           python scripts/post_to_x.py
           mkdir -p .x-posted
-          echo "${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" > .x-posted/sha
+          echo "${{ needs.feed.outputs.sha }}" > .x-posted/sha
+
       - name: Skip (already posted)
         if: steps.cache.outputs.cache-hit == 'true'
         run: echo "Already posted for this commit."
