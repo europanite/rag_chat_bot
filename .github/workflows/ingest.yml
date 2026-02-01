@@ -41,7 +41,7 @@ jobs:
           EMBEDDING_MODEL: "mxbai-embed-large"
         run: |
           set -euo pipefail
-          bash scripts/pipeline.sh ingest --ci
+          bash scripts/ingest.sh ingest --ci
 
       - name: Verify chroma_db written
         run: |
