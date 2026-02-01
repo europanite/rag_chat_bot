@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260201_193518_JST",
+  "id": "feed_20260201_160002_JST",
   "date": "2026-02-01",
-  "text": "Good evening! It's a chilly evening with 6°C outside. Why not take a stroll down Yokosuka Genic Street and enjoy the winter atmosphere? 🌃👣",
+  "text": "Good afternoon! It's a sunny day with 11°C. Looking forward to watching the YOKOSUKA Fire Department Parade 2026 tomorrow! 🚒👏",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-01T10:40:25Z",
+  "generated_at": "2026-02-01T07:04:58Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-01T10:35:19.963307+00:00",
+    "generated_at": "2026-02-01T07:00:04.559043+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-01T19:20:00+09:00",
-      "temp_c": 6.2,
+      "time": "2026-02-01T15:50:00+09:00",
+      "temp_c": 10.6,
       "apparent_temp_c": null,
-      "humidity_pct": 60.0,
+      "humidity_pct": 45.0,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": null,
-      "wind_kmh": 3.9600000000000004,
-      "wind_dir_deg": 45.0,
+      "wind_kmh": 2.8800000000000003,
+      "wind_dir_deg": 247.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -48,21 +48,21 @@
     },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
-      "report_datetime": "2026-02-01T17:00:00+09:00",
+      "report_datetime": "2026-02-01T11:00:00+09:00",
       "office_code": "140000",
       "area_code": null,
       "temp_city_code": null
     }
   },
   "links": [
-    "https://www.cocoyoko.net/spot/sukageni.html"
+    "https://www.cocoyoko.net/event/syoubou-parade.html"
   ],
-  "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)",
-  "image": "./image/feed_20260201_193518_JST.png",
-  "image_url": "./image/feed_20260201_193518_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a chilly evening with 6°C outside. Why not take a stroll down Yokosuka Genic Street and enjoy the winter atmosphere? 🌃👣",
-  "permalink": "./?post=feed_20260201_193518_JST",
+  "required_mention": "YOKOSUKA Fire Department Parade 2026 (消防出初式)",
+  "image": "./image/feed_20260201_160002_JST.png",
+  "image_url": "./image/feed_20260201_160002_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a sunny day with 11°C. Looking forward to watching the YOKOSUKA Fire Department Parade 2026 tomorrow! 🚒👏",
   "image_model": "stabilityai/sd-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-01T10:44:22.727406Z"
+  "image_generated_at": "2026-02-01T07:08:28.479601Z",
+  "permalink": "./?post=feed_20260201_160002_JST"
 }
