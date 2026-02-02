@@ -79,7 +79,7 @@ jobs:
           PLACE: "Yokosuka"
           FEED_PATH: "frontend/app/public"
           LATEST_PATH: "frontend/app/public/latest.json"
-          MAX_CHARS: "256"
+          MAX_CHARS: "220"
           REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
           TOPIC_VARIANT: ${{ github.run_number }}
           RAG_VARIETY: "1.0"
