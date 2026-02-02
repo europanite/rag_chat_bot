@@ -34,6 +34,16 @@ from typing import Dict, Tuple
 API_URL = "https://api.x.com/2/tweets"
 URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
 
+# X counts any URL (https/http) as a fixed t.co length (usually 23).
+TCO_URL_LEN = int(os.environ.get("TCO_URL_LEN", "23"))
+
+
+def x_weighted_length(s: str) -> int:
+    """Approximate X tweet length by counting any URL as TCO_URL_LEN characters."""
+    if not s:
+        return 0
+    return len(URL_RE.sub(lambda m: "x" * TCO_URL_LEN, s))
+
 def pct(s: str) -> str:
     return urllib.parse.quote(s, safe="~")
 
@@ -70,7 +80,9 @@ def compute_site_and_base() -> Tuple[str, str]:
 def make_share_url(site: str, base: str, post_id: str) -> str:
     base_part = f"/{base}" if base else ""
     if post_id:
-        return f"{site}{base_part}/p/{post_id}/"
+        # Keep the URL clickable even if post_id contains ":" or other reserved chars.
+        post_id_q = urllib.parse.quote(post_id, safe="")
+        return f"{site}{base_part}/p/{post_id_q}/"
     return f"{site}{base_part}/"
 
 def oauth1_header(
@@ -140,20 +152,25 @@ def main() -> int:
     share_url = make_share_url(site, base, post_id)
 
     # Compose tweet
-    # Leave room for newline + URL (t.co length differs, but 23 chars is typical; be conservative).
-    # We'll enforce hard 280 char limit anyway.
+    # IMPORTANT: X counts URLs as a fixed t.co length (TCO_URL_LEN).
+    # If we truncate by the raw URL length, we'll cut too aggressively and may even cut the URL,
+    # which breaks link detection.
     core = raw_text if raw_text else "GOODDAY YOKOSUKA"
     tweet = f"{core}\n{share_url}".strip()
 
-    if len(tweet) > 280:
-        # Try truncating core
-        # Reserve 1 newline + url length
-        reserve = 1 + len(share_url)
-        max_core = max(0, 280 - reserve)
+    if x_weighted_length(tweet) > 280:
+        # Reserve 1 newline + t.co URL length. Shrink only the core; never truncate the URL.
+        safety = int(os.environ.get("X_TWEET_SAFETY", "0"))  # optional extra margin
+        reserve = 1 + TCO_URL_LEN
+        max_core = max(0, 280 - reserve - safety)
         core2 = truncate_utf8(core, max_core)
         tweet = f"{core2}\n{share_url}".strip()
-        if len(tweet) > 280:
-            tweet = truncate_utf8(tweet, 280)
+        while max_core > 0 and x_weighted_length(tweet) > 280:
+            max_core -= 1
+            core2 = truncate_utf8(core, max_core)
+            tweet = f"{core2}\n{share_url}".strip()
+        if x_weighted_length(tweet) > 280:
+            tweet = share_url
 
     if os.environ.get("DRY_RUN", "").strip() == "1":
         print(tweet)
