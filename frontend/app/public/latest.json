@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-02T10:46:32Z",
+  "id": "feed_20260202_194139_JST",
   "date": "2026-02-02",
   "text": "Good evening! It's rainy with 8°C outside tonight 🌧️☁️. Why not visit Chikata Shrine and explore its serene atmosphere on this chilly winter evening? 😊",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14033065/"
   ],
-  "required_mention": "Chikata Shrine (近殿神社)"
+  "required_mention": "Chikata Shrine (近殿神社)",
+  "image": "./image/feed_20260202_194139_JST.png",
+  "image_url": "./image/feed_20260202_194139_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's rainy with 8°C outside tonight 🌧️☁️. Why not visit Chikata Shrine and explore its serene atmosphere on this chilly winter evening? 😊",
+  "permalink": "./?post=feed_20260202_194139_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-02T10:50:04.572800Z"
 }
