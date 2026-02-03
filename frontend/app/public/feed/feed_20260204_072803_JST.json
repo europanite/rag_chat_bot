@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-03T22:34:09Z",
+  "id": "feed_20260204_072803_JST",
   "date": "2026-02-03",
   "text": "Good morning 🌞! It's chilly with a temperature of 3°C today 😐. Consider warming up with some delicious yakiniku at Sumibi Yakiniku Shin Yokosuka Chuo, where you can enjoy high-quality meats grilled to perfection!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.tripadvisor.com/Restaurant_Review-g298174-d6065264-Reviews-Sumibi_Yakiniku_Isshin-Yokosuka_Kanagawa_Prefecture_Kanto.html"
   ],
-  "required_mention": "Sumibi Yakiniku Shin Yokosuka Chuo (炭火焼肉 眞 横須賀中央店)"
+  "required_mention": "Sumibi Yakiniku Shin Yokosuka Chuo (炭火焼肉 眞 横須賀中央店)",
+  "image": "./image/feed_20260204_072803_JST.png",
+  "image_url": "./image/feed_20260204_072803_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning 🌞! It's chilly with a temperature of 3°C today 😐. Consider warming up with some delicious yakiniku at Sumibi Yakiniku Shin Yokosuka Chuo, where you can enjoy high-quality meats grilled to perfection!",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-03T22:37:58.184901Z",
+  "permalink": "./?post=feed_20260204_072803_JST"
 }
