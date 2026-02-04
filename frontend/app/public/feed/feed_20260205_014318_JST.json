@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-04T16:48:23Z",
+  "id": "feed_20260205_014318_JST",
   "date": "2026-02-04",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "http://www.kanagawa-park.or.jp/tsukayama/"
   ],
-  "required_mention": "Tsukayama Park (塚山公園)"
+  "required_mention": "Tsukayama Park (塚山公園)",
+  "image": "./image/feed_20260205_014318_JST.png",
+  "image_url": "./image/feed_20260205_014318_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night.",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-04T16:51:48.419715Z",
+  "permalink": "./?post=feed_20260205_014318_JST"
 }
