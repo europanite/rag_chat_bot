@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-04T06:50:56Z",
+  "id": "feed_20260204_154521_JST",
   "date": "2026-02-04",
   "text": "Good afternoon! 🌫️ It's a cloudy day with 11°C. Get ready for a winter wonderland at Goshogasaki, where you can enjoy the serene scenery and beautiful views of the area!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/event/syoubou-parade.html"
   ],
-  "required_mention": "Goshogasaki (御所ヶ崎)"
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "image": "./image/feed_20260204_154521_JST.png",
+  "image_url": "./image/feed_20260204_154521_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌫️ It's a cloudy day with 11°C. Get ready for a winter wonderland at Goshogasaki, where you can enjoy the serene scenery and beautiful views of the area!",
+  "permalink": "./?post=feed_20260204_154521_JST",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-04T06:55:15.524269Z"
 }
