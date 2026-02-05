@@ -25,7 +25,9 @@ import torch
 from diffusers import AutoPipelineForText2Image
 
 
-MODEL_ID = os.environ.get("SD_MODEL_ID")
+MODEL_ID = os.environ.get("SDXL_MODEL_ID", "stabilityai/sdxl-turbo").strip()
+LORA_PATH = os.environ.get("LORA_PATH", "").strip()
+LORA_SCALE = float(os.environ.get("LORA_SCALE", "0.8"))
 DEVICE = "cpu"  # GitHub Actions runner is typically CPU for this job
 
 def load_json(p: Path) -> Any:
@@ -71,6 +73,8 @@ def patch_feed_file(
     rel_image_url: str,
     image_prompt: str,
     image_generated_at: str,
+    image_lora: str,
+    image_lora_scale: float,
 ) -> bool:
     """
     Patch a feed JSON file that may be:
@@ -94,10 +98,12 @@ def patch_feed_file(
             it["legacy_id"] = old_id
         it["id"] = feed_stem
         it["permalink"] = f"./?post={feed_stem}"
-
         it["image_url"] = rel_image_url
         it["image_prompt"] = image_prompt
         it["image_model"] = MODEL_ID
+        if image_lora:
+            it["image_lora"] = image_lora
+            it["image_lora_scale"] = float(image_lora_scale)
         it["image_generated_at"] = image_generated_at
         changed = True
 
@@ -119,8 +125,8 @@ def patch_feed_file(
 
 
 def main() -> int:
-    public_dir = Path(os.environ.get("FEED_PATH")
-    latest_path = Path(os.environ.get("LATEST_PATH")
+    public_dir = Path(os.environ.get("FEED_PATH"))
+    latest_path = Path(os.environ.get("LATEST_PATH"))
 
     if not latest_path.exists():
         print(f"ERROR: latest.json not found: {latest_path}")
@@ -167,8 +173,29 @@ def main() -> int:
     pipe = AutoPipelineForText2Image.from_pretrained(MODEL_ID, torch_dtype=torch.float32)
     pipe = pipe.to(DEVICE)
 
-    # SD-Turbo is fast; keep steps modest on CPU
-    image = pipe(prompt=prompt, num_inference_steps=4, guidance_scale=0.0, generator=generator).images[0]
+    image_kwargs = {
+        "prompt": prompt,
+        "num_inference_steps": 4,
+        "guidance_scale": 0.0,
+        "generator": generator,
+    }
+
+    lora_tag = ""
+    if LORA_PATH:
+        p = Path(LORA_PATH)
+        if not p.exists():
+            print(f"ERROR: LORA_PATH not found: {p}")
+            return 2
+        try:
+            pipe.load_lora_weights(str(p))
+            lora_tag = p.name
+            image_kwargs["cross_attention_kwargs"] = {"scale": float(LORA_SCALE)}
+        except Exception as e:
+            print(f"ERROR: failed to load LoRA: {p} ({e})")
+            return 2
+
+    # SDXL-Turbo is fast; keep steps modest (4) on CPU
+    image = pipe(**image_kwargs).images[0]
     image.save(out_path)
 
     rel_image_url = f"./image/{out_path.name}"
@@ -183,6 +210,9 @@ def main() -> int:
     latest["image_url"] = rel_image_url
     latest["image_prompt"] = prompt
     latest["image_model"] = MODEL_ID
+    if lora_tag:
+        latest["image_lora"] = lora_tag
+        latest["image_lora_scale"] = float(LORA_SCALE)
     latest["image_generated_at"] = now_iso
     dump_json(latest_path, latest)
 
@@ -196,6 +226,8 @@ def main() -> int:
         rel_image_url=rel_image_url,
         image_prompt=prompt,
         image_generated_at=now_iso,
+        image_lora=lora_tag,
+        image_lora_scale=float(LORA_SCALE),
     )
     print(f"patched_snapshot={patched} path={feeds[0]}")
 

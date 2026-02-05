@@ -32,8 +32,10 @@ services:
     environment:
       FEED_PATH: frontend/app/public
       LATEST_PATH: frontend/app/public/latest.json
-      MODEL_ID: ${MODEL_ID:-stabilityai/sd-turbo}
-      SD_MODEL_ID: ${SD_MODEL_ID:-}
+      MODEL_ID: ${MODEL_ID:-stabilityai/sdxl-turbo}
+      SDXL_MODEL_ID: ${SDXL_MODEL_ID:-}
+      LORA_PATH: ${LORA_PATH:-}
+      LORA_SCALE: ${LORA_SCALE:-0.8}
       INPUT_IMAGE: ${INPUT_IMAGE:-}
       MODE: ${MODE:-pillow}
       STYLE: ${STYLE:-grade}

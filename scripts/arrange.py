@@ -33,7 +33,9 @@ SEED_OFFSET = int(os.environ.get("SEED_OFFSET", "0"))              # add to comp
 SD_W = int(os.environ.get("SD_W", "0"))
 SD_H = int(os.environ.get("SD_H", "0"))
 
-MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sd-turbo").strip()
+MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sdxl-turbo").strip()
+LORA_PATH = os.environ.get("LORA_PATH", "").strip()
+LORA_SCALE = float(os.environ.get("LORA_SCALE", "0.8"))
 PLACE = os.environ.get("PLACE", "").strip()
 
 PROMPT = os.environ.get("PROMPT", "").strip()
@@ -200,6 +202,14 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, *, seed: int)
         except Exception:
             pass
 
+    lora_tag = ""
+    if LORA_PATH:
+        p = Path(LORA_PATH)
+        if not p.exists():
+            raise FileNotFoundError(f"LORA_PATH not found: {p}")
+        pipe.load_lora_weights(str(p))
+        lora_tag = p.name
+
     prompt2 = _clip_safe_prompt(pipe, prompt)
     negative2 = _clip_safe_prompt(pipe, negative) if (negative or "").strip() else ""
     prompt2 = (prompt2 or "").strip() or "photorealistic photo"
@@ -220,6 +230,7 @@ def img2img_arrange(base: Image.Image, prompt: str, negative: str, *, seed: int)
             guidance_scale=float(GUIDANCE_SCALE),
             num_inference_steps=steps_i,
             generator=g,
+            **({"cross_attention_kwargs": {"scale": float(LORA_SCALE)}} if LORA_PATH else {}),
         )
 
     out_img = out.images[0]
@@ -267,6 +278,9 @@ def patch_feed_file(
         d["image_url"] = rel_url
         d["image_prompt"] = prompt
         d["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
+        if MODE == "img2img" and LORA_PATH:
+            d["image_lora"] = Path(LORA_PATH).name
+            d["image_lora_scale"] = float(LORA_SCALE)
         d["image_mirror_aug"] = bool(MIRROR_AUG)
         d["image_generated_at"] = now_iso
         d["id"] = feed_stem
@@ -397,6 +411,9 @@ def main() -> int:
         latest["id"] = feed_stem
         latest["permalink"] = f"./?post={feed_stem}"
         latest["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
+        if MODE == "img2img" and LORA_PATH:
+            latest["image_lora"] = Path(LORA_PATH).name
+            latest["image_lora_scale"] = float(LORA_SCALE)
         latest["image_mirror_aug"] = bool(MIRROR_AUG)
         latest["image_generated_at"] = now_iso
         dump_json(LATEST_PATH, latest)

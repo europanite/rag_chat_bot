@@ -227,7 +227,9 @@ jobs:
           GUIDANCE_SCALE: "0.0"
           MIRROR_AUG: "1"
           SEED_OFFSET: "${{ github.run_number }}"
-          SD_MODEL_ID: stabilityai/sd-turbo
+          SDXL_MODEL_ID: stabilityai/sdxl-turbo
+          LORA_PATH: "models/loras/title_20260204_123246.safetensors"
+          LORA_SCALE: "0.8"
         run: |
           set -euo pipefail
           test -f frontend/app/public/latest.json
