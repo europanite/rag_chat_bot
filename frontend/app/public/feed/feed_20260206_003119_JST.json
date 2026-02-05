@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-05T15:37:09Z",
+  "id": "feed_20260206_003119_JST",
   "date": "2026-02-05",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,11 @@
   "links": [
     "https://www.hotpepper.jp/strJ001245240/"
   ],
-  "required_mention": "Karaoke Mokomoko Oppama (カラオケ モコモコ 追浜店)"
+  "required_mention": "Karaoke Mokomoko Oppama (カラオケ モコモコ 追浜店)",
+  "legacy_id": "2026-02-05T15:37:09Z",
+  "permalink": "./?post=feed_20260206_003119_JST",
+  "image_url": "./image/feed_20260206_003119_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night.",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_generated_at": "2026-02-05T16:08:53Z"
 }
