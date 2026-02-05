@@ -228,7 +228,7 @@ jobs:
           MIRROR_AUG: "1"
           SEED_OFFSET: "${{ github.run_number }}"
           SDXL_MODEL_ID: stabilityai/sdxl-turbo
-          LORA_PATH: "models/loras/title_20260204_123246.safetensors"
+          LORA_PATH: "models/loras/ukiyoe.safetensors"
           LORA_SCALE: "0.8"
         run: |
           set -euo pipefail
