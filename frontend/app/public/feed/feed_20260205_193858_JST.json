@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-05T10:43:54Z",
+  "id": "feed_20260205_193858_JST",
   "date": "2026-02-05",
   "text": "Good evening! 🌃 It's cloudy with 10°C outside tonight. Why not try the Uraga Road Mitoriezu Walking Tour (Part 5): Toward the Uraga, a great winter activity in Yokosuka? 🚶‍♀️👍",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/event/post-252.html"
   ],
-  "required_mention": "Uraga Road Mitoriezu Walking Tour (Part 5): Toward the Uraga"
+  "required_mention": "Uraga Road Mitoriezu Walking Tour (Part 5): Toward the Uraga",
+  "image": "./image/feed_20260205_193858_JST.png",
+  "image_url": "./image/feed_20260205_193858_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! 🌃 It's cloudy with 10°C outside tonight. Why not try the Uraga Road Mitoriezu Walking Tour (Part 5): Toward the Uraga, a great winter activity in Yokosuka? 🚶‍♀️👍",
+  "image_model": "stabilityai/sd-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-05T10:47:51.335339Z",
+  "permalink": "./?post=feed_20260205_193858_JST"
 }
