@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260206_003119_JST",
+  "id": "feed_20260206_010740_JST",
   "date": "2026-02-05",
-  "text": "Good night.",
+  "text": "Good night Yokosuka! 🌃 It's a chilly winter night with cloudy skies at 12°C. If you're looking for some fun tonight, head over to Snack Kojyo (スナック古城) — Karaoke Snack Bar! 🎤",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-05T15:37:09Z",
+  "generated_at": "2026-02-05T16:13:38Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-05T15:31:22.534575+00:00",
+    "generated_at": "2026-02-05T16:07:42.485564+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-06T00:20:00+09:00",
-      "temp_c": 11.4,
+      "time": "2026-02-06T01:00:00+09:00",
+      "temp_c": 11.5,
       "apparent_temp_c": null,
       "humidity_pct": 53.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 15.120000000000001,
+      "wind_kmh": 16.2,
       "wind_dir_deg": 270.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -55,13 +55,16 @@
     }
   },
   "links": [
-    "https://www.hotpepper.jp/strJ001245240/"
+    "https://map.yahoo.co.jp/v3/place/ekOT67g2sto"
   ],
-  "required_mention": "Karaoke Mokomoko Oppama (カラオケ モコモコ 追浜店)",
-  "legacy_id": "2026-02-05T15:37:09Z",
-  "permalink": "./?post=feed_20260206_003119_JST",
-  "image_url": "./image/feed_20260206_003119_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night.",
+  "required_mention": "Snack Kojyo (スナック古城) — Karaoke Snack Bar",
+  "image": "./image/feed_20260206_010740_JST.png",
+  "image_url": "./image/feed_20260206_010740_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night Yokosuka! 🌃 It's a chilly winter night with cloudy skies at 12°C. If you're looking for some fun tonight, head over to Snack Kojyo (スナック古城) — Karaoke Snack Bar! 🎤",
   "image_model": "stabilityai/sdxl-turbo",
-  "image_generated_at": "2026-02-05T16:08:53Z"
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-05T16:45:43Z",
+  "permalink": "./?post=feed_20260206_010740_JST"
 }
