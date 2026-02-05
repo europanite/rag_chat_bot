@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-05T16:50:24Z",
+  "id": "feed_20260206_014457_JST",
   "date": "2026-02-05",
   "text": "Good night Yokosuka! 🌃 It's cloudy with 12°C tonight. Hashirimizu Beach is a lovely spot for a winter evening stroll along the beachside.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/spot/hashirimizu-beach.html"
   ],
-  "required_mention": "Hashirimizu Beach (走水海岸), Yokosuka"
+  "required_mention": "Hashirimizu Beach (走水海岸), Yokosuka",
+  "image": "./image/feed_20260206_014457_JST.png",
+  "image_url": "./image/feed_20260206_014457_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night Yokosuka! 🌃 It's cloudy with 12°C tonight. Hashirimizu Beach is a lovely spot for a winter evening stroll along the beachside.",
+  "permalink": "./?post=feed_20260206_014457_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-05T16:54:40.621868Z"
 }
