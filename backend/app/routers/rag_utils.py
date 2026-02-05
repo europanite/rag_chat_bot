@@ -347,27 +347,27 @@ def select_required_context(
 ) -> Tuple[str, str]:
     """
     Pick ONE required mention (string) and ONE required URL to enforce in the answer.
-
     We prefer:
-    - a URL that appears in the top chunk's text or metadata
-    - otherwise the first URL in allowed_urls
+    Pick ONE required mention and ONE required URL to enforce in the answer.
+    IMPORTANT:
+    Prefer picking mention+url from the SAME chunk whenever possible.
+    This prevents "mention says A but link points to B" when retrieved chunks contain mixed sources.
     """
-    required_url = ""
-    required_mention = ""
+    required_url: str = ""
+    required_mention: str = ""
 
-    # mention: keep first-chunk priority (stable)
-    if chunks:
-        first = chunks[0]
-        meta = getattr(first, "metadata", None) or {}
-        # mention priority: title/name/place
-        for k in ("title", "name", "spot", "place", "event", "location"):
+    def _pick_mention_for_chunk(c: object) -> str:
+        meta = getattr(c, "metadata", None) or {}
+        for k in ("title", "name", "spot", "place", "event", "location", "restaurant", "venue", "topic", "summary"):
             v = meta.get(k)
             if isinstance(v, str) and v.strip():
-                required_mention = v.strip()
-                break
+                return v.strip()[:60]
+        text = (getattr(c, "text", "") or "").strip()
+        if text:
+            return (text.splitlines()[0] or "").strip()[:60]
+        return ""
 
-    # URL: scan chunks until we find a usable one
-    for c in (chunks or []):
+    def _pick_url_for_chunk(c: object) -> str:
         meta = getattr(c, "metadata", None) or {}
         meta_urls: List[str] = []
         for k in ("links", "link", "url", "permalink", "href", "source_url", "sourceUrl"):
@@ -379,21 +379,27 @@ def select_required_context(
             if not u:
                 continue
             if (not allowed_urls) or (u in allowed_urls):
-                required_url = u
-                break
-        if required_url:
+                return u
+        return ""
+
+    # 1) Prefer the earliest chunk that has a usable URL; take mention from the SAME chunk.
+    for c in (chunks or []):
+        u = _pick_url_for_chunk(c)
+        if u:
+            required_url = u
+            required_mention = _pick_mention_for_chunk(c)
             break
+
+    # 2) If no URL was found in any chunk, fall back to allow-list (rare).
     if not required_url and allowed_urls:
-        # stable pick: smallest string
         required_url = sorted(allowed_urls)[0]
 
+    # 3) Ensure mention exists (fallback to the top chunk).
     if not required_mention:
-        # fallback mention: short snippet of first chunk
         if chunks:
-            text = (getattr(chunks[0], "text", "") or "").strip()
-            required_mention = (text.splitlines()[0] if text else "").strip()[:60]
-        if not required_mention:
-            required_mention = "the provided context"
+            required_mention = _pick_mention_for_chunk(chunks[0])
+    if not required_mention:
+        required_mention = "the provided context"
 
     return required_mention, required_url
 
