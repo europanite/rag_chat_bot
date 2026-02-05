@@ -683,6 +683,33 @@ def _safe_parse_date_like(value: Any, *, now_dt: Optional[datetime] = None) -> O
             return date.fromisoformat(s)
         except Exception:
             return None
+
+
+    # Common date formats seen in upstream data
+    # - YYYY/MM/DD or YYYY/M/D
+    m = re.fullmatch(r"(\d{4})/(\d{1,2})/(\d{1,2})", s)
+    if m:
+        try:
+            return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except Exception:
+            return None
+
+    # - YYYY.MM.DD or YYYY.M.D
+    m = re.fullmatch(r"(\d{4})\.(\d{1,2})\.(\d{1,2})", s)
+    if m:
+        try:
+            return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except Exception:
+            return None
+
+    # - Japanese: YYYY年M月D日
+    m = re.fullmatch(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日", s)
+    if m:
+        try:
+            return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except Exception:
+            return None        
+
     # Datetime-like
     if s.endswith("Z"):
         s2 = s[:-1] + "+00:00"
@@ -692,11 +719,17 @@ def _safe_parse_date_like(value: Any, *, now_dt: Optional[datetime] = None) -> O
         return datetime.fromisoformat(s2).date()
     except Exception:
         return None
+
 def _extract_topic_family(question: str) -> Optional[str]:
     q = (question or "")
     m = _TOPIC_FAMILY_RE.search(q)
     if not m:
-        return None
+        # Fallback: our generator always includes HINTS: topic_kind=...
+        m2 = re.search(r"\btopic_kind\s*=\s*([a-zA-Z_]+)\b", q)
+        if not m2:
+            return None
+        raw = (m2.group(1) or "").strip()
+        return raw.lower() or None
     raw = (m.group(1) or "").strip()
     if not raw:
         return None

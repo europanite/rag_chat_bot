@@ -485,6 +485,7 @@ def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], s
         "Rules: Use emojis. Keep it punchy.\n"
         "Do NOT mention past events.\n"
         f"{fallback}"
+        f"TOPIC_FAMILY: {scheduled_kind}\n"
         f"datetime: {now_local}.\n"
         f"HINTS: topic_kind={scheduled_kind}, time_of_day={tod}, season={season}, weather={condition}, temp_c={temp_i}.\n"
     )
@@ -923,6 +924,12 @@ def main() -> int:
     # Schedule kind (python-side)
     now_dt_local = datetime.now(ZoneInfo(tz_name))
     scheduled_kind = _scheduled_kind_by_hour(now_dt_local.hour)
+
+    if debug:
+        print(
+            f"DEBUG: now_local={now_dt_local.isoformat()} scheduled_kind={scheduled_kind}",
+            file=sys.stderr,
+        )
 
     # garbage posts: DO NOT call RAG. Just reminder + 1 URL in links[].
     if scheduled_kind == "garbage_tomorrow":
