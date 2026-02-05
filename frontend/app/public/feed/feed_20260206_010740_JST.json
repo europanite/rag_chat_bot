@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-05T16:13:38Z",
+  "id": "feed_20260206_010740_JST",
   "date": "2026-02-05",
   "text": "Good night Yokosuka! 🌃 It's a chilly winter night with cloudy skies at 12°C. If you're looking for some fun tonight, head over to Snack Kojyo (スナック古城) — Karaoke Snack Bar! 🎤",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://map.yahoo.co.jp/v3/place/ekOT67g2sto"
   ],
-  "required_mention": "Snack Kojyo (スナック古城) — Karaoke Snack Bar"
+  "required_mention": "Snack Kojyo (スナック古城) — Karaoke Snack Bar",
+  "image": "./image/feed_20260206_010740_JST.png",
+  "image_url": "./image/feed_20260206_010740_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good night Yokosuka! 🌃 It's a chilly winter night with cloudy skies at 12°C. If you're looking for some fun tonight, head over to Snack Kojyo (スナック古城) — Karaoke Snack Bar! 🎤",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-05T16:18:36.100383Z",
+  "permalink": "./?post=feed_20260206_010740_JST"
 }
