@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-06T08:44:44Z",
+  "id": "feed_20260206_173845_JST",
   "date": "2026-02-06",
   "text": "Good evening! It's cloudy with 11°C. Why not visit Goshogasaki tonight and enjoy the peaceful atmosphere?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
-  "required_mention": "Goshogasaki (御所ヶ崎)"
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "image": "./image/feed_20260206_173845_JST.png",
+  "image_url": "./image/feed_20260206_173845_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's cloudy with 11°C. Why not visit Goshogasaki tonight and enjoy the peaceful atmosphere?",
+  "permalink": "./?post=feed_20260206_173845_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-06T08:50:39.710361Z"
 }
