@@ -60,11 +60,11 @@
   "required_mention": "Goshogasaki (御所ヶ崎)",
   "image": "./image/feed_20260206_173845_JST.png",
   "image_url": "./image/feed_20260206_173845_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's cloudy with 11°C. Why not visit Goshogasaki tonight and enjoy the peaceful atmosphere?",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good evening! It's cloudy with 11°C. Why not visit Goshogasaki tonight and enjoy the peaceful atmosphere?",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-06T08:50:39.710361Z",
+  "image_generated_at": "2026-02-06T10:38:59Z",
   "permalink": "./?post=feed_20260206_173845_JST"
 }
