@@ -60,11 +60,11 @@
   "required_mention": "**圏外書房 (Kengaishobo)** (Used bookstore + café/bar-style cult",
   "image": "./image/feed_20260207_102924_JST.png",
   "image_url": "./image/feed_20260207_102924_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 🌫️ It's a chilly rainy day with 4°C in Yokosuka. ☔️ Consider dropping by 圏外書房 (Kengaishobo), a cozy used bookstore and café, for a warm escape from the rain! 😊",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌫️ It's a chilly rainy day with 4°C in Yokosuka. ☔️ Consider dropping by 圏外書房 (Kengaishobo), a cozy used bookstore and café, for a warm escape from the rain! 😊",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-07T01:41:29.821377Z",
+  "image_generated_at": "2026-02-07T04:09:31Z",
   "permalink": "./?post=feed_20260207_102924_JST"
 }
