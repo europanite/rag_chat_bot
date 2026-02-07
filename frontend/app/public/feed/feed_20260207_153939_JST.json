@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-07T06:46:21Z",
+  "id": "feed_20260207_153939_JST",
   "date": "2026-02-07",
   "text": "Good afternoon 🌞! It's a chilly day with 2°C in Yokosuka today. You can escape the rain and visit Yokosuka Genic Street for some fun activities!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.city.yokosuka.kanagawa.jp/0810/10000me-toru.html"
   ],
-  "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)"
+  "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)",
+  "image": "./image/feed_20260207_153939_JST.png",
+  "image_url": "./image/feed_20260207_153939_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon 🌞! It's a chilly day with 2°C in Yokosuka today. You can escape the rain and visit Yokosuka Genic Street for some fun activities!",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-07T06:51:43.718296Z",
+  "permalink": "./?post=feed_20260207_153939_JST"
 }
