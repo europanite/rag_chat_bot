@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-07T08:34:25Z",
+  "id": "feed_20260207_172810_JST",
   "date": "2026-02-07",
   "text": "Good evening! 😊 It's a chilly and rainy evening here in Yokosuka, with a temperature of 2°C. Why not visit Tsukayama Park for some peaceful winter scenery? 🌳💦",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/spot/tukayama-park.html"
   ],
-  "required_mention": "Tsukayama Park (塚山公園)"
+  "required_mention": "Tsukayama Park (塚山公園)",
+  "image": "./image/feed_20260207_172810_JST.png",
+  "image_url": "./image/feed_20260207_172810_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! 😊 It's a chilly and rainy evening here in Yokosuka, with a temperature of 2°C. Why not visit Tsukayama Park for some peaceful winter scenery? 🌳💦",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-07T08:38:43.135753Z",
+  "permalink": "./?post=feed_20260207_172810_JST"
 }
