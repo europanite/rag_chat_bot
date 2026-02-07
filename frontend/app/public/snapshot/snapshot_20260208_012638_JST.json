@@ -1,0 +1,50 @@
+{
+  "source": "jma",
+  "generated_at": "2026-02-07T16:26:39.908280+00:00",
+  "place": "Yokosuka, Kanagawa, JP",
+  "latitude": 35.2811,
+  "longitude": 139.672,
+  "timezone": "Asia/Tokyo",
+  "current": {
+    "time": "2026-02-08T01:20:00+09:00",
+    "temp_c": 2.6,
+    "apparent_temp_c": null,
+    "humidity_pct": 95.0,
+    "precip_mm": 1.0,
+    "weather_code": 95,
+    "cloud_cover_pct": null,
+    "wind_kmh": 8.28,
+    "wind_dir_deg": 22.5,
+    "amedas_station": "46211",
+    "jma_weather_obs_code": null
+  },
+  "today": {
+    "date": "2026-02-08",
+    "weather_code": 95,
+    "precip_sum_mm": null,
+    "wind_max_kmh": null,
+    "temp_max_c": null,
+    "temp_min_c": null,
+    "weather_text_ja": "雪　昼過ぎ　から　くもり　後　晴れ　所により　昼前　まで　雷　を伴う",
+    "jma_weather_code": "411",
+    "precip_prob_pct": 50
+  },
+  "tomorrow": {
+    "date": "2026-02-09",
+    "weather_code": 0,
+    "precip_sum_mm": null,
+    "wind_max_kmh": null,
+    "temp_max_c": 8.0,
+    "temp_min_c": -1.0,
+    "weather_text_ja": "晴れ",
+    "jma_weather_code": "100",
+    "precip_prob_pct": null
+  },
+  "jma_meta": {
+    "publishing_office": "横浜地方気象台",
+    "report_datetime": "2026-02-07T23:00:00+09:00",
+    "office_code": "140000",
+    "area_code": null,
+    "temp_city_code": null
+  }
+}
