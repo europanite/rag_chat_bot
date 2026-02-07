@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-07T10:30:29Z",
+  "id": "feed_20260207_192422_JST",
   "date": "2026-02-07",
   "text": "Good evening 🌃, it's chilly with 2°C outside. Nothing like a warm slice of cake from Cake-ya popo on a rainy winter evening! Perfect excuse to cozy up and indulge in some comfort food 😊.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14052518/"
   ],
-  "required_mention": "cake屋popo (Cake-ya popo)"
+  "required_mention": "cake屋popo (Cake-ya popo)",
+  "image": "./image/feed_20260207_192422_JST.png",
+  "image_url": "./image/feed_20260207_192422_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening 🌃, it's chilly with 2°C outside. Nothing like a warm slice of cake from Cake-ya popo on a rainy winter evening! Perfect excuse to cozy up and indulge in some comfort food 😊.",
+  "permalink": "./?post=feed_20260207_192422_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-07T10:34:49.161794Z"
 }
