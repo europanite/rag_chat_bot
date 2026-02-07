@@ -17,7 +17,7 @@ PAGE_W = int(os.environ.get("PAGE_W", "640"))
 PAGE_H = int(os.environ.get("PAGE_H", "480"))
 
 INPUT_IMAGE = Path(os.environ.get("INPUT_IMAGE", "snapshot.jpg"))
-MODE = os.environ.get("MODE", "pillow").strip()          # pillow | img2img
+MODE = os.environ.get("MODE").strip()          # img2img
 STYLE = os.environ.get("STYLE", "grade").strip()         # grade | oil | watercolor | photo
 STEPS = int(os.environ.get("STEPS", "2"))
 STRENGTH = float(os.environ.get("STRENGTH", "0.45"))
@@ -276,7 +276,7 @@ def patch_feed_file(
         d["image"] = rel_url
         d["image_url"] = rel_url
         d["image_prompt"] = prompt
-        d["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
+        d["image_model"] = MODEL_ID
         if MODE == "img2img" and LORA_PATH:
             d["image_lora"] = Path(LORA_PATH).name
             d["image_lora_scale"] = float(LORA_SCALE)
@@ -409,7 +409,7 @@ def main() -> int:
         latest["image_prompt"] = prompt_local if MODE == "img2img" else f"pillow:{STYLE}"
         latest["id"] = feed_stem
         latest["permalink"] = f"./?post={feed_stem}"
-        latest["image_model"] = MODEL_ID if MODE == "img2img" else "pillow"
+        latest["image_model"] = MODEL_ID
         if MODE == "img2img" and LORA_PATH:
             latest["image_lora"] = Path(LORA_PATH).name
             latest["image_lora_scale"] = float(LORA_SCALE)
