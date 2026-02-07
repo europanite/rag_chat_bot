@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260207_192422_JST",
+  "id": "feed_20260207_172810_JST",
   "date": "2026-02-07",
-  "text": "Good evening 🌃, it's chilly with 2°C outside. Nothing like a warm slice of cake from Cake-ya popo on a rainy winter evening! Perfect excuse to cozy up and indulge in some comfort food 😊.",
+  "text": "Good evening! 😊 It's a chilly and rainy evening here in Yokosuka, with a temperature of 2°C. Why not visit Tsukayama Park for some peaceful winter scenery? 🌳💦",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-07T10:30:29Z",
+  "generated_at": "2026-02-07T08:34:25Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-07T10:24:24.931545+00:00",
+    "generated_at": "2026-02-07T08:28:13.554042+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-07T19:10:00+09:00",
-      "temp_c": 2.1,
+      "time": "2026-02-07T17:20:00+09:00",
+      "temp_c": 1.7,
       "apparent_temp_c": null,
-      "humidity_pct": 85.0,
+      "humidity_pct": 90.0,
       "precip_mm": 0.0,
       "weather_code": 71,
       "cloud_cover_pct": null,
-      "wind_kmh": 8.28,
+      "wind_kmh": 15.840000000000002,
       "wind_dir_deg": 67.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -55,16 +55,16 @@
     }
   },
   "links": [
-    "https://tabelog.com/kanagawa/A1406/A140601/14052518/"
+    "https://www.cocoyoko.net/spot/tukayama-park.html"
   ],
-  "required_mention": "cake屋popo (Cake-ya popo)",
-  "image": "./image/feed_20260207_192422_JST.png",
-  "image_url": "./image/feed_20260207_192422_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening 🌃, it's chilly with 2°C outside. Nothing like a warm slice of cake from Cake-ya popo on a rainy winter evening! Perfect excuse to cozy up and indulge in some comfort food 😊.",
-  "permalink": "./?post=feed_20260207_192422_JST",
+  "required_mention": "Tsukayama Park (塚山公園)",
+  "image": "./image/feed_20260207_172810_JST.png",
+  "image_url": "./image/feed_20260207_172810_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good evening! 😊 It's a chilly and rainy evening here in Yokosuka, with a temperature of 2°C. Why not visit Tsukayama Park for some peaceful winter scenery? 🌳💦",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-07T10:34:49.161794Z"
+  "image_generated_at": "2026-02-07T10:25:21Z",
+  "permalink": "./?post=feed_20260207_172810_JST"
 }

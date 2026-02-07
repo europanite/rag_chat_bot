@@ -1,0 +1,70 @@
+{
+  "id": "feed_20260207_014126_JST",
+  "date": "2026-02-06",
+  "text": "Good night! 🌃 It's a chilly and rainy evening tonight. You might enjoy visiting Happy (ハッピー) at Wakamatsucho in Yokosuka, Kanagawa, Japan for some indoor fun.",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-06T16:48:05Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-06T16:41:28.715054+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-07T01:30:00+09:00",
+      "temp_c": 6.6,
+      "apparent_temp_c": null,
+      "humidity_pct": 45.0,
+      "precip_mm": 0.0,
+      "weather_code": 71,
+      "cloud_cover_pct": null,
+      "wind_kmh": 19.44,
+      "wind_dir_deg": 22.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-07",
+      "weather_code": 71,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　夕方　から　夜のはじめ頃　雪か雨",
+      "jma_weather_code": "281",
+      "precip_prob_pct": 50
+    },
+    "tomorrow": {
+      "date": "2026-02-08",
+      "weather_code": 71,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 5.0,
+      "temp_min_c": 1.0,
+      "weather_text_ja": "くもり　一時　雪",
+      "jma_weather_code": "204",
+      "precip_prob_pct": null
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-06T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://tabelog.com/kanagawa/A1406/A140601/14044439/"
+  ],
+  "required_mention": "Happy (ハッピー)",
+  "image": "./image/feed_20260207_014126_JST.png",
+  "image_url": "./image/feed_20260207_014126_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night! 🌃 It's a chilly and rainy evening tonight. You might enjoy visiting Happy (ハッピー) at Wakamatsucho in Yokosuka, Kanagawa, Japan for some indoor fun.",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-06T18:46:15Z",
+  "permalink": "./?post=feed_20260207_014126_JST"
+}
