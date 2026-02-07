@@ -60,11 +60,11 @@
   "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)",
   "image": "./image/feed_20260207_153939_JST.png",
   "image_url": "./image/feed_20260207_153939_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, winter scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon 🌞! It's a chilly day with 2°C in Yokosuka today. You can escape the rain and visit Yokosuka Genic Street for some fun activities!",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon 🌞! It's a chilly day with 2°C in Yokosuka today. You can escape the rain and visit Yokosuka Genic Street for some fun activities!",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-07T06:51:43.718296Z",
+  "image_generated_at": "2026-02-07T08:30:29Z",
   "permalink": "./?post=feed_20260207_153939_JST"
 }
