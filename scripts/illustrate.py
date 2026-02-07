@@ -50,25 +50,11 @@ def safe_str(x: Any) -> str:
 def build_prompt(text: str, place: str) -> str:
     t = " ".join(text.split()).strip()[:240]
     p = place.strip()
+    prompt = f"cinematic illustration, based on this short story: {t}"
+    negative = ""
     if p:
-        return f"cinematic illustration, {p}, based on this short story: {t}"
-    return f"cinematic illustration, based on this short story: {t}"
-
-def build_prompt_negative(text: str, place: str) -> str:
-    """
-    ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, traditional print, winter scene in Yokosuka, same composition as the input image
-    """
-    t = " ".join(text.split()).strip()[:240]
-    p = place.strip()
-    prompt = ""
-    negative = "photorealistic"
-    if p:
-        prompt = f"ukiyo-e style illustration, {p}, based on this short story: {t}"
-        return prompt
-    else:
-        prompt = f"ukiyo-e style  illustration, based on this short story: {t}"
-    return prompt, negative
-
+        prompt = f"cinematic illustration, {p}, based on this short story: {t}"
+    return prompt,negative
 
 def _match_item(item: dict, *, date: str, text: str, generated_at: str) -> bool:
     if not isinstance(item, dict):
@@ -175,9 +161,7 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     seed = random.randint(0, 2**31 - 1)
-    # prompt = build_prompt(text, place)
-    prompt,negative = build_prompt_negative(text, place)
-
+    prompt,negative = build_prompt(text, place)
 
     print(f"MODEL_ID={MODEL_ID}")
     print(f"seed={seed}")

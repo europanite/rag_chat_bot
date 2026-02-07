@@ -210,6 +210,8 @@ jobs:
           echo "TORCH_CACHE_DIR=$HOME/.cache/torch" >> $GITHUB_ENV
 
       - name: Build illustrate image
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
         run: |
           set -euo pipefail
           docker compose -f docker-compose.yml build illustrate
@@ -217,19 +219,22 @@ jobs:
       - name: Generate illustrated image and patch feed
         env:
           # arrange(img2img)
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
           INPUT_IMAGE: "snapshot.jpg"
           MODE: "img2img"
           PATCH_JSON: "1"
           OUT_DIR: "frontend/app/public/image"
           PLACE: "Yokosuka, Japan"
-          STEPS: "4"
-          STRENGTH: "0.7"
-          GUIDANCE_SCALE: "0.0"
+          STEPS: "8"
+          STRENGTH: "0.9"
+          GUIDANCE_SCALE: "2.0"
           MIRROR_AUG: "1"
           SEED_OFFSET: "${{ github.run_number }}"
           SDXL_MODEL_ID: stabilityai/sdxl-turbo
           LORA_PATH: "models/loras/ukiyoe.safetensors"
-          LORA_SCALE: "0.8"
+          LORA_SCALE: "1.1"
+          PROMPT: "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in Yokosuka, same scene and composition as the input image"
+          NEGATIVE: "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry"
         run: |
           set -euo pipefail
           test -f frontend/app/public/latest.json
