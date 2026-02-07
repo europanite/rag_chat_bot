@@ -44,8 +44,8 @@ services:
       OUT_NAME: ${OUT_NAME:-}
       PLACE: ${PLACE:-}
       STEPS: ${STEPS:-2}
-      STRENGTH: ${STRENGTH:-0.45}
-      GUIDANCE_SCALE: ${GUIDANCE_SCALE:-0.0}
+      STRENGTH: ${STRENGTH:-0.8}
+      GUIDANCE_SCALE: ${GUIDANCE_SCALE:-2.0}
       MIRROR_AUG: ${MIRROR_AUG:-0}
       SEED: ${SEED:-}
       SEED_OFFSET: ${SEED_OFFSET:-0}
