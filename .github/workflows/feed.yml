@@ -215,7 +215,30 @@ jobs:
         run: |
           set -euo pipefail
           docker compose -f docker-compose.yml build illustrate
+      - name: Choose img2img style by JST hour
+        run: |
+          set -euo pipefail
+          HOUR=$(TZ=Asia/Tokyo date +%H)
 
+          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 18 ]; then
+            # Day: photo img2img (no LoRA)
+            echo "LORA_PATH=" >> $GITHUB_ENV
+            echo "LORA_SCALE=0.8" >> $GITHUB_ENV
+            echo "STEPS=6" >> $GITHUB_ENV
+            echo "STRENGTH=0.60" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=2.0" >> $GITHUB_ENV
+            echo "PROMPT=" >> $GITHUB_ENV
+            echo "NEGATIVE=" >> $GITHUB_ENV
+          else
+            # Night: ukiyoe img2img
+            echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
+            echo "LORA_SCALE=1.1" >> $GITHUB_ENV
+            echo "STEPS=8" >> $GITHUB_ENV
+            echo "STRENGTH=0.90" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=2.0" >> $GITHUB_ENV
+            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}" >> $GITHUB_ENV
+            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry" >> $GITHUB_ENV
+          fi
       - name: Generate illustrated image and patch feed
         env:
           # arrange(img2img)
@@ -225,16 +248,9 @@ jobs:
           PATCH_JSON: "1"
           OUT_DIR: "frontend/app/public/image"
           PLACE: "Yokosuka, Japan"
-          STEPS: "8"
-          STRENGTH: "0.9"
-          GUIDANCE_SCALE: "2.0"
           MIRROR_AUG: "1"
           SEED_OFFSET: "${{ github.run_number }}"
           SDXL_MODEL_ID: stabilityai/sdxl-turbo
-          LORA_PATH: "models/loras/ukiyoe.safetensors"
-          LORA_SCALE: "1.1"
-          PROMPT: "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in Yokosuka, same scene and composition as the input image"
-          NEGATIVE: "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry"
         run: |
           set -euo pipefail
           test -f frontend/app/public/latest.json
@@ -271,7 +287,29 @@ jobs:
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
+      - name: Choose img2img style by JST hour
+        run: |
+          set -euo pipefail
+          HOUR=$(TZ=Asia/Tokyo date +%H)
+          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 18 ]; then
+            # Day: photo img2img (no LoRA)
+            echo "LORA_PATH=" >> $GITHUB_ENV
+            echo "LORA_SCALE=0.8" >> $GITHUB_ENV
+            echo "STEPS=6" >> $GITHUB_ENV
+            echo "STRENGTH=0.60" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=2.0" >> $GITHUB_ENV
+            echo "PROMPT=" >> $GITHUB_ENV
+            echo "NEGATIVE=" >> $GITHUB_ENV
+          else
+            # Night: ukiyoe img2img
+            echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
+            echo "LORA_SCALE=1.1" >> $GITHUB_ENV
+            echo "STEPS=8" >> $GITHUB_ENV
+            echo "STRENGTH=0.90" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=2.0" >> $GITHUB_ENV
+            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}" >> $GITHUB_ENV
+            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry" >> $GITHUB_ENV
+          fi
   pages:
     needs: [rag, illustrate]
     if: needs.rag.outputs.changed == '1'
