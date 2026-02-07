@@ -54,6 +54,21 @@ def build_prompt(text: str, place: str) -> str:
         return f"cinematic illustration, {p}, based on this short story: {t}"
     return f"cinematic illustration, based on this short story: {t}"
 
+def build_prompt_negative(text: str, place: str) -> str:
+    """
+    ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, traditional print, winter scene in Yokosuka, same composition as the input image
+    """
+    t = " ".join(text.split()).strip()[:240]
+    p = place.strip()
+    prompt = ""
+    negative = "photorealistic"
+    if p:
+        prompt = f"ukiyo-e style illustration, {p}, based on this short story: {t}"
+        return prompt
+    else:
+        prompt = f"ukiyo-e style  illustration, based on this short story: {t}"
+    return prompt, negative
+
 
 def _match_item(item: dict, *, date: str, text: str, generated_at: str) -> bool:
     if not isinstance(item, dict):
@@ -160,13 +175,16 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     seed = random.randint(0, 2**31 - 1)
-    prompt = build_prompt(text, place)
+    # prompt = build_prompt(text, place)
+    prompt,negative = build_prompt_negative(text, place)
+
 
     print(f"MODEL_ID={MODEL_ID}")
     print(f"seed={seed}")
     print(f"feed_stem={feed_stem}")
     print(f"out_path={out_path}")
     print(f"prompt={prompt}")
+    print(f"negative={negative}")
 
     generator = torch.Generator(device=DEVICE).manual_seed(seed)
 
@@ -175,6 +193,7 @@ def main() -> int:
 
     image_kwargs = {
         "prompt": prompt,
+        "negative": negative,
         "num_inference_steps": 4,
         "guidance_scale": 0.0,
         "generator": generator,
@@ -209,6 +228,7 @@ def main() -> int:
     latest["permalink"] = f"./?post={feed_stem}"
     latest["image_url"] = rel_image_url
     latest["image_prompt"] = prompt
+    latest["image_negative"] = negative
     latest["image_model"] = MODEL_ID
     if lora_tag:
         latest["image_lora"] = lora_tag
@@ -225,6 +245,7 @@ def main() -> int:
         feed_stem=feed_stem,
         rel_image_url=rel_image_url,
         image_prompt=prompt,
+        image_negative=negative,
         image_generated_at=now_iso,
         image_lora=lora_tag,
         image_lora_scale=float(LORA_SCALE),
