@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-08T06:57:05Z",
+  "id": "feed_20260208_154647_JST",
   "date": "2026-02-08",
   "text": "Good afternoon! 🌫️ It's a chilly 2°C and rainy today in Yokosuka. We recommend checking out 5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5th floor for some cozy indoor comfort food tonight!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14081625/"
   ],
-  "required_mention": "5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5t"
+  "required_mention": "5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5t",
+  "image": "./image/feed_20260208_154647_JST.png",
+  "image_url": "./image/feed_20260208_154647_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌫️ It's a chilly 2°C and rainy today in Yokosuka. We recommend checking out 5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5th floor for some cozy indoor comfort food tonight!",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-08T07:02:16.300165Z",
+  "permalink": "./?post=feed_20260208_154647_JST"
 }
