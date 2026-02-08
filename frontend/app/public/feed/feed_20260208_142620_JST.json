@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-08T05:46:07Z",
+  "id": "feed_20260208_142620_JST",
   "date": "2026-02-08",
   "text": "Good afternoon! It's a chilly day with 2°C in Yokosuka today. Let's head to Chikata Shrine, a serene Shinto shrine surrounded by nature, perfect for a rainy winter afternoon like this one.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://ja.wikipedia.org/wiki/%E8%BF%91%E6%AE%BF%E7%A5%9E%E7%A4%BE"
   ],
-  "required_mention": "Chikata Shrine (近殿神社)"
+  "required_mention": "Chikata Shrine (近殿神社)",
+  "image": "./image/feed_20260208_142620_JST.png",
+  "image_url": "./image/feed_20260208_142620_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a chilly day with 2°C in Yokosuka today. Let's head to Chikata Shrine, a serene Shinto shrine surrounded by nature, perfect for a rainy winter afternoon like this one.",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-08T05:51:18.409454Z",
+  "permalink": "./?post=feed_20260208_142620_JST"
 }
