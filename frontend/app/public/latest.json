@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-08T14:33:23Z",
+  "id": "feed_20260208_232654_JST",
   "date": "2026-02-08",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
-  "required_mention": "Goshogasaki (御所ヶ崎)"
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "image": "./image/feed_20260208_232654_JST.png",
+  "image_url": "./image/feed_20260208_232654_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "permalink": "./?post=feed_20260208_232654_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-08T14:40:38.185101Z"
 }
