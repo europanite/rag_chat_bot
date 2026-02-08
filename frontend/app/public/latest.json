@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-08T10:30:59Z",
+  "id": "feed_20260208_192431_JST",
   "date": "2026-02-08",
   "text": "Good evening 🌃 It's a chilly 1°C outside and rainy too ☔️. Considering the weather, why not warm up with a visit to SEIYU LIVIN Yokosuka for a quick grocery run tonight?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://map.yahoo.co.jp/v3/place/G7FOoMQzvkg"
   ],
-  "required_mention": "SEIYU LIVIN Yokosuka (西友 リヴィンよこすか店) — 24-hour supermarket"
+  "required_mention": "SEIYU LIVIN Yokosuka (西友 リヴィンよこすか店) — 24-hour supermarket",
+  "image": "./image/feed_20260208_192431_JST.png",
+  "image_url": "./image/feed_20260208_192431_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "permalink": "./?post=feed_20260208_192431_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-08T10:38:07.220327Z"
 }
