@@ -366,7 +366,7 @@ def main() -> int:
     if not PROMPT:
         prompt_local = (
             "photorealistic photo, natural colors, documentary style, "
-            f"winter scene in {place or 'Yokosuka, Japan'}, "
+            f"scene in {place or 'Yokosuka, Japan'}, "
             "same scene and composition as the input image. "
             f"Inspired by: {core}"
         )

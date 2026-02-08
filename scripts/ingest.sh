@@ -116,16 +116,16 @@ fi
 
 # ---- shared defaults (workflow) ----
 export REACT_NATIVE_PACKAGER_HOSTNAME="${REACT_NATIVE_PACKAGER_HOSTNAME:-127.0.0.1}"
-export OLLAMA_BASE_URL="${OLLAMA_BASE_URL:-http://ollama:11434}"
-export OLLAMA_TIMEOUT_S="${OLLAMA_TIMEOUT_S:-512}"
-export EMBEDDING_MODEL="${EMBEDDING_MODEL:-mxbai-embed-large}"
-export RAG_MODEL="${RAG_MODEL:-llama3.1:8b}"
-export AUDIT_MODEL="${AUDIT_MODEL:-llama3.2:3b}"
+export OLLAMA_BASE_URL="${OLLAMA_BASE_URL}"
+export OLLAMA_TIMEOUT_S="${OLLAMA_TIMEOUT_S}"
+export EMBEDDING_MODEL="${EMBEDDING_MODEL}"
+export RAG_MODEL="${RAG_MODEL}"
+export AUDIT_MODEL="${AUDIT_MODEL}"
 
 # feed workflow audit
-export RAG_AUDIT="${RAG_AUDIT:-0}"
-export RAG_AUDIT_REWRITE="${RAG_AUDIT_REWRITE:-1}"
-export RAG_AUDIT_MAX_ATTEMPTS="${RAG_AUDIT_MAX_ATTEMPTS:-2}"
+export RAG_AUDIT="${RAG_AUDIT}"
+export RAG_AUDIT_REWRITE="${RAG_AUDIT_REWRITE}"
+export RAG_AUDIT_MAX_ATTEMPTS="${RAG_AUDIT_MAX_ATTEMPTS}"
 
 # feed index/rebuild（workflow）
 if [[ "$WITH_INDEX" != "1" ]]; then
