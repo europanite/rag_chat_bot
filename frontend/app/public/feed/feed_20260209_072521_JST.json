@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-08T22:32:37Z",
+  "id": "feed_20260209_072521_JST",
   "date": "2026-02-08",
   "text": "Good morning! 🌞 It's a chilly day today with only 2°C outside. Let's warm up at Gyorantei, the place for Yokosuka Navy Curry, Certified Shop No.1! Their curry is just what we need on a cold winter morning.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://wakamatsu-market.jp/shop/gyorantei/"
   ],
-  "required_mention": "Gyorantei (魚藍亭) — Yokosuka Navy Curry (Certified Shop No.1)"
+  "required_mention": "Gyorantei (魚藍亭) — Yokosuka Navy Curry (Certified Shop No.1)",
+  "image": "./image/feed_20260209_072521_JST.png",
+  "image_url": "./image/feed_20260209_072521_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 🌞 It's a chilly day today with only 2°C outside. Let's warm up at Gyorantei, the place for Yokosuka Navy Curry, Certified Shop No.1! Their curry is just what we need on a cold winter morning.",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-08T22:39:54.909442Z",
+  "permalink": "./?post=feed_20260209_072521_JST"
 }
