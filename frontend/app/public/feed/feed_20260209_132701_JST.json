@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-09T04:37:44Z",
+  "id": "feed_20260209_132701_JST",
   "date": "2026-02-09",
   "text": "Good afternoon! 🌞 It's a lovely sunny day with 8°C in Yokosuka. Get ready for a fun-filled evening at Yokosuka Genic Street, where you can enjoy shopping and dining under the stars tonight!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.city.yokosuka.kanagawa.jp/0810/10000me-toru.html"
   ],
-  "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)"
+  "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)",
+  "image": "./image/feed_20260209_132701_JST.png",
+  "image_url": "./image/feed_20260209_132701_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's a lovely sunny day with 8°C in Yokosuka. Get ready for a fun-filled evening at Yokosuka Genic Street, where you can enjoy shopping and dining under the stars tonight!",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-09T04:43:31.239738Z",
+  "permalink": "./?post=feed_20260209_132701_JST"
 }
