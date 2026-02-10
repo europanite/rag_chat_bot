@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-10T07:11:46Z",
+  "id": "feed_20260210_160230_JST",
   "date": "2026-02-10",
   "text": "Good afternoon.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/event/syoubou-parade.html"
   ],
-  "required_mention": "YOKOSUKA Fire Department Parade 2026 (消防出初式)"
+  "required_mention": "YOKOSUKA Fire Department Parade 2026 (消防出初式)",
+  "image": "./image/feed_20260210_160230_JST.png",
+  "image_url": "./image/feed_20260210_160230_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon.",
+  "permalink": "./?post=feed_20260210_160230_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-10T07:17:39.678224Z"
 }
