@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-10T08:59:22Z",
+  "id": "feed_20260210_174824_JST",
   "date": "2026-02-10",
   "text": "Good evening! It's windy today with 12°C outside. Why not visit Chikata Shrine to experience a serene winter atmosphere and enjoy the tranquil surroundings?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://ja.wikipedia.org/wiki/%E8%BF%91%E6%AE%BF%E7%A5%9E%E7%A4%BE"
   ],
-  "required_mention": "Chikata Shrine (近殿神社)"
+  "required_mention": "Chikata Shrine (近殿神社)",
+  "image": "./image/feed_20260210_174824_JST.png",
+  "image_url": "./image/feed_20260210_174824_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "permalink": "./?post=feed_20260210_174824_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-10T09:04:36.721083Z"
 }
