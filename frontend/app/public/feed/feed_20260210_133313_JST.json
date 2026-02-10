@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-10T04:43:23Z",
+  "id": "feed_20260210_133313_JST",
   "date": "2026-02-10",
   "text": "Good afternoon! It's cloudy with 10°C today. Let's head over to Kinugasayama Park (Yokosuka) for a winter stroll and enjoy the scenery 🌫️🏞️👋",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://kinugasayama.y-parks.jp/"
   ],
-  "required_mention": "Kinugasayama Park (Yokosuka)"
+  "required_mention": "Kinugasayama Park (Yokosuka)",
+  "image": "./image/feed_20260210_133313_JST.png",
+  "image_url": "./image/feed_20260210_133313_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's cloudy with 10°C today. Let's head over to Kinugasayama Park (Yokosuka) for a winter stroll and enjoy the scenery 🌫️🏞️👋",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-10T04:48:31.048885Z",
+  "permalink": "./?post=feed_20260210_133313_JST"
 }
