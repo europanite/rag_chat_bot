@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-11T10:57:10Z",
+  "id": "feed_20260211_194738_JST",
   "date": "2026-02-11",
   "text": "Good evening! 🌃 It's a rainy day with 8°C outside. Why not try From Hayama’s Plum Village to Mineyama Guided Hiking Tour and enjoy the peaceful winter scenery?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/event/post-251.html"
   ],
-  "required_mention": "From Hayama’s Plum Village to Mineyama (Guided Hiking Tour)"
+  "required_mention": "From Hayama’s Plum Village to Mineyama (Guided Hiking Tour)",
+  "image": "./image/feed_20260211_194738_JST.png",
+  "image_url": "./image/feed_20260211_194738_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "permalink": "./?post=feed_20260211_194738_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-11T11:04:32.477650Z"
 }
