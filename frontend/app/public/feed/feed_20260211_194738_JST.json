@@ -1,0 +1,70 @@
+{
+  "id": "feed_20260211_194738_JST",
+  "date": "2026-02-11",
+  "text": "Good evening! 🌃 It's a rainy day with 8°C outside. Why not try From Hayama’s Plum Village to Mineyama Guided Hiking Tour and enjoy the peaceful winter scenery?",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-11T10:57:10Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-11T10:47:40.528252+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-11T19:40:00+09:00",
+      "temp_c": 7.9,
+      "apparent_temp_c": null,
+      "humidity_pct": 79.0,
+      "precip_mm": 0.0,
+      "weather_code": 61,
+      "cloud_cover_pct": null,
+      "wind_kmh": 7.920000000000001,
+      "wind_dir_deg": 67.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-11",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　夜遅く　晴れ　所により　雨",
+      "jma_weather_code": "211",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
+      "date": "2026-02-12",
+      "weather_code": 71,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　昼過ぎ　から　時々　晴れ　所により　明け方　まで　雨か雪",
+      "jma_weather_code": "210",
+      "precip_prob_pct": 20
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-11T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/event/post-251.html"
+  ],
+  "required_mention": "From Hayama’s Plum Village to Mineyama (Guided Hiking Tour)",
+  "image": "./image/feed_20260211_194738_JST.png",
+  "image_url": "./image/feed_20260211_194738_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-11T11:04:32.477650Z",
+  "permalink": "./?post=feed_20260211_194738_JST"
+}

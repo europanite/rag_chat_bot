@@ -1,0 +1,68 @@
+{
+  "id": "feed_20260208_154647_JST",
+  "date": "2026-02-08",
+  "text": "Good afternoon! 🌫️ It's a chilly 2°C and rainy today in Yokosuka. We recommend checking out 5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5th floor for some cozy indoor comfort food tonight!",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-08T06:57:05Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-08T06:46:49.307277+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-08T15:40:00+09:00",
+      "temp_c": 1.5,
+      "apparent_temp_c": null,
+      "humidity_pct": 58.0,
+      "precip_mm": 0.0,
+      "weather_code": 95,
+      "cloud_cover_pct": null,
+      "wind_kmh": 23.040000000000003,
+      "wind_dir_deg": 22.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-08",
+      "weather_code": 95,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "雪　夕方　から　くもり　後　晴れ　所により　夕方　まで　雷　を伴う",
+      "jma_weather_code": "411",
+      "precip_prob_pct": 50
+    },
+    "tomorrow": {
+      "date": "2026-02-09",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-08T11:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://tabelog.com/kanagawa/A1406/A140601/14081625/"
+  ],
+  "required_mention": "5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5t",
+  "image": "./image/feed_20260208_154647_JST.png",
+  "image_url": "./image/feed_20260208_154647_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌫️ It's a chilly 2°C and rainy today in Yokosuka. We recommend checking out 5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5th floor for some cozy indoor comfort food tonight!",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-08T07:02:16.300165Z",
+  "permalink": "./?post=feed_20260208_154647_JST"
+}

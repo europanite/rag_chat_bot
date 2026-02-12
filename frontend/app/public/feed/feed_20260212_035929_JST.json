@@ -1,0 +1,70 @@
+{
+  "id": "feed_20260212_035929_JST",
+  "date": "2026-02-11",
+  "text": "Good night.",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-11T19:05:51Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-11T18:59:31.624628+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-12T03:50:00+09:00",
+      "temp_c": 6.2,
+      "apparent_temp_c": null,
+      "humidity_pct": 64.0,
+      "precip_mm": 0.0,
+      "weather_code": 71,
+      "cloud_cover_pct": null,
+      "wind_kmh": 15.48,
+      "wind_dir_deg": 22.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-12",
+      "weather_code": 71,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　昼過ぎ　から　時々　晴れ　所により　明け方　まで　雨か雪",
+      "jma_weather_code": "210",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
+      "date": "2026-02-13",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 13.0,
+      "temp_min_c": 3.0,
+      "weather_text_ja": "晴れ　時々　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": null
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-11T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://ja-yokosukahayama.or.jp/tourism/"
+  ],
+  "required_mention": "Mandarin Orange (Mikan) Picking at Tsukuihama",
+  "image": "./image/feed_20260212_035929_JST.png",
+  "image_url": "./image/feed_20260212_035929_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-11T19:13:15.841559Z",
+  "permalink": "./?post=feed_20260212_035929_JST"
+}
