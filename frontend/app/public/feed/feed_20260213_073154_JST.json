@@ -61,8 +61,8 @@
   "image": "./image/feed_20260213_073154_JST.png",
   "image_url": "./image/feed_20260213_073154_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's cloudy with 6°C today. If you're looking for a cozy spot in Yokosuka, Senpuku (千福) is a great choice for warm and comforting food on a chilly winter morning like this ☕️🍜.",
-  "permalink": "./?post=feed_20260213_073154_JST",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-12T22:50:00.348379Z"
+  "image_generated_at": "2026-02-12T22:50:00.348379Z",
+  "permalink": "./?post=feed_20260213_073154_JST"
 }

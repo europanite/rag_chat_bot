@@ -1,0 +1,70 @@
+{
+  "id": "feed_20260212_194353_JST",
+  "date": "2026-02-12",
+  "text": "Good evening! It's a cloudy evening with 7°C in Yokosuka today. Why not visit Chikata Shrine and enjoy the peaceful atmosphere under the evening sky?",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-12T10:53:35Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-12T10:43:55.374903+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-12T19:30:00+09:00",
+      "temp_c": 6.6,
+      "apparent_temp_c": null,
+      "humidity_pct": 63.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 5.4,
+      "wind_dir_deg": 90.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-12",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　夜　晴れ",
+      "jma_weather_code": "211",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-02-13",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　昼過ぎ　から　晴れ",
+      "jma_weather_code": "211",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-12T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://ja.wikipedia.org/wiki/%E8%BF%91%E6%AE%BF%E7%A5%9E%E7%A4%BE"
+  ],
+  "required_mention": "Chikata Shrine (近殿神社)",
+  "image": "./image/feed_20260212_194353_JST.png",
+  "image_url": "./image/feed_20260212_194353_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-12T11:00:32.931014Z",
+  "permalink": "./?post=feed_20260212_194353_JST"
+}

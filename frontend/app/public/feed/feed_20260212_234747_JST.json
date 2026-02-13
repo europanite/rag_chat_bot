@@ -1,0 +1,70 @@
+{
+  "id": "feed_20260212_234747_JST",
+  "date": "2026-02-12",
+  "text": "Good night.",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-12T14:53:16Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-12T14:47:50.282179+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-12T23:40:00+09:00",
+      "temp_c": 4.8,
+      "apparent_temp_c": null,
+      "humidity_pct": 76.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 5.760000000000001,
+      "wind_dir_deg": 45.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-12",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　夜　晴れ",
+      "jma_weather_code": "211",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-02-13",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　昼過ぎ　から　晴れ",
+      "jma_weather_code": "211",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-12T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/spot/kinugasa-park.html"
+  ],
+  "required_mention": "Kinugasayama Park (Yokosuka)",
+  "image": "./image/feed_20260212_234747_JST.png",
+  "image_url": "./image/feed_20260212_234747_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-12T15:00:47.555161Z",
+  "permalink": "./?post=feed_20260212_234747_JST"
+}
