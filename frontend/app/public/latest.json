@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-13T07:06:40Z",
+  "id": "feed_20260213_155816_JST",
   "date": "2026-02-13",
   "text": "Good afternoon! It's a sunny day with 11°C. Get ready for the Yokosuka Coffee Festival 2026, happening soon at the Yokosuka City Hall Front Park, featuring popular coffee shops and vendors! 🌞☕️👍",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/event/coffee_fes_2026/"
   ],
-  "required_mention": "Yokosuka Coffee Festival 2026"
+  "required_mention": "Yokosuka Coffee Festival 2026",
+  "image": "./image/feed_20260213_155816_JST.png",
+  "image_url": "./image/feed_20260213_155816_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a sunny day with 11°C. Get ready for the Yokosuka Coffee Festival 2026, happening soon at the Yokosuka City Hall Front Park, featuring popular coffee shops and vendors! 🌞☕️👍",
+  "permalink": "./?post=feed_20260213_155816_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-13T07:13:27.779869Z"
 }
