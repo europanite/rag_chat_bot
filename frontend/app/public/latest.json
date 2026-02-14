@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-14T04:17:46Z",
+  "id": "feed_20260214_131002_JST",
   "date": "2026-02-14",
   "text": "Good afternoon! It's cloudy with 14°C today 🌫️🌨️. Are you excited for YOKOSUKA Fire Department Parade 2026 (消防出初式) on February 16? Don't miss the festive parade route through Yokosuka! 🎉",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.city.yokosuka.kanagawa.jp/7410/syoubou/topics/r7pare-do.html"
   ],
-  "required_mention": "YOKOSUKA Fire Department Parade 2026 (消防出初式)"
+  "required_mention": "YOKOSUKA Fire Department Parade 2026 (消防出初式)",
+  "image": "./image/feed_20260214_131002_JST.png",
+  "image_url": "./image/feed_20260214_131002_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's cloudy with 14°C today 🌫️🌨️. Are you excited for YOKOSUKA Fire Department Parade 2026 (消防出初式) on February 16? Don't miss the festive parade route through Yokosuka! 🎉",
+  "permalink": "./?post=feed_20260214_131002_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-14T04:23:46.798930Z"
 }
