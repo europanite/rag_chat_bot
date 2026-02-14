@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-14T01:40:11Z",
+  "id": "feed_20260214_103108_JST",
   "date": "2026-02-14",
   "text": "Good morning! 🌞 It's a cloudy day with 12°C in Yokosuka today. Why not warm up with a dessert at Dessert & Cafe Blue Moon? Their sweet treats are perfect for a winter morning 😊",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://bluemoonyokosuka.com/"
   ],
-  "required_mention": "Dessert & Cafe Blue Moon (Dessert＆Cafe ブルームーン)"
+  "required_mention": "Dessert & Cafe Blue Moon (Dessert＆Cafe ブルームーン)",
+  "image": "./image/feed_20260214_103108_JST.png",
+  "image_url": "./image/feed_20260214_103108_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 🌞 It's a cloudy day with 12°C in Yokosuka today. Why not warm up with a dessert at Dessert & Cafe Blue Moon? Their sweet treats are perfect for a winter morning 😊",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-14T01:46:45.419720Z",
+  "permalink": "./?post=feed_20260214_103108_JST"
 }
