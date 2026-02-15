@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-15T06:56:32Z",
+  "id": "feed_20260215_154849_JST",
   "date": "2026-02-15",
   "text": "Good afternoon! It's a sunny day with 17°C here in Yokosuka 🌞🌻. Get ready for the Happy (ハッピー) event on January 11th, featuring fun activities and joyous atmosphere 😊.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://s.tabelog.com/udon/kanagawa/A1406/A140601/rank"
   ],
-  "required_mention": "Happy (ハッピー)"
+  "required_mention": "Happy (ハッピー)",
+  "image": "./image/feed_20260215_154849_JST.png",
+  "image_url": "./image/feed_20260215_154849_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a sunny day with 17°C here in Yokosuka 🌞🌻. Get ready for the Happy (ハッピー) event on January 11th, featuring fun activities and joyous atmosphere 😊.",
+  "permalink": "./?post=feed_20260215_154849_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-15T07:03:16.141420Z"
 }
