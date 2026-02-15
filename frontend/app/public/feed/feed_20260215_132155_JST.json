@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-15T04:35:13Z",
+  "id": "feed_20260215_132155_JST",
   "date": "2026-02-15",
   "text": "Good afternoon! 🌞 It's a sunny day with 17°C in Yokosuka. We recommend visiting Chikata Shrine (近殿神社) to experience its serene atmosphere.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://kinugasa.yokosuka-kanko.com/tourist/%E8%BF%91%E6%AE%BF%EF%BC%88%E3%81%A1%E3%81%8B%E3%81%9F%EF%BC%89%E7%A5%9E%E7%A4%BE/"
   ],
-  "required_mention": "Chikata Shrine (近殿神社)"
+  "required_mention": "Chikata Shrine (近殿神社)",
+  "image": "./image/feed_20260215_132155_JST.png",
+  "image_url": "./image/feed_20260215_132155_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's a sunny day with 17°C in Yokosuka. We recommend visiting Chikata Shrine (近殿神社) to experience its serene atmosphere.",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-15T04:41:20.871682Z",
+  "permalink": "./?post=feed_20260215_132155_JST"
 }
