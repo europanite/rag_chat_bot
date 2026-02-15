@@ -1,0 +1,68 @@
+{
+  "id": "feed_20260214_073213_JST",
+  "date": "2026-02-13",
+  "text": "Good morning! ☀️ It's a cloudy day with 7°C in Yokosuka. A warm bowl of sushi at Sushi Masa is just what I need on a chilly winter morning 🍜🍣",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-13T22:44:21Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-13T22:32:15.092760+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-14T07:20:00+09:00",
+      "temp_c": 6.8,
+      "apparent_temp_c": null,
+      "humidity_pct": 78.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 8.64,
+      "wind_dir_deg": 90.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-14",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　昼過ぎ　から　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-02-15",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 17.0,
+      "temp_min_c": 6.0,
+      "weather_text_ja": "晴れ　昼前　まで　時々　くもり",
+      "jma_weather_code": "101",
+      "precip_prob_pct": 0
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-14T05:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://tabelog.com/kanagawa/A1406/A140601/14020873/"
+  ],
+  "required_mention": "Sushi Masa (鮨政)",
+  "image": "./image/feed_20260214_073213_JST.png",
+  "image_url": "./image/feed_20260214_073213_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! ☀️ It's a cloudy day with 7°C in Yokosuka. A warm bowl of sushi at Sushi Masa is just what I need on a chilly winter morning 🍜🍣",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-13T22:51:04.469237Z",
+  "permalink": "./?post=feed_20260214_073213_JST"
+}

@@ -1,0 +1,68 @@
+{
+  "id": "feed_20260213_174107_JST",
+  "date": "2026-02-13",
+  "text": "Good evening! It's a beautiful sunny evening with 9°C temperature here in Yokosuka. Why don't you head over to the Uraga Dock and Jofuku-ji Temple to check out the \"Hell & Paradise\" viewing? It's an unforgettable experie",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-13T08:47:21Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-13T08:41:10.171038+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-13T17:30:00+09:00",
+      "temp_c": 9.3,
+      "apparent_temp_c": null,
+      "humidity_pct": 59.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 6.12,
+      "wind_dir_deg": 180.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-13",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-02-14",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　昼過ぎ　から　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-13T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/event/post-244.html"
+  ],
+  "required_mention": "Uraga Dock and Jofuku-ji Temple: Viewing the “Hell & Paradis",
+  "image": "./image/feed_20260213_174107_JST.png",
+  "image_url": "./image/feed_20260213_174107_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a beautiful sunny evening with 9°C temperature here in Yokosuka. Why don't you head over to the Uraga Dock and Jofuku-ji Temple to check out the \"Hell & Paradise\" viewing? It's an unforgettable experie",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-13T08:54:43.232932Z",
+  "permalink": "./?post=feed_20260213_174107_JST"
+}

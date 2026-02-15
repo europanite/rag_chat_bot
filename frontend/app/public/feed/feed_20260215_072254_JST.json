@@ -61,8 +61,8 @@
   "image": "./image/feed_20260215_072254_JST.png",
   "image_url": "./image/feed_20260215_072254_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 🌞 It's a beautiful day in Yokosuka with clear skies and a pleasant 12°C temperature. Let's grab some breakfast at YOKOSUKA Shell, famous for their \"Yokosuka Navy Burger\" and delicious cherry cheesecake! 🍴👍",
-  "permalink": "./?post=feed_20260215_072254_JST",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-14T22:37:43.370004Z"
+  "image_generated_at": "2026-02-14T22:37:43.370004Z",
+  "permalink": "./?post=feed_20260215_072254_JST"
 }
