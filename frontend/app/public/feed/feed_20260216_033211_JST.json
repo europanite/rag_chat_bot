@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-15T18:38:45Z",
+  "id": "feed_20260216_033211_JST",
   "date": "2026-02-15",
   "text": "Good night Yokosuka! 😊 It's a chilly rainy night with 10°C in the air. If you're craving some delicious unagi, head over to Unagi no Kagawa - Saikaya Yokosuka Branch for a warm and cozy dinner tonight! 🍴👌",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14094225/"
   ],
-  "required_mention": "Unagi no Kagawa (うなぎの佳川) — Saikaya Yokosuka Branch (Departme"
+  "required_mention": "Unagi no Kagawa (うなぎの佳川) — Saikaya Yokosuka Branch (Departme",
+  "image": "./image/feed_20260216_033211_JST.png",
+  "image_url": "./image/feed_20260216_033211_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-15T18:46:52.696741Z",
+  "permalink": "./?post=feed_20260216_033211_JST"
 }
