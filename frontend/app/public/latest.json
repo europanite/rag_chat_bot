@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-16T08:52:47Z",
+  "id": "feed_20260216_174348_JST",
   "date": "2026-02-16",
   "text": "Good evening 🌃 It's a chilly night with 11°C in Yokosuka! Why not head to Sarushima BBQ — Uninhabited Island BBQ for a cozy rental fire experience?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://sarushima.jp/leisure/bbq/"
   ],
-  "required_mention": "Sarushima BBQ — Uninhabited Island BBQ (Rental-Only Fire Equ"
+  "required_mention": "Sarushima BBQ — Uninhabited Island BBQ (Rental-Only Fire Equ",
+  "image": "./image/feed_20260216_174348_JST.png",
+  "image_url": "./image/feed_20260216_174348_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening 🌃 It's a chilly night with 11°C in Yokosuka! Why not head to Sarushima BBQ — Uninhabited Island BBQ for a cozy rental fire experience?",
+  "permalink": "./?post=feed_20260216_174348_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-16T08:59:34.831614Z"
 }
