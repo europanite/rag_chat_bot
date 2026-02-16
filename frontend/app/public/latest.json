@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-16T07:10:09Z",
+  "id": "feed_20260216_160207_JST",
   "date": "2026-02-16",
   "text": "Good afternoon.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14081625/dtlmap/"
   ],
-  "required_mention": "5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5t"
+  "required_mention": "5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5t",
+  "image": "./image/feed_20260216_160207_JST.png",
+  "image_url": "./image/feed_20260216_160207_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon.",
+  "permalink": "./?post=feed_20260216_160207_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-16T07:16:34.226358Z"
 }
