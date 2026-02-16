@@ -61,8 +61,8 @@
   "image": "./image/feed_20260216_104842_JST.png",
   "image_url": "./image/feed_20260216_104842_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning 🌞! It's a chilly rainy day here in Yokosuka with 14°C. Consider stopping by Dessert & Cafe Blue Moon for a warm treat and cozy atmosphere! 🍰☕️",
-  "permalink": "./?post=feed_20260216_104842_JST",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-16T02:05:13.267775Z"
+  "image_generated_at": "2026-02-16T02:05:13.267775Z",
+  "permalink": "./?post=feed_20260216_104842_JST"
 }
