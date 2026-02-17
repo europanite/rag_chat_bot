@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-17T07:09:08Z",
+  "id": "feed_20260217_155725_JST",
   "date": "2026-02-17",
   "text": "Good afternoon! It's cloudy with 8°C today 🌫️☁️. Get ready for a mouthwatering Shichirin Yakiniku An-An Yokosuka Chuo experience, where you can enjoy delicious grilled meat on the shichirin grill in this chilly winter we",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14053234"
   ],
-  "required_mention": "Shichirin Yakiniku An-An Yokosuka Chuo (七輪焼肉 安安 横須賀中央店)"
+  "required_mention": "Shichirin Yakiniku An-An Yokosuka Chuo (七輪焼肉 安安 横須賀中央店)",
+  "image": "./image/feed_20260217_155725_JST.png",
+  "image_url": "./image/feed_20260217_155725_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's cloudy with 8°C today 🌫️☁️. Get ready for a mouthwatering Shichirin Yakiniku An-An Yokosuka Chuo experience, where you can enjoy delicious grilled meat on the shichirin grill in this chilly winter we",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-17T07:15:55.920682Z",
+  "permalink": "./?post=feed_20260217_155725_JST"
 }
