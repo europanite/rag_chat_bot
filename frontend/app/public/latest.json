@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-17T14:53:31Z",
+  "id": "feed_20260217_234619_JST",
   "date": "2026-02-17",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://tabelog.com/en/kanagawa/A1406/A140601/14030385/"
   ],
-  "required_mention": "Saizeriya LIVIN Yokosuka (サイゼリヤ ＬＩＶＩＮよこすか店)"
+  "required_mention": "Saizeriya LIVIN Yokosuka (サイゼリヤ ＬＩＶＩＮよこすか店)",
+  "image": "./image/feed_20260217_234619_JST.png",
+  "image_url": "./image/feed_20260217_234619_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, winter scene in {place}, same scene and composition as the input image. Inspired by: {core}",
+  "permalink": "./?post=feed_20260217_234619_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 1.1,
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-17T15:01:17.927201Z"
 }
