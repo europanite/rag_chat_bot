@@ -198,11 +198,13 @@ jobs:
             echo "INPUT_IMAGE=" >> $GITHUB_ENV
             echo "MODE=text2img" >> $GITHUB_ENV
             echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
-            echo "LORA_SCALE=1.1" >> $GITHUB_ENV
-            echo "STEPS=4" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.0" >> $GITHUB_ENV
-            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in {place}. Inspired by: {core}" >> $GITHUB_ENV
-            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark" >> $GITHUB_ENV
+            echo "LORA_SCALE=0.8" >> $GITHUB_ENV
+            echo "STEPS=6 >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=2.0" >> $GITHUB_ENV
+            # echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in {place}. Inspired by: {core}" >> $GITHUB_ENV
+            # echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark" >> $GITHUB_ENV
+            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, limited palette, washi paper texture, visible woodgrain, traditional print. Wide coastal landscape at {place}. Foreground: dark rocks and a pine tree framing the scene, a small sandy beach. Midground: stylized waves with white foam and a few small fishing boats near shore. Background: Mount Fuji clearly visible across the sea, snow-capped peak, centered slightly right, distant haze. Sky: bright moon and thin clouds, high contrast but not underexposed, clear visibility. No modern objects. Clean composition, sharp linework." >> $GITHUB_ENV
+            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, manga, modern city, buildings, cars, power lines, street lights, text, watermark, logo, signature, caption, low quality, blurry, muddy colors, underexposed, too dark, black image" >> $GITHUB_ENV
           fi
 
       - name: Capture snapshot (rag image url preferred)
