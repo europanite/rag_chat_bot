@@ -28,6 +28,12 @@ from diffusers import AutoPipelineForText2Image
 MODEL_ID = os.environ.get("SDXL_MODEL_ID", "stabilityai/sdxl-turbo").strip()
 LORA_PATH = os.environ.get("LORA_PATH", "").strip()
 LORA_SCALE = float(os.environ.get("LORA_SCALE", "0.8"))
+PROMPT_TMPL = (os.environ.get("PROMPT") or "").strip()
+NEGATIVE_TMPL = (os.environ.get("NEGATIVE") or "").strip()
+STEPS = int(os.environ.get("STEPS", "4"))
+GUIDANCE_SCALE = float(os.environ.get("GUIDANCE_SCALE", "0.0"))
+SEED_OVERRIDE = (os.environ.get("SEED") or "").strip()
+SEED_OFFSET = int(os.environ.get("SEED_OFFSET", "0"))
 DEVICE = "cpu"  # GitHub Actions runner is typically CPU for this job
 
 def load_json(p: Path) -> Any:
@@ -46,15 +52,22 @@ def now_iso_utc() -> str:
 def safe_str(x: Any) -> str:
     return str(x) if x is not None else ""
 
+def _render(t: str, *, place: str, core: str) -> str:
+    s = (t or "").strip()
+    if not s:
+        return ""
+    p = place or "Yokosuka, Japan"
+    return s.replace("{place}", p).replace("{core}", core)
 
-def build_prompt(text: str, place: str) -> str:
-    t = " ".join(text.split()).strip()[:240]
-    p = place.strip()
-    prompt = f"cinematic illustration, based on this short story: {t}"
-    negative = ""
-    if p:
-        prompt = f"cinematic illustration, {p}, based on this short story: {t}"
-    return prompt,negative
+def build_prompt(text: str, place: str) -> tuple[str, str]:
+    core = " ".join((text or "").split()).strip()[:240]
+    p = (place or "").strip()
+    if PROMPT_TMPL:
+        prompt = _render(PROMPT_TMPL, place=p, core=core)
+    else:
+        prompt = f"cinematic illustration, {p}, based on this short story: {core}" if p else f"cinematic illustration, based on this short story: {core}"
+    negative = _render(NEGATIVE_TMPL, place=p, core=core) if NEGATIVE_TMPL else ""
+    return prompt, negative
 
 def _match_item(item: dict, *, date: str, text: str, generated_at: str) -> bool:
     if not isinstance(item, dict):
@@ -160,7 +173,8 @@ def main() -> int:
     out_path = out_dir / f"{feed_stem}.png"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    seed = random.randint(0, 2**31 - 1)
+    seed = int(SEED_OVERRIDE) if SEED_OVERRIDE.isdigit() else random.randint(0, 2**31 - 1)
+    seed += SEED_OFFSET
     prompt,negative = build_prompt(text, place)
 
     print(f"MODEL_ID={MODEL_ID}")
@@ -177,9 +191,9 @@ def main() -> int:
 
     image_kwargs = {
         "prompt": prompt,
-        "negative": negative,
-        "num_inference_steps": 4,
-        "guidance_scale": 0.0,
+        "negative_prompt": negative,
+        "num_inference_steps": int(STEPS),
+        "guidance_scale": float(GUIDANCE_SCALE),
         "generator": generator,
     }
 

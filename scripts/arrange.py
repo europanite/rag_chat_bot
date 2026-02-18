@@ -371,7 +371,7 @@ def main() -> int:
             f"Inspired by: {core}"
         )
     else:
-        prompt_local = PROMPT
+        prompt_local = (PROMPT or "").replace("{place}", place or "Yokosuka, Japan").replace("{core}", core)
 
     if not NEGATIVE:
         negative_local = (
