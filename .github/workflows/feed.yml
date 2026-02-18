@@ -175,7 +175,6 @@ jobs:
             }
           fi
 
-      - name: Capture snapshot (rag image url preferred)
       - name: Choose style by JST hour (day=img2img, night=text2img)
         id: style
         run: |
