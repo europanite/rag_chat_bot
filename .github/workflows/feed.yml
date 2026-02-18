@@ -176,11 +176,40 @@ jobs:
           fi
 
       - name: Capture snapshot (rag image url preferred)
+      - name: Choose style by JST hour (day=img2img, night=text2img)
+        id: style
+        run: |
+          set -euo pipefail
+          HOUR=$(TZ=Asia/Tokyo date +%H)
+          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 18 ]; then
+            # Day: photo img2img (no LoRA)
+            echo "use_camera=1" >> "$GITHUB_OUTPUT"
+            echo "INPUT_IMAGE=snapshot.jpg" >> $GITHUB_ENV
+            echo "MODE=img2img" >> $GITHUB_ENV
+            echo "LORA_PATH=" >> $GITHUB_ENV
+            echo "LORA_SCALE=0.2" >> $GITHUB_ENV
+            echo "STEPS=2" >> $GITHUB_ENV
+            echo "STRENGTH=0.60" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=0.8" >> $GITHUB_ENV
+            echo "PROMPT=" >> $GITHUB_ENV
+            echo "NEGATIVE=" >> $GITHUB_ENV
+          else
+            # Night: ukiyo-e text2img (ignore camera)
+            echo "use_camera=0" >> "$GITHUB_OUTPUT"
+            echo "INPUT_IMAGE=" >> $GITHUB_ENV
+            echo "MODE=text2img" >> $GITHUB_ENV
+            echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
+            echo "LORA_SCALE=1.1" >> $GITHUB_ENV
+            echo "STEPS=4" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=0.0" >> $GITHUB_ENV
+            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in {place}. Inspired by: {core}" >> $GITHUB_ENV
+            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark" >> $GITHUB_ENV
+          fi
+
+      - name: Capture snapshot (rag image url preferred)
         if: steps.style.outputs.use_camera == '1'
         env:
-          # Fallback fixed camera (used if latest.json doesn't contain a direct image URL)
           SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
-          # latest.json produced by the rag job (contains links/text that may include an image URL)
           LATEST_PATH: "frontend/app/public/latest.json"
           REF_MAX_CANDIDATES: "8"
         run: |
@@ -216,35 +245,6 @@ jobs:
         run: |
           set -euo pipefail
           docker compose -f docker-compose.yml build illustrate
-      - name: Choose style by JST hour (day=img2img, night=text2img)
-        id: style
-        run: |
-          set -euo pipefail
-          HOUR=$(TZ=Asia/Tokyo date +%H)
-          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 18 ]; then
-            # Day: photo img2img (no LoRA)
-            echo "use_camera=1" >> "$GITHUB_OUTPUT"
-            echo "INPUT_IMAGE=snapshot.jpg" >> $GITHUB_ENV
-            echo "MODE=img2img" >> $GITHUB_ENV
-            echo "LORA_PATH=" >> $GITHUB_ENV
-            echo "LORA_SCALE=0.2" >> $GITHUB_ENV
-            echo "STEPS=2" >> $GITHUB_ENV
-            echo "STRENGTH=0.60" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.8" >> $GITHUB_ENV
-            echo "PROMPT=" >> $GITHUB_ENV
-            echo "NEGATIVE=" >> $GITHUB_ENV
-          else
-            # Night: ukiyo-e text2img (ignore camera)
-            echo "use_camera=0" >> "$GITHUB_OUTPUT"
-            echo "INPUT_IMAGE=" >> $GITHUB_ENV
-            echo "MODE=text2img" >> $GITHUB_ENV
-            echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
-            echo "LORA_SCALE=1.1" >> $GITHUB_ENV
-            echo "STEPS=4" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.0" >> $GITHUB_ENV
-            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in {place}. Inspired by: {core}" >> $GITHUB_ENV
-            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark" >> $GITHUB_ENV
-           fi
       - name: Generate illustrated image and patch feed
         env:
           # arrange(img2img)
