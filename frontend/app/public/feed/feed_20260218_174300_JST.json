@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-18T08:49:12Z",
+  "id": "feed_20260218_174300_JST",
   "date": "2026-02-18",
   "text": "Good evening! It's a lovely winter evening here in Yokosuka with plenty of sunshine and a cool 10°C. Why don't you visit the bustling Yokosuka Genic Street, perfect for an evening stroll amidst the lively atmosphere?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/spot/sukageni.html"
   ],
-  "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)"
+  "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)",
+  "image": "./image/feed_20260218_174300_JST.png",
+  "image_url": "./image/feed_20260218_174300_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a lovely winter evening here in Yokosuka with plenty of sunshine and a cool 10°C. Why don't you visit the bustling Yokosuka Genic Street, perfect for an evening stroll amidst the lively atmosphere?",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-18T08:54:47.937566Z",
+  "permalink": "./?post=feed_20260218_174300_JST"
 }
