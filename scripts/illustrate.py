@@ -86,9 +86,10 @@ def patch_feed_file(
     feed_stem: str,
     rel_image_url: str,
     image_prompt: str,
+    image_negative: str = "",
     image_generated_at: str,
-    image_lora: str,
-    image_lora_scale: float,
+    image_lora: str = "",
+    image_lora_scale: float = 0.0,
 ) -> bool:
     """
     Patch a feed JSON file that may be:
@@ -114,6 +115,7 @@ def patch_feed_file(
         it["permalink"] = f"./?post={feed_stem}"
         it["image_url"] = rel_image_url
         it["image_prompt"] = image_prompt
+        it["image_negative"] = image_negative
         it["image_model"] = MODEL_ID
         if image_lora:
             it["image_lora"] = image_lora
@@ -260,14 +262,17 @@ def main() -> int:
     ]:
         if legacy.exists():
             ok = patch_feed_file(
-                legacy,
-                date=date,
-                text=text,
-                generated_at=generated_at,
-                feed_stem=feed_stem,
-                rel_image_url=rel_image_url,
-                image_prompt=prompt,
-                image_generated_at=now_iso,
+                    legacy,
+                    date=date,
+                    text=text,
+                    generated_at=generated_at,
+                    feed_stem=feed_stem,
+                    rel_image_url=rel_image_url,
+                    image_prompt=prompt,
+                    image_negative=negative,
+                    image_generated_at=now_iso,
+                    image_lora=lora_tag,
+                    image_lora_scale=LORA_SCALE,
             )
             print(f"patched_legacy={ok} path={legacy}")
 
