@@ -1,26 +1,26 @@
 {
-  "id": "2026-02-18T04:33:24Z",
+  "id": "2026-02-18T03:38:55Z",
   "date": "2026-02-18",
-  "text": "Good afternoon! It's a sunny day with 12°C. Let's head over to Chikata Shrine (近殿神社) for some peaceful winter vibes 🌸🙏",
+  "text": "Good afternoon! It's a beautiful sunny day with 11°C in Yokosuka. Let's head over to Hisago Zushi Honten for some delicious fresh sushi 🍣🌞",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-18T04:33:24Z",
+  "generated_at": "2026-02-18T03:38:55Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-18T04:21:43.968225+00:00",
+    "generated_at": "2026-02-18T03:27:29.791234+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-18T13:10:00+09:00",
-      "temp_c": 11.5,
+      "time": "2026-02-18T12:20:00+09:00",
+      "temp_c": 10.9,
       "apparent_temp_c": null,
-      "humidity_pct": 54.0,
+      "humidity_pct": 63.0,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": null,
-      "wind_kmh": 5.4,
-      "wind_dir_deg": 247.5,
+      "wind_kmh": 6.12,
+      "wind_dir_deg": 292.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -55,7 +55,7 @@
     }
   },
   "links": [
-    "https://kinugasa.yokosuka-kanko.com/tourist/%E8%BF%91%E6%AE%BF%EF%BC%88%E3%81%A1%E3%81%8B%E3%81%9F%EF%BC%89%E7%A5%9E%E7%A4%BE/"
+    "https://tabelog.com/en/kanagawa/A1406/A140601/14046637/"
   ],
-  "required_mention": "Chikata Shrine (近殿神社)"
+  "required_mention": "Hisago Zushi Honten (ひさご寿司 本店)"
 }
