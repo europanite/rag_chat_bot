@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260218_223516_JST",
+  "id": "feed_20260218_231942_JST",
   "date": "2026-02-18",
-  "text": "Good night.",
+  "text": "Good night.\nIt's a chilly night with 6°C, perfect for a winter stroll\nLet's head over to Kinugasayama Park (Yokosuka) and enjoy the scenic views under the stars ⭐️🏞️",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-18T13:41:23Z",
+  "generated_at": "2026-02-18T14:25:55Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-18T13:35:18.855398+00:00",
+    "generated_at": "2026-02-18T14:19:43.589167+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-18T22:20:00+09:00",
-      "temp_c": 7.3,
+      "time": "2026-02-18T23:10:00+09:00",
+      "temp_c": 6.5,
       "apparent_temp_c": null,
-      "humidity_pct": 61.0,
+      "humidity_pct": 52.0,
       "precip_mm": 0.0,
       "weather_code": 0,
       "cloud_cover_pct": null,
-      "wind_kmh": 12.6,
+      "wind_kmh": 15.48,
       "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -55,16 +55,14 @@
     }
   },
   "links": [
-    "https://ja-yokosukahayama.or.jp/tourism/"
+    "https://www.cocoyoko.net/spot/kinugasa-park.html"
   ],
-  "required_mention": "Mandarin Orange (Mikan) Picking at Tsukuihama",
-  "legacy_id": "2026-02-18T13:41:23Z",
-  "permalink": "./?post=feed_20260218_223516_JST",
-  "image_url": "./image/feed_20260218_223516_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night.",
+  "required_mention": "Kinugasayama Park (Yokosuka)",
+  "legacy_id": "2026-02-18T14:25:55Z",
+  "permalink": "./?post=feed_20260218_231942_JST",
+  "image_url": "./image/feed_20260218_231942_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night. It's a chilly night with 6°C, perfect for a winter stroll Let's head over to Kinugasayama Park (Yokosuka) and enjoy the scenic views under the stars ⭐️🏞️",
   "image_negative": "",
   "image_model": "stabilityai/sdxl-turbo",
-  "image_lora": "ukiyoe.safetensors",
-  "image_lora_scale": 1.1,
-  "image_generated_at": "2026-02-18T14:21:47Z"
+  "image_generated_at": "2026-02-18T14:47:10Z"
 }
