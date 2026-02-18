@@ -1,0 +1,68 @@
+{
+  "id": "feed_20260217_072648_JST",
+  "date": "2026-02-16",
+  "text": "Good morning! It's a chilly rainy day with 4°C. Let's warm up over some delicious sushi at Sushi Masa - their mouth-watering dishes are perfect for a cozy winter morning 🌧️🍣👌",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-16T22:37:29Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-16T22:26:50.308112+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-17T07:20:00+09:00",
+      "temp_c": 4.3,
+      "apparent_temp_c": null,
+      "humidity_pct": 81.0,
+      "precip_mm": 0.0,
+      "weather_code": 61,
+      "cloud_cover_pct": null,
+      "wind_kmh": 17.28,
+      "wind_dir_deg": 45.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-17",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　所により　明け方　雨",
+      "jma_weather_code": "200",
+      "precip_prob_pct": 10
+    },
+    "tomorrow": {
+      "date": "2026-02-18",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 12.0,
+      "temp_min_c": 4.0,
+      "weather_text_ja": "晴れ　明け方　まで　くもり",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-17T05:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://tabelog.com/kanagawa/A1406/A140601/14020873/"
+  ],
+  "required_mention": "Sushi Masa (鮨政)",
+  "image": "./image/feed_20260217_072648_JST.png",
+  "image_url": "./image/feed_20260217_072648_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly rainy day with 4°C. Let's warm up over some delicious sushi at Sushi Masa - their mouth-watering dishes are perfect for a cozy winter morning 🌧️🍣👌",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-16T22:44:02.843060Z",
+  "permalink": "./?post=feed_20260217_072648_JST"
+}

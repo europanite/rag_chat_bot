@@ -1,0 +1,68 @@
+{
+  "id": "feed_20260218_105035_JST",
+  "date": "2026-02-18",
+  "text": "Good morning! It's a sunny day with 9°C in Yokosuka. Try Kurumaya Ramen — Kita-Kurihama for a delicious bowl of ramen 🍜🌞📍",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-18T02:02:14Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-18T01:50:36.502136+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-18T10:40:00+09:00",
+      "temp_c": 8.8,
+      "apparent_temp_c": null,
+      "humidity_pct": 67.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 2.8800000000000003,
+      "wind_dir_deg": 135.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-18",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-02-19",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夕方　から　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-18T11:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://tabelog.com/kanagawa/A1406/A140601/14079583/"
+  ],
+  "required_mention": "Kurumaya Ramen — Kita-Kurihama (くるまやラーメン 北久里浜店)",
+  "image": "./image/feed_20260218_105035_JST.png",
+  "image_url": "./image/feed_20260218_105035_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a sunny day with 9°C in Yokosuka. Try Kurumaya Ramen — Kita-Kurihama for a delicious bowl of ramen 🍜🌞📍",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-18T02:08:25.372555Z",
+  "permalink": "./?post=feed_20260218_105035_JST"
+}
