@@ -180,16 +180,16 @@ jobs:
         run: |
           set -euo pipefail
           HOUR=$(TZ=Asia/Tokyo date +%H)
-          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 18 ]; then
+          if [ "$HOUR" -ge 4 ] && [ "$HOUR" -lt 18 ]; then
             # Day: photo img2img (no LoRA)
             echo "use_camera=1" >> "$GITHUB_OUTPUT"
             echo "INPUT_IMAGE=snapshot.jpg" >> $GITHUB_ENV
             echo "MODE=img2img" >> $GITHUB_ENV
             echo "LORA_PATH=" >> $GITHUB_ENV
-            echo "LORA_SCALE=0.2" >> $GITHUB_ENV
+            echo "LORA_SCALE=0.0" >> $GITHUB_ENV
             echo "STEPS=2" >> $GITHUB_ENV
             echo "STRENGTH=0.60" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.8" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=0.6" >> $GITHUB_ENV
             echo "PROMPT=" >> $GITHUB_ENV
             echo "NEGATIVE=" >> $GITHUB_ENV
           else
