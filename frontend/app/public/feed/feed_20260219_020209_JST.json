@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-18T17:10:17Z",
+  "id": "feed_20260219_020209_JST",
   "date": "2026-02-18",
   "text": "Good night 🌃. It's a chilly 4°C outside tonight. Goshogasaki is a scenic spot perfect for a winter evening stroll under the stars 💫👣.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
-  "required_mention": "Goshogasaki (御所ヶ崎)"
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "legacy_id": "2026-02-18T17:10:17Z",
+  "permalink": "./?post=feed_20260219_020209_JST",
+  "image_url": "./image/feed_20260219_020209_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night 🌃. It's a chilly 4°C outside tonight. Goshogasaki is a scenic spot perfect for a winter evening stroll under the stars 💫👣.",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_generated_at": "2026-02-18T18:50:51Z"
 }
