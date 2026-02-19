@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-18T22:52:10Z",
+  "id": "feed_20260219_073214_JST",
   "date": "2026-02-18",
   "text": "Good morning! It's chilly with 3°C today. Perfect weather to curl up with a good book at Books&Coffee 青い月 (Aoi Tsuki), where you can find used books and enjoy a warm cup of coffee in their cozy atmosphere 📚☕️👌",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.instagram.com/aoitsuki.aosagi/"
   ],
-  "required_mention": "**Books&Coffee 青い月 (Aoi Tsuki)** (Used books + tiny café)"
+  "required_mention": "**Books&Coffee 青い月 (Aoi Tsuki)** (Used books + tiny café)",
+  "legacy_id": "2026-02-18T22:52:10Z",
+  "permalink": "./?post=feed_20260219_073214_JST",
+  "image_url": "./image/feed_20260219_073214_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's chilly with 3°C today. Perfect weather to curl up with a good book at Books&Coffee 青い月 (Aoi Tsuki), where you can find used books and enjoy a warm cup of coffee in their cozy atmosphere 📚☕️👌",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_generated_at": "2026-02-19T00:22:17Z"
 }
