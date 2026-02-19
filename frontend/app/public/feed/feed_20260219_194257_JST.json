@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-19T10:53:24Z",
+  "id": "feed_20260219_194257_JST",
   "date": "2026-02-19",
   "text": "Good evening! 🌃 It's a cloudy evening with a chilly temperature of 6°C outside. Consider taking a walk from Uraga to Chiyogasaki Battery Ruins, a beautiful spot during cherry blossom season.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/event/post-428.html"
   ],
-  "required_mention": "Walk: Uraga to Chiyogasaki Battery Ruins (Sakura Season) (Gu"
+  "required_mention": "Walk: Uraga to Chiyogasaki Battery Ruins (Sakura Season) (Gu",
+  "legacy_id": "2026-02-19T10:53:24Z",
+  "permalink": "./?post=feed_20260219_194257_JST",
+  "image_url": "./image/feed_20260219_194257_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good evening! 🌃 It's a cloudy evening with a chilly temperature of 6°C outside. Consider taking a walk from Uraga to Chiyogasaki Battery Ruins, a beautiful spot during cherry blossom season.",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-19T11:00:37Z"
 }
