@@ -194,7 +194,7 @@ jobs:
             echo "NEGATIVE=" >> $GITHUB_ENV
           else
             # Night: ukiyo-e text2img (ignore camera)
-            echo "use_camera=0" >> "$GITHUB_OUTPUT"
+            echo "use_camera=0" >> $GITHUB_OUTPUT
             echo "INPUT_IMAGE=" >> $GITHUB_ENV
             echo "MODE=text2img" >> $GITHUB_ENV
             echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
