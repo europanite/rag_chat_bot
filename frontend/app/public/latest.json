@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-19T00:32:36Z",
+  "id": "feed_20260219_092031_JST",
   "date": "2026-02-19",
   "text": "Good morning! It's cloudy with 6°C today. If you're looking for a cozy spot to warm up, head over to Books & Coffee AMIS and enjoy their selection of used books and hot coffee ☕️📚💛",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.facebook.com/BooksandCoffeeAMIS/"
   ],
-  "required_mention": "**Books & Coffee AMIS** (Used & foreign books + small café)"
+  "required_mention": "**Books & Coffee AMIS** (Used & foreign books + small café)",
+  "image": "./image/feed_20260219_092031_JST.png",
+  "image_url": "./image/feed_20260219_092031_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's cloudy with 6°C today. If you're looking for a cozy spot to warm up, head over to Books & Coffee AMIS and enjoy their selection of used books and hot coffee ☕️📚💛",
+  "permalink": "./?post=feed_20260219_092031_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-19T00:38:47.649820Z"
 }
