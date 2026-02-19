@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-19T08:50:33Z",
+  "id": "feed_20260219_174156_JST",
   "date": "2026-02-19",
   "text": "Good evening! It's cloudy with 8°C. Let's check out the \"Hell & Paradise\" viewing at Uraga Dock and Jofuku-ji Temple tonight! 🌫️🏯",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/event/post-244.html"
   ],
-  "required_mention": "Uraga Dock and Jofuku-ji Temple: Viewing the “Hell & Paradis"
+  "required_mention": "Uraga Dock and Jofuku-ji Temple: Viewing the “Hell & Paradis",
+  "image": "./image/feed_20260219_174156_JST.png",
+  "image_url": "./image/feed_20260219_174156_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's cloudy with 8°C. Let's check out the \"Hell & Paradise\" viewing at Uraga Dock and Jofuku-ji Temple tonight! 🌫️🏯",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-19T08:55:57.082314Z",
+  "permalink": "./?post=feed_20260219_174156_JST"
 }
