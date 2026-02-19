@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-19T18:54:29Z",
+  "id": "feed_20260220_034836_JST",
   "date": "2026-02-19",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://s.tabelog.com/kanagawa/A1406/A140601/14089196/"
   ],
-  "required_mention": "Yokosuka Yashi (横須賀夜市)"
+  "required_mention": "Yokosuka Yashi (横須賀夜市)",
+  "legacy_id": "2026-02-19T18:54:29Z",
+  "permalink": "./?post=feed_20260220_034836_JST",
+  "image_url": "./image/feed_20260220_034836_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good night.",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-19T19:01:36Z"
 }
