@@ -60,9 +60,10 @@
   "required_mention": "Shichirin Yakiniku An-An Yokosuka Chuo (七輪焼肉 安安 横須賀中央店)",
   "image": "./image/feed_20260219_131922_JST.png",
   "image_url": "./image/feed_20260219_131922_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's cloudy with 10°C today 🌫️☁️. Looking forward to trying the Shichirin Yakiniku An-An Yokosuka Chuo's new menu tonight, hoping it will be a delightful winter evening 😋👍.",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's cloudy with 10°C today 🌫️☁️. Looking forward to trying the Shichirin Yakiniku An-An Yokosuka Chuo's new menu tonight, hoping it will be a delightful winter evening 😋👍.",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-19T04:35:14.152185Z",
-  "permalink": "./?post=feed_20260219_131922_JST"
+  "image_generated_at": "2026-02-19T07:00:46Z",
+  "permalink": "./?post=feed_20260219_131922_JST",
+  "image_negative": ""
 }
