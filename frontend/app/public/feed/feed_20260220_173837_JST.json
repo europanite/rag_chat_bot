@@ -60,9 +60,10 @@
   "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)",
   "image": "./image/feed_20260220_173837_JST.png",
   "image_url": "./image/feed_20260220_173837_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's a chilly evening with 9°C, and we're expecting some rain. Why don't you head over to the Yokosuka Genic Street tonight and enjoy some indoor shopping? 🌨️🛍️",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good evening! It's a chilly evening with 9°C, and we're expecting some rain. Why don't you head over to the Yokosuka Genic Street tonight and enjoy some indoor shopping? 🌨️🛍️",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-20T08:48:46.484091Z",
-  "permalink": "./?post=feed_20260220_173837_JST"
+  "image_generated_at": "2026-02-20T10:37:16Z",
+  "permalink": "./?post=feed_20260220_173837_JST",
+  "image_negative": ""
 }
