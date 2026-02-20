@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-20T22:34:25Z",
+  "id": "feed_20260221_072341_JST",
   "date": "2026-02-20",
   "text": "Good morning! It's chilly today with a temperature of 5°C. If you're looking for a cozy spot, try visiting Dessert & Cafe Blue Moon in Yokosuka for a warm treat 🍦🌞",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://bluemoonyokosuka.com/"
   ],
-  "required_mention": "Dessert & Cafe Blue Moon (Dessert＆Cafe ブルームーン)"
+  "required_mention": "Dessert & Cafe Blue Moon (Dessert＆Cafe ブルームーン)",
+  "image": "./image/feed_20260221_072341_JST.png",
+  "image_url": "./image/feed_20260221_072341_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's chilly today with a temperature of 5°C. If you're looking for a cozy spot, try visiting Dessert & Cafe Blue Moon in Yokosuka for a warm treat 🍦🌞",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-20T22:39:24.624381Z",
+  "permalink": "./?post=feed_20260221_072341_JST"
 }
