@@ -60,9 +60,10 @@
   "required_mention": "5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5t",
   "image": "./image/feed_20260220_131445_JST.png",
   "image_url": "./image/feed_20260220_131445_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! Rainy with 9°C. If you're looking for a cozy spot on a rainy day, consider visiting 5F SHELL / Gokai Shell, a small dining bar with a calm atmosphere 🌧️🍴",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! Rainy with 9°C. If you're looking for a cozy spot on a rainy day, consider visiting 5F SHELL / Gokai Shell, a small dining bar with a calm atmosphere 🌧️🍴",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-20T04:29:22.864788Z",
-  "permalink": "./?post=feed_20260220_131445_JST"
+  "image_generated_at": "2026-02-20T06:54:25Z",
+  "permalink": "./?post=feed_20260220_131445_JST",
+  "image_negative": ""
 }
