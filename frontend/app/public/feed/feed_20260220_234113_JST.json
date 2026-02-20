@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-20T14:49:26Z",
+  "id": "feed_20260220_234113_JST",
   "date": "2026-02-20",
   "text": "Good night from rainy Yokosuka! It's a chilly evening with 6°C. Hashirimizu Beach (走水海岸) is one of the top spots for a winter stroll under the stars, even on a rainy night like this 🌃🏖️.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/spot/hashirimizu-beach.html"
   ],
-  "required_mention": "Hashirimizu Beach (走水海岸), Yokosuka"
+  "required_mention": "Hashirimizu Beach (走水海岸), Yokosuka",
+  "legacy_id": "2026-02-20T14:49:26Z",
+  "permalink": "./?post=feed_20260220_234113_JST",
+  "image_url": "./image/feed_20260220_234113_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good night from rainy Yokosuka! It's a chilly evening with 6°C. Hashirimizu Beach (走水海岸) is one of the top spots for a winter stroll under the stars, even on a rainy night like this 🌃🏖️.",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-20T14:55:35Z"
 }
