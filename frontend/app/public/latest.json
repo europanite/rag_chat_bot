@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-20T10:42:49Z",
+  "id": "feed_20260220_193540_JST",
   "date": "2026-02-20",
   "text": "Good evening 🌃 It's a chilly evening with 8°C. Maybe it's a good idea to visit the YOKOSUKA Fire Department Parade 2026 (消防出初式) museum and learn about their parade history?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://www.cocoyoko.net/event/syoubou-parade.html"
   ],
-  "required_mention": "YOKOSUKA Fire Department Parade 2026 (消防出初式)"
+  "required_mention": "YOKOSUKA Fire Department Parade 2026 (消防出初式)",
+  "legacy_id": "2026-02-20T10:42:49Z",
+  "permalink": "./?post=feed_20260220_193540_JST",
+  "image_url": "./image/feed_20260220_193540_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good evening 🌃 It's a chilly evening with 8°C. Maybe it's a good idea to visit the YOKOSUKA Fire Department Parade 2026 (消防出初式) museum and learn about their parade history?",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-20T10:49:09Z"
 }
