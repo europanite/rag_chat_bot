@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-21T08:36:26Z",
+  "id": "feed_20260221_172713_JST",
   "date": "2026-02-21",
   "text": "Good evening! It's sunny with 11°C. Why not visit Goshogasaki and enjoy its beautiful scenery under the winter sun?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
-  "required_mention": "Goshogasaki (御所ヶ崎)"
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "image": "./image/feed_20260221_172713_JST.png",
+  "image_url": "./image/feed_20260221_172713_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening! It's sunny with 11°C. Why not visit Goshogasaki and enjoy its beautiful scenery under the winter sun?",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-21T08:40:52.787726Z",
+  "permalink": "./?post=feed_20260221_172713_JST"
 }
