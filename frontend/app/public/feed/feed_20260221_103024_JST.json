@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-21T01:40:59Z",
+  "id": "feed_20260221_103024_JST",
   "date": "2026-02-21",
   "text": "Good morning ☀️! It's cloudy with 12°C today, a perfect day to indulge in some delicious Tempura! Tempura to Tenobe Somen Asayama is my go-to spot for fresh and crispy tempura goodness 🍜👌",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/en/kanagawa/A1406/A140601/14093255/"
   ],
-  "required_mention": "Tempura to Tenobe Somen Asayama (Tempura / Tenobe Somen)"
+  "required_mention": "Tempura to Tenobe Somen Asayama (Tempura / Tenobe Somen)",
+  "image": "./image/feed_20260221_103024_JST.png",
+  "image_url": "./image/feed_20260221_103024_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning ☀️! It's cloudy with 12°C today, a perfect day to indulge in some delicious Tempura! Tempura to Tenobe Somen Asayama is my go-to spot for fresh and crispy tempura goodness 🍜👌",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-21T01:45:48.413761Z",
+  "permalink": "./?post=feed_20260221_103024_JST"
 }
