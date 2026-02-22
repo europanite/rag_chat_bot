@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-22T22:33:22Z",
+  "id": "feed_20260223_072231_JST",
   "date": "2026-02-22",
   "text": "Good morning! It's a chilly morning with 16°C in Yokosuka. On a rainy day like today, head over to Hisago Zushi Honten for some delicious sushi and a warm atmosphere 😊🍜.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/en/kanagawa/A1406/A140601/14046637/"
   ],
-  "required_mention": "Hisago Zushi Honten (ひさご寿司 本店)"
+  "required_mention": "Hisago Zushi Honten (ひさご寿司 本店)",
+  "image": "./image/feed_20260223_072231_JST.png",
+  "image_url": "./image/feed_20260223_072231_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly morning with 16°C in Yokosuka. On a rainy day like today, head over to Hisago Zushi Honten for some delicious sushi and a warm atmosphere 😊🍜.",
+  "permalink": "./?post=feed_20260223_072231_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-22T22:38:22.192932Z"
 }
