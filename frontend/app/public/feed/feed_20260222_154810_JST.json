@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-22T06:54:46Z",
+  "id": "feed_20260222_154810_JST",
   "date": "2026-02-22",
   "text": "Good afternoon! It's a chilly day with 16°C. I'm excited for the upcoming Cake-ya popo event, where you can indulge in their delicious cakes and pastries, perfect for warming up on a rainy winter day! 🍰☕️🌧️",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.instagram.com/cakeshop_popo/"
   ],
-  "required_mention": "cake屋popo (Cake-ya popo)"
+  "required_mention": "cake屋popo (Cake-ya popo)",
+  "image": "./image/feed_20260222_154810_JST.png",
+  "image_url": "./image/feed_20260222_154810_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! It's a chilly day with 16°C. I'm excited for the upcoming Cake-ya popo event, where you can indulge in their delicious cakes and pastries, perfect for warming up on a rainy winter day! 🍰☕️🌧️",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-22T07:00:11.497091Z",
+  "permalink": "./?post=feed_20260222_154810_JST"
 }
