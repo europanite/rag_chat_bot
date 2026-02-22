@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-22T08:37:41Z",
+  "id": "feed_20260222_172949_JST",
   "date": "2026-02-22",
   "text": "Good evening 🌃 in Yokosuka! It's a chilly rainy day with 15°C outside. Why not drop into the unique bookstore and café, 圏外書房 Kengaishobo, for some indoor relaxation?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://fuchiwakitsutomu.hatenablog.com/"
   ],
-  "required_mention": "**圏外書房 (Kengaishobo)** (Used bookstore + café/bar-style cult"
+  "required_mention": "**圏外書房 (Kengaishobo)** (Used bookstore + café/bar-style cult",
+  "image": "./image/feed_20260222_172949_JST.png",
+  "image_url": "./image/feed_20260222_172949_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good evening 🌃 in Yokosuka! It's a chilly rainy day with 15°C outside. Why not drop into the unique bookstore and café, 圏外書房 Kengaishobo, for some indoor relaxation?",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-22T08:42:32.434184Z",
+  "permalink": "./?post=feed_20260222_172949_JST"
 }
