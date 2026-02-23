@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-23T17:02:37Z",
+  "id": "feed_20260224_015426_JST",
   "date": "2026-02-23",
   "text": "Good night Yokosuka! 🌃 It's a chilly and rainy night with 11°C outside. Head over to SEIYU Takatori for fresh foods, they're open until late tonight 🍜🛍️",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://map.yahoo.co.jp/v3/place/blH7x2QuZk2"
   ],
-  "required_mention": "SEIYU Takatori (西友 鷹取店) — Fresh foods reputation (open until"
+  "required_mention": "SEIYU Takatori (西友 鷹取店) — Fresh foods reputation (open until",
+  "legacy_id": "2026-02-23T17:02:37Z",
+  "permalink": "./?post=feed_20260224_015426_JST",
+  "image_url": "./image/feed_20260224_015426_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good night Yokosuka! 🌃 It's a chilly and rainy night with 11°C outside. Head over to SEIYU Takatori for fresh foods, they're open until late tonight 🍜🛍️",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-23T17:08:43Z"
 }
