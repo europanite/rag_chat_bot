@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260223_215613_JST",
+  "id": "feed_20260223_194825_JST",
   "date": "2026-02-23",
-  "text": "🗑️ Garbage reminder: please check tomorrow's collection and sorting rules.",
+  "text": "Good evening! It's cloudy with 16°C in Yokosuka tonight. Why not visit Goshogasaki for some peaceful winter scenery?",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-23T12:56:15Z",
+  "generated_at": "2026-02-23T10:57:30Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-23T12:56:15.703478+00:00",
+    "generated_at": "2026-02-23T10:48:27.603798+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-23T21:40:00+09:00",
-      "temp_c": 15.7,
+      "time": "2026-02-23T19:40:00+09:00",
+      "temp_c": 16.3,
       "apparent_temp_c": null,
-      "humidity_pct": 74.0,
+      "humidity_pct": 77.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 16.92,
-      "wind_dir_deg": 225.0,
+      "wind_kmh": 20.52,
+      "wind_dir_deg": 202.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -55,16 +55,16 @@
     }
   },
   "links": [
-    "https://www.city.yokosuka.kanagawa.jp/4105/kurashi/documents/english2023.pdf"
+    "https://www.cocoyoko.net/spot/gosyogasaki.html"
   ],
-  "required_mention": "",
-  "legacy_id": "2026-02-23T12:56:15Z",
-  "permalink": "./?post=feed_20260223_215613_JST",
-  "image_url": "./image/feed_20260223_215613_JST.png",
-  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: 🗑️ Garbage reminder: please check tomorrow's collection and sorting rules.",
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "legacy_id": "2026-02-23T10:57:30Z",
+  "permalink": "./?post=feed_20260223_194825_JST",
+  "image_url": "./image/feed_20260223_194825_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good evening! It's cloudy with 16°C in Yokosuka tonight. Why not visit Goshogasaki for some peaceful winter scenery?",
   "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
-  "image_generated_at": "2026-02-23T13:01:50Z"
+  "image_generated_at": "2026-02-23T11:03:44Z"
 }

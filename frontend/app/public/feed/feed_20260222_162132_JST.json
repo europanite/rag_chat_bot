@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260222_154810_JST",
+  "id": "feed_20260222_162132_JST",
   "date": "2026-02-22",
-  "text": "Good afternoon! It's a chilly day with 16°C. I'm excited for the upcoming Cake-ya popo event, where you can indulge in their delicious cakes and pastries, perfect for warming up on a rainy winter day! 🍰☕️🌧️",
+  "text": "Good afternoon.",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-22T06:54:46Z",
+  "generated_at": "2026-02-22T07:29:24Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-22T06:48:12.369761+00:00",
+    "generated_at": "2026-02-22T07:21:34.523803+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-22T15:40:00+09:00",
-      "temp_c": 15.8,
+      "time": "2026-02-22T16:10:00+09:00",
+      "temp_c": 16.0,
       "apparent_temp_c": null,
-      "humidity_pct": 65.0,
+      "humidity_pct": 68.0,
       "precip_mm": 0.0,
       "weather_code": 61,
       "cloud_cover_pct": null,
-      "wind_kmh": 27.36,
+      "wind_kmh": 26.64,
       "wind_dir_deg": 202.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -55,15 +55,15 @@
     }
   },
   "links": [
-    "https://www.instagram.com/cakeshop_popo/"
+    "https://tabelog.com/kanagawa/A1406/A140601/14033065/"
   ],
-  "required_mention": "cake屋popo (Cake-ya popo)",
-  "image": "./image/feed_20260222_154810_JST.png",
-  "image_url": "./image/feed_20260222_154810_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's a chilly day with 16°C. I'm excited for the upcoming Cake-ya popo event, where you can indulge in their delicious cakes and pastries, perfect for warming up on a rainy winter day! 🍰☕️🌧️",
+  "required_mention": "Sumibi Yakiniku Shin Yokosuka Chuo (炭火焼肉 眞 横須賀中央店)",
+  "image": "./image/feed_20260222_162132_JST.png",
+  "image_url": "./image/feed_20260222_162132_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon.",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-22T07:23:12Z",
-  "permalink": "./?post=feed_20260222_154810_JST",
+  "image_generated_at": "2026-02-22T08:31:09Z",
+  "permalink": "./?post=feed_20260222_162132_JST",
   "image_negative": ""
 }

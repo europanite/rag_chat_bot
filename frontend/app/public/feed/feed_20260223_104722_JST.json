@@ -1,0 +1,69 @@
+{
+  "id": "feed_20260223_104722_JST",
+  "date": "2026-02-23",
+  "text": "Good morning! 😊 It's a windy day with 18°C in Yokosuka today. Let's head over to Shallow Leaf for some delicious Italian food, their ocean-view location is perfect for a relaxed lunch on a chilly winter morning! 🍝🌊",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-23T01:57:23Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-23T01:47:24.516763+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-23T10:40:00+09:00",
+      "temp_c": 18.4,
+      "apparent_temp_c": null,
+      "humidity_pct": 75.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 28.8,
+      "wind_dir_deg": 202.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-23",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 10
+    },
+    "tomorrow": {
+      "date": "2026-02-24",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　昼前　から　夕方　晴れ",
+      "jma_weather_code": "201",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-23T11:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://tabelog.com/en/kanagawa/A1406/A140601/14006950/"
+  ],
+  "required_mention": "Shallow Leaf",
+  "image": "./image/feed_20260223_104722_JST.png",
+  "image_url": "./image/feed_20260223_104722_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 😊 It's a windy day with 18°C in Yokosuka today. Let's head over to Shallow Leaf for some delicious Italian food, their ocean-view location is perfect for a relaxed lunch on a chilly winter morning! 🍝🌊",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-23T04:24:48Z",
+  "permalink": "./?post=feed_20260223_104722_JST",
+  "image_negative": ""
+}
