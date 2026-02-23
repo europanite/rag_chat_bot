@@ -60,9 +60,10 @@
   "required_mention": "Shallow Leaf",
   "image": "./image/feed_20260223_104722_JST.png",
   "image_url": "./image/feed_20260223_104722_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 😊 It's a windy day with 18°C in Yokosuka today. Let's head over to Shallow Leaf for some delicious Italian food, their ocean-view location is perfect for a relaxed lunch on a chilly winter morning! 🍝🌊",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 😊 It's a windy day with 18°C in Yokosuka today. Let's head over to Shallow Leaf for some delicious Italian food, their ocean-view location is perfect for a relaxed lunch on a chilly winter morning! 🍝🌊",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-23T02:02:16.512361Z",
-  "permalink": "./?post=feed_20260223_104722_JST"
+  "image_generated_at": "2026-02-23T04:24:48Z",
+  "permalink": "./?post=feed_20260223_104722_JST",
+  "image_negative": ""
 }
