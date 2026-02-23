@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-23T01:57:23Z",
+  "id": "feed_20260223_104722_JST",
   "date": "2026-02-23",
   "text": "Good morning! 😊 It's a windy day with 18°C in Yokosuka today. Let's head over to Shallow Leaf for some delicious Italian food, their ocean-view location is perfect for a relaxed lunch on a chilly winter morning! 🍝🌊",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/en/kanagawa/A1406/A140601/14006950/"
   ],
-  "required_mention": "Shallow Leaf"
+  "required_mention": "Shallow Leaf",
+  "image": "./image/feed_20260223_104722_JST.png",
+  "image_url": "./image/feed_20260223_104722_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 😊 It's a windy day with 18°C in Yokosuka today. Let's head over to Shallow Leaf for some delicious Italian food, their ocean-view location is perfect for a relaxed lunch on a chilly winter morning! 🍝🌊",
+  "permalink": "./?post=feed_20260223_104722_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-23T02:02:16.512361Z"
 }
