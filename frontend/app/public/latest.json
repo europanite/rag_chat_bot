@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-23T22:49:43Z",
+  "id": "feed_20260224_074032_JST",
   "date": "2026-02-23",
   "text": "Good morning! It's a chilly winter morning with 11°C. On days like this, I love heading over to Marlowe Akiya Main Store for a warm and cozy meal 🍴☕️ Their local-produce Italian dishes are perfect for a cold day like tod",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://www.marlowe.co.jp/shop/akiya/"
   ],
-  "required_mention": "Marlowe Akiya Main Store (マーロウ 秋谷本店)"
+  "required_mention": "Marlowe Akiya Main Store (マーロウ 秋谷本店)",
+  "image": "./image/feed_20260224_074032_JST.png",
+  "image_url": "./image/feed_20260224_074032_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly winter morning with 11°C. On days like this, I love heading over to Marlowe Akiya Main Store for a warm and cozy meal 🍴☕️ Their local-produce Italian dishes are perfect for a cold day like tod",
+  "permalink": "./?post=feed_20260224_074032_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-23T22:54:55.468604Z"
 }
