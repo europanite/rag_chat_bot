@@ -60,9 +60,10 @@
   "required_mention": "Hisago Zushi Honten (ひさご寿司 本店)",
   "image": "./image/feed_20260223_072231_JST.png",
   "image_url": "./image/feed_20260223_072231_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly morning with 16°C in Yokosuka. On a rainy day like today, head over to Hisago Zushi Honten for some delicious sushi and a warm atmosphere 😊🍜.",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's a chilly morning with 16°C in Yokosuka. On a rainy day like today, head over to Hisago Zushi Honten for some delicious sushi and a warm atmosphere 😊🍜.",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-22T22:38:22.192932Z",
-  "permalink": "./?post=feed_20260223_072231_JST"
+  "image_generated_at": "2026-02-23T01:48:03Z",
+  "permalink": "./?post=feed_20260223_072231_JST",
+  "image_negative": ""
 }
