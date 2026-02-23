@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-23T14:57:53Z",
+  "id": "feed_20260223_234603_JST",
   "date": "2026-02-23",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,14 @@
   "links": [
     "https://tabelog.com/en/kanagawa/A1406/A140601/14093255/"
   ],
-  "required_mention": "Tempura to Tenobe Somen Asayama (Tempura / Tenobe Somen)"
+  "required_mention": "Tempura to Tenobe Somen Asayama (Tempura / Tenobe Somen)",
+  "legacy_id": "2026-02-23T14:57:53Z",
+  "permalink": "./?post=feed_20260223_234603_JST",
+  "image_url": "./image/feed_20260223_234603_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good night.",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-23T15:04:35Z"
 }
