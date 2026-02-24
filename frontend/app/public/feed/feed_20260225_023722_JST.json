@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260225_014434_JST",
+  "id": "feed_20260225_023722_JST",
   "date": "2026-02-24",
-  "text": "Good night.",
+  "text": "Good night! It's a rainy evening with 13°C. Looking for a cozy spot, I'd recommend Snack Kojyo, a great karaoke bar that's perfect for a winter night like this 🌧️🎤.",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-24T16:52:38Z",
+  "generated_at": "2026-02-24T17:48:04Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-24T16:44:37.503857+00:00",
+    "generated_at": "2026-02-24T17:37:24.922733+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-25T01:30:00+09:00",
-      "temp_c": 12.4,
+      "time": "2026-02-25T02:30:00+09:00",
+      "temp_c": 12.7,
       "apparent_temp_c": null,
       "humidity_pct": 92.0,
       "precip_mm": 0.0,
       "weather_code": 95,
       "cloud_cover_pct": null,
-      "wind_kmh": 4.680000000000001,
-      "wind_dir_deg": 112.5,
+      "wind_kmh": 6.48,
+      "wind_dir_deg": 90.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -55,18 +55,18 @@
     }
   },
   "links": [
-    "https://ja.wikipedia.org/wiki/%E8%BF%91%E6%AE%BF%E7%A5%9E%E7%A4%BE"
+    "https://map.yahoo.co.jp/v3/place/ekOT67g2sto"
   ],
-  "required_mention": "Chikata Shrine (近殿神社)",
+  "required_mention": "Snack Kojyo (スナック古城) — Karaoke Snack Bar",
   "kind": "spot",
   "avatar_image": "avatar/event.png",
-  "legacy_id": "2026-02-24T16:52:38Z",
-  "permalink": "./?post=feed_20260225_014434_JST",
-  "image_url": "./image/feed_20260225_014434_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night.",
+  "legacy_id": "2026-02-24T17:48:04Z",
+  "permalink": "./?post=feed_20260225_023722_JST",
+  "image_url": "./image/feed_20260225_023722_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night! It's a rainy evening with 13°C. Looking for a cozy spot, I'd recommend Snack Kojyo, a great karaoke bar that's perfect for a winter night like this 🌧️🎤.",
   "image_negative": "",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
-  "image_generated_at": "2026-02-24T17:40:07Z"
+  "image_generated_at": "2026-02-24T19:02:11Z"
 }
