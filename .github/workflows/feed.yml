@@ -226,8 +226,8 @@ jobs:
             echo "LORA_SCALE=0.8" >> $GITHUB_ENV
             echo "MIRROR_AUG=1" >> $GITHUB_ENV
             echo "STEPS=2" >> $GITHUB_ENV
-            echo "STRENGTH=0.45" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.2" >> $GITHUB_ENV
+            echo "STRENGTH=0.2" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=0.1" >> $GITHUB_ENV
             echo "PROMPT=" >> $GITHUB_ENV
             echo "NEGATIVE=" >> $GITHUB_ENV
           else
