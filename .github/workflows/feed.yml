@@ -224,9 +224,10 @@ jobs:
             echo "MODE=img2img" >> $GITHUB_ENV
             echo "LORA_PATH=models/loras/yokosuka.safetensors" >> $GITHUB_ENV
             echo "LORA_SCALE=0.8" >> $GITHUB_ENV
+            echo "MIRROR_AUG=1" >> $GITHUB_ENV
             echo "STEPS=2" >> $GITHUB_ENV
-            echo "STRENGTH=0.35" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.4" >> $GITHUB_ENV
+            echo "STRENGTH=0.45" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=0.2" >> $GITHUB_ENV
             echo "PROMPT=" >> $GITHUB_ENV
             echo "NEGATIVE=" >> $GITHUB_ENV
           else
