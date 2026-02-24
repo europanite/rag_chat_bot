@@ -58,6 +58,43 @@ jobs:
         run: |
           chmod +x scripts/feed.sh
 
+      - name: Select scheduled entry (JST)
+        shell: bash
+        run: |
+          HOUR="$(TZ=Asia/Tokyo date +%H)"
+          HOUR="${HOUR#0}"
+
+          kind="spot"
+          avatar="avatar/event.png"
+
+          if (( HOUR >= 0 && HOUR < 5 )); then
+            kind="spot"
+            avatar="avatar/event.png"
+          elif (( HOUR >= 5 && HOUR < 7 )); then
+            kind="garbage"
+            avatar="avatar/day.png"
+          elif (( HOUR >= 7 && HOUR < 13 )); then
+            kind="restaurant"
+            avatar="avatar/food.png"
+          elif (( HOUR >= 13 && HOUR < 17 )); then
+            kind="event"
+            avatar="avatar/event.png"
+          elif (( HOUR >= 17 && HOUR < 20 )); then
+            kind="activity"
+            avatar="avatar/evening.png"
+          elif (( HOUR >= 20 && HOUR < 22 )); then
+            kind="garbage"
+            avatar="avatar/night.png"
+          else
+            kind="spot"
+            avatar="avatar/event.png"
+          fi
+
+          echo "SCHEDULED_KIND=$kind" >> "$GITHUB_ENV"
+          echo "AVATAR_IMAGE=$avatar" >> "$GITHUB_ENV"
+          echo "JST hour=$HOUR -> SCHEDULED_KIND=$kind AVATAR_IMAGE=$avatar"
+
+
       - name: Run feed pipeline
         env:
           RAG_AUTO_INDEX: "false"
@@ -185,11 +222,11 @@ jobs:
             echo "use_camera=1" >> "$GITHUB_OUTPUT"
             echo "INPUT_IMAGE=snapshot.jpg" >> $GITHUB_ENV
             echo "MODE=img2img" >> $GITHUB_ENV
-            echo "LORA_PATH=" >> $GITHUB_ENV
-            echo "LORA_SCALE=0.0" >> $GITHUB_ENV
+            echo "LORA_PATH=models/loras/yokosuka.safetensors" >> $GITHUB_ENV
+            echo "LORA_SCALE=0.8" >> $GITHUB_ENV
             echo "STEPS=2" >> $GITHUB_ENV
-            echo "STRENGTH=0.60" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.6" >> $GITHUB_ENV
+            echo "STRENGTH=0.35" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=0.4" >> $GITHUB_ENV
             echo "PROMPT=" >> $GITHUB_ENV
             echo "NEGATIVE=" >> $GITHUB_ENV
           else
