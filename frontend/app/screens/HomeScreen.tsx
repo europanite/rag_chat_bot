@@ -20,6 +20,8 @@ type FeedItem = {
   date: string; // YYYY-MM-DD
   text: string;
   place?: string;
+  kind?: string;
+  avatar_image?: string;
   generated_at?: string; // ISO string (often Z)
   image?: string; // local path or absolute URL
   image_prompt?: string; // optional (for matching)
@@ -359,8 +361,30 @@ function normalizeFeed(parsed: unknown): Feed | null {
               ? it.imageUri
               : undefined;
           const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
+          const kind = typeof it?.kind === "string" ? it.kind : undefined;
+          const avatar_image =
+            typeof it?.avatar_image === "string"
+              ? it.avatar_image
+              : typeof it?.avatarImage === "string"
+                ? it.avatarImage
+                : typeof it?.avatar === "string"
+                  ? it.avatar
+                  : typeof it?.avatar_url === "string"
+                    ? it.avatar_url
+                    : undefined;
           const links = normalizeLinks(it?.links ?? it?.link);
-          return { id, date, text, place, generated_at, image, image_prompt, links };
+          return { 
+            id, 
+            date, 
+            text, 
+            place, 
+            generated_at, 
+            image, 
+            image_prompt, 
+            kind,
+            avatar_image,
+            links 
+          };
         })
         .filter(Boolean) as FeedItem[];
 
@@ -587,7 +611,13 @@ function addCacheBuster(url: string): string {
   return `${url}${sep}v=${Date.now()}`;
 }
 
-function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
+function getMascotUriForItem(item: FeedItem, assetBase: string): string | undefined {
+  const raw = (item.avatar_image ?? "").trim();
+  if (!raw) return undefined;
+  return resolveUrl(normalizeWebAssetPath(raw), assetBase);
+}
+
+function Mascot({ size = MASCOT_SIZE, uri }: { size?: number; uri?: string }) {
   const [failed, setFailed] = useState(false);
   const envUri = (process.env.EXPO_PUBLIC_MASCOT_URI || "").trim();
 
@@ -625,29 +655,31 @@ function Mascot({ size = MASCOT_SIZE }: { size?: number }) {
           accessibilityLabel="Mascot"
           onError={() => setFailed(true)}
         />
-        />
       </Frame>
     );
   }
 
   try {
-    const fallback = require("../assets/images/avatar.png");
+    // const fallback = require("../assets/images/avatar.png");
     return (
       <Frame>
-        <Image source={fallback} style={{ width: "100%", height: "100%" }} accessibilityLabel="Mascot" />
+        <Image 
+        source={{ uri: chosen }}
+        style={{ width: "100%", height: "100%" }} 
+        accessibilityLabel="Mascot" />
       </Frame>
     );
   } catch {
     // ignore
   }
 
-  return (
-    <Frame>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
-        <Text style={{ color: "#ffffff", fontWeight: "512", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
-      </View>
-    </Frame>
-  );
+  // return (
+  //   <Frame>
+  //     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
+  //       <Text style={{ color: "#ffffff", fontWeight: "512", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
+  //     </View>
+  //   </Frame>
+  // );
 }
 
 type SlotCardVariant = "sidebar" | "inline";
@@ -1310,7 +1342,7 @@ const getImageUrisForItem = useCallback(
             <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
               <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
                 <View style={{ marginTop: 2 }}>
-                  <Mascot />
+                  <Mascot uri={getMascotUriForItem(item, assetBase)} />
                 </View>
               </View>
 
