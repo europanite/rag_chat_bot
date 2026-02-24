@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-24T00:59:01Z",
+  "id": "feed_20260224_094555_JST",
   "date": "2026-02-24",
   "text": "Good morning 🌞! It's a chilly day in Yokosuka today, rainy with 14°C. If you're looking for some warmth and delicious sushi, head over to Sushi Masa (鮨政) for a cozy meal.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -57,5 +57,12 @@
   "links": [
     "https://tabelog.com/kanagawa/A1406/A140601/14020873/"
   ],
-  "required_mention": "Sushi Masa (鮨政)"
+  "required_mention": "Sushi Masa (鮨政)",
+  "image": "./image/feed_20260224_094555_JST.png",
+  "image_url": "./image/feed_20260224_094555_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning 🌞! It's a chilly day in Yokosuka today, rainy with 14°C. If you're looking for some warmth and delicious sushi, head over to Sushi Masa (鮨政) for a cozy meal.",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-24T01:03:50.640868Z",
+  "permalink": "./?post=feed_20260224_094555_JST"
 }
