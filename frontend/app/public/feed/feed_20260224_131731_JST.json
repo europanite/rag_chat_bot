@@ -62,11 +62,12 @@
   "avatar_image": "avatar/event.png",
   "image": "./image/feed_20260224_131731_JST.png",
   "image_url": "./image/feed_20260224_131731_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌞 It's a chilly day with 17°C and rainy today. I'm planning to head over to the 5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5th floor to warm up and grab some lunch.",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! 🌞 It's a chilly day with 17°C and rainy today. I'm planning to head over to the 5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5th floor to warm up and grab some lunch.",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "yokosuka.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-24T04:34:38.811043Z",
-  "permalink": "./?post=feed_20260224_131731_JST"
+  "image_generated_at": "2026-02-24T07:01:36Z",
+  "permalink": "./?post=feed_20260224_131731_JST",
+  "image_negative": ""
 }
