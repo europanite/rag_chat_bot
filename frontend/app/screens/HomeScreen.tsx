@@ -92,7 +92,9 @@ const BUBBLE_BORDER_W = 2;
 const CONTENT_MAX_W = 760;
 const MASCOT_COL_W = 128;
 const MASCOT_SIZE = 96;
+const MASCOT_RADIUS = 18; // rounded rectangle for avatar frame
 const MASCOT_BORDER_W = 2;
+const DEFAULT_AVATAR_IMAGE = "fixed/normal.png";
 const SIDEBAR_W = 240;
 
 const FEED_SCROLL_ID = "feed-scroll";
@@ -477,6 +479,24 @@ function normalizeWebAssetPath(p: string): string {
     if (s.startsWith("/")) return `.${s}`;
   }
 
+
+function isAbsoluteAssetUri(u: string): boolean {
+  const s = String(u ?? "").trim();
+  return /^(https?:)?\/\/|^data:|^file:|^blob:/i.test(s);
+}
+
+// Avatar / image files live under public/image/ (e.g. "fixed/normal.png" => "image/fixed/normal.png").
+function normalizePublicImageRelPath(p: string): string {
+  let s = String(p ?? "").trim();
+  if (!s) return "";
+  if (isAbsoluteAssetUri(s)) return s;
+
+  // Strip leading "./" or "/" and ensure it is under "image/".
+  s = s.replace(/^\.\//, "").replace(/^\/+/, "");
+  if (s.startsWith("image/")) return s;
+  return `image/${s}`;
+}
+
   return s;
 }
 
@@ -613,37 +633,63 @@ function addCacheBuster(url: string): string {
 function getMascotUriForItem(item: FeedItem, assetBase: string): string | undefined {
   const raw = (item.avatar_image ?? "").trim();
   if (!raw) return undefined;
-  return resolveUrl(normalizeWebAssetPath(raw), assetBase);
+  const p = normalizePublicImageRelPath(raw);
+  if (isAbsoluteAssetUri(p)) return p;
+  return resolveUrl(normalizeWebAssetPath(p), assetBase);
 }
 
-function Mascot({ size = MASCOT_SIZE, uri }: { size?: number; uri?: string }) {
-  const [failed, setFailed] = useState(false);
+function Mascot({
+  size = MASCOT_SIZE,
+  uri,
+  assetBase,
+}: {
+  size?: number;
+  uri?: string;
+  assetBase?: string;
+}) {
   const envUri = (process.env.EXPO_PUBLIC_MASCOT_URI || "").trim();
 
-  const isAbsoluteUri = useMemo(
-    () => (u: string) => /^(https?:)?\/\/|^data:|^file:|^blob:/i.test(u),
-    [],
-  );
-
-  const resolvedEnvUri = useMemo(() => {
-    if (!envUri) return "";
-    if (!isAbsoluteUri(envUri)) return "";
-    return envUri;
-  }, [envUri, isAbsoluteUri]);
-
-  // Priority: per-item uri -> env -> none
-  const chosenUri = useMemo(() => {
-    const u = (uri ?? "").trim();
+  // Candidate order: per-item uri -> env -> default(normal)
+  const primaryUri = useMemo(() => {
+    const u = String(uri ?? "").trim();
     if (u) return u;
-    return resolvedEnvUri;
-  }, [uri, resolvedEnvUri]); 
+
+    const e = String(envUri ?? "").trim();
+    if (!e) return "";
+
+    if (isAbsoluteAssetUri(e)) return e;
+    if (assetBase) {
+      const p = normalizePublicImageRelPath(e);
+      if (isAbsoluteAssetUri(p)) return p;
+      return resolveUrl(normalizeWebAssetPath(p), assetBase);
+    }
+    return "";
+  }, [uri, envUri, assetBase]);
+
+  const defaultUri = useMemo(() => {
+    if (!assetBase) return "";
+    const p = normalizePublicImageRelPath(DEFAULT_AVATAR_IMAGE);
+    if (isAbsoluteAssetUri(p)) return p;
+    return resolveUrl(normalizeWebAssetPath(p), assetBase);
+  }, [assetBase]);
+
+  // If primary fails, fall back to default "normal" image.
+  const [useFallback, setUseFallback] = useState(false);
+  useEffect(() => {
+    setUseFallback(false);
+  }, [primaryUri, defaultUri]);
+
+  const displayUri = useMemo(() => {
+    if (useFallback || !primaryUri) return defaultUri || primaryUri;
+    return primaryUri;
+  }, [useFallback, primaryUri, defaultUri]);
 
   const Frame = ({ children }: { children: React.ReactNode }) => (
     <View
       style={{
         width: size,
         height: size,
-        borderRadius: size / 2,
+        borderRadius: MASCOT_RADIUS,
         borderWidth: MASCOT_BORDER_W,
         borderColor: BORDER,
         overflow: "hidden",
@@ -657,20 +703,23 @@ function Mascot({ size = MASCOT_SIZE, uri }: { size?: number; uri?: string }) {
     </View>
   );
 
-  if (!failed && chosenUri) {
+  if (displayUri) {
     return (
       <Frame>
         <Image
-          source={{ uri: chosenUri }}
+          source={{ uri: displayUri }}
           style={{ width: size, height: size }}
           accessibilityLabel="Mascot"
           resizeMode="cover"
-          onError={() => setFailed(true)}
+          onError={() => {
+            if (!useFallback && primaryUri && defaultUri && primaryUri !== defaultUri) setUseFallback(true);
+          }}
         />
       </Frame>
     );
   }
 
+  // Last resort (should be rare): keep a minimal placeholder
   return (
     <Frame>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
@@ -1340,7 +1389,7 @@ const getImageUrisForItem = useCallback(
             <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
               <View style={{ width: MASCOT_COL_W, alignItems: "center" }}>
                 <View style={{ marginTop: 2 }}>
-                  <Mascot uri={getMascotUriForItem(item, assetBase)} />
+                  <Mascot uri={getMascotUriForItem(item, assetBase)} assetBase={assetBase} />
                 </View>
               </View>
 
