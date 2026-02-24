@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import os
 import random
+import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -87,6 +88,7 @@ def patch_feed_file(
     rel_image_url: str,
     image_prompt: str,
     image_negative: str = "",
+    image_model: str = MODEL_ID,
     image_generated_at: str,
     image_lora: str = "",
     image_lora_scale: float = 0.0,
@@ -116,7 +118,7 @@ def patch_feed_file(
         it["image_url"] = rel_image_url
         it["image_prompt"] = image_prompt
         it["image_negative"] = image_negative
-        it["image_model"] = MODEL_ID
+        it["image_model"] = image_model
         if image_lora:
             it["image_lora"] = image_lora
             it["image_lora_scale"] = float(image_lora_scale)
@@ -139,6 +141,24 @@ def patch_feed_file(
         dump_json(feed_path, obj)
     return changed
 
+def resolve_fixed_image_path(value: str, public_dir: Path) -> Path:
+    """Resolve a fixed image path from latest.json (value may be absolute, repo-relative, or FEED_PATH-relative)."""
+    v = (value or "").strip()
+    p0 = Path(v)
+    candidates = [
+        p0,
+        public_dir / v,
+        public_dir / "image" / v,
+        public_dir / "image" / "fixed" / v,
+    ]
+    for p in candidates:
+        try:
+            if p.exists() and p.is_file():
+                return p
+        except Exception:
+            continue
+    msg = " | ".join(str(p) for p in candidates)
+    raise FileNotFoundError(f"fixed image not found. tried: {msg}")
 
 def main() -> int:
     public_dir = Path(os.environ.get("FEED_PATH"))
@@ -172,32 +192,71 @@ def main() -> int:
     feed_stem = feeds[0].stem
 
     out_dir = public_dir / "image"
-    out_path = out_dir / f"{feed_stem}.png"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    seed = int(SEED_OVERRIDE) if SEED_OVERRIDE.isdigit() else random.randint(0, 2**31 - 1)
-    seed += SEED_OFFSET
-    prompt,negative = build_prompt(text, place)
+    fixed = safe_str(latest.get("image_fixed")).strip()
+    lora_tag = ""
+    image_model = MODEL_ID
 
-    print(f"MODEL_ID={MODEL_ID}")
-    print(f"seed={seed}")
-    print(f"feed_stem={feed_stem}")
-    print(f"out_path={out_path}")
-    print(f"prompt={prompt}")
-    print(f"negative={negative}")
+    if fixed:
+        try:
+            src = resolve_fixed_image_path(fixed, public_dir)
+        except Exception as e:
+            print(f"ERROR: {e}")
+            return 2
+        out_path = out_dir / f"{feed_stem}{(src.suffix or '.png')}"
+        print(f"MODEL_ID={MODEL_ID}")
+        print("mode=fixed_image")
+        print(f"fixed_image={src}")
+        print(f"feed_stem={feed_stem}")
+        print(f"out_path={out_path}")
+        shutil.copyfile(src, out_path)
+        prompt = f"[fixed_image] {src.as_posix()}"
+        negative = ""
+        image_model = "fixed"
+    else:
+        out_path = out_dir / f"{feed_stem}.png"
 
-    generator = torch.Generator(device=DEVICE).manual_seed(seed)
+        seed = int(SEED_OVERRIDE) if SEED_OVERRIDE.isdigit() else random.randint(0, 2**31 - 1)
+        seed += SEED_OFFSET
+        prompt,negative = build_prompt(text, place)
 
-    pipe = AutoPipelineForText2Image.from_pretrained(MODEL_ID, torch_dtype=torch.float32)
-    pipe = pipe.to(DEVICE)
+        print(f"MODEL_ID={MODEL_ID}")
+        print("mode=text2img")
+        print(f"seed={seed}")
+        print(f"feed_stem={feed_stem}")
+        print(f"out_path={out_path}")
+        print(f"prompt={prompt}")
+        print(f"negative={negative}")
 
-    image_kwargs = {
-        "prompt": prompt,
-        "negative_prompt": negative,
-        "num_inference_steps": int(STEPS),
-        "guidance_scale": float(GUIDANCE_SCALE),
-        "generator": generator,
-    }
+        generator = torch.Generator(device=DEVICE).manual_seed(seed)
+
+        pipe = AutoPipelineForText2Image.from_pretrained(MODEL_ID, torch_dtype=torch.float32)
+        pipe = pipe.to(DEVICE)
+
+        image_kwargs = {
+            "prompt": prompt,
+            "negative_prompt": negative,
+            "num_inference_steps": int(STEPS),
+            "guidance_scale": float(GUIDANCE_SCALE),
+            "generator": generator,
+        }
+
+        if LORA_PATH:
+            p = Path(LORA_PATH)
+            if not p.exists():
+                print(f"ERROR: LORA_PATH not found: {p}")
+                return 2
+            try:
+                pipe.load_lora_weights(str(p))
+                lora_tag = p.name
+                image_kwargs["cross_attention_kwargs"] = {"scale": float(LORA_SCALE)}
+            except Exception as e:
+                print(f"ERROR: failed to load LoRA: {p} ({e})")
+                return 2
+
+        image = pipe(**image_kwargs).images[0]
+        image.save(out_path)
 
     lora_tag = ""
     if LORA_PATH:
@@ -229,7 +288,7 @@ def main() -> int:
     latest["image_url"] = rel_image_url
     latest["image_prompt"] = prompt
     latest["image_negative"] = negative
-    latest["image_model"] = MODEL_ID
+    latest["image_model"] = image_model
     if lora_tag:
         latest["image_lora"] = lora_tag
         latest["image_lora_scale"] = float(LORA_SCALE)
@@ -246,6 +305,7 @@ def main() -> int:
         rel_image_url=rel_image_url,
         image_prompt=prompt,
         image_negative=negative,
+        image_model=image_model,
         image_generated_at=now_iso,
         image_lora=lora_tag,
         image_lora_scale=float(LORA_SCALE),
@@ -270,6 +330,7 @@ def main() -> int:
                     rel_image_url=rel_image_url,
                     image_prompt=prompt,
                     image_negative=negative,
+                    image_model=image_model,
                     image_generated_at=now_iso,
                     image_lora=lora_tag,
                     image_lora_scale=LORA_SCALE,

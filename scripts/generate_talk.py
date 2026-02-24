@@ -767,22 +767,40 @@ def extract_detail(resp_obj: Dict[str, Any]) -> str:
     return str(d)
 
 
-def build_entry(today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict[str, Any], links: Optional[List[str]] = None, required_mention: str = "") -> Dict[str, Any]:
+def build_entry(today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict[str, Any], links: Optional[List[str]] = None, required_mention: str = "", kind: str = "", image_fixed: str = "") -> Dict[str, Any]:
     if not today or not now_iso or not tweet:
         missing = [k for k, v in [("today", today), ("now_iso", now_iso), ("tweet", tweet)] if not v]
         raise RuntimeError(f"missing values for entry: {', '.join(missing)}")
     if not links:
         links = []
-    return {
-        "date": today,
-        "generated_at": now_iso,
-        "text": tweet,
-        "place": place or "",
-        "weather": snap_obj,
-        "links": links,
-        "required_mention": (required_mention or "").strip(),
-    }
 
+    obj = {
+         "date": today,
+         "generated_at": now_iso,
+         "text": tweet,
+         "place": place or "",
+         "weather": snap_obj,
+         "links": links,
+         "required_mention": (required_mention or "").strip(),
+     }
+    if (kind or "").strip():
+        obj["kind"] = str(kind).strip()
+    if (image_fixed or "").strip():
+        obj["image_fixed"] = str(image_fixed).strip()
+    return obj
+
+def build_fixed_post_entry(*, today: str, now_iso: str, tweet: str, place: str, snap_obj: Dict[str, Any], links: Optional[List[str]] = None, kind: str, fixed_image: str) -> Dict[str, Any]:
+    """Build an entry that uses a fixed image (copied by scripts/illustrate.py) instead of text2img."""
+    return build_entry(
+        today=today,
+        now_iso=now_iso,
+        tweet=tweet,
+        place=place,
+        snap_obj=snap_obj,
+        links=links,
+        kind=kind,
+        image_fixed=fixed_image,
+    )
 
 def to_item(entry: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     date = str(entry.get("date") or "")
@@ -791,16 +809,21 @@ def to_item(entry: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         return None
     _id = entry.get("id") or entry.get("generated_at") or date
     place = entry.get("place") or ""
-    return {
-        "id": str(_id),
-        "date": date,
-        "text": text,
-        "place": str(place),
-        "generated_at": entry.get("generated_at"),
-        "weather": entry.get("weather"),
-        "links": entry.get("links") or [],
-        "required_mention": (entry.get("required_mention") or "").strip(),
-    }
+    item = {
+         "id": str(_id),
+         "date": date,
+         "text": text,
+         "place": str(place),
+         "generated_at": entry.get("generated_at"),
+         "weather": entry.get("weather"),
+         "links": entry.get("links") or [],
+         "required_mention": (entry.get("required_mention") or "").strip(),
+     }
+    if (entry.get("kind") or "").strip():
+        item["kind"] = str(entry.get("kind")).strip()
+    if (entry.get("image_fixed") or "").strip():
+        item["image_fixed"] = str(entry.get("image_fixed")).strip()
+    return item
 
 
 def write_outputs(feed_path: str, latest_path: str, entry: Dict[str, Any], snap_json_raw: str, now_local: str) -> None:
@@ -942,7 +965,7 @@ def main() -> int:
 
         today = utc_date()
         now_iso = utc_now_iso_z()
-        entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj, links=links)
+        entry = build_fixed_post_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj, links=links, kind=scheduled_kind, fixed_image=env("GARBAGE_FIXED_IMAGE", "fixed/garbage.png"))
         for feed_path, latest_path in pair_paths(feeds, latests):
             write_outputs(feed_path=feed_path, latest_path=latest_path, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
         return 0
@@ -957,7 +980,7 @@ def main() -> int:
 
         today = utc_date()
         now_iso = utc_now_iso_z()
-        entry = build_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj, links=links)
+        entry = build_fixed_post_entry(today=today, now_iso=now_iso, tweet=tweet, place=place, snap_obj=snap_obj, links=links, kind=scheduled_kind, fixed_image=env("GARBAGE_FIXED_IMAGE", "fixed/garbage.png"))
         for feed_path, latest_path in pair_paths(feeds, latests):
             write_outputs(feed_path=feed_path, latest_path=latest_path, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
         return 0
