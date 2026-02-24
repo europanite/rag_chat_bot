@@ -487,16 +487,13 @@ function isAbsoluteAssetUri(u: string): boolean {
   return /^(https?:)?\/\/|^data:|^file:|^blob:/i.test(s);
 }
 
-// Avatar / image files live under public/image/ (e.g. "fixed/normal.png" => "image/fixed/normal.png").
-function normalizePublicImageRelPath(p: string): string {
+function normalizePublicAssetRelPath(p: string): string {
   let s = String(p ?? "").trim();
   if (!s) return "";
   if (isAbsoluteAssetUri(s)) return s;
 
-  // Strip leading "./" or "/" and ensure it is under "image/".
   s = s.replace(/^\.\//, "").replace(/^\/+/, "");
-  if (s.startsWith("image/")) return s;
-  return `image/${s}`;
+  return s;
 }
 
 function buildSharePrompt(text: string, place?: string): string {
@@ -631,7 +628,7 @@ function addCacheBuster(url: string): string {
 function getMascotUriForItem(item: FeedItem, assetBase: string): string | undefined {
   const raw = (item.avatar_image ?? "").trim();
   if (!raw) return undefined;
-  const p = normalizePublicImageRelPath(raw);
+  const p = normalizePublicAssetRelPath(raw);
   if (isAbsoluteAssetUri(p)) return p;
   return resolveUrl(normalizeWebAssetPath(p), assetBase);
 }
@@ -657,7 +654,7 @@ function Mascot({
 
     if (isAbsoluteAssetUri(e)) return e;
     if (assetBase) {
-      const p = normalizePublicImageRelPath(e);
+      const p = normalizePublicAssetRelPath(e);
       if (isAbsoluteAssetUri(p)) return p;
       return resolveUrl(normalizeWebAssetPath(p), assetBase);
     }
@@ -666,7 +663,7 @@ function Mascot({
 
   const defaultUri = useMemo(() => {
     if (!assetBase) return "";
-    const p = normalizePublicImageRelPath(DEFAULT_AVATAR_IMAGE);
+    const p = normalizePublicAssetRelPath(DEFAULT_AVATAR_IMAGE);
     if (isAbsoluteAssetUri(p)) return p;
     return resolveUrl(normalizeWebAssetPath(p), assetBase);
   }, [assetBase]);
