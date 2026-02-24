@@ -1,0 +1,70 @@
+{
+  "id": "feed_20260224_015426_JST",
+  "date": "2026-02-23",
+  "text": "Good night Yokosuka! 🌃 It's a chilly and rainy night with 11°C outside. Head over to SEIYU Takatori for fresh foods, they're open until late tonight 🍜🛍️",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-23T17:02:37Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-23T16:54:29.514524+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-24T01:40:00+09:00",
+      "temp_c": 10.8,
+      "apparent_temp_c": null,
+      "humidity_pct": 82.0,
+      "precip_mm": 0.0,
+      "weather_code": 61,
+      "cloud_cover_pct": null,
+      "wind_kmh": 10.8,
+      "wind_dir_deg": 22.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-24",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　昼前　から　夕方　晴れ　所により　夜遅く　雨",
+      "jma_weather_code": "201",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
+      "date": "2026-02-25",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 13.0,
+      "temp_min_c": 8.0,
+      "weather_text_ja": "雨　時々　くもり",
+      "jma_weather_code": "302",
+      "precip_prob_pct": null
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-23T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://map.yahoo.co.jp/v3/place/blH7x2QuZk2"
+  ],
+  "required_mention": "SEIYU Takatori (西友 鷹取店) — Fresh foods reputation (open until",
+  "legacy_id": "2026-02-23T17:02:37Z",
+  "permalink": "./?post=feed_20260224_015426_JST",
+  "image_url": "./image/feed_20260224_015426_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night Yokosuka! 🌃 It's a chilly and rainy night with 11°C outside. Head over to SEIYU Takatori for fresh foods, they're open until late tonight 🍜🛍️",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-23T19:01:55Z"
+}
