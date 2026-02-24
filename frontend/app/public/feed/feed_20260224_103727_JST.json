@@ -60,9 +60,10 @@
   "required_mention": "**Books&Coffee 青い月 (Aoi Tsuki)** (Used books + tiny café)",
   "image": "./image/feed_20260224_103727_JST.png",
   "image_url": "./image/feed_20260224_103727_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! 🌞 It's a chilly and rainy day here with 14°C. ☁️ Why not warm up with a hot cup of coffee and a good book at Books&Coffee 青い月 (Aoi Tsuki), a cozy spot for used books and tiny café in the heart of Yokosuka?",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌞 It's a chilly and rainy day here with 14°C. ☁️ Why not warm up with a hot cup of coffee and a good book at Books&Coffee 青い月 (Aoi Tsuki), a cozy spot for used books and tiny café in the heart of Yokosuka?",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-24T01:53:01.707150Z",
-  "permalink": "./?post=feed_20260224_103727_JST"
+  "image_generated_at": "2026-02-24T03:49:07Z",
+  "permalink": "./?post=feed_20260224_103727_JST",
+  "image_negative": ""
 }
