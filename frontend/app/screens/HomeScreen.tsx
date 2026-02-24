@@ -92,7 +92,6 @@ const BUBBLE_BORDER_W = 2;
 const CONTENT_MAX_W = 760;
 const MASCOT_COL_W = 128;
 const MASCOT_SIZE = 96;
-const MASCOT_RADIUS = 12;
 const MASCOT_BORDER_W = 2;
 const SIDEBAR_W = 240;
 
@@ -621,24 +620,36 @@ function Mascot({ size = MASCOT_SIZE, uri }: { size?: number; uri?: string }) {
   const [failed, setFailed] = useState(false);
   const envUri = (process.env.EXPO_PUBLIC_MASCOT_URI || "").trim();
 
+  const isAbsoluteUri = useMemo(
+    () => (u: string) => /^(https?:)?\/\/|^data:|^file:|^blob:/i.test(u),
+    [],
+  );
+
   const resolvedEnvUri = useMemo(() => {
     if (!envUri) return "";
-    // Only use the env URI when it is clearly an absolute URL/data URI.
-    // (Relative strings like "avatar.png" often cause 404s on GitHub Pages.)
-    if (/^(https?:)?\/\//i.test(envUri) || envUri.startsWith("data:")) return envUri;
-    return "";
-  }, [envUri]);
+    if (!isAbsoluteUri(envUri)) return "";
+    return envUri;
+  }, [envUri, isAbsoluteUri]);
+
+  // Priority: per-item uri -> env -> none
+  const chosenUri = useMemo(() => {
+    const u = (uri ?? "").trim();
+    if (u) return u;
+    return resolvedEnvUri;
+  }, [uri, resolvedEnvUri]); 
 
   const Frame = ({ children }: { children: React.ReactNode }) => (
     <View
       style={{
         width: size,
         height: size,
-        borderRadius: MASCOT_RADIUS,
+        borderRadius: size / 2,
         borderWidth: MASCOT_BORDER_W,
         borderColor: BORDER,
         overflow: "hidden",
         backgroundColor: "#ffffff",
+        alignItems: "center",
+        justifyContent: "center",
       }}
       accessibilityLabel="Mascot"
     >
@@ -646,28 +657,18 @@ function Mascot({ size = MASCOT_SIZE, uri }: { size?: number; uri?: string }) {
     </View>
   );
 
-  if (!failed && resolvedEnvUri) {
+  if (!failed && chosenUri) {
     return (
       <Frame>
         <Image
-          source={{ uri: resolvedEnvUri }}
-          style={{ width: "100%", height: "100%" }}
+          source={{ uri: chosenUri }}
+          style={{ width: size, height: size }}
           accessibilityLabel="Mascot"
+          resizeMode="cover"
           onError={() => setFailed(true)}
         />
       </Frame>
     );
-  }
-
-  try {
-    // const fallback = require("../assets/images/avatar.png");
-    return (
-      <Frame>
-        <Image source={{ uri: chosen }} style={{ width: "100%", height: "100%" }}  accessibilityLabel="Mascot" />
-      </Frame>
-    );
-  } catch {
-    // ignore
   }
 
   return (
