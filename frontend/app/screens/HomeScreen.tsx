@@ -663,23 +663,20 @@ function Mascot({ size = MASCOT_SIZE, uri }: { size?: number; uri?: string }) {
     // const fallback = require("../assets/images/avatar.png");
     return (
       <Frame>
-        <Image 
-        source={{ uri: chosen }}
-        style={{ width: "100%", height: "100%" }} 
-        accessibilityLabel="Mascot" />
+        <Image source={{ uri: chosen }} style={{ width: "100%", height: "100%" }}  accessibilityLabel="Mascot" />
       </Frame>
     );
   } catch {
     // ignore
   }
 
-  // return (
-  //   <Frame>
-  //     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
-  //       <Text style={{ color: "#ffffff", fontWeight: "512", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
-  //     </View>
-  //   </Frame>
-  // );
+  return (
+    <Frame>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#111111" }}>
+        <Text style={{ color: "#ffffff", fontWeight: "512", fontSize: Math.max(18, Math.floor(size * 0.35)) }}>R</Text>
+      </View>
+    </Frame>
+  );
 }
 
 type SlotCardVariant = "sidebar" | "inline";
