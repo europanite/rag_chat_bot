@@ -479,6 +479,8 @@ function normalizeWebAssetPath(p: string): string {
     if (s.startsWith("/")) return `.${s}`;
   }
 
+  return s;
+}
 
 function isAbsoluteAssetUri(u: string): boolean {
   const s = String(u ?? "").trim();
@@ -496,10 +498,6 @@ function normalizePublicImageRelPath(p: string): string {
   if (s.startsWith("image/")) return s;
   return `image/${s}`;
 }
-
-  return s;
-}
-
 
 function buildSharePrompt(text: string, place?: string): string {
   const t = String(text ?? "").replace(/\s+/g, " ").trim().slice(0, 240);
