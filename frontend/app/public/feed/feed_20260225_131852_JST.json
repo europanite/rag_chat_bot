@@ -62,9 +62,10 @@
   "avatar_image": "avatar/event.png",
   "image": "./image/feed_20260225_131852_JST.png",
   "image_url": "./image/feed_20260225_131852_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! ☁️ It's a rainy day in Yokosuka with 11°C outside. Today is a great day to stay indoors and check out the upcoming YOKOSUKA GENIC STREET event, featuring the latest art and atmosphere! 🎨👀",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! ☁️ It's a rainy day in Yokosuka with 11°C outside. Today is a great day to stay indoors and check out the upcoming YOKOSUKA GENIC STREET event, featuring the latest art and atmosphere! 🎨👀",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-25T04:33:06.257273Z",
-  "permalink": "./?post=feed_20260225_131852_JST"
+  "image_generated_at": "2026-02-25T07:03:49Z",
+  "permalink": "./?post=feed_20260225_131852_JST",
+  "image_negative": ""
 }
