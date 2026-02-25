@@ -1157,8 +1157,8 @@ def main() -> int:
         links=links,
         required_mention=required_mention,
         kind=scheduled_kind,
-        avatar_image=env("AVATAR_IMAGE", f"fixed/avatar_{scheduled_kind}.png"),
-        )
+        avatar_image=env("AVATAR_IMAGE", f"fixed/normal.png"),
+    )
 
     for feed_p, latest_p in pair_paths(feeds, latests):
         write_outputs(feed_p, latest_p, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
