@@ -62,11 +62,12 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260225_074859_JST.png",
   "image_url": "./image/feed_20260225_074859_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly 11°C with rainy weather today 🌧️. When you need a warm meal on a gloomy day like this, head over to Hisago Zushi Honten for delicious sushi!",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's a chilly 11°C with rainy weather today 🌧️. When you need a warm meal on a gloomy day like this, head over to Hisago Zushi Honten for delicious sushi!",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "yokosuka.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-24T23:14:44.153239Z",
-  "permalink": "./?post=feed_20260225_074859_JST"
+  "image_generated_at": "2026-02-25T00:24:03Z",
+  "permalink": "./?post=feed_20260225_074859_JST",
+  "image_negative": ""
 }
