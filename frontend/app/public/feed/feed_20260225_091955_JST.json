@@ -62,11 +62,12 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260225_091955_JST.png",
   "image_url": "./image/feed_20260225_091955_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly winter morning with 11°C in Yokosuka. On a gloomy day like this, there's no better place to warm up than Dessert & Cafe Blue Moon, where you can enjoy a cozy atmosphere and delicious desserts.",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's a chilly winter morning with 11°C in Yokosuka. On a gloomy day like this, there's no better place to warm up than Dessert & Cafe Blue Moon, where you can enjoy a cozy atmosphere and delicious desserts.",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "yokosuka.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-25T00:38:08.247730Z",
-  "permalink": "./?post=feed_20260225_091955_JST"
+  "image_generated_at": "2026-02-25T01:22:09Z",
+  "permalink": "./?post=feed_20260225_091955_JST",
+  "image_negative": ""
 }
