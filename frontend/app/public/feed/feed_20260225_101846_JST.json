@@ -62,11 +62,12 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260225_101846_JST.png",
   "image_url": "./image/feed_20260225_101846_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning 🌞! It's a rainy day in Yokosuka with 11°C. Let's warm up with a hearty meal at YOKOSUKA Shell, famous for their \"Yokosuka Navy Burger\" and comforting Cherry Cheesecake 😋!",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning 🌞! It's a rainy day in Yokosuka with 11°C. Let's warm up with a hearty meal at YOKOSUKA Shell, famous for their \"Yokosuka Navy Burger\" and comforting Cherry Cheesecake 😋!",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "yokosuka.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-25T01:36:29.333530Z",
-  "permalink": "./?post=feed_20260225_101846_JST"
+  "image_generated_at": "2026-02-25T02:34:11Z",
+  "permalink": "./?post=feed_20260225_101846_JST",
+  "image_negative": ""
 }
