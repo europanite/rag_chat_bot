@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260225_120315_JST.png",
   "image_url": "./image/feed_20260225_120315_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 🌫️ It's a chilly day with 11°C outside today. Why not warm up with a good book and a cup of coffee at Books & Coffee AMIS, a cozy spot in Yokosuka? 😊",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! 🌫️ It's a chilly day with 11°C outside today. Why not warm up with a good book and a cup of coffee at Books & Coffee AMIS, a cozy spot in Yokosuka? 😊",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-25T03:21:06.163469Z",
-  "permalink": "./?post=feed_20260225_120315_JST"
+  "image_generated_at": "2026-02-25T04:22:40Z",
+  "permalink": "./?post=feed_20260225_120315_JST",
+  "image_negative": ""
 }
