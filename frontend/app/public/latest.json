@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260225_074859_JST",
-  "date": "2026-02-24",
-  "text": "Good morning! It's a chilly 11°C with rainy weather today 🌧️. When you need a warm meal on a gloomy day like this, head over to Hisago Zushi Honten for delicious sushi!",
+  "id": "feed_20260225_091955_JST",
+  "date": "2026-02-25",
+  "text": "Good morning! It's a chilly winter morning with 11°C in Yokosuka. On a gloomy day like this, there's no better place to warm up than Dessert & Cafe Blue Moon, where you can enjoy a cozy atmosphere and delicious desserts.",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-24T23:09:51Z",
+  "generated_at": "2026-02-25T00:32:29Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-24T22:49:02.088686+00:00",
+    "generated_at": "2026-02-25T00:19:58.043659+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-25T07:40:00+09:00",
-      "temp_c": 10.6,
+      "time": "2026-02-25T09:10:00+09:00",
+      "temp_c": 10.7,
       "apparent_temp_c": null,
-      "humidity_pct": 96.0,
-      "precip_mm": 1.5,
+      "humidity_pct": 95.0,
+      "precip_mm": 5.0,
       "weather_code": 95,
       "cloud_cover_pct": null,
-      "wind_kmh": 16.56,
+      "wind_kmh": 11.879999999999999,
       "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -55,18 +55,18 @@
     }
   },
   "links": [
-    "https://tabelog.com/en/kanagawa/A1406/A140601/14046637/"
+    "https://bluemoonyokosuka.com/"
   ],
-  "required_mention": "Hisago Zushi Honten (ひさご寿司 本店)",
+  "required_mention": "Dessert & Cafe Blue Moon (Dessert＆Cafe ブルームーン)",
   "kind": "restaurant",
   "avatar_image": "avatar/food.png",
-  "image": "./image/feed_20260225_074859_JST.png",
-  "image_url": "./image/feed_20260225_074859_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly 11°C with rainy weather today 🌧️. When you need a warm meal on a gloomy day like this, head over to Hisago Zushi Honten for delicious sushi!",
-  "permalink": "./?post=feed_20260225_074859_JST",
+  "image": "./image/feed_20260225_091955_JST.png",
+  "image_url": "./image/feed_20260225_091955_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good morning! It's a chilly winter morning with 11°C in Yokosuka. On a gloomy day like this, there's no better place to warm up than Dessert & Cafe Blue Moon, where you can enjoy a cozy atmosphere and delicious desserts.",
+  "permalink": "./?post=feed_20260225_091955_JST",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "yokosuka.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-24T23:14:44.153239Z"
+  "image_generated_at": "2026-02-25T00:38:08.247730Z"
 }
