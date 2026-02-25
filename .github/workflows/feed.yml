@@ -222,8 +222,10 @@ jobs:
             echo "use_camera=1" >> "$GITHUB_OUTPUT"
             echo "INPUT_IMAGE=snapshot.jpg" >> $GITHUB_ENV
             echo "MODE=img2img" >> $GITHUB_ENV
-            echo "LORA_PATH=models/loras/yokosuka.safetensors" >> $GITHUB_ENV
-            echo "LORA_SCALE=0.8" >> $GITHUB_ENV
+            # echo "LORA_PATH=models/loras/yokosuka.safetensors" >> $GITHUB_ENV
+            # echo "LORA_SCALE=0.8" >> $GITHUB_ENV
+            echo "LORA_PATH=" >> $GITHUB_ENV
+            echo "LORA_SCALE=0" >> $GITHUB_ENV
             echo "MIRROR_AUG=1" >> $GITHUB_ENV
             echo "STEPS=2" >> $GITHUB_ENV
             echo "STRENGTH=0.2" >> $GITHUB_ENV
