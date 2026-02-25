@@ -1,25 +1,25 @@
 {
-  "id": "feed_20260225_113124_JST",
+  "id": "feed_20260225_120315_JST",
   "date": "2026-02-25",
-  "text": "Good afternoon! 😊 It's a chilly rainy day with 11°C today. If you're craving something warm and cozy, head over to Yaam (Falafel Shop) for some delicious plant-based falafels in Yokosuka! 🌯️👍",
+  "text": "Good afternoon! 🌫️ It's a chilly day with 11°C outside today. Why not warm up with a good book and a cup of coffee at Books & Coffee AMIS, a cozy spot in Yokosuka? 😊",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-25T02:39:07Z",
+  "generated_at": "2026-02-25T03:16:08Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-25T02:31:26.951582+00:00",
+    "generated_at": "2026-02-25T03:03:17.968799+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-25T11:20:00+09:00",
-      "temp_c": 11.0,
+      "time": "2026-02-25T11:50:00+09:00",
+      "temp_c": 11.2,
       "apparent_temp_c": null,
       "humidity_pct": 95.0,
-      "precip_mm": 5.5,
+      "precip_mm": 4.0,
       "weather_code": 95,
       "cloud_cover_pct": null,
-      "wind_kmh": 12.6,
+      "wind_kmh": 15.48,
       "wind_dir_deg": 22.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
@@ -55,19 +55,17 @@
     }
   },
   "links": [
-    "https://www.happycow.net/reviews/yaam-yokosuka-440900"
+    "https://www.facebook.com/BooksandCoffeeAMIS/"
   ],
-  "required_mention": "Yaam (Falafel Shop / ~yaam~)",
+  "required_mention": "**Books & Coffee AMIS** (Used & foreign books + small café)",
   "kind": "restaurant",
   "avatar_image": "avatar/food.png",
-  "image": "./image/feed_20260225_113124_JST.png",
-  "image_url": "./image/feed_20260225_113124_JST.png",
-  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! 😊 It's a chilly rainy day with 11°C today. If you're craving something warm and cozy, head over to Yaam (Falafel Shop) for some delicious plant-based falafels in Yokosuka! 🌯️👍",
+  "image": "./image/feed_20260225_120315_JST.png",
+  "image_url": "./image/feed_20260225_120315_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! 🌫️ It's a chilly day with 11°C outside today. Why not warm up with a good book and a cup of coffee at Books & Coffee AMIS, a cozy spot in Yokosuka? 😊",
   "image_model": "stabilityai/sdxl-turbo",
-  "image_lora": "yokosuka.safetensors",
-  "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-25T03:07:52Z",
-  "permalink": "./?post=feed_20260225_113124_JST",
+  "image_generated_at": "2026-02-25T04:22:40Z",
+  "permalink": "./?post=feed_20260225_120315_JST",
   "image_negative": ""
 }
