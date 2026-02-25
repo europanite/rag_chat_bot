@@ -62,9 +62,10 @@
   "avatar_image": "avatar/day.png",
   "image": "./image/feed_20260226_053412_JST.png",
   "image_url": "./image/feed_20260226_053412_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's rainy with 7°C today. Nothing beats a rainy winter morning at Books&Coffee 青い月 (Aoi Tsuki) where you can grab a warm cup of coffee and get lost in your favorite books 🌧️☕️📚",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-25T20:49:32.139832Z",
-  "permalink": "./?post=feed_20260226_053412_JST"
+  "image_generated_at": "2026-02-25T22:35:58Z",
+  "permalink": "./?post=feed_20260226_053412_JST",
+  "image_negative": ""
 }
