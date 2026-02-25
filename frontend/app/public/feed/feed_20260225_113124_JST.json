@@ -62,11 +62,12 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260225_113124_JST.png",
   "image_url": "./image/feed_20260225_113124_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. Inspired by: Good afternoon! 😊 It's a chilly rainy day with 11°C today. If you're craving something warm and cozy, head over to Yaam (Falafel Shop) for some delicious plant-based falafels in Yokosuka! 🌯️👍",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! 😊 It's a chilly rainy day with 11°C today. If you're craving something warm and cozy, head over to Yaam (Falafel Shop) for some delicious plant-based falafels in Yokosuka! 🌯️👍",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "yokosuka.safetensors",
   "image_lora_scale": 0.8,
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-25T02:44:07.158304Z",
-  "permalink": "./?post=feed_20260225_113124_JST"
+  "image_generated_at": "2026-02-25T03:07:52Z",
+  "permalink": "./?post=feed_20260225_113124_JST",
+  "image_negative": ""
 }
