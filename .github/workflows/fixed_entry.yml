@@ -1,0 +1,212 @@
+name: Fixed Entry
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      entry_json:
+        type: string
+        required: true
+        description: >
+          JSON string.
+          Example:
+          {"kind":"event","text":"...","fixed_image":"fixed/xxx.png","avatar_image":"avatar/event.png","links":["https://..."]}
+
+      # Weather/paths (defaults match your feed.yml conventions)
+      lat:
+        type: string
+        required: false
+        default: "35.2810"
+      lon:
+        type: string
+        required: false
+        default: "139.6722"
+      tz_name:
+        type: string
+        required: false
+        default: "Asia/Tokyo"
+      place:
+        type: string
+        required: false
+        default: "Yokosuka"
+
+      feed_path:
+        type: string
+        required: false
+        default: "frontend/app/public"
+      latest_path:
+        type: string
+        required: false
+        default: "frontend/app/public/latest.json"
+
+      # Optional overrides (comma-separated, like generate_talk.py expects)
+      feed_paths:
+        type: string
+        required: false
+        default: ""
+      latest_paths:
+        type: string
+        required: false
+        default: ""
+
+    outputs:
+      changed:
+        description: "1 if feed files were updated"
+        value: ${{ jobs.fixed.outputs.changed }}
+      sha:
+        description: "Commit SHA that contains the generated feed"
+        value: ${{ jobs.fixed.outputs.sha }}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fixed-entry
+  cancel-in-progress: false
+
+jobs:
+  fixed:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Build fixed entry (no RAG)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Put payload into a file safely (no shell expansion).
+          cat > /tmp/entry.json <<'JSON'
+          ${{ inputs.entry_json }}
+          JSON
+
+          python - <<'PY'
+          import json
+          import importlib.util
+          from pathlib import Path
+
+          payload = json.loads(Path("/tmp/entry.json").read_text(encoding="utf-8"))
+
+          kind = (payload.get("kind") or "").strip()
+          text = payload.get("text") or payload.get("tweet") or ""
+          fixed_image = payload.get("fixed_image") or payload.get("image") or ""
+          avatar_image = payload.get("avatar_image") or payload.get("avatar") or "fixed/normal.png"
+          links = payload.get("links") or []
+
+          if isinstance(links, str):
+            links = [links] if links.strip() else []
+
+          if not kind:
+            raise SystemExit("entry_json.kind is required")
+          if not str(text).strip():
+            raise SystemExit("entry_json.text is required")
+
+          # Load scripts/generate_talk.py without assuming it's a package
+          path = Path("scripts/generate_talk.py")
+          spec = importlib.util.spec_from_file_location("generate_talk", path)
+          mod = importlib.util.module_from_spec(spec)
+          assert spec and spec.loader
+          spec.loader.exec_module(mod)
+
+          lat = float("${{ inputs.lat }}")
+          lon = float("${{ inputs.lon }}")
+          tz_name = "${{ inputs.tz_name }}"
+          place = "${{ inputs.place }}"
+
+          feed_path_dir = "${{ inputs.feed_path }}"
+          latest_path_default = "${{ inputs.latest_path }}"
+          feed_paths_raw = "${{ inputs.feed_paths }}"
+          latest_paths_raw = "${{ inputs.latest_paths }}"
+
+          now_local = mod.local_stamp(tz_name)
+
+          computed_feed_path = (
+            str(Path(feed_path_dir) / "feed" / f"feed_{now_local}.json")
+            if feed_path_dir else ""
+          )
+
+          if mod.is_blank(feed_paths_raw):
+            feed_paths_raw = computed_feed_path
+          if mod.is_blank(latest_paths_raw):
+            latest_paths_raw = latest_path_default
+
+          feeds = mod.split_paths(feed_paths_raw)
+          latests = mod.split_paths(latest_paths_raw)
+
+          snap_json_raw, snap_obj = mod.fetch_weather_snapshot(
+            lat=lat, lon=lon, tz_name=tz_name, place=place
+          )
+
+          entry = mod.build_fixed_post_entry(
+            today=mod.utc_date(),
+            now_iso=mod.utc_now_iso_z(),
+            tweet=text,
+            place=place,
+            snap_obj=snap_obj,
+            links=links,
+            kind=kind,
+            fixed_image=fixed_image,
+            avatar_image=avatar_image,
+          )
+
+          for feed_path, latest_path in mod.pair_paths(feeds, latests):
+            mod.write_outputs(
+              feed_path=feed_path,
+              latest_path=latest_path,
+              entry=entry,
+              snap_json_raw=snap_json_raw,
+              now_local=now_local,
+            )
+
+          print("OK: fixed entry generated")
+          PY
+
+      - name: Commit & push if changed
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull --ff-only origin main
+
+          git add frontend/app/public/feed/*.json || true
+          git add frontend/app/public/latest.json || true
+          git add frontend/app/public/snapshot/*.json || true
+
+          if git diff --cached --quiet; then
+            echo "No staged changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m "chore: fixed feed entry"
+          git push origin HEAD:main
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
