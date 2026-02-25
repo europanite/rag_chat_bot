@@ -364,11 +364,11 @@ def main() -> int:
     core = clean_for_prompt(text)
 
     if not PROMPT:
+        # f"Inspired by: {core}"
         prompt_local = (
             "photorealistic photo, natural colors, documentary style, "
             f"scene in {place or 'Yokosuka, Japan'}, "
             "same scene and composition as the input image. "
-            f"Inspired by: {core}"
         )
     else:
         prompt_local = (PROMPT or "").replace("{place}", place or "Yokosuka, Japan").replace("{core}", core)
