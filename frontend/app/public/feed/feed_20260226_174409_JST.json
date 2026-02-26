@@ -62,9 +62,10 @@
   "avatar_image": "avatar/activity.png",
   "image": "./image/feed_20260226_174409_JST.png",
   "image_url": "./image/feed_20260226_174409_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good evening! It's cloudy with 11°C tonight 🌫️🌃. Why not visit the serene Chikata Shrine in Yokosuka, perfect for a peaceful winter stroll?",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-26T09:01:35.379521Z",
-  "permalink": "./?post=feed_20260226_174409_JST"
+  "image_generated_at": "2026-02-26T10:48:18Z",
+  "permalink": "./?post=feed_20260226_174409_JST",
+  "image_negative": ""
 }
