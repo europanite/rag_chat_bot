@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-26T01:23:55Z",
+  "id": "feed_20260226_100939_JST",
   "date": "2026-02-26",
   "text": "Good morning 🌞 from Yokosuka! It's a chilly 9°C with rainy weather today. Perfect excuse to warm up at Senpuku, a cozy spot serving delicious winter dishes like mochi and cheese sandwiches!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "Senpuku (千福)",
   "kind": "restaurant",
-  "avatar_image": "avatar/food.png"
+  "avatar_image": "avatar/food.png",
+  "image": "./image/feed_20260226_100939_JST.png",
+  "image_url": "./image/feed_20260226_100939_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "permalink": "./?post=feed_20260226_100939_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-26T01:28:58.733395Z"
 }
