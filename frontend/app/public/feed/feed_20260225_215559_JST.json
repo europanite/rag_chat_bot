@@ -1,0 +1,72 @@
+{
+  "id": "feed_20260225_215559_JST",
+  "date": "2026-02-25",
+  "text": "Good evening! It's a chilly night with 7°C outside. Let's escape the rain at Goshogasaki, a beautiful outdoor spot perfect for strolling under the winter sky 🌃🏞️",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-25T13:06:14Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-25T12:56:01.620905+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-25T21:40:00+09:00",
+      "temp_c": 6.7,
+      "apparent_temp_c": null,
+      "humidity_pct": 92.0,
+      "precip_mm": 1.0,
+      "weather_code": 61,
+      "cloud_cover_pct": null,
+      "wind_kmh": 28.44,
+      "wind_dir_deg": 22.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-25",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "雨",
+      "jma_weather_code": "300",
+      "precip_prob_pct": 70
+    },
+    "tomorrow": {
+      "date": "2026-02-26",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　未明　雨",
+      "jma_weather_code": "202",
+      "precip_prob_pct": 50
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-25T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/spot/gosyogasaki.html"
+  ],
+  "required_mention": "Goshogasaki (御所ヶ崎)",
+  "kind": "garbage",
+  "avatar_image": "avatar/night.png",
+  "legacy_id": "2026-02-25T13:06:14Z",
+  "permalink": "./?post=feed_20260225_215559_JST",
+  "image_url": "./image/feed_20260225_215559_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good evening! It's a chilly night with 7°C outside. Let's escape the rain at Goshogasaki, a beautiful outdoor spot perfect for strolling under the winter sky 🌃🏞️",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-25T14:52:50Z"
+}
