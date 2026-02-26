@@ -45,24 +45,6 @@ def _append_if_fit(tweet: str, extra: str, max_chars: int) -> str:
     candidate = f"{tweet} {extra}".strip()
     return candidate if len(candidate) <= max_chars else tweet
 
-def _scheduled_kind_by_hour(hour: int) -> str:
-    h = int(hour)
-    if 0 <= h < 5:
-        return "spot"
-    if 5 <= h < 7:
-        return "garbage_today"
-    if 7 <= h < 13:
-        return "restaurant"
-    if 13 <= h < 17:
-        return "event"
-    if 17 <= h < 20:
-        return "activity"
-    if 20 <= h < 22:
-        return "garbage_tomorrow"
-    if 22 <= h < 24:
-        return "spot"
-    return "spot"
-
 def build_garbage_post(*, place: str, date: str) -> str:
     # URL is provided via links[] (NOT in text).
     return f"🗑️ Garbage reminder: please check {date}'s collection and sorting rules."
@@ -973,7 +955,7 @@ def main() -> int:
 
     # Schedule kind (python-side)
     now_dt_local = datetime.now(ZoneInfo(tz_name))
-    scheduled_kind = (env("SCHEDULED_KIND", "") or "").strip() or _scheduled_kind_by_hour(now_dt_local.hour)
+    scheduled_kind = env("SCHEDULED_KIND").strip()
 
     if debug:
         print(

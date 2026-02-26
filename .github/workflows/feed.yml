@@ -64,14 +64,14 @@ jobs:
           HOUR="$(TZ=Asia/Tokyo date +%H)"
           HOUR="${HOUR#0}"
 
-          kind="spot"
-          avatar="avatar/event.png"
+          kind=""
+          avatar=""
 
           if (( HOUR >= 0 && HOUR < 5 )); then
             kind="spot"
-            avatar="avatar/event.png"
+            avatar="avatar/night.png"
           elif (( HOUR >= 5 && HOUR < 7 )); then
-            kind="garbage"
+            kind="garbage_today"
             avatar="avatar/day.png"
           elif (( HOUR >= 7 && HOUR < 13 )); then
             kind="restaurant"
@@ -81,19 +81,18 @@ jobs:
             avatar="avatar/event.png"
           elif (( HOUR >= 17 && HOUR < 20 )); then
             kind="activity"
-            avatar="avatar/evening.png"
+            avatar="avatar/activity.png"
           elif (( HOUR >= 20 && HOUR < 22 )); then
-            kind="garbage"
+            kind="garbage_tomorrow"
             avatar="avatar/night.png"
-          else
+          elif (( HOUR >= 22 && HOUR < 24 )); then
             kind="spot"
-            avatar="avatar/event.png"
+            avatar="avatar/night.png"
           fi
 
           echo "SCHEDULED_KIND=$kind" >> "$GITHUB_ENV"
           echo "AVATAR_IMAGE=$avatar" >> "$GITHUB_ENV"
           echo "JST hour=$HOUR -> SCHEDULED_KIND=$kind AVATAR_IMAGE=$avatar"
-
 
       - name: Run feed pipeline
         env:
