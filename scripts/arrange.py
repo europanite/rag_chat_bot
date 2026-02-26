@@ -35,7 +35,7 @@ SD_H = int(os.environ.get("SD_H", "0"))
 
 MODEL_ID = os.environ.get("MODEL_ID", "stabilityai/sdxl-turbo").strip()
 LORA_PATH = os.environ.get("LORA_PATH", "").strip()
-LORA_SCALE = float(os.environ.get("LORA_SCALE", "0.8"))
+LORA_SCALE = float(os.environ.get("LORA_SCALE"))
 PLACE = os.environ.get("PLACE", "").strip()
 
 PROMPT = os.environ.get("PROMPT").strip()
