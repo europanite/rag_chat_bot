@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-26T20:35:32Z",
+  "id": "feed_20260227_053530_JST",
   "date": "2026-02-26",
   "text": "🗑️ Garbage reminder: please check today's collection and sorting rules.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -60,5 +60,12 @@
   "required_mention": "",
   "kind": "garbage_today",
   "image_fixed": "fixed/garbage.png",
-  "avatar_image": "avatar/day.png"
+  "avatar_image": "avatar/day.png",
+  "image": "./image/feed_20260227_053530_JST.png",
+  "image_url": "./image/feed_20260227_053530_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-26T20:40:34.574755Z",
+  "permalink": "./?post=feed_20260227_053530_JST"
 }
