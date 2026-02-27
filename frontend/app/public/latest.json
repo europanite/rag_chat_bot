@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-27T10:46:44Z",
+  "id": "feed_20260227_193549_JST",
   "date": "2026-02-27",
   "text": "Good evening! 🌃 It's a cloudy night with 13°C in Yokosuka. Take a romantic walk through the beautiful Goshogasaki area, surrounded by peaceful scenery and lovely lights 🌃💕.",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,14 @@
   ],
   "required_mention": "Goshogasaki (御所ヶ崎)",
   "kind": "activity",
-  "avatar_image": "avatar/activity.png"
+  "avatar_image": "avatar/activity.png",
+  "legacy_id": "2026-02-27T10:46:44Z",
+  "permalink": "./?post=feed_20260227_193549_JST",
+  "image_url": "./image/feed_20260227_193549_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good evening! 🌃 It's a cloudy night with 13°C in Yokosuka. Take a romantic walk through the beautiful Goshogasaki area, surrounded by peaceful scenery and lovely lights 🌃💕.",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-27T10:56:07Z"
 }
