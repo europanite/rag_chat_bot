@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260227_073105_JST.png",
   "image_url": "./image/feed_20260227_073105_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning 🌞! It's a cloudy day with 9°C in Yokosuka today. Perfect weather to visit Dessert & Cafe Blue Moon for some delicious winter treats! Their mochi and cheese sandwich is a must-try 😋.",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-26T22:42:23.936505Z",
-  "permalink": "./?post=feed_20260227_073105_JST"
+  "image_generated_at": "2026-02-27T01:34:53Z",
+  "permalink": "./?post=feed_20260227_073105_JST",
+  "image_negative": ""
 }
