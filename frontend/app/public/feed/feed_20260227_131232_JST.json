@@ -62,9 +62,10 @@
   "avatar_image": "avatar/event.png",
   "image": "./image/feed_20260227_131232_JST.png",
   "image_url": "./image/feed_20260227_131232_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's cloudy with 14°C today. Get your dessert fix at Cake-ya popo, offering a sweet treat for this winter afternoon! 🍰🌫️",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-27T04:26:38.043014Z",
-  "permalink": "./?post=feed_20260227_131232_JST"
+  "image_generated_at": "2026-02-27T06:53:20Z",
+  "permalink": "./?post=feed_20260227_131232_JST",
+  "image_negative": ""
 }
