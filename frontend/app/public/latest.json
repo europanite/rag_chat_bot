@@ -1,5 +1,5 @@
 {
-  "id": "2026-02-28T05:05:05Z",
+  "id": "feed_20260228_135546_JST",
   "date": "2026-02-28",
   "text": "Good afternoon! 🌞 It's a beautiful sunny day with 16°C. Don't miss Unagi no Kagawa's special dishes at Saikaya Yokosuka Branch, perfect for a winter evening treat! 🍜👌",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "Unagi no Kagawa (うなぎの佳川) — Saikaya Yokosuka Branch (Departme",
   "kind": "event",
-  "avatar_image": "avatar/event.png"
+  "avatar_image": "avatar/event.png",
+  "image": "./image/feed_20260228_135546_JST.png",
+  "image_url": "./image/feed_20260228_135546_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "permalink": "./?post=feed_20260228_135546_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-02-28T05:09:58.872877Z"
 }
