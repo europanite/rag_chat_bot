@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260228_072140_JST.png",
   "image_url": "./image/feed_20260228_072140_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌫️ It's cloudy with 11°C today, perfect weather for a hearty breakfast. Come visit TSUNAMI — Dobuita Street American Dining (Burgers, Tacos, “Navy” Style) and indulge in their famous big burgers! 👍",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-27T22:36:22.197267Z",
-  "permalink": "./?post=feed_20260228_072140_JST"
+  "image_generated_at": "2026-02-28T01:29:15Z",
+  "permalink": "./?post=feed_20260228_072140_JST",
+  "image_negative": ""
 }
