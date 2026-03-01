@@ -1,0 +1,72 @@
+{
+  "id": "feed_20260302_032942_JST",
+  "date": "2026-03-01",
+  "text": "Good night.\nIt's raining tonight with 13°C, not ideal for a beach stroll.\nBut Hashirimizu Beach in Yokosuka is still worth visiting, especially when the rain clears up!",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-03-01T18:37:05Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-03-01T18:29:43.412602+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-03-02T03:20:00+09:00",
+      "temp_c": 12.7,
+      "apparent_temp_c": null,
+      "humidity_pct": 81.0,
+      "precip_mm": 0.0,
+      "weather_code": 61,
+      "cloud_cover_pct": null,
+      "wind_kmh": 2.52,
+      "wind_dir_deg": 90.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-03-02",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　所により　朝　まで　雨",
+      "jma_weather_code": "200",
+      "precip_prob_pct": 20
+    },
+    "tomorrow": {
+      "date": "2026-03-03",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": 10.0,
+      "temp_min_c": 6.0,
+      "weather_text_ja": "くもり　後　雨",
+      "jma_weather_code": "214",
+      "precip_prob_pct": null
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-03-01T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/spot/hashirimizu-beach.html"
+  ],
+  "required_mention": "Hashirimizu Beach (走水海岸), Yokosuka",
+  "kind": "spot",
+  "avatar_image": "avatar/night.png",
+  "legacy_id": "2026-03-01T18:37:05Z",
+  "permalink": "./?post=feed_20260302_032942_JST",
+  "image_url": "./image/feed_20260302_032942_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good night. It's raining tonight with 13°C, not ideal for a beach stroll. But Hashirimizu Beach in Yokosuka is still worth visiting, especially when the rain clears up!",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-03-01T18:44:35Z"
+}
