@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-01T18:37:05Z",
+  "id": "feed_20260302_032942_JST",
   "date": "2026-03-01",
   "text": "Good night.\nIt's raining tonight with 13°C, not ideal for a beach stroll.\nBut Hashirimizu Beach in Yokosuka is still worth visiting, especially when the rain clears up!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,14 @@
   ],
   "required_mention": "Hashirimizu Beach (走水海岸), Yokosuka",
   "kind": "spot",
-  "avatar_image": "avatar/night.png"
+  "avatar_image": "avatar/night.png",
+  "legacy_id": "2026-03-01T18:37:05Z",
+  "permalink": "./?post=feed_20260302_032942_JST",
+  "image_url": "./image/feed_20260302_032942_JST.png",
+  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good night. It's raining tonight with 13°C, not ideal for a beach stroll. But Hashirimizu Beach in Yokosuka is still worth visiting, especially when the rain clears up!",
+  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-03-01T18:44:35Z"
 }
