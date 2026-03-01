@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260301_072112_JST.png",
   "image_url": "./image/feed_20260301_072112_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌞 It's a cloudy day with 10°C in Yokosuka today. Consider visiting TSUNAMI — Yokosuka Burger / Hamburger for a delicious burger.",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-28T22:35:16.825242Z",
-  "permalink": "./?post=feed_20260301_072112_JST"
+  "image_generated_at": "2026-03-01T01:56:44Z",
+  "permalink": "./?post=feed_20260301_072112_JST",
+  "image_negative": ""
 }
