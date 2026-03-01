@@ -1,0 +1,72 @@
+{
+  "id": "feed_20260228_232044_JST",
+  "date": "2026-02-28",
+  "text": "Good night Yokosuka! 🌃 It's a chilly night with 11°C outside. Head over to Jyunisho Shrine (十二所神社) for some serene winter vibes under the stars tonight 🕊️🌟.",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-02-28T14:27:45Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-02-28T14:20:45.161703+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-02-28T23:10:00+09:00",
+      "temp_c": 11.2,
+      "apparent_temp_c": null,
+      "humidity_pct": 56.0,
+      "precip_mm": 0.0,
+      "weather_code": 0,
+      "cloud_cover_pct": null,
+      "wind_kmh": 7.2,
+      "wind_dir_deg": 67.5,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-02-28",
+      "weather_code": 0,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ",
+      "jma_weather_code": "100",
+      "precip_prob_pct": 0
+    },
+    "tomorrow": {
+      "date": "2026-03-01",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　昼過ぎ　から　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 10
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-02-28T17:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://www.cocoyoko.net/spot/zyunisho-z.html"
+  ],
+  "required_mention": "Jyunisho Shrine (十二所神社)",
+  "kind": "spot",
+  "avatar_image": "avatar/night.png",
+  "legacy_id": "2026-02-28T14:27:45Z",
+  "permalink": "./?post=feed_20260228_232044_JST",
+  "image_url": "./image/feed_20260228_232044_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night Yokosuka! 🌃 It's a chilly night with 11°C outside. Head over to Jyunisho Shrine (十二所神社) for some serene winter vibes under the stars tonight 🕊️🌟.",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_lora": "ukiyoe.safetensors",
+  "image_lora_scale": 0.8,
+  "image_generated_at": "2026-02-28T16:28:46Z"
+}

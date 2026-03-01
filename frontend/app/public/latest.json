@@ -1,70 +1,70 @@
 {
-  "id": "feed_20260228_072140_JST",
-  "date": "2026-02-27",
-  "text": "Good morning! 🌫️ It's cloudy with 11°C today, perfect weather for a hearty breakfast. Come visit TSUNAMI — Dobuita Street American Dining (Burgers, Tacos, “Navy” Style) and indulge in their famous big burgers! 👍",
+  "id": "feed_20260301_132226_JST",
+  "date": "2026-03-01",
+  "text": "Good afternoon 🌞! It's a cloudy day with 16°C here in Yokosuka. Get your sweet tooth satisfied at Cake-ya popo, offering the best desserts in town! 🍰👍",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-02-27T22:30:52Z",
+  "generated_at": "2026-03-01T04:31:37Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-02-27T22:21:42.940271+00:00",
+    "generated_at": "2026-03-01T04:22:28.450956+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-02-28T07:10:00+09:00",
-      "temp_c": 10.6,
+      "time": "2026-03-01T13:10:00+09:00",
+      "temp_c": 16.0,
       "apparent_temp_c": null,
-      "humidity_pct": 93.0,
+      "humidity_pct": 34.0,
       "precip_mm": 0.0,
       "weather_code": 2,
       "cloud_cover_pct": null,
-      "wind_kmh": 4.680000000000001,
-      "wind_dir_deg": 45.0,
+      "wind_kmh": 12.96,
+      "wind_dir_deg": 90.0,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
     "today": {
-      "date": "2026-02-28",
+      "date": "2026-03-01",
       "weather_code": 2,
       "precip_sum_mm": null,
       "wind_max_kmh": null,
       "temp_max_c": null,
       "temp_min_c": null,
-      "weather_text_ja": "くもり　昼過ぎ　から　晴れ",
-      "jma_weather_code": "211",
-      "precip_prob_pct": 10
-    },
-    "tomorrow": {
-      "date": "2026-03-01",
-      "weather_code": 2,
-      "precip_sum_mm": null,
-      "wind_max_kmh": null,
-      "temp_max_c": 15.0,
-      "temp_min_c": 8.0,
-      "weather_text_ja": "晴れ　昼過ぎ　から　くもり",
+      "weather_text_ja": "晴れ　夕方　から　くもり",
       "jma_weather_code": "111",
       "precip_prob_pct": 10
     },
+    "tomorrow": {
+      "date": "2026-03-02",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　所により　明け方　まで　雨",
+      "jma_weather_code": "200",
+      "precip_prob_pct": 20
+    },
     "jma_meta": {
       "publishing_office": "横浜地方気象台",
-      "report_datetime": "2026-02-28T05:00:00+09:00",
+      "report_datetime": "2026-03-01T11:00:00+09:00",
       "office_code": "140000",
       "area_code": null,
       "temp_city_code": null
     }
   },
   "links": [
-    "https://tabelog.com/en/kanagawa/A1406/A140601/14034172/"
+    "https://www.instagram.com/cakeshop_popo/"
   ],
-  "required_mention": "TSUNAMI — Dobuita Street American Dining (Burgers, Tacos, “N",
-  "kind": "restaurant",
-  "avatar_image": "avatar/food.png",
-  "image": "./image/feed_20260228_072140_JST.png",
-  "image_url": "./image/feed_20260228_072140_JST.png",
+  "required_mention": "cake屋popo (Cake-ya popo)",
+  "kind": "event",
+  "avatar_image": "avatar/event.png",
+  "image": "./image/feed_20260301_132226_JST.png",
+  "image_url": "./image/feed_20260301_132226_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
-  "permalink": "./?post=feed_20260228_072140_JST",
+  "permalink": "./?post=feed_20260301_132226_JST",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-02-27T22:36:22.197267Z"
+  "image_generated_at": "2026-03-01T04:36:15.421315Z"
 }

@@ -1,0 +1,71 @@
+{
+  "id": "feed_20260301_105239_JST",
+  "date": "2026-03-01",
+  "text": "Good morning! 🌞 It's a cloudy day with 14°C today. Let's head over to CHARA (茶楽 / チャラ) — Bar & Dining Bar for some delicious food and drinks! Their mochi and cheese sandwich sounds amazing, perfect for a spring morning l",
+  "place": "Yokosuka, Kanagawa, JP",
+  "generated_at": "2026-03-01T02:01:54Z",
+  "weather": {
+    "source": "jma",
+    "generated_at": "2026-03-01T01:52:41.155960+00:00",
+    "place": "Yokosuka, Kanagawa, JP",
+    "latitude": 35.2811,
+    "longitude": 139.672,
+    "timezone": "Asia/Tokyo",
+    "current": {
+      "time": "2026-03-01T10:40:00+09:00",
+      "temp_c": 14.1,
+      "apparent_temp_c": null,
+      "humidity_pct": 38.0,
+      "precip_mm": 0.0,
+      "weather_code": 2,
+      "cloud_cover_pct": null,
+      "wind_kmh": 14.4,
+      "wind_dir_deg": 45.0,
+      "amedas_station": "46211",
+      "jma_weather_obs_code": null
+    },
+    "today": {
+      "date": "2026-03-01",
+      "weather_code": 2,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "晴れ　夕方　から　くもり",
+      "jma_weather_code": "111",
+      "precip_prob_pct": 10
+    },
+    "tomorrow": {
+      "date": "2026-03-02",
+      "weather_code": 61,
+      "precip_sum_mm": null,
+      "wind_max_kmh": null,
+      "temp_max_c": null,
+      "temp_min_c": null,
+      "weather_text_ja": "くもり　所により　明け方　まで　雨",
+      "jma_weather_code": "200",
+      "precip_prob_pct": 20
+    },
+    "jma_meta": {
+      "publishing_office": "横浜地方気象台",
+      "report_datetime": "2026-03-01T11:00:00+09:00",
+      "office_code": "140000",
+      "area_code": null,
+      "temp_city_code": null
+    }
+  },
+  "links": [
+    "https://dobuita-st.com/name/ta/chara.html"
+  ],
+  "required_mention": "CHARA (茶楽 / チャラ) — Bar & Dining Bar",
+  "kind": "restaurant",
+  "avatar_image": "avatar/food.png",
+  "image": "./image/feed_20260301_105239_JST.png",
+  "image_url": "./image/feed_20260301_105239_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌞 It's a cloudy day with 14°C today. Let's head over to CHARA (茶楽 / チャラ) — Bar & Dining Bar for some delicious food and drinks! Their mochi and cheese sandwich sounds amazing, perfect for a spring morning l",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-03-01T04:26:42Z",
+  "permalink": "./?post=feed_20260301_105239_JST",
+  "image_negative": ""
+}
