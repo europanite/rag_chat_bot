@@ -62,9 +62,10 @@
   "avatar_image": "avatar/event.png",
   "image": "./image/feed_20260301_153430_JST.png",
   "image_url": "./image/feed_20260301_153430_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's a cloudy day with 16°C here in Yokosuka. Are you planning on checking out the Taiwan-ssuka Festival at Yokosuka Port Market? They have delicious Taiwanese food, culture, and activities lined up for t",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-01T06:49:07.046493Z",
-  "permalink": "./?post=feed_20260301_153430_JST"
+  "image_generated_at": "2026-03-01T07:35:14Z",
+  "permalink": "./?post=feed_20260301_153430_JST",
+  "image_negative": ""
 }
