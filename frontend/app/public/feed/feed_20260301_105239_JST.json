@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260301_105239_JST.png",
   "image_url": "./image/feed_20260301_105239_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌞 It's a cloudy day with 14°C today. Let's head over to CHARA (茶楽 / チャラ) — Bar & Dining Bar for some delicious food and drinks! Their mochi and cheese sandwich sounds amazing, perfect for a spring morning l",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-01T02:06:57.451717Z",
-  "permalink": "./?post=feed_20260301_105239_JST"
+  "image_generated_at": "2026-03-01T04:26:42Z",
+  "permalink": "./?post=feed_20260301_105239_JST",
+  "image_negative": ""
 }
