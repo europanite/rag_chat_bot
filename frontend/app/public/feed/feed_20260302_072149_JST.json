@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260302_072149_JST.png",
   "image_url": "./image/feed_20260302_072149_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's a chilly rainy day with 11°C. Warm up with a hearty dish at Sumibi Yakiniku Shin Yokosuka Chuo, known for their delicious yakiniku and cozy atmosphere 🌧️🍜👌",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-01T22:37:21.413827Z",
-  "permalink": "./?post=feed_20260302_072149_JST"
+  "image_generated_at": "2026-03-02T01:37:35Z",
+  "permalink": "./?post=feed_20260302_072149_JST",
+  "image_negative": ""
 }
