@@ -52,7 +52,7 @@ jobs:
           echo "chroma_db size:"
           du -sh chroma_db || true
           echo "sample files:"
-          find chroma_db -maxdepth 2 -type f | head -n 30
+          find chroma_db -type f | sed -n '1,30p'
           n=$(find chroma_db -type f | wc -l)
           if [ "$n" -lt 5 ]; then
             echo "ERROR: chroma_db seems empty after reindex. Volume mapping is likely wrong."
