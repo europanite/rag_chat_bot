@@ -62,9 +62,10 @@
   "avatar_image": "avatar/event.png",
   "image": "./image/feed_20260302_131259_JST.png",
   "image_url": "./image/feed_20260302_131259_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! 🌞 It's a rainy day with 13°C. The highly anticipated Yokosuka Festa 2026 (Citywide Culture Festival) is just around the corner, featuring music, theater, dance, and more, across multiple venues in western",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-02T04:30:59.666714Z",
-  "permalink": "./?post=feed_20260302_131259_JST"
+  "image_generated_at": "2026-03-02T06:58:32Z",
+  "permalink": "./?post=feed_20260302_131259_JST",
+  "image_negative": ""
 }
