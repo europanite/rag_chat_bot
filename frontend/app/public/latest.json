@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-02T01:46:23Z",
+  "id": "feed_20260302_103302_JST",
   "date": "2026-03-02",
   "text": "Good morning 😊! It's a rainy day in Yokosuka with 13°C. Let's warm up at Tokyo Bay Fisherman's Noodle, serving hearty fisherman-style noodles that are perfect for a chilly spring morning 🍜🌫️!",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "Tokyo Bay Fisherman's Noodle (トーキョー ベイ フィッシャーマンズ ヌードル)",
   "kind": "restaurant",
-  "avatar_image": "avatar/food.png"
+  "avatar_image": "avatar/food.png",
+  "image": "./image/feed_20260302_103302_JST.png",
+  "image_url": "./image/feed_20260302_103302_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "permalink": "./?post=feed_20260302_103302_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-03-02T01:51:14.787699Z"
 }
