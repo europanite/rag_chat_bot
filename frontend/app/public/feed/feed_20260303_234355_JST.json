@@ -63,10 +63,10 @@
   "legacy_id": "2026-03-03T14:49:09Z",
   "permalink": "./?post=feed_20260303_234355_JST",
   "image_url": "./image/feed_20260303_234355_JST.png",
-  "image_prompt": "ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in Yokosuka, Kanagawa, JP. Inspired by: Good night 🌃 in rainy Yokosuka tonight! It's chilly with 5°C outside, so it's a perfect evening for some indoor fun 😊. Why not visit Mt. Miurafuji and enjoy the panoramic view hike? 🏞️ #Yokosuka #MtMiurafuji",
-  "image_negative": "photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night 🌃 in rainy Yokosuka tonight! It's chilly with 5°C outside, so it's a perfect evening for some indoor fun 😊. Why not visit Mt. Miurafuji and enjoy the panoramic view hike? 🏞️ #Yokosuka #MtMiurafuji",
+  "image_negative": "",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
-  "image_generated_at": "2026-03-03T14:57:46Z"
+  "image_generated_at": "2026-03-03T16:48:28Z"
 }
