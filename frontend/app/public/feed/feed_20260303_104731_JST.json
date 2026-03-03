@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260303_104731_JST.png",
   "image_url": "./image/feed_20260303_104731_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's a rainy day with 8°C in Yokosuka. For a warm meal, I'd recommend trying Sushi Shuka Shichifuku Shokudo 🍜🌧️",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-03T02:07:32.018177Z",
-  "permalink": "./?post=feed_20260303_104731_JST"
+  "image_generated_at": "2026-03-03T04:16:28Z",
+  "permalink": "./?post=feed_20260303_104731_JST",
+  "image_negative": ""
 }
