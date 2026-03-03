@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260303_093607_JST.png",
   "image_url": "./image/feed_20260303_093607_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌞 It's a rainy day with 8°C in Yokosuka. Try Gyorantei's famous Navy Curry at Yokosuka, Certified Shop No.1 for a warm and delicious meal on a chilly spring morning! 😋",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-03T00:50:43.234987Z",
-  "permalink": "./?post=feed_20260303_093607_JST"
+  "image_generated_at": "2026-03-03T01:51:40Z",
+  "permalink": "./?post=feed_20260303_093607_JST",
+  "image_negative": ""
 }
