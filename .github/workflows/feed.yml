@@ -73,7 +73,10 @@ jobs:
           elif (( HOUR >= 5 && HOUR < 7 )); then
             kind="garbage_today"
             avatar="avatar/day.png"
-          elif (( HOUR >= 7 && HOUR < 13 )); then
+          elif (( HOUR >= 7 && HOUR < 10 )); then
+            kind="restaurant"
+            avatar="avatar/normal.png"
+          elif (( HOUR >= 10 && HOUR < 13 )); then
             kind="restaurant"
             avatar="avatar/food.png"
           elif (( HOUR >= 13 && HOUR < 17 )); then
