@@ -2,6 +2,12 @@ name: Feed
 
 on:
   workflow_call:
+    inputs:
+      slot:
+        description: "Which slot to run (auto = decide by JST hour)"
+        required: false
+        type: string
+        default: "auto"
     outputs:
       changed:
         description: "1 if feed files were updated"
@@ -10,6 +16,22 @@ on:
         description: "Commit SHA that contains the generated feed"
         value: ${{ jobs.export.outputs.sha }}
   workflow_dispatch:
+    inputs:
+      slot:
+        description: "Which slot to run (auto = decide by JST hour)"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - 00_05_spot_night
+          - 05_07_garbage_today_day
+          - 07_10_restaurant_normal
+          - 10_13_restaurant_food
+          - 13_17_event
+          - 17_20_activity
+          - 20_22_garbage_tomorrow_night
+          - 22_24_spot_night
 
 permissions:
   contents: write
@@ -21,329 +43,114 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  rag:
+  select:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
+      slot: ${{ steps.sel.outputs.slot }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Sanity check (repo chroma_db exists)
-        run: |
-          echo "chroma_db file count:"
-          find chroma_db -type f | wc -l
-          n=$(find chroma_db -type f | wc -l)
-          if [ "$n" -lt 5 ]; then
-            echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
-            exit 1
-          fi
-
-      - name: Free disk space
-        run: |
-          set -eux
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android
-          docker system prune -af || true
-          df -h
-
-      - name: Make pipeline scripts executable
-        run: |
-          chmod +x scripts/feed.sh
-
-      - name: Select scheduled entry (JST)
+      - name: Select slot (JST)
+        id: sel
         shell: bash
         run: |
+          set -euo pipefail
+
+          SLOT="${{ inputs.slot }}"
+          if [ -z "$SLOT" ]; then
+            SLOT="auto"
+          fi
+
+          if [ "$SLOT" != "auto" ]; then
+            echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+            echo "manual slot=$SLOT"
+            exit 0
+          fi
+
           HOUR="$(TZ=Asia/Tokyo date +%H)"
           HOUR="${HOUR#0}"
 
-          kind=""
-          avatar=""
-
           if (( HOUR >= 0 && HOUR < 5 )); then
-            kind="spot"
-            avatar="avatar/night.png"
+            SLOT="00_05_spot_night"
           elif (( HOUR >= 5 && HOUR < 7 )); then
-            kind="garbage_today"
-            avatar="avatar/day.png"
+            SLOT="05_07_garbage_today_day"
           elif (( HOUR >= 7 && HOUR < 10 )); then
-            kind="restaurant"
-            avatar="avatar/normal.png"
+            SLOT="07_10_restaurant_normal"
           elif (( HOUR >= 10 && HOUR < 13 )); then
-            kind="restaurant"
-            avatar="avatar/food.png"
+            SLOT="10_13_restaurant_food"
           elif (( HOUR >= 13 && HOUR < 17 )); then
-            kind="event"
-            avatar="avatar/event.png"
+            SLOT="13_17_event"
           elif (( HOUR >= 17 && HOUR < 20 )); then
-            kind="activity"
-            avatar="avatar/activity.png"
+            SLOT="17_20_activity"
           elif (( HOUR >= 20 && HOUR < 22 )); then
-            kind="garbage_tomorrow"
-            avatar="avatar/night.png"
+            SLOT="20_22_garbage_tomorrow_night"
           elif (( HOUR >= 22 && HOUR < 24 )); then
-            kind="spot"
-            avatar="avatar/night.png"
-          fi
-
-          echo "SCHEDULED_KIND=$kind" >> "$GITHUB_ENV"
-          echo "AVATAR_IMAGE=$avatar" >> "$GITHUB_ENV"
-          echo "JST hour=$HOUR -> SCHEDULED_KIND=$kind AVATAR_IMAGE=$avatar"
-
-      - name: Run feed pipeline
-        env:
-          RAG_AUTO_INDEX: "false"
-          RAG_REBUILD_ON_START: "false"
-          OLLAMA_BASE_URL: "http://ollama:11434"
-          OLLAMA_TIMEOUT_S: "512"
-          EMBEDDING_MODEL: "mxbai-embed-large"
-          RAG_MODEL: "llama3.1:8b"
-          AUDIT_MODEL: "llama3.1:8b"
-          RAG_AUDIT: "1"
-          RAG_AUDIT_REWRITE: "1"
-          RAG_AUDIT_MAX_ATTEMPTS: "2"
-          LAT: "35.2810"
-          LON: "139.6722"
-          TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: "16"
-          CURL_MAX_TIME: "512"
-          CURL_RETRIES: "1"
-          PLACE: "Yokosuka"
-          FEED_PATH: "frontend/app/public"
-          LATEST_PATH: "frontend/app/public/latest.json"
-          MAX_CHARS: "220"
-          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
-          TOPIC_VARIANT: ${{ github.run_number }}
-          RAG_VARIETY: "1.0"
-          DEBUG: "1"
-        run: |
-          bash scripts/feed.sh --ci
-
-      - name: Dump logs on failure
-        if: failure()
-        run: |
-          docker compose -f docker-compose.yml ps || true
-          docker compose -f docker-compose.yml logs --no-color --tail=400 || true
-          docker system df || true
-          df -h || true
-
-      - name: Stop stack
-        if: always()
-        run: |
-          docker compose -f docker-compose.yml down || true
-
-      - name: Commit & push if changed
-        id: commit
-        run: |
-          if git diff --quiet; then
-            echo "No changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git pull --ff-only origin main
-
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
-
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git commit -m "chore: image feed"
-          git push origin HEAD:main
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-  illustrate:
-    needs: rag
-    if: needs.rag.outputs.changed == '1'
-    runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
-    steps:
-      - name: Checkout (main)
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Setup Python 3.12 (snapshot)
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install deps (snapshot)
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-
-
-      - name: Sync to latest main (ff-only)
-        run: |
-          set -euo pipefail
-          git pull --ff-only origin main
-
-      - name: Verify rag commit is included
-        env:
-          RAG_SHA: ${{ needs.rag.outputs.sha }}
-        run: |
-          set -euo pipefail
-          if [ -n "${RAG_SHA}" ]; then
-            git merge-base --is-ancestor "${RAG_SHA}" HEAD || {
-              echo "HEAD does not include rag sha yet; fetching and resetting."
-              git fetch origin "${RAG_SHA}"
-              git reset --hard "${RAG_SHA}"
-            }
-          fi
-
-      - name: Choose style by JST hour (day=img2img, night=text2img)
-        id: style
-        run: |
-          set -euo pipefail
-          HOUR=$(TZ=Asia/Tokyo date +%H)
-          if [ "$HOUR" -ge 4 ] && [ "$HOUR" -lt 18 ]; then
-            # Day: photo img2img (no LoRA)
-            echo "use_camera=1" >> "$GITHUB_OUTPUT"
-            echo "INPUT_IMAGE=snapshot.jpg" >> $GITHUB_ENV
-            echo "MODE=img2img" >> $GITHUB_ENV
-            # echo "LORA_PATH=models/loras/yokosuka.safetensors" >> $GITHUB_ENV
-            echo "LORA_PATH=" >> $GITHUB_ENV
-            echo "LORA_SCALE=0" >> $GITHUB_ENV
-            echo "MIRROR_AUG=1" >> $GITHUB_ENV
-            echo "STEPS=2" >> $GITHUB_ENV
-            echo "STRENGTH=0.2" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=0.0" >> $GITHUB_ENV
-            echo "PROMPT=" >> $GITHUB_ENV
-            echo "NEGATIVE=" >> $GITHUB_ENV
+            SLOT="22_24_spot_night"
           else
-            # Night: ukiyo-e text2img (ignore camera)
-            echo "use_camera=0" >> $GITHUB_OUTPUT
-            echo "INPUT_IMAGE=" >> $GITHUB_ENV
-            echo "MODE=text2img" >> $GITHUB_ENV
-            echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
-            echo "LORA_SCALE=0.8" >> $GITHUB_ENV
-            echo "STEPS=6" >> $GITHUB_ENV
-            echo "GUIDANCE_SCALE=2.0" >> $GITHUB_ENV
-            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in {place}. Inspired by: {core}" >> $GITHUB_ENV
-            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark" >> $GITHUB_ENV
+            echo "ERROR: unexpected hour: $HOUR"
+            exit 1
           fi
 
-      - name: Capture snapshot (rag image url preferred)
-        if: steps.style.outputs.use_camera == '1'
-        env:
-          SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
-          LATEST_PATH: "frontend/app/public/latest.json"
-          REF_MAX_CANDIDATES: "8"
-        run: |
-          python scripts/retrieve_snapshot.py
+          echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+          echo "JST hour=$HOUR -> slot=$SLOT"
 
-      - name: Free disk space
-        run: |
-          set -euo pipefail
-          df -h
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
-          sudo docker system prune -af --volumes 2>/dev/null || true
-          df -h
+  s00_05_spot_night:
+    needs: select
+    if: needs.select.outputs.slot == '00_05_spot_night'
+    uses: ./.github/workflows/feed_slot_00_05_spot_night.yml
+    secrets: inherit
 
-      - name: Cache Hugging Face + Torch
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/huggingface
-            ~/.cache/torch
-          key: ${{ runner.os }}-hf-torch-sdturbo-v1
-          restore-keys: |
-            ${{ runner.os }}-hf-torch-sdturbo-
-            ${{ runner.os }}-hf-torch-
+  s05_07_garbage_today_day:
+    needs: select
+    if: needs.select.outputs.slot == '05_07_garbage_today_day'
+    uses: ./.github/workflows/feed_slot_05_07_garbage_today_day.yml
+    secrets: inherit
 
-      - name: Wire cache dirs into docker-compose
-        run: |
-          echo "HF_CACHE_DIR=$HOME/.cache/huggingface" >> $GITHUB_ENV
-          echo "TORCH_CACHE_DIR=$HOME/.cache/torch" >> $GITHUB_ENV
+  s07_10_restaurant_normal:
+    needs: select
+    if: needs.select.outputs.slot == '07_10_restaurant_normal'
+    uses: ./.github/workflows/feed_slot_07_10_restaurant_normal.yml
+    secrets: inherit
 
-      - name: Build illustrate image
-        env:
-          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
-        run: |
-          set -euo pipefail
-          docker compose -f docker-compose.yml build illustrate
-      - name: Generate illustrated image and patch feed
-        env:
-          # arrange(img2img)
-          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
-          PATCH_JSON: "1"
-          OUT_DIR: "frontend/app/public/image"
-          PLACE: "Yokosuka, Japan"
-          MIRROR_AUG: "1"
-          SEED_OFFSET: "${{ github.run_number }}"
-          SDXL_MODEL_ID: stabilityai/sdxl-turbo
-        run: |
-          set -euo pipefail
-          test -f frontend/app/public/latest.json
-          docker compose -f docker-compose.yml run --rm illustrate
+  s10_13_restaurant_food:
+    needs: select
+    if: needs.select.outputs.slot == '10_13_restaurant_food'
+    uses: ./.github/workflows/feed_slot_10_13_restaurant_food.yml
+    secrets: inherit
 
-      - name: Commit & push illustrated changes if any
-        id: commit
-        run: |
-          if git diff --quiet; then
-            echo "No changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+  s13_17_event:
+    needs: select
+    if: needs.select.outputs.slot == '13_17_event'
+    uses: ./.github/workflows/feed_slot_13_17_event.yml
+    secrets: inherit
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+  s17_20_activity:
+    needs: select
+    if: needs.select.outputs.slot == '17_20_activity'
+    uses: ./.github/workflows/feed_slot_17_20_activity.yml
+    secrets: inherit
 
-          git pull --ff-only origin main
+  s20_22_garbage_tomorrow_night:
+    needs: select
+    if: needs.select.outputs.slot == '20_22_garbage_tomorrow_night'
+    uses: ./.github/workflows/feed_slot_20_22_garbage_tomorrow_night.yml
+    secrets: inherit
 
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/image/*.png || true
-
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git commit -m "chore: illustrated image"
-          git push origin HEAD:main
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-  pages:
-    needs: [rag, illustrate]
-    if: needs.rag.outputs.changed == '1'
-    uses: ./.github/workflows/pages.yml
-    with:
-      ref: main
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
+  s22_24_spot_night:
+    needs: select
+    if: needs.select.outputs.slot == '22_24_spot_night'
+    uses: ./.github/workflows/feed_slot_22_24_spot_night.yml
+    secrets: inherit
 
   export:
-    needs: [rag, illustrate, pages]
+    needs:
+      - select
+      - s00_05_spot_night
+      - s05_07_garbage_today_day
+      - s07_10_restaurant_normal
+      - s10_13_restaurant_food
+      - s13_17_event
+      - s17_20_activity
+      - s20_22_garbage_tomorrow_night
+      - s22_24_spot_night
     if: always()
     runs-on: ubuntu-latest
     outputs:
@@ -353,5 +160,5 @@ jobs:
       - name: Export outputs
         id: out
         run: |
-          echo "changed=${{ needs.rag.outputs.changed }}" >> "$GITHUB_OUTPUT"
-          echo "sha=${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" >> "$GITHUB_OUTPUT"
+          echo "changed=${{ needs.s00_05_spot_night.outputs.changed || needs.s05_07_garbage_today_day.outputs.changed || needs.s07_10_restaurant_normal.outputs.changed || needs.s10_13_restaurant_food.outputs.changed || needs.s13_17_event.outputs.changed || needs.s17_20_activity.outputs.changed || needs.s20_22_garbage_tomorrow_night.outputs.changed || needs.s22_24_spot_night.outputs.changed || '0' }}" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ needs.s00_05_spot_night.outputs.sha || needs.s05_07_garbage_today_day.outputs.sha || needs.s07_10_restaurant_normal.outputs.sha || needs.s10_13_restaurant_food.outputs.sha || needs.s13_17_event.outputs.sha || needs.s17_20_activity.outputs.sha || needs.s20_22_garbage_tomorrow_night.outputs.sha || needs.s22_24_spot_night.outputs.sha }}" >> "$GITHUB_OUTPUT"

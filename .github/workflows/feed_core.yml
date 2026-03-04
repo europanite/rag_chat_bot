@@ -1,0 +1,351 @@
+name: Feed_Core
+
+on:
+  workflow_call:
+    inputs:
+      scheduled_kind:
+        description: "Entry kind to generate (spot/restaurant/event/activity/garbage_today/garbage_tomorrow)"
+        required: true
+        type: string
+      avatar_image:
+        description: "Avatar image path (e.g. avatar/night.png)"
+        required: true
+        type: string
+    outputs:
+      changed:
+        description: "1 if feed files were updated"
+        value: ${{ jobs.export.outputs.changed }}
+      sha:
+        description: "Commit SHA that contains the generated feed"
+        value: ${{ jobs.export.outputs.sha }}
+  workflow_dispatch:
+    inputs:
+      scheduled_kind:
+        description: "Entry kind to generate"
+        required: true
+        type: choice
+        options:
+          - spot
+          - garbage_today
+          - restaurant
+          - event
+          - activity
+          - garbage_tomorrow
+      avatar_image:
+        description: "Avatar image path"
+        required: true
+        default: "avatar/night.png"
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
+
+jobs:
+  rag:
+    runs-on: ubuntu-latest
+    env:
+      SCHEDULED_KIND: ${{ inputs.scheduled_kind }}
+      AVATAR_IMAGE: ${{ inputs.avatar_image }}
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sanity check (repo chroma_db exists)
+        run: |
+          echo "chroma_db file count:"
+          find chroma_db -type f | wc -l
+          n=$(find chroma_db -type f | wc -l)
+          if [ "$n" -lt 5 ]; then
+            echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
+            exit 1
+          fi
+
+      - name: Free disk space
+        run: |
+          set -eux
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android
+          docker system prune -af || true
+          df -h
+
+      - name: Make pipeline scripts executable
+        run: |
+          chmod +x scripts/feed.sh
+      - name: Echo selected entry
+        run: |
+          echo "SCHEDULED_KIND=${SCHEDULED_KIND}"
+          echo "AVATAR_IMAGE=${AVATAR_IMAGE}"
+
+      - name: Run feed pipeline
+        env:
+          RAG_AUTO_INDEX: "false"
+          RAG_REBUILD_ON_START: "false"
+          OLLAMA_BASE_URL: "http://ollama:11434"
+          OLLAMA_TIMEOUT_S: "512"
+          EMBEDDING_MODEL: "mxbai-embed-large"
+          RAG_MODEL: "llama3.1:8b"
+          AUDIT_MODEL: "llama3.1:8b"
+          RAG_AUDIT: "1"
+          RAG_AUDIT_REWRITE: "1"
+          RAG_AUDIT_MAX_ATTEMPTS: "2"
+          LAT: "35.2810"
+          LON: "139.6722"
+          TZ_NAME: "Asia/Tokyo"
+          RAG_TOP_K: "16"
+          CURL_MAX_TIME: "512"
+          CURL_RETRIES: "1"
+          PLACE: "Yokosuka"
+          FEED_PATH: "frontend/app/public"
+          LATEST_PATH: "frontend/app/public/latest.json"
+          MAX_CHARS: "220"
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
+          TOPIC_VARIANT: ${{ github.run_number }}
+          RAG_VARIETY: "1.0"
+          DEBUG: "1"
+        run: |
+          bash scripts/feed.sh --ci
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          docker compose -f docker-compose.yml ps || true
+          docker compose -f docker-compose.yml logs --no-color --tail=400 || true
+          docker system df || true
+          df -h || true
+
+      - name: Stop stack
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml down || true
+
+      - name: Commit & push if changed
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull --ff-only origin main
+
+          git add frontend/app/public/feed/*.json || true
+          git add frontend/app/public/latest.json || true
+          git add frontend/app/public/snapshot/*.json || true
+
+          if git diff --cached --quiet; then
+            echo "No staged changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m "chore: image feed"
+          git push origin HEAD:main
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  illustrate:
+    needs: rag
+    if: needs.rag.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Python 3.12 (snapshot)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps (snapshot)
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+
+      - name: Sync to latest main (ff-only)
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin main
+
+      - name: Verify rag commit is included
+        env:
+          RAG_SHA: ${{ needs.rag.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "${RAG_SHA}" ]; then
+            git merge-base --is-ancestor "${RAG_SHA}" HEAD || {
+              echo "HEAD does not include rag sha yet; fetching and resetting."
+              git fetch origin "${RAG_SHA}"
+              git reset --hard "${RAG_SHA}"
+            }
+          fi
+
+      - name: Choose style by JST hour (day=img2img, night=text2img)
+        id: style
+        run: |
+          set -euo pipefail
+          HOUR=$(TZ=Asia/Tokyo date +%H)
+          if [ "$HOUR" -ge 4 ] && [ "$HOUR" -lt 18 ]; then
+            # Day: photo img2img (no LoRA)
+            echo "use_camera=1" >> "$GITHUB_OUTPUT"
+            echo "INPUT_IMAGE=snapshot.jpg" >> $GITHUB_ENV
+            echo "MODE=img2img" >> $GITHUB_ENV
+            # echo "LORA_PATH=models/loras/yokosuka.safetensors" >> $GITHUB_ENV
+            echo "LORA_PATH=" >> $GITHUB_ENV
+            echo "LORA_SCALE=0" >> $GITHUB_ENV
+            echo "MIRROR_AUG=1" >> $GITHUB_ENV
+            echo "STEPS=2" >> $GITHUB_ENV
+            echo "STRENGTH=0.2" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=0.0" >> $GITHUB_ENV
+            echo "PROMPT=" >> $GITHUB_ENV
+            echo "NEGATIVE=" >> $GITHUB_ENV
+          else
+            # Night: ukiyo-e text2img (ignore camera)
+            echo "use_camera=0" >> $GITHUB_OUTPUT
+            echo "INPUT_IMAGE=" >> $GITHUB_ENV
+            echo "MODE=text2img" >> $GITHUB_ENV
+            echo "LORA_PATH=models/loras/ukiyoe.safetensors" >> $GITHUB_ENV
+            echo "LORA_SCALE=0.8" >> $GITHUB_ENV
+            echo "STEPS=6" >> $GITHUB_ENV
+            echo "GUIDANCE_SCALE=2.0" >> $GITHUB_ENV
+            echo "PROMPT=ukiyo-e, Japanese woodblock print, Edo period, bold black outlines, flat colors, washi paper texture, woodgrain, traditional print, moonlit night with lantern light, clear visibility, scene in {place}. Inspired by: {core}" >> $GITHUB_ENV
+            echo "NEGATIVE=photorealistic, realistic, 3d, CGI, anime, text, watermark, logo, low quality, blurry, underexposed, too dark" >> $GITHUB_ENV
+          fi
+
+      - name: Capture snapshot (rag image url preferred)
+        if: steps.style.outputs.use_camera == '1'
+        env:
+          SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
+          LATEST_PATH: "frontend/app/public/latest.json"
+          REF_MAX_CANDIDATES: "8"
+        run: |
+          python scripts/retrieve_snapshot.py
+
+      - name: Free disk space
+        run: |
+          set -euo pipefail
+          df -h
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
+          sudo docker system prune -af --volumes 2>/dev/null || true
+          df -h
+
+      - name: Cache Hugging Face + Torch
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/torch
+          key: ${{ runner.os }}-hf-torch-sdturbo-v1
+          restore-keys: |
+            ${{ runner.os }}-hf-torch-sdturbo-
+            ${{ runner.os }}-hf-torch-
+
+      - name: Wire cache dirs into docker-compose
+        run: |
+          echo "HF_CACHE_DIR=$HOME/.cache/huggingface" >> $GITHUB_ENV
+          echo "TORCH_CACHE_DIR=$HOME/.cache/torch" >> $GITHUB_ENV
+
+      - name: Build illustrate image
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.yml build illustrate
+      - name: Generate illustrated image and patch feed
+        env:
+          # arrange(img2img)
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
+          PATCH_JSON: "1"
+          OUT_DIR: "frontend/app/public/image"
+          PLACE: "Yokosuka, Japan"
+          MIRROR_AUG: "1"
+          SEED_OFFSET: "${{ github.run_number }}"
+          SDXL_MODEL_ID: stabilityai/sdxl-turbo
+        run: |
+          set -euo pipefail
+          test -f frontend/app/public/latest.json
+          docker compose -f docker-compose.yml run --rm illustrate
+
+      - name: Commit & push illustrated changes if any
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull --ff-only origin main
+
+          git add frontend/app/public/latest.json || true
+          git add frontend/app/public/feed/*.json || true
+          git add frontend/app/public/image/*.png || true
+
+          if git diff --cached --quiet; then
+            echo "No staged changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m "chore: illustrated image"
+          git push origin HEAD:main
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+  pages:
+    needs: [rag, illustrate]
+    if: needs.rag.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    with:
+      ref: main
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+  export:
+    needs: [rag, illustrate, pages]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.out.outputs.changed }}
+      sha: ${{ steps.out.outputs.sha }}
+    steps:
+      - name: Export outputs
+        id: out
+        run: |
+          echo "changed=${{ needs.rag.outputs.changed }}" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" >> "$GITHUB_OUTPUT"

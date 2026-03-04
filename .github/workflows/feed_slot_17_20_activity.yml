@@ -1,0 +1,29 @@
+name: Feed Slot 17-20 Activity
+
+on:
+  workflow_call:
+    outputs:
+      changed:
+        description: "1 if feed files were updated"
+        value: ${{ jobs.run.outputs.changed }}
+      sha:
+        description: "Commit SHA that contains the generated feed"
+        value: ${{ jobs.run.outputs.sha }}
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
+
+jobs:
+  run:
+    uses: ./.github/workflows/feed_core.yml
+    with:
+      scheduled_kind: "activity"
+      avatar_image: "avatar/activity.png"
+    secrets: inherit
