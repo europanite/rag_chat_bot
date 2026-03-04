@@ -38,10 +38,6 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: feed
-  cancel-in-progress: false
-
 jobs:
   select:
     runs-on: ubuntu-latest
