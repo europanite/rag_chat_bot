@@ -77,7 +77,7 @@ jobs:
           elif (( HOUR >= 17 && HOUR < 20 )); then
             SLOT="activity"
           elif (( HOUR >= 20 && HOUR < 22 )); then
-            if (( (DOW >= 1 && DOW <= 5) || DOW == 7 )); then
+            if (( (DOW >= 1 && DOW <= 4) || DOW == 7 )); then
               SLOT="garbage"
             else
               SLOT="spot"
