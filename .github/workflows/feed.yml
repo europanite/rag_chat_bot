@@ -1,6 +1,8 @@
 name: Feed
 
 on:
+  schedule:
+    - cron: '0 */2 * * *'
   workflow_call:
     inputs:
       slot:
@@ -8,13 +10,6 @@ on:
         required: false
         type: string
         default: "auto"
-    outputs:
-      changed:
-        description: "1 if feed files were updated"
-        value: ${{ jobs.export.outputs.changed }}
-      sha:
-        description: "Commit SHA that contains the generated feed"
-        value: ${{ jobs.export.outputs.sha }}
   workflow_dispatch:
     inputs:
       slot:
@@ -136,25 +131,3 @@ jobs:
     uses: ./.github/workflows/feed_slot_22_24_spot_night.yml
     secrets: inherit
 
-  export:
-    needs:
-      - select
-      - s00_05_spot_night
-      - s05_07_garbage_today_day
-      - s07_10_restaurant_normal
-      - s10_13_restaurant_food
-      - s13_17_event
-      - s17_20_activity
-      - s20_22_garbage_tomorrow_night
-      - s22_24_spot_night
-    if: always()
-    runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ steps.out.outputs.changed }}
-      sha: ${{ steps.out.outputs.sha }}
-    steps:
-      - name: Export outputs
-        id: out
-        run: |
-          echo "changed=${{ needs.s00_05_spot_night.outputs.changed || needs.s05_07_garbage_today_day.outputs.changed || needs.s07_10_restaurant_normal.outputs.changed || needs.s10_13_restaurant_food.outputs.changed || needs.s13_17_event.outputs.changed || needs.s17_20_activity.outputs.changed || needs.s20_22_garbage_tomorrow_night.outputs.changed || needs.s22_24_spot_night.outputs.changed || '0' }}" >> "$GITHUB_OUTPUT"
-          echo "sha=${{ needs.s00_05_spot_night.outputs.sha || needs.s05_07_garbage_today_day.outputs.sha || needs.s07_10_restaurant_normal.outputs.sha || needs.s10_13_restaurant_food.outputs.sha || needs.s13_17_event.outputs.sha || needs.s17_20_activity.outputs.sha || needs.s20_22_garbage_tomorrow_night.outputs.sha || needs.s22_24_spot_night.outputs.sha }}" >> "$GITHUB_OUTPUT"

@@ -11,6 +11,11 @@ on:
         description: "Avatar image path (e.g. avatar/night.png)"
         required: true
         type: string
+      post_to_x:
+        description: "1 to post to X after generation"
+        required: false
+        type: string
+        default: "1"
     outputs:
       changed:
         description: "1 if feed files were updated"
@@ -36,6 +41,14 @@ on:
         required: true
         default: "avatar/night.png"
         type: string
+      post_to_x:
+        description: "1 to post to X after generation"
+        required: false
+        default: "1"
+        type: choice
+        options:
+          - "0"
+          - "1"
 
 permissions:
   contents: write
@@ -348,7 +361,7 @@ jobs:
 
   x_post:
     needs: export
-    if: github.event_name == 'workflow_dispatch' && needs.export.outputs.changed == '1'
+    if: inputs.post_to_x == '1' && needs.export.outputs.changed == '1'
     runs-on: ubuntu-latest
     permissions:
       contents: read
