@@ -20,9 +20,9 @@ on:
         options:
           - auto
           - spot
-          - 05_07_garbage_today_day
+          - garbage
           - restaurant
-          - 10_13_restaurant_food
+          - restaurant
           - event
           - activity
           - garbage
@@ -64,14 +64,14 @@ jobs:
             SLOT="spot"
           elif (( HOUR >= 5 && HOUR < 7 )); then
             if (( DOW >= 1 && DOW <= 5 )); then
-              SLOT="05_07_garbage_today_day"
+              SLOT="garbage"
             else
-              SLOT="skip"
+              SLOT="spot"
             fi
           elif (( HOUR >= 7 && HOUR < 10 )); then
             SLOT="restaurant"
           elif (( HOUR >= 10 && HOUR < 13 )); then
-            SLOT="10_13_restaurant_food"
+            SLOT="restaurant"
           elif (( HOUR >= 13 && HOUR < 17 )); then
             SLOT="event"
           elif (( HOUR >= 17 && HOUR < 20 )); then
@@ -80,7 +80,7 @@ jobs:
             if (( (DOW >= 1 && DOW <= 5) || DOW == 7 )); then
               SLOT="garbage"
             else
-              SLOT="skip"
+              SLOT="spot"
             fi
           elif (( HOUR >= 22 && HOUR < 24 )); then
             SLOT="spot"
@@ -98,22 +98,16 @@ jobs:
     uses: ./.github/workflows/feed_slot_spot.yml
     secrets: inherit
 
-  s05_07_garbage_today_day:
+  sgarbage:
     needs: select
-    if: needs.select.outputs.slot == '05_07_garbage_today_day'
-    uses: ./.github/workflows/feed_slot_05_07_garbage_today_day.yml
+    if: needs.select.outputs.slot == 'garbage'
+    uses: ./.github/workflows/feed_slot_garbage.yml
     secrets: inherit
 
   srestaurant:
     needs: select
     if: needs.select.outputs.slot == 'restaurant'
     uses: ./.github/workflows/feed_slot_restaurant.yml
-    secrets: inherit
-
-  s10_13_restaurant_food:
-    needs: select
-    if: needs.select.outputs.slot == '10_13_restaurant_food'
-    uses: ./.github/workflows/feed_slot_10_13_restaurant_food.yml
     secrets: inherit
 
   sevent:
@@ -126,16 +120,4 @@ jobs:
     needs: select
     if: needs.select.outputs.slot == 'activity'
     uses: ./.github/workflows/feed_slot_activity.yml
-    secrets: inherit
-
-  sgarbage:
-    needs: select
-    if: needs.select.outputs.slot == 'garbage'
-    uses: ./.github/workflows/feed_slot_garbageyml
-    secrets: inherit
-
-  sspot:
-    needs: select
-    if: needs.select.outputs.slot == 'spot'
-    uses: ./.github/workflows/feed_slot_spot.yml
     secrets: inherit
