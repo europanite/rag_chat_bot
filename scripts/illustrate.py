@@ -258,23 +258,6 @@ def main() -> int:
         image = pipe(**image_kwargs).images[0]
         image.save(out_path)
 
-    lora_tag = ""
-    if LORA_PATH:
-        p = Path(LORA_PATH)
-        if not p.exists():
-            print(f"ERROR: LORA_PATH not found: {p}")
-            return 2
-        try:
-            pipe.load_lora_weights(str(p))
-            lora_tag = p.name
-            image_kwargs["cross_attention_kwargs"] = {"scale": float(LORA_SCALE)}
-        except Exception as e:
-            print(f"ERROR: failed to load LoRA: {p} ({e})")
-            return 2
-
-    # SDXL-Turbo is fast; keep steps modest (4) on CPU
-    image = pipe(**image_kwargs).images[0]
-    image.save(out_path)
 
     rel_image_url = f"./image/{out_path.name}"
     now_iso = now_iso_utc()
