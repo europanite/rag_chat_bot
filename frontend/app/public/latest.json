@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-06T04:18:52Z",
+  "id": "feed_20260306_130858_JST",
   "date": "2026-03-06",
   "text": "Good afternoon! 😊 It's a rainy day with 13°C. Why don't you visit Kinugasayama Park and enjoy its serene atmosphere on this wet spring afternoon? 🌳🏞️",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "Kinugasayama Park (Yokosuka)",
   "kind": "event",
-  "avatar_image": "avatar/event.png"
+  "avatar_image": "avatar/event.png",
+  "image": "./image/feed_20260306_130858_JST.png",
+  "image_url": "./image/feed_20260306_130858_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "permalink": "./?post=feed_20260306_130858_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-03-06T04:23:44.135590Z"
 }
