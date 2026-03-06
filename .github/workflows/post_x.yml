@@ -1,0 +1,68 @@
+name: Post_X
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: post-x
+  cancel-in-progress: false
+
+jobs:
+  feed:
+    uses: ./.github/workflows/feed.yml
+
+  x_post:
+    needs: feed
+    if: needs.feed.result == 'success' && needs.feed.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Ensure latest remote (main)
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache posted marker (per commit)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .x-posted
+          key: x-posted-${{ needs.feed.outputs.sha }}
+
+      - name: Post latest to X
+        if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          LATEST_PATH: frontend/app/public/latest.json
+        run: |
+          set -euo pipefail
+          python scripts/post_to_x.py
+          mkdir -p .x-posted
+          echo "${{ needs.feed.outputs.sha }}" > .x-posted/sha
+
+      - name: Skip (already posted)
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: echo "Already posted for this commit."
