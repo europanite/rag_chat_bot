@@ -1,4 +1,4 @@
-name: Feed Slot 17-20 Activity
+name: Feed Spot
 
 on:
   workflow_call:
@@ -24,6 +24,6 @@ jobs:
   run:
     uses: ./.github/workflows/feed_core.yml
     with:
-      scheduled_kind: "activity"
-      avatar_image: "avatar/activity.png"
+      scheduled_kind: "spot"
+      avatar_image: "avatar/night.png"
     secrets: inherit

@@ -1,4 +1,4 @@
-name: Feed Slot 05-07 Garbage Today (Day)
+name: Feed Garbage
 
 on:
   workflow_call:
@@ -24,6 +24,6 @@ jobs:
   run:
     uses: ./.github/workflows/feed_core.yml
     with:
-      scheduled_kind: "garbage_today"
-      avatar_image: "avatar/day.png"
+      scheduled_kind: "garbage_tomorrow"
+      avatar_image: "avatar/night.png"
     secrets: inherit

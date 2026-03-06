@@ -1,4 +1,4 @@
-name: Feed Slot 07-10 Restaurant (Normal)
+name: Feed Activity
 
 on:
   workflow_call:
@@ -24,6 +24,6 @@ jobs:
   run:
     uses: ./.github/workflows/feed_core.yml
     with:
-      scheduled_kind: "restaurant"
-      avatar_image: "avatar/normal.png"
+      scheduled_kind: "activity"
+      avatar_image: "avatar/activity.png"
     secrets: inherit

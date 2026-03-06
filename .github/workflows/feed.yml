@@ -19,12 +19,12 @@ on:
         type: choice
         options:
           - auto
-          - 00_05_spot_night
+          - spot
           - 05_07_garbage_today_day
-          - 07_10_restaurant_normal
+          - restaurant
           - 10_13_restaurant_food
-          - 13_17_event
-          - 17_20_activity
+          - event
+          - activity
           - 20_22_garbage_tomorrow_night
           - 22_24_spot_night
 
@@ -61,7 +61,7 @@ jobs:
           DOW="$(TZ=Asia/Tokyo date +%u)"  # 1=Mon ... 7=Sun
 
           if (( HOUR >= 0 && HOUR < 5 )); then
-            SLOT="00_05_spot_night"
+            SLOT="spot"
           elif (( HOUR >= 5 && HOUR < 7 )); then
             if (( DOW >= 1 && DOW <= 5 )); then
               SLOT="05_07_garbage_today_day"
@@ -69,13 +69,13 @@ jobs:
               SLOT="skip"
             fi
           elif (( HOUR >= 7 && HOUR < 10 )); then
-            SLOT="07_10_restaurant_normal"
+            SLOT="restaurant"
           elif (( HOUR >= 10 && HOUR < 13 )); then
             SLOT="10_13_restaurant_food"
           elif (( HOUR >= 13 && HOUR < 17 )); then
-            SLOT="13_17_event"
+            SLOT="event"
           elif (( HOUR >= 17 && HOUR < 20 )); then
-            SLOT="17_20_activity"
+            SLOT="activity"
           elif (( HOUR >= 20 && HOUR < 22 )); then
             if (( (DOW >= 1 && DOW <= 5) || DOW == 7 )); then
               SLOT="20_22_garbage_tomorrow_night"
@@ -92,10 +92,10 @@ jobs:
           echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
           echo "JST hour=$HOUR dow=$DOW -> slot=$SLOT"
 
-  s00_05_spot_night:
+  sspot:
     needs: select
-    if: needs.select.outputs.slot == '00_05_spot_night'
-    uses: ./.github/workflows/feed_slot_00_05_spot_night.yml
+    if: needs.select.outputs.slot == 'spot'
+    uses: ./.github/workflows/feed_slot_spot.yml
     secrets: inherit
 
   s05_07_garbage_today_day:
@@ -104,10 +104,10 @@ jobs:
     uses: ./.github/workflows/feed_slot_05_07_garbage_today_day.yml
     secrets: inherit
 
-  s07_10_restaurant_normal:
+  srestaurant:
     needs: select
-    if: needs.select.outputs.slot == '07_10_restaurant_normal'
-    uses: ./.github/workflows/feed_slot_07_10_restaurant_normal.yml
+    if: needs.select.outputs.slot == 'restaurant'
+    uses: ./.github/workflows/feed_slot_restaurant.yml
     secrets: inherit
 
   s10_13_restaurant_food:
@@ -116,22 +116,22 @@ jobs:
     uses: ./.github/workflows/feed_slot_10_13_restaurant_food.yml
     secrets: inherit
 
-  s13_17_event:
+  sevent:
     needs: select
-    if: needs.select.outputs.slot == '13_17_event'
-    uses: ./.github/workflows/feed_slot_13_17_event.yml
+    if: needs.select.outputs.slot == 'event'
+    uses: ./.github/workflows/feed_slot_event.yml
     secrets: inherit
 
-  s17_20_activity:
+  sactivity:
     needs: select
-    if: needs.select.outputs.slot == '17_20_activity'
-    uses: ./.github/workflows/feed_slot_17_20_activity.yml
+    if: needs.select.outputs.slot == 'activity'
+    uses: ./.github/workflows/feed_slot_activity.yml
     secrets: inherit
 
   s20_22_garbage_tomorrow_night:
     needs: select
     if: needs.select.outputs.slot == '20_22_garbage_tomorrow_night'
-    uses: ./.github/workflows/feed_slot_20_22_garbage_tomorrow_night.yml
+    uses: ./.github/workflows/feed_slot_garbageyml
     secrets: inherit
 
   s22_24_spot_night:

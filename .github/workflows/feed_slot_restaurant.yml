@@ -1,4 +1,4 @@
-name: Feed Slot 22-24 Spot (Night)
+name: Feed Restaurant
 
 on:
   workflow_call:
@@ -24,6 +24,6 @@ jobs:
   run:
     uses: ./.github/workflows/feed_core.yml
     with:
-      scheduled_kind: "spot"
-      avatar_image: "avatar/night.png"
+      scheduled_kind: "restaurant"
+      avatar_image: "avatar/food.png"
     secrets: inherit

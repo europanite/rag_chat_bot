@@ -1,4 +1,4 @@
-name: Feed Slot 13-17 Event
+name: Feed Event
 
 on:
   workflow_call:
