@@ -58,11 +58,16 @@ jobs:
 
           HOUR="$(TZ=Asia/Tokyo date +%H)"
           HOUR="${HOUR#0}"
+          DOW="$(TZ=Asia/Tokyo date +%u)"  # 1=Mon ... 7=Sun
 
           if (( HOUR >= 0 && HOUR < 5 )); then
             SLOT="00_05_spot_night"
           elif (( HOUR >= 5 && HOUR < 7 )); then
-            SLOT="05_07_garbage_today_day"
+            if (( DOW >= 1 && DOW <= 5 )); then
+              SLOT="05_07_garbage_today_day"
+            else
+              SLOT="skip"
+            fi
           elif (( HOUR >= 7 && HOUR < 10 )); then
             SLOT="07_10_restaurant_normal"
           elif (( HOUR >= 10 && HOUR < 13 )); then
@@ -72,7 +77,11 @@ jobs:
           elif (( HOUR >= 17 && HOUR < 20 )); then
             SLOT="17_20_activity"
           elif (( HOUR >= 20 && HOUR < 22 )); then
-            SLOT="20_22_garbage_tomorrow_night"
+            if (( (DOW >= 1 && DOW <= 5) || DOW == 7 )); then
+              SLOT="20_22_garbage_tomorrow_night"
+            else
+              SLOT="skip"
+            fi
           elif (( HOUR >= 22 && HOUR < 24 )); then
             SLOT="22_24_spot_night"
           else
@@ -81,7 +90,7 @@ jobs:
           fi
 
           echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
-          echo "JST hour=$HOUR -> slot=$SLOT"
+          echo "JST hour=$HOUR dow=$DOW -> slot=$SLOT"
 
   s00_05_spot_night:
     needs: select
@@ -130,4 +139,3 @@ jobs:
     if: needs.select.outputs.slot == '22_24_spot_night'
     uses: ./.github/workflows/feed_slot_22_24_spot_night.yml
     secrets: inherit
-
