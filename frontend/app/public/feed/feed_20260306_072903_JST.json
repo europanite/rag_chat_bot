@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-05T22:41:43Z",
+  "id": "feed_20260306_072903_JST",
   "date": "2026-03-05",
   "text": "Good morning! 🌞 It's a chilly morning with rain in Yokosuka, feeling quite drizzly at 7°C. Perfect day to warm up with some delicious sushi at Hisago Zushi Honten, try their signature dishes and cozy atmosphere! 🍜👍",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "Hisago Zushi Honten (ひさご寿司 本店)",
   "kind": "restaurant",
-  "avatar_image": "avatar/normal.png"
+  "avatar_image": "avatar/normal.png",
+  "legacy_id": "2026-03-05T22:41:43Z",
+  "permalink": "./?post=feed_20260306_072903_JST",
+  "image_url": "./image/feed_20260306_072903_JST.png",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌞 It's a chilly morning with rain in Yokosuka, feeling quite drizzly at 7°C. Perfect day to warm up with some delicious sushi at Hisago Zushi Honten, try their signature dishes and cozy atmosphere! 🍜👍",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_generated_at": "2026-03-06T04:13:49Z"
 }
