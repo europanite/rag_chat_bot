@@ -62,9 +62,10 @@
   "avatar_image": "avatar/night.png",
   "image": "./image/feed_20260307_053047_JST.png",
   "image_url": "./image/feed_20260307_053047_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! It's a rainy day with 14°C outside. Hashirimizu Beach in Yokosuka is still worth visiting on a gloomy morning like this ☁️🌊, and you can try your hand at taking some mochi-themed photos to share with the #S",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-06T20:53:07.481294Z",
-  "permalink": "./?post=feed_20260307_053047_JST"
+  "image_generated_at": "2026-03-06T22:28:36Z",
+  "permalink": "./?post=feed_20260307_053047_JST",
+  "image_negative": ""
 }
