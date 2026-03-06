@@ -25,7 +25,7 @@ on:
           - 10_13_restaurant_food
           - event
           - activity
-          - 20_22_garbage_tomorrow_night
+          - garbage
           - spot
 
 permissions:
@@ -78,7 +78,7 @@ jobs:
             SLOT="activity"
           elif (( HOUR >= 20 && HOUR < 22 )); then
             if (( (DOW >= 1 && DOW <= 5) || DOW == 7 )); then
-              SLOT="20_22_garbage_tomorrow_night"
+              SLOT="garbage"
             else
               SLOT="skip"
             fi
@@ -128,9 +128,9 @@ jobs:
     uses: ./.github/workflows/feed_slot_activity.yml
     secrets: inherit
 
-  s20_22_garbage_tomorrow_night:
+  sgarbage:
     needs: select
-    if: needs.select.outputs.slot == '20_22_garbage_tomorrow_night'
+    if: needs.select.outputs.slot == 'garbage'
     uses: ./.github/workflows/feed_slot_garbageyml
     secrets: inherit
 
