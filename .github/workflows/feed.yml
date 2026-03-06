@@ -26,7 +26,7 @@ on:
           - event
           - activity
           - 20_22_garbage_tomorrow_night
-          - 22_24_spot_night
+          - spot
 
 permissions:
   contents: write
@@ -83,7 +83,7 @@ jobs:
               SLOT="skip"
             fi
           elif (( HOUR >= 22 && HOUR < 24 )); then
-            SLOT="22_24_spot_night"
+            SLOT="spot"
           else
             echo "ERROR: unexpected hour: $HOUR"
             exit 1
@@ -134,8 +134,8 @@ jobs:
     uses: ./.github/workflows/feed_slot_garbageyml
     secrets: inherit
 
-  s22_24_spot_night:
+  sspot:
     needs: select
-    if: needs.select.outputs.slot == '22_24_spot_night'
-    uses: ./.github/workflows/feed_slot_22_24_spot_night.yml
+    if: needs.select.outputs.slot == 'spot'
+    uses: ./.github/workflows/feed_slot_spot.yml
     secrets: inherit
