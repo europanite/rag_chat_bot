@@ -22,11 +22,9 @@ on:
           - spot
           - garbage
           - restaurant
-          - restaurant
           - event
+          - spot_intro
           - activity
-          - garbage
-          - spot
 
 permissions:
   contents: write
@@ -83,7 +81,7 @@ jobs:
               SLOT="spot"
             fi
           elif (( HOUR >= 22 && HOUR < 24 )); then
-            SLOT="spot"
+            SLOT="spot_intro"
           else
             echo "ERROR: unexpected hour: $HOUR"
             exit 1
@@ -114,6 +112,17 @@ jobs:
     needs: select
     if: needs.select.outputs.slot == 'event'
     uses: ./.github/workflows/feed_slot_event.yml
+    secrets: inherit
+
+  sspot_intro:
+    needs: select
+    if: needs.select.outputs.slot == 'spot_intro'
+    uses: ./.github/workflows/google_drive_post.yml
+    with:
+      kind: "event"
+      avatar_image: "avatar/event.png"
+      place: "Yokosuka"
+      post_to_x: "1"
     secrets: inherit
 
   sactivity:

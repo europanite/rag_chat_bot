@@ -31,11 +31,11 @@ on:
         type: choice
         options:
           - spot
-          - garbage_today
+          - garbage
           - restaurant
           - event
           - activity
-          - garbage_tomorrow
+          - garbage
       avatar_image:
         description: "Avatar image path"
         required: true
