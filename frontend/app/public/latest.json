@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-07T15:04:54Z",
+  "id": "feed_20260308_000452_JST",
   "date": "2026-03-07",
   "text": "Coaska is a good first stop. You can get most daily essentials there.\n• Main access: Keikyu Yokosuka-Chuo Station / Keikyu Shioiri Station / JR Yokosuka Station / ",
   "place": "Yokosuka",
@@ -58,5 +58,12 @@
   "required_mention": "",
   "kind": "event",
   "image_fixed": "avatar/normal.png",
-  "avatar_image": "avatar/normal.png"
+  "avatar_image": "avatar/normal.png",
+  "legacy_id": "2026-03-07T15:04:54Z",
+  "permalink": "./?post=feed_20260308_000452_JST",
+  "image_url": "./image/feed_20260308_000452_JST.png",
+  "image_prompt": "[fixed_image] frontend/app/public/avatar/normal.png",
+  "image_negative": "",
+  "image_model": "fixed",
+  "image_generated_at": "2026-03-07T15:07:00Z"
 }
