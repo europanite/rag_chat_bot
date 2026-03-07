@@ -8,7 +8,7 @@
   "links": [],
   "kind": "spot",
   "avatar_image": "avatar/spot.png",
-  "image_url": "./image/feed_20260307_204014_JST.jpg",
+  "image_url": "./image/feed_20260307_204014_JST.png",
   "source_folder_id": "1VQ1x1FdXIjgNu4nx61DwJ-FQpWPj5nfm",
   "source_folder_url": "https://drive.google.com/drive/folders/1VQ1x1FdXIjgNu4nx61DwJ-FQpWPj5nfm?usp=drive_link",
   "source_image_name": "p01002_s.jpg",
@@ -16,5 +16,10 @@
   "source_caption_name": "p01002_s.txt",
   "source_caption_id": "1cpX24WZR7y-P6uooCpglRg2FSa3rIZ1V",
   "selection_mode": "random_public_folder_pair",
-  "recent_exclude_limit": 20
+  "recent_exclude_limit": 20,
+  "permalink": "./?post=feed_20260307_204014_JST",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: 三笠公園は「水と光と音」をテーマとした公園で、日露戦争で活躍し、世界三大記念艦の一つである「三笠」が保存されていることから名付けられました。「三笠」の後ろには東京湾を行き交う船や猿島も望めます。",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_generated_at": "2026-03-07T12:24:14Z"
 }
