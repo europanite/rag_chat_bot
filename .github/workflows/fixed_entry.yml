@@ -101,6 +101,7 @@ jobs:
           python - <<'PY'
           import json
           import importlib.util
+          import sys
           from pathlib import Path
 
           payload = json.loads(Path("/tmp/entry.json").read_text(encoding="utf-8"))
@@ -124,6 +125,7 @@ jobs:
           spec = importlib.util.spec_from_file_location("generate_talk", path)
           mod = importlib.util.module_from_spec(spec)
           assert spec and spec.loader
+          sys.modules[spec.name] = mod
           spec.loader.exec_module(mod)
 
           lat = float("${{ inputs.lat }}")

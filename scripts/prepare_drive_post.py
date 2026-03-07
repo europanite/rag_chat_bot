@@ -324,6 +324,7 @@ def load_generate_talk_module(repo_root: Path):
         return None
     spec = importlib.util.spec_from_file_location("generate_talk", path)
     mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
     assert spec and spec.loader
     spec.loader.exec_module(mod)
     return mod
