@@ -154,7 +154,6 @@ jobs:
           python scripts/prepare_drive_post.py \
             --folder-url "$FOLDER_URL" \
             --kind "$INPUT_KIND" \
-            --avatar-image "$INPUT_AVATAR_IMAGE" \
             --avatar-image "$AVATAR_IMAGE" \
             --place "$INPUT_PLACE" \
             --recent-exclude-limit "$INPUT_RECENT_EXCLUDE_LIMIT" \
