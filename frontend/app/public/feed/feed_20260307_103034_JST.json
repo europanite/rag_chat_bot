@@ -63,8 +63,8 @@
   "image": "./image/feed_20260307_103034_JST.png",
   "image_url": "./image/feed_20260307_103034_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
-  "permalink": "./?post=feed_20260307_103034_JST",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-07T01:43:19.780742Z"
+  "image_generated_at": "2026-03-07T01:43:19.780742Z",
+  "permalink": "./?post=feed_20260307_103034_JST"
 }

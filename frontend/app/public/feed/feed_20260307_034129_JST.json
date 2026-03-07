@@ -1,26 +1,26 @@
 {
-  "id": "feed_20260307_000724_JST",
+  "id": "feed_20260307_034129_JST",
   "date": "2026-03-06",
   "text": "Good night.",
   "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-03-06T15:12:23Z",
+  "generated_at": "2026-03-06T18:47:37Z",
   "weather": {
     "source": "jma",
-    "generated_at": "2026-03-06T15:07:27.485469+00:00",
+    "generated_at": "2026-03-06T18:41:32.444428+00:00",
     "place": "Yokosuka, Kanagawa, JP",
     "latitude": 35.2811,
     "longitude": 139.672,
     "timezone": "Asia/Tokyo",
     "current": {
-      "time": "2026-03-07T00:00:00+09:00",
-      "temp_c": 13.2,
+      "time": "2026-03-07T03:30:00+09:00",
+      "temp_c": 14.1,
       "apparent_temp_c": null,
-      "humidity_pct": 72.0,
-      "precip_mm": 0.0,
+      "humidity_pct": 89.0,
+      "precip_mm": 1.5,
       "weather_code": 95,
       "cloud_cover_pct": null,
-      "wind_kmh": 15.48,
-      "wind_dir_deg": 180.0,
+      "wind_kmh": 34.56,
+      "wind_dir_deg": 202.5,
       "amedas_station": "46211",
       "jma_weather_obs_code": null
     },
@@ -55,18 +55,18 @@
     }
   },
   "links": [
-    "https://www.ave.gr.jp/shop/"
+    "https://tabelog.com/en/kanagawa/A1406/A140601/14030385/"
   ],
-  "required_mention": "AVE (エイヴイ) Sahara Store (佐原店) — Yokosuka",
+  "required_mention": "Saizeriya LIVIN Yokosuka (サイゼリヤ ＬＩＶＩＮよこすか店)",
   "kind": "spot",
   "avatar_image": "avatar/night.png",
-  "legacy_id": "2026-03-06T15:12:23Z",
-  "permalink": "./?post=feed_20260307_000724_JST",
-  "image_url": "./image/feed_20260307_000724_JST.png",
+  "legacy_id": "2026-03-06T18:47:37Z",
+  "permalink": "./?post=feed_20260307_034129_JST",
+  "image_url": "./image/feed_20260307_034129_JST.png",
   "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good night.",
   "image_negative": "",
   "image_model": "stabilityai/sdxl-turbo",
   "image_lora": "ukiyoe.safetensors",
   "image_lora_scale": 0.8,
-  "image_generated_at": "2026-03-06T16:40:26Z"
+  "image_generated_at": "2026-03-06T20:32:29Z"
 }
