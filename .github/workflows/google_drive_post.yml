@@ -131,10 +131,31 @@ jobs:
             exit 1
           fi
 
+          AVATAR_IMAGE="$INPUT_AVATAR_IMAGE"
+          if [ -z "$AVATAR_IMAGE" ]; then
+            case "$INPUT_KIND" in
+              activity)
+                AVATAR_IMAGE="avatar/activity.png"
+                ;;
+              event)
+                AVATAR_IMAGE="avatar/event.png"
+                ;;
+              restaurant)
+                AVATAR_IMAGE="avatar/food.png"
+                ;;
+              garbage)
+                AVATAR_IMAGE="avatar/night.png"
+                ;;
+              spot|*)
+                AVATAR_IMAGE="avatar/spot.png"
+                ;;
+            esac
+          fi
           python scripts/prepare_drive_post.py \
             --folder-url "$FOLDER_URL" \
             --kind "$INPUT_KIND" \
             --avatar-image "$INPUT_AVATAR_IMAGE" \
+            --avatar-image "$AVATAR_IMAGE" \
             --place "$INPUT_PLACE" \
             --recent-exclude-limit "$INPUT_RECENT_EXCLUDE_LIMIT" \
             --random-seed "$INPUT_RANDOM_SEED" \
