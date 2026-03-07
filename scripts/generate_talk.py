@@ -227,7 +227,7 @@ def wait_for_backend(api_base: str, cfg: HttpConfig, tries: int = 60, sleep_s: i
 # -----------------------------
 # Domain logic
 # -----------------------------
-def fetch_weather_snapshot(lat: str, lon: str, tz_name: str, place: str) -> Tuple[str, Dict[str, Any]]:
+def fetch_weather_snapshot(lat: str | float, lon: str | float, tz_name: str, place: str) -> Tuple[str, Dict[str, Any]]:
     # Calls the existing script (keeps the same behavior/format)
     cmd = [
         sys.executable,
@@ -235,13 +235,13 @@ def fetch_weather_snapshot(lat: str, lon: str, tz_name: str, place: str) -> Tupl
         "--format",
         "json",
         "--lat",
-        lat,
+        str(lat),
         "--lon",
-        lon,
+        str(lon),
         "--tz",
-        tz_name,
+        str(tz_name),
         "--place",
-        place,
+        str(place),
     ]
     # Use subprocess without importing subprocess? It's stdlib; fine.
     import subprocess
