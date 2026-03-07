@@ -1,0 +1,206 @@
+name: Google Drive Post
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_file:
+        description: "Google Drive image file URL or file ID"
+        required: true
+        type: string
+      caption_file:
+        description: "Google Drive caption file URL or file ID (optional if caption_text is set or same-basename sidecar exists)"
+        required: false
+        default: ""
+        type: string
+      caption_text:
+        description: "Optional inline caption override"
+        required: false
+        default: ""
+        type: string
+      kind:
+        description: "Feed kind"
+        required: false
+        default: "spot"
+        type: choice
+        options:
+          - spot
+          - restaurant
+          - event
+          - activity
+          - garbage
+      avatar_image:
+        description: "Avatar image path under public/ (e.g. avatar/spot.png)"
+        required: false
+        default: "avatar/spot.png"
+        type: string
+      place:
+        description: "Place label"
+        required: false
+        default: "Yokosuka"
+        type: string
+      post_to_x:
+        description: "1 to post to X after publish"
+        required: false
+        default: "1"
+        type: choice
+        options:
+          - "0"
+          - "1"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+      feed_stem: ${{ steps.meta.outputs.feed_stem }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-api-python-client google-auth google-auth-httplib2
+
+      - name: Pull latest main
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin main
+
+      - name: Download Google Drive image + caption and write feed files
+        env:
+          GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
+          DRIVE_POST_CAPTION_TEXT: ${{ inputs.caption_text }}
+          INPUT_IMAGE_FILE: ${{ inputs.image_file }}
+          INPUT_CAPTION_FILE: ${{ inputs.caption_file }}
+          INPUT_KIND: ${{ inputs.kind }}
+          INPUT_AVATAR_IMAGE: ${{ inputs.avatar_image }}
+          INPUT_PLACE: ${{ inputs.place }}
+        run: |
+          set -euo pipefail
+          python scripts/prepare_drive_post.py \
+            --image "$INPUT_IMAGE_FILE" \
+            --caption "$INPUT_CAPTION_FILE" \
+            --kind "$INPUT_KIND" \
+            --avatar-image "$INPUT_AVATAR_IMAGE" \
+            --place "$INPUT_PLACE" \
+            --public-dir 'frontend/app/public' \
+            --latest-path 'frontend/app/public/latest.json' \
+            --output-state /tmp/drive_post_state.json
+
+      - name: Export prepare metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          state = json.loads(Path('/tmp/drive_post_state.json').read_text(encoding='utf-8'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write(f"feed_stem={state['feed_stem']}\n")
+          PY
+
+      - name: Commit & push if changed
+        id: commit
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet; then
+            echo "No changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add frontend/app/public/feed/*.json || true
+          git add frontend/app/public/latest.json || true
+          git add frontend/app/public/snapshot/*.json || true
+          git add frontend/app/public/image/* || true
+
+          if git diff --cached --quiet; then
+            echo "No staged changes"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m "chore: add Google Drive post"
+          git push origin HEAD:main
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  pages:
+    needs: prepare
+    if: needs.prepare.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    with:
+      ref: ${{ needs.prepare.outputs.sha }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+  x_post:
+    needs: [prepare, pages]
+    if: inputs.post_to_x == '1' && needs.prepare.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: post-x
+      cancel-in-progress: false
+    steps:
+      - name: Checkout (generated commit)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache posted marker (per commit)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .x-posted
+          key: x-posted-${{ needs.prepare.outputs.sha }}
+
+      - name: Post latest to X
+        if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          LATEST_PATH: frontend/app/public/latest.json
+        run: |
+          set -euo pipefail
+          python scripts/post_to_x.py
+          mkdir -p .x-posted
+          echo '${{ needs.prepare.outputs.sha }}' > .x-posted/sha
+
+      - name: Skip (already posted)
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: echo "Already posted for this commit."
