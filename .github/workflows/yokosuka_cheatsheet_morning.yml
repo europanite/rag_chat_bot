@@ -1,0 +1,140 @@
+name: Yokosuka Morning Cheat Sheet
+
+on:
+  schedule:
+    # 06:00 JST every day
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: yokosuka-morning-cheatsheet
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      entry_json: ${{ steps.payload.outputs.entry_json }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Load fixed payload
+        id: payload
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          payload = json.loads(Path('.github/fixed/cheatsheet.json').read_text(encoding='utf-8'))
+          compact = json.dumps(payload, ensure_ascii=False)
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write(f"entry_json={compact}\n")
+          PY
+
+  fixed:
+    needs: prepare
+    uses: ./.github/workflows/fixed_entry.yml
+    with:
+      entry_json: ${{ needs.prepare.outputs.entry_json }}
+      place: "Yokosuka"
+    secrets: inherit
+
+  illustrate:
+    needs: fixed
+    if: needs.fixed.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Checkout (generated commit)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.fixed.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Build illustrate image
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: '127.0.0.1'
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.yml build illustrate
+
+      - name: Generate fixed image and patch feed
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: '127.0.0.1'
+          PATCH_JSON: '1'
+          OUT_DIR: 'frontend/app/public/image'
+          FEED_PATH: 'frontend/app/public'
+          LATEST_PATH: 'frontend/app/public/latest.json'
+          PLACE: 'Yokosuka, Japan'
+          MIRROR_AUG: '0'
+          SEED_OFFSET: '0'
+          SDXL_MODEL_ID: stabilityai/sdxl-turbo
+        run: |
+          set -euo pipefail
+          test -f frontend/app/public/latest.json
+          docker compose -f docker-compose.yml run --rm illustrate
+
+      - name: Stop stack
+        if: always()
+        run: docker compose -f docker-compose.yml down || true
+
+      - name: Commit & push illustrated changes if any
+        id: commit
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo 'changed=0' >> "$GITHUB_OUTPUT"
+            echo 'sha=' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin main
+          git add frontend/app/public/latest.json frontend/app/public/feed/*.json frontend/app/public/image/* || true
+
+          if git diff --cached --quiet; then
+            echo 'changed=0' >> "$GITHUB_OUTPUT"
+            echo 'sha=' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m 'chore: publish yokosuka morning cheat sheet'
+          git push origin HEAD:main
+          echo 'changed=1' >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  pages:
+    needs: illustrate
+    if: needs.illustrate.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    with:
+      ref: ${{ needs.illustrate.outputs.sha }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
