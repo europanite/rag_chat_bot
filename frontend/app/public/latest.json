@@ -1,70 +1,20 @@
 {
-  "id": "feed_20260307_153715_JST",
+  "id": "feed_20260307_175559_JST",
   "date": "2026-03-07",
-  "text": "Good afternoon! It's a cloudy day with 15°C in Yokosuka today. Get ready for the Taiwan-ssuka (Taiwan Festival) event, happening from Feb 28 to Mar 1, where you can enjoy Taiwanese food and culture at the market. Don't f",
-  "place": "Yokosuka, Kanagawa, JP",
-  "generated_at": "2026-03-07T06:46:22Z",
-  "weather": {
-    "source": "jma",
-    "generated_at": "2026-03-07T06:37:17.454659+00:00",
-    "place": "Yokosuka, Kanagawa, JP",
-    "latitude": 35.2811,
-    "longitude": 139.672,
-    "timezone": "Asia/Tokyo",
-    "current": {
-      "time": "2026-03-07T15:30:00+09:00",
-      "temp_c": 15.0,
-      "apparent_temp_c": null,
-      "humidity_pct": 31.0,
-      "precip_mm": 0.0,
-      "weather_code": 2,
-      "cloud_cover_pct": null,
-      "wind_kmh": 22.68,
-      "wind_dir_deg": 22.5,
-      "amedas_station": "46211",
-      "jma_weather_obs_code": null
-    },
-    "today": {
-      "date": "2026-03-07",
-      "weather_code": 2,
-      "precip_sum_mm": null,
-      "wind_max_kmh": null,
-      "temp_max_c": null,
-      "temp_min_c": null,
-      "weather_text_ja": "晴れ　夕方　から　くもり",
-      "jma_weather_code": "111",
-      "precip_prob_pct": 10
-    },
-    "tomorrow": {
-      "date": "2026-03-08",
-      "weather_code": 61,
-      "precip_sum_mm": null,
-      "wind_max_kmh": null,
-      "temp_max_c": null,
-      "temp_min_c": null,
-      "weather_text_ja": "晴れ　朝晩　くもり　所により　明け方　まで　雨",
-      "jma_weather_code": "101",
-      "precip_prob_pct": 20
-    },
-    "jma_meta": {
-      "publishing_office": "横浜地方気象台",
-      "report_datetime": "2026-03-07T11:00:00+09:00",
-      "office_code": "140000",
-      "area_code": null,
-      "temp_city_code": null
-    }
-  },
-  "links": [
-    "https://tabelog.com/kanagawa/A1406/A140601/14081625/dtlmap/"
-  ],
-  "required_mention": "5F SHELL / Gokai Shell (ゴカイシェル) — small dining bar on the 5t",
-  "kind": "event",
-  "avatar_image": "avatar/event.png",
-  "image": "./image/feed_20260307_153715_JST.png",
-  "image_url": "./image/feed_20260307_153715_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
-  "permalink": "./?post=feed_20260307_153715_JST",
-  "image_model": "stabilityai/sdxl-turbo",
-  "image_mirror_aug": true,
-  "image_generated_at": "2026-03-07T06:50:48.078790Z"
+  "generated_at": "2026-03-07T08:55:59Z",
+  "text": "夏島町の工業地帯にある緑地です。園内には、市営唯一のドッグラン広場や第三海堡施設があります。また、夏島緑地前道路の反対側には、貝山自然教育園としての貝山緑地があります。",
+  "place": "Yokosuka",
+  "weather": {},
+  "links": [],
+  "kind": "spot",
+  "avatar_image": "avatar/spot.png",
+  "image_url": "./image/feed_20260307_175559_JST.jpg",
+  "source_folder_id": "1VQ1x1FdXIjgNu4nx61DwJ-FQpWPj5nfm",
+  "source_folder_url": "https://drive.google.com/drive/folders/1VQ1x1FdXIjgNu4nx61DwJ-FQpWPj5nfm?usp=drive_link",
+  "source_image_name": "p00899_s.jpg",
+  "source_image_id": "1q7wKQbEObOHaLLgOe80BAP0qc0COxVq9",
+  "source_caption_name": "p00899_s.txt",
+  "source_caption_id": "1bkd0r_Ma14FRs4djkwl_nzZkcZsKOoJb",
+  "selection_mode": "random_public_folder_pair",
+  "recent_exclude_limit": 20
 }
