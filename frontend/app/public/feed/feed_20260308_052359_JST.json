@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-07T20:35:01Z",
+  "id": "feed_20260308_052359_JST",
   "date": "2026-03-07",
   "text": "Good morning 🌞 from Yokosuka! It's a chilly morning with 3°C outside, perfect excuse to stay indoors. Why not head over to Nagai Umite Park “Soleil Hill” for some Hand-Owned BBQ?",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "Nagai Umite Park “Soleil Hill” — Hand-Owned BBQ / Bring-Your",
   "kind": "spot",
-  "avatar_image": "avatar/night.png"
+  "avatar_image": "avatar/night.png",
+  "image": "./image/feed_20260308_052359_JST.png",
+  "image_url": "./image/feed_20260308_052359_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-03-07T20:39:56.388906Z",
+  "permalink": "./?post=feed_20260308_052359_JST"
 }
