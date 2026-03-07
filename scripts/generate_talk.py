@@ -982,7 +982,7 @@ def main() -> int:
             snap_obj=snap_obj, 
             links=links, 
             kind=scheduled_kind, 
-            fixed_image="avatar/garbage.png",
+            fixed_image="img/cheetsheet.png",
             avatar_image=env("AVATAR_IMAGE", "avatar/normal.png"),
             )
         for feed_path, latest_path in pair_paths(feeds, latests):
