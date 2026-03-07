@@ -62,9 +62,10 @@
   "avatar_image": "avatar/food.png",
   "image": "./image/feed_20260307_072625_JST.png",
   "image_url": "./image/feed_20260307_072625_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning! 🌞 It's a chilly rainy day here in Yokosuka with 15°C. Why not warm up at YOKOSUKA Shell, an American-style diner famous for their \"Yokosuka Navy Burger\"? Their hearty plates are perfect on a drizzly spring",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-06T22:42:24.154781Z",
-  "permalink": "./?post=feed_20260307_072625_JST"
+  "image_generated_at": "2026-03-07T01:32:21Z",
+  "permalink": "./?post=feed_20260307_072625_JST",
+  "image_negative": ""
 }
