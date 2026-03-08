@@ -136,19 +136,38 @@ jobs:
           test -n "${AWS_S3_BUCKET_PUBLIC:-}"
           test -f "$LATEST_PATH_RESOLVED"
 
+          export LATEST_PATH_RESOLVED FEED_DIR_RESOLVED
           FEED_STEM="$(python - <<'PY'
           import json
           import os
           from pathlib import Path
 
-          p = Path(os.environ.get('ARTIFACT_LATEST_PATH') or 'frontend/app/public/latest.json')
-          obj = json.loads(p.read_text(encoding='utf-8'))
-          print(obj.get('feed_stem', ''))
+          latest = Path(os.environ["LATEST_PATH_RESOLVED"])
+          feed_dir = Path(os.environ["FEED_DIR_RESOLVED"])
+          stem = ""
+
+          if latest.exists():
+              try:
+                  obj = json.loads(latest.read_text(encoding='utf-8'))
+                  stem = str(obj.get('feed_stem') or '').strip()
+              except Exception:
+                  pass
+
+          if not stem and feed_dir.is_dir():
+              candidates = sorted(
+                  feed_dir.glob('*.json'),
+                  key=lambda p: p.stat().st_mtime,
+                  reverse=True,
+              )
+              if candidates:
+                  stem = candidates[0].stem
+
+          print(stem)
           PY
           )"
 
           if [ -z "$FEED_STEM" ]; then
-            echo "Could not determine feed_stem from $LATEST_PATH_RESOLVED" >&2
+            echo "Could not determine feed_stem from $LATEST_PATH_RESOLVED or $FEED_DIR_RESOLVED" >&2
             exit 1
           fi
 
