@@ -14,6 +14,7 @@ Optional env vars:
   - LATEST_PATH (default: frontend/app/public/latest.json)
   - SITE_URL (default: https://<owner>.github.io)
   - BASE_PATH (default: <repo> for project pages, empty for <owner>.github.io)
+  - HASHTAGS (space-separated hashtags; used as fallback if latest.json text has none)
   - DRY_RUN=1  (prints the tweet without posting)
 """
 
@@ -29,7 +30,7 @@ import re
 import time
 import urllib.parse
 import urllib.request
-from typing import Dict, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 API_URL = "https://api.x.com/2/tweets"
 URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
@@ -44,19 +45,127 @@ def x_weighted_length(s: str) -> int:
         return 0
     return len(URL_RE.sub(lambda m: "x" * TCO_URL_LEN, s))
 
+
 def pct(s: str) -> str:
     return urllib.parse.quote(s, safe="~")
+
 
 def strip_urls(s: str) -> str:
     s = URL_RE.sub("", s or "")
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
+
 def truncate_utf8(s: str, max_chars: int) -> str:
     if len(s) <= max_chars:
         return s
     # Keep it simple: truncate by characters (Python uses Unicode codepoints)
     return s[: max_chars - 1].rstrip() + "…"
+
+
+def normalize_spaces(s: str) -> str:
+    return re.sub(r"\s+", " ", s or "").strip()
+
+
+def clean_link_list(val: object) -> List[str]:
+    if isinstance(val, str):
+        vals = [val]
+    elif isinstance(val, list):
+        vals = [x for x in val if isinstance(x, str)]
+    else:
+        vals = []
+
+    out: List[str] = []
+    seen = set()
+    for raw in vals:
+        u = raw.strip()
+        if not u or not u.startswith(("http://", "https://")):
+            continue
+        if u in seen:
+            continue
+        seen.add(u)
+        out.append(u)
+    return out
+
+
+def parse_hashtags(s: str) -> List[str]:
+    tags = [t.strip() for t in (s or "").split() if t.strip().startswith("#")]
+    out: List[str] = []
+    seen = set()
+    for t in tags:
+        if t in seen:
+            continue
+        seen.add(t)
+        out.append(t)
+    return out
+
+
+def pick_hashtags(tags: Sequence[str], *, k: int = 3, seed: str = "") -> str:
+    uniq = [t for t in tags if t]
+    if not uniq:
+        return ""
+    rng = random.Random(seed)
+    if len(uniq) <= k:
+        return " ".join(uniq)
+    return " ".join(rng.sample(uniq, k))
+
+
+def append_if_fit(text: str, extra: str, *, max_chars: int) -> str:
+    if not extra:
+        return text
+    candidate = f"{text} {extra}".strip()
+    return candidate if x_weighted_length(candidate) <= max_chars else text
+
+
+def dedupe_keep_order(values: Sequence[str]) -> List[str]:
+    out: List[str] = []
+    seen = set()
+    for v in values:
+        if not v or v in seen:
+            continue
+        seen.add(v)
+        out.append(v)
+    return out
+
+
+def compose_tweet(*, raw_text: str, links: Sequence[str], share_url: str, hashtags_env: str, seed: str) -> str:
+    base_text = normalize_spaces(raw_text)
+    core = strip_urls(base_text) or "GOODDAY YOKOSUKA"
+
+    if "#" not in core:
+        picked = pick_hashtags(parse_hashtags(hashtags_env), k=3, seed=seed)
+        core = append_if_fit(core, picked, max_chars=280)
+
+    candidate_urls = dedupe_keep_order([*clean_link_list(list(links)), share_url])
+
+    selected_urls: List[str] = []
+    reserve = 0
+    for url in candidate_urls:
+        add_cost = (1 if core or selected_urls else 0) + TCO_URL_LEN
+        if reserve + add_cost > 280:
+            break
+        reserve += add_cost
+        selected_urls.append(url)
+
+    safety = int(os.environ.get("X_TWEET_SAFETY", "0"))
+    max_core = max(0, 280 - reserve - safety)
+    if x_weighted_length(core) > max_core:
+        core2 = truncate_utf8(core, max_core)
+        while max_core > 0 and x_weighted_length(core2) > max_core:
+            max_core -= 1
+            core2 = truncate_utf8(core, max_core)
+        core = core2
+
+    parts: List[str] = []
+    if core:
+        parts.append(core)
+    parts.extend(selected_urls)
+    tweet = "\n".join(parts).strip()
+
+    if x_weighted_length(tweet) > 280:
+        return share_url
+    return tweet
+
 
 def compute_site_and_base() -> Tuple[str, str]:
     owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "").strip()
@@ -77,6 +186,7 @@ def compute_site_and_base() -> Tuple[str, str]:
 
     return site, base
 
+
 def make_share_url(site: str, base: str, post_id: str) -> str:
     base_part = f"/{base}" if base else ""
     if post_id:
@@ -84,6 +194,7 @@ def make_share_url(site: str, base: str, post_id: str) -> str:
         post_id_q = urllib.parse.quote(post_id, safe="")
         return f"{site}{base_part}/p/{post_id_q}/"
     return f"{site}{base_part}/"
+
 
 def oauth1_header(
     method: str,
@@ -122,6 +233,7 @@ def oauth1_header(
     header_params = ", ".join([f'{pct(k)}="{pct(v)}"' for k, v in sorted(oauth_params.items())])
     return f"OAuth {header_params}"
 
+
 def main() -> int:
     api_key = os.environ.get("X_API_KEY", "")
     api_secret = os.environ.get("X_API_SECRET", "")
@@ -143,7 +255,8 @@ def main() -> int:
 
     post_id = str(obj.get("id") or obj.get("focus_id") or obj.get("doc_id") or "").strip()
     raw_text = str(obj.get("text") or obj.get("title") or obj.get("summary") or "").strip()
-    raw_text = strip_urls(raw_text)
+    links = clean_link_list(obj.get("links") or [])
+    hashtags_env = os.environ.get("HASHTAGS", "")
 
     site, base = compute_site_and_base()
     if not site:
@@ -151,26 +264,13 @@ def main() -> int:
 
     share_url = make_share_url(site, base, post_id)
 
-    # Compose tweet
-    # IMPORTANT: X counts URLs as a fixed t.co length (TCO_URL_LEN).
-    # If we truncate by the raw URL length, we'll cut too aggressively and may even cut the URL,
-    # which breaks link detection.
-    core = raw_text if raw_text else "GOODDAY YOKOSUKA"
-    tweet = f"{core}\n{share_url}".strip()
-
-    if x_weighted_length(tweet) > 280:
-        # Reserve 1 newline + t.co URL length. Shrink only the core; never truncate the URL.
-        safety = int(os.environ.get("X_TWEET_SAFETY", "0"))  # optional extra margin
-        reserve = 1 + TCO_URL_LEN
-        max_core = max(0, 280 - reserve - safety)
-        core2 = truncate_utf8(core, max_core)
-        tweet = f"{core2}\n{share_url}".strip()
-        while max_core > 0 and x_weighted_length(tweet) > 280:
-            max_core -= 1
-            core2 = truncate_utf8(core, max_core)
-            tweet = f"{core2}\n{share_url}".strip()
-        if x_weighted_length(tweet) > 280:
-            tweet = share_url
+    tweet = compose_tweet(
+        raw_text=raw_text,
+        links=links,
+        share_url=share_url,
+        hashtags_env=hashtags_env,
+        seed=post_id or raw_text or share_url,
+    )
 
     if os.environ.get("DRY_RUN", "").strip() == "1":
         print(tweet)
@@ -202,6 +302,7 @@ def main() -> int:
         raise SystemExit(f"X API HTTPError: {e.code}: {body}") from e
 
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
