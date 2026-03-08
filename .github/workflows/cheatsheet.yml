@@ -5,8 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
+  contents: read
   id-token: write
 
 env:
@@ -66,8 +65,8 @@ jobs:
     if: needs.fixed.outputs.changed == '1'
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
+      changed: ${{ steps.publish.outputs.changed }}
+      feed_stem: ${{ steps.publish.outputs.feed_stem }}
     steps:
       - name: Checkout (generated commit)
         uses: actions/checkout@v4
@@ -112,44 +111,63 @@ jobs:
         if: always()
         run: docker compose -f docker-compose.yml down || true
 
-      - name: Commit & push illustrated changes if any
-        id: commit
+      - name: Configure AWS credentials via OIDC
+        if: success()
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Publish cheat sheet artifacts to S3
+        id: publish
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           set -euo pipefail
-          if git diff --quiet; then
-            echo 'changed=0' >> "$GITHUB_OUTPUT"
-            echo 'sha=' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
 
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git pull --ff-only origin main
           PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
           LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
           FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
           IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$PUBLIC_DIR/snapshot}"
 
-          git add "$LATEST_PATH_RESOLVED" "$FEED_DIR_RESOLVED"/*.json "$IMAGE_DIR_RESOLVED"/* || true
+          test -n "${AWS_S3_BUCKET_PUBLIC:-}"
+          test -f "$LATEST_PATH_RESOLVED"
 
-          if git diff --cached --quiet; then
-            echo 'changed=0' >> "$GITHUB_OUTPUT"
-            echo 'sha=' >> "$GITHUB_OUTPUT"
-            exit 0
+          FEED_STEM="$(python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          p = Path(os.environ.get('ARTIFACT_LATEST_PATH') or 'frontend/app/public/latest.json')
+          obj = json.loads(p.read_text(encoding='utf-8'))
+          print(obj.get('feed_stem', ''))
+          PY
+          )"
+
+          if [ -z "$FEED_STEM" ]; then
+            echo "Could not determine feed_stem from $LATEST_PATH_RESOLVED" >&2
+            exit 1
           fi
 
-          git commit -m 'chore: publish yokosuka morning cheat sheet'
-          git push origin HEAD:main
-          echo 'changed=1' >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          aws s3 cp "$LATEST_PATH_RESOLVED" "s3://${AWS_S3_BUCKET_PUBLIC}/latest.json"
+          aws s3 cp "$FEED_DIR_RESOLVED/${FEED_STEM}.json" "s3://${AWS_S3_BUCKET_PUBLIC}/feed/${FEED_STEM}.json"
 
-  pages:
-    needs: illustrate
-    if: needs.illustrate.outputs.changed == '1'
-    uses: ./.github/workflows/pages.yml
-    with:
-      ref: ${{ needs.illustrate.outputs.sha }}
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
+          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
+            aws s3 sync "$IMAGE_DIR_RESOLVED/" "s3://${AWS_S3_BUCKET_PUBLIC}/image/" --delete
+          fi
+
+          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
+            aws s3 sync "$SNAPSHOT_DIR_RESOLVED/" "s3://${AWS_S3_BUCKET_PUBLIC}/snapshot/"
+          fi
+
+          if [ -n "${AWS_CLOUDFRONT_DISTRIBUTION_ID:-}" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID" \
+              --paths "/latest.json" "/feed/${FEED_STEM}.json" "/image/*" "/snapshot/*"
+          fi
+
+          echo 'changed=1' >> "$GITHUB_OUTPUT"
+          echo "feed_stem=$FEED_STEM" >> "$GITHUB_OUTPUT"
