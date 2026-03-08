@@ -58,8 +58,8 @@
   "kind": "event",
   "avatar_image": "image/avatar/event.png",
   "avatar_url": "./image/avatar/event.png",
-  "image": "./image/feed_20260308_232103_JST.jpg",
-  "image_url": "./image/feed_20260308_232103_JST.jpg",
+  "image": "./image/feed_20260308_232103_JST.png",
+  "image_url": "./image/feed_20260308_232103_JST.png",
   "source_folder_id": "1VQ1x1FdXIjgNu4nx61DwJ-FQpWPj5nfm",
   "source_folder_url": "https://drive.google.com/drive/folders/1VQ1x1FdXIjgNu4nx61DwJ-FQpWPj5nfm?usp=drive_link",
   "source_image_name": "p00273_s.jpg",
@@ -67,5 +67,10 @@
   "source_caption_name": "p00273_s.txt",
   "source_caption_id": "1v4ZkuOd8vFf4SJg_JkcE1uVtSUd463zn",
   "selection_mode": "random_public_folder_pair",
-  "recent_exclude_limit": 20
+  "recent_exclude_limit": 20,
+  "permalink": "./?post=feed_20260308_232103_JST",
+  "image_prompt": "cinematic illustration, Yokosuka, based on this short story: 港に沿って続くヴェルニー公園のボードウォークからは、停泊する自衛艦や米海軍の潜水艦を眺めることができます。 春と秋には、公園内に植えられた約2000本のバラが咲き誇ります。横須賀製鉄所の建設に貢献したフランス人技師ヴェルニーの功績を伝えるヴェルニー記念館も開設されています。",
+  "image_negative": "",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_generated_at": "2026-03-08T16:28:15Z"
 }
