@@ -79,7 +79,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -94,6 +94,9 @@ env:
   PUBLIC_ASSET_BASE_URL: ""
   PUBLIC_FEED_BASE_URL: ""
   PUBLIC_IMAGE_BASE_URL: ""
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+  AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
 
 concurrency:
   group: google-drive-random-post
@@ -103,8 +106,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
+      changed: ${{ steps.publish.outputs.changed }}
       feed_stem: ${{ steps.meta.outputs.feed_stem }}
     steps:
       - name: Checkout (main)
@@ -187,58 +189,67 @@ jobs:
               f.write(f"feed_stem={state['feed_stem']}\n")
           PY
 
-      - name: Commit & push if changed
-        id: commit
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          disable-retry: true
+
+      - name: Publish generated artifacts to S3
+        id: publish
+        env:
+          FEED_STEM: ${{ steps.meta.outputs.feed_stem }}
         run: |
           set -euo pipefail
 
           if git diff --quiet; then
             echo "No changes"
             echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
           LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
           FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
           SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
           IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+          FEED_JSON_PATH="$FEED_DIR_RESOLVED/$FEED_STEM.json"
 
-          git add "$FEED_DIR_RESOLVED"/*.json || true
-          git add "$LATEST_PATH_RESOLVED" || true
-          git add "$SNAPSHOT_DIR_RESOLVED"/*.json || true
-          git add "$IMAGE_DIR_RESOLVED"/* || true
+          test -n "$AWS_S3_BUCKET_PUBLIC"
+          test -f "$LATEST_PATH_RESOLVED"
+          test -f "$FEED_JSON_PATH"
 
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
+          aws s3 cp "$LATEST_PATH_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/latest.json"
+          aws s3 cp "$FEED_JSON_PATH" "s3://$AWS_S3_BUCKET_PUBLIC/feed/$FEED_STEM.json"
+
+          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
+            aws s3 sync "$SNAPSHOT_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/snapshot/"
           fi
 
-          git commit -m "chore: add random Google Drive post"
-          git push origin HEAD:main
+          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
+            aws s3 sync "$IMAGE_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/image/"
+          fi
+
+          if [ -n "${AWS_CLOUDFRONT_DISTRIBUTION_ID:-}" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID" \
+              --paths "/latest.json" "/feed/$FEED_STEM.json" "/image/*" "/snapshot/*"
+          fi
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-  pages:
-    needs: prepare
-    if: needs.prepare.outputs.changed == '1'
-    uses: ./.github/workflows/pages.yml
-    with:
-      ref: ${{ needs.prepare.outputs.sha }}
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
+      - name: Upload latest.json for x_post
+        if: steps.publish.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-json-${{ github.run_id }}
+          path: ${{ env.ARTIFACT_LATEST_PATH }}
+          if-no-files-found: error
+          retention-days: 1
 
   x_post:
-    needs: [prepare, pages]
+    needs: prepare
     if: inputs.post_to_x == '1' && needs.prepare.outputs.changed == '1'
     runs-on: ubuntu-latest
     permissions:
@@ -247,23 +258,35 @@ jobs:
       group: post-x
       cancel-in-progress: false
     steps:
-      - name: Checkout (generated commit)
+      - name: Checkout (main)
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare.outputs.sha }}
-          fetch-depth: 0
+          ref: main
+          fetch-depth: 1
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Cache posted marker (per commit)
+      - name: Download latest.json artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: latest-json-${{ github.run_id }}
+          path: /tmp/latest-json
+
+      - name: Place latest.json where post_to_x.py expects it
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "${ARTIFACT_LATEST_PATH}")"
+          cp /tmp/latest-json/latest.json "${ARTIFACT_LATEST_PATH}"
+
+      - name: Cache posted marker (per feed stem)
         id: cache
         uses: actions/cache@v4
         with:
           path: .x-posted
-          key: x-posted-${{ needs.prepare.outputs.sha }}
+          key: x-posted-${{ needs.prepare.outputs.feed_stem }}
 
       - name: Post latest to X
         if: steps.cache.outputs.cache-hit != 'true'
@@ -277,8 +300,8 @@ jobs:
           set -euo pipefail
           python scripts/post_to_x.py
           mkdir -p .x-posted
-          echo '${{ needs.prepare.outputs.sha }}' > .x-posted/sha
+          echo '${{ needs.prepare.outputs.feed_stem }}' > .x-posted/feed_stem
 
       - name: Skip (already posted)
         if: steps.cache.outputs.cache-hit == 'true'
-        run: echo "Already posted for this commit."
+        run: echo "Already posted for this feed stem."
