@@ -1,9 +1,7 @@
 name: Cheat Sheet
 
 on:
-  schedule:
-    # 06:00 JST every day
-    - cron: '0 21 * * *'
+  workflow_call:
   workflow_dispatch:
 
 permissions:

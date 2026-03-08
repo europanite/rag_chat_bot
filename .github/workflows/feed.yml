@@ -21,6 +21,7 @@ on:
           - auto
           - spot
           - garbage
+          - cheatsheet
           - restaurant
           - event
           - spot_intro
@@ -58,17 +59,17 @@ jobs:
           HOUR="${HOUR#0}"
           DOW="$(TZ=Asia/Tokyo date +%u)"  # 1=Mon ... 7=Sun
 
-          if (( HOUR >= 0 && HOUR < 5 )); then
+          if (( HOUR >= 0 && HOUR < 2 )); then
             SLOT="spot"
+          elif (( HOUR >= 2 && HOUR < 5 )); then
+            SLOT="cheetsheet"
           elif (( HOUR >= 5 && HOUR < 7 )); then
             if (( DOW >= 1 && DOW <= 5 )); then
               SLOT="garbage"
             else
               SLOT="spot"
             fi
-          elif (( HOUR >= 7 && HOUR < 10 )); then
-            SLOT="restaurant"
-          elif (( HOUR >= 10 && HOUR < 13 )); then
+          elif (( HOUR >= 7 && HOUR < 13 )); then
             SLOT="restaurant"
           elif (( HOUR >= 13 && HOUR < 17 )); then
             SLOT="event"
@@ -100,6 +101,12 @@ jobs:
     needs: select
     if: needs.select.outputs.slot == 'garbage'
     uses: ./.github/workflows/feed_slot_garbage.yml
+    secrets: inherit
+
+  scheatsheet:
+    needs: select
+    if: needs.select.outputs.slot == 'cheatsheet'
+    uses: ./.github/workflows/cheatsheet.yml
     secrets: inherit
 
   srestaurant:
