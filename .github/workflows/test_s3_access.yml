@@ -1,0 +1,42 @@
+name: Test S3 Access
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-s3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Show caller identity
+        run: aws sts get-caller-identity
+
+      - name: List buckets
+        run: |
+          aws s3 ls s3://${{ vars.AWS_S3_BUCKET_PUBLIC }}
+          aws s3 ls s3://${{ vars.AWS_S3_BUCKET_PRIVATE }}
+          aws s3 ls s3://${{ vars.AWS_S3_BUCKET_BACKUP }}
+
+      - name: Write smoke file to public bucket
+        run: |
+          echo "hello from github actions" > smoke.txt
+          aws s3 cp smoke.txt s3://${{ vars.AWS_S3_BUCKET_PUBLIC }}/smoke/smoke.txt
+          aws s3 ls s3://${{ vars.AWS_S3_BUCKET_PUBLIC }}/smoke/
+
+      - name: Write smoke file to backup bucket
+        run: |
+          echo "backup test" > backup.txt
+          aws s3 cp backup.txt s3://${{ vars.AWS_S3_BUCKET_BACKUP }}/smoke/backup.txt
+          aws s3 ls s3://${{ vars.AWS_S3_BUCKET_BACKUP }}/smoke/
