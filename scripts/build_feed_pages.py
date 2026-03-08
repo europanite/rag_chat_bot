@@ -18,11 +18,11 @@ Key behavior:
 This fixes cases where the post JSON has id=generated_at and no image_url, so the web UI
 doesn't know which image file to load.
 """
-
 from __future__ import annotations
-
-import hashlib
+ 
 import json
+import importlib.util
+import hashlib
 import os
 from datetime import datetime, timezone
 from pathlib import Path

@@ -103,12 +103,3 @@ def resolve_public_image_url(rel_path: str) -> str:
 
 def resolve_public_avatar_url(rel_path: str) -> str:
     return resolve_public_image_url(rel_path)
-diff --git a/scripts/build_feed_pages.py b/scripts/build_feed_pages.py
-index 2cde0c1..9121650 100644
---- a/scripts/build_feed_pages.py
-+++ b/scripts/build_feed_pages.py
-@@ -1,8 +1,30 @@
- from __future__ import annotations
- 
- import json
-+import importlib.util
