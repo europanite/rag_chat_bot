@@ -62,9 +62,11 @@
   "avatar_image": "image/avatar/food.png",
   "image": "./image/feed_20260309_072204_JST.png",
   "image_url": "./image/feed_20260309_072204_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good morning 😊! It's a chilly 6°C and rainy today in Yokosuka. If you're looking for some warm comfort food, head over to TSUNAMI on Dobuita Street American Dining for their famous burgers and \"Navy\" style dishes. 🍔🌯",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-08T22:34:29.244373Z",
-  "permalink": "./?post=feed_20260309_072204_JST"
+  "image_generated_at": "2026-03-08T23:39:56Z",
+  "permalink": "./?post=feed_20260309_072204_JST",
+  "avatar_url": "./image/avatar/food.png",
+  "image_negative": ""
 }
