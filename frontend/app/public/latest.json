@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-08T01:55:44Z",
+  "id": "feed_20260308_104634_JST",
   "date": "2026-03-08",
   "text": "Good morning! 🌞 It's cloudy with a chilly feeling outside today at 10°C. Perfect weather to visit CHARA (茶楽 / チャラ) — Bar & Dining Bar and enjoy some delicious American diner-style food in Yokosuka! 😊",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "CHARA (茶楽 / チャラ) — Bar & Dining Bar",
   "kind": "restaurant",
-  "avatar_image": "avatar/food.png"
+  "avatar_image": "avatar/food.png",
+  "image": "./image/feed_20260308_104634_JST.png",
+  "image_url": "./image/feed_20260308_104634_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "permalink": "./?post=feed_20260308_104634_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-03-08T02:00:18.357201Z"
 }
