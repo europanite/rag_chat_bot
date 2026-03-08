@@ -63,9 +63,11 @@
   "avatar_image": "image/avatar/night.png",
   "image": "./image/feed_20260309_052416_JST.png",
   "image_url": "./image/feed_20260309_052416_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
-  "image_model": "stabilityai/sdxl-turbo",
+  "image_prompt": "[fixed_image] frontend/app/public/image/fixed/garbage.png",
+  "image_model": "fixed",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-08T20:29:07.188277Z",
-  "permalink": "./?post=feed_20260309_052416_JST"
+  "image_generated_at": "2026-03-08T22:21:17Z",
+  "permalink": "./?post=feed_20260309_052416_JST",
+  "avatar_url": "./image/avatar/night.png",
+  "image_negative": ""
 }
