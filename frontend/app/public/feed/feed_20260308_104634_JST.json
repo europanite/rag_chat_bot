@@ -54,16 +54,10 @@
       "temp_city_code": null
     }
   },
-  "links": [],
-  "required_mention": "",
-  "kind": "event",
-  "image_fixed": "image/avatar/normal.png",
-  "avatar_image": "image/avatar/normal.png",
-  "legacy_id": "2026-03-07T15:04:54Z",
-  "permalink": "./?post=feed_20260308_000452_JST",
-  "image_url": "./image/feed_20260308_000452_JST.png",
-  "image_prompt": "[fixed_image] frontend/app/public/image/avatar/normal.png",
-  "image_negative": "",
-  "image_model": "fixed",
-  "image_generated_at": "2026-03-07T15:07:00Z"
+  "links": [
+    "https://dobuita-st.com/name/ta/chara.html"
+  ],
+  "required_mention": "CHARA (茶楽 / チャラ) — Bar & Dining Bar",
+  "kind": "restaurant",
+  "avatar_image": "avatar/food.png"
 }
