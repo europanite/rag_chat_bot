@@ -20,6 +20,18 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -69,8 +81,8 @@ jobs:
 
       - name: Build paged feed
         env:
-          FEED_PATH: frontend/app/public
-          LATEST_PATH: frontend/app/public/latest.json
+          FEED_PATH: ${{ env.ARTIFACT_PUBLIC_DIR }}
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
           FEED_PAGE_SIZE: "20"
         run: |
           python scripts/build_feed_pages.py
@@ -78,7 +90,10 @@ jobs:
       - name: Build
         working-directory: frontend/app
         env:
-          EXPO_PUBLIC_FEED_URL: ./latest.json
+          EXPO_PUBLIC_FEED_URL: ${{ vars.EXPO_PUBLIC_FEED_URL }}
+          EXPO_PUBLIC_ASSET_BASE_URL: ${{ vars.EXPO_PUBLIC_ASSET_BASE_URL }}
+          EXPO_PUBLIC_FEED_BASE_URL: ${{ vars.EXPO_PUBLIC_FEED_BASE_URL }}
+          EXPO_PUBLIC_IMAGE_BASE_URL: ${{ vars.EXPO_PUBLIC_IMAGE_BASE_URL }}
           EXPO_PUBLIC_FEEDBACK_FORM_URL: ${{ vars.EXPO_PUBLIC_FEEDBACK_FORM_URL }}
           EXPO_PUBLIC_USE_SLOT: 1
           EXPO_PUBLIC_SLOT_ROTATE_MS: 6500

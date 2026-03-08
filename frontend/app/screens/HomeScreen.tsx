@@ -989,22 +989,25 @@ export default function HomeScreen() {
   const listRef = useRef<FlatList<TimelineItem>>(null);
   const deepLinkAttemptsRef = useRef<number>(0);
   const [deepLinkPostId, setDeepLinkPostId] = useState<string | null>(null);
-  const FEED_URL = (process.env.EXPO_PUBLIC_FEED_URL || "./latest.json").trim();
+  const FEED_URL = (process.env.EXPO_PUBLIC_FEED_URL || process.env.EXPO_PUBLIC_FEED_JSON_URL || "./latest.json").trim();
+  const ASSET_BASE_URL = (process.env.EXPO_PUBLIC_ASSET_BASE_URL || "").trim();
+  const FEED_BASE_URL = (process.env.EXPO_PUBLIC_FEED_BASE_URL || ASSET_BASE_URL || "").trim();
+  const IMAGE_BASE_URL = (process.env.EXPO_PUBLIC_IMAGE_BASE_URL || ASSET_BASE_URL || "").trim();
   const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "").trim();
   const { width } = useWindowDimensions();
   const showSidebars = width >= 980;
 
   const RESOLVED_FEED_URL = useMemo(() => {
-
     const normalized = normalizeWebAssetPath(FEED_URL);
-     try {
-       if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
-       if (typeof window !== "undefined") return new URL(normalized, window.location.href).toString();
-     } catch {
-       // ignore
-     }
-     return normalized;
-   }, [FEED_URL]);
+    const base = FEED_BASE_URL || (typeof window !== "undefined" ? window.location.href : normalized);
+    try {
+      if (normalized.startsWith("http://") || normalized.startsWith("https://")) return normalized;
+      if (base) return new URL(normalized, base).toString();
+    } catch {
+      // ignore
+    }
+    return normalized;
+  }, [FEED_URL, FEED_BASE_URL]);
 
   const [feed, setFeed] = useState<Feed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -1061,7 +1064,7 @@ useEffect(() => {
   (async () => {
     try {
       const base =
-        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
+        FEED_BASE_URL || (Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL);
 
       const resolved = resolveUrl(normalizeWebAssetPath(SHARE_SD_INDEX_URL), base);
       const target = await fetchJson(resolved);
@@ -1078,7 +1081,7 @@ useEffect(() => {
   return () => {
     cancelled = true;
   };
-}, [SHARE_SD_INDEX_URL, RESOLVED_FEED_URL, fetchJson]);
+}, [SHARE_SD_INDEX_URL, FEED_BASE_URL, RESOLVED_FEED_URL, fetchJson]);
 
 const sharePromptToImage = useMemo(() => {
   const m = new Map<string, string>();
@@ -1095,9 +1098,11 @@ const sharePromptToImage = useMemo(() => {
 }, [shareSdIndex]);
 
 const assetBase = useMemo(() => {
+  if (IMAGE_BASE_URL) return IMAGE_BASE_URL;
+  if (ASSET_BASE_URL) return ASSET_BASE_URL;
   if (Platform.OS === "web" && typeof window !== "undefined") return window.location.href;
   return effectiveUrl || RESOLVED_FEED_URL;
-}, [effectiveUrl, RESOLVED_FEED_URL]);
+}, [IMAGE_BASE_URL, ASSET_BASE_URL, effectiveUrl, RESOLVED_FEED_URL]);
 
 const getImageUrisForItem = useCallback(
   (item: FeedItem): string[] => {
@@ -1149,7 +1154,7 @@ const getImageUrisForItem = useCallback(
       setNextUrl(null);
 
       const base =
-        Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL;
+        FEED_BASE_URL || (Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL);
 
       // Try the configured URL first, then common fallbacks (root and /feed/).
       const candidates = Array.from(
@@ -1211,7 +1216,7 @@ const getImageUrisForItem = useCallback(
       setLoading(false);
     }
   },
-  [RESOLVED_FEED_URL, fetchJson],
+  [FEED_BASE_URL, RESOLVED_FEED_URL, fetchJson],
 );
 
   useEffect(() => {

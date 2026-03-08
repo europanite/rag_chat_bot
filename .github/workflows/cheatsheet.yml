@@ -9,6 +9,18 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+
 concurrency:
   group: yokosuka-morning-cheatsheet
   cancel-in-progress: false
@@ -84,16 +96,16 @@ jobs:
         env:
           REACT_NATIVE_PACKAGER_HOSTNAME: '127.0.0.1'
           PATCH_JSON: '1'
-          OUT_DIR: 'frontend/app/public/image'
-          FEED_PATH: 'frontend/app/public'
-          LATEST_PATH: 'frontend/app/public/latest.json'
+          OUT_DIR: '${{ env.ARTIFACT_IMAGE_DIR }}'
+          FEED_PATH: '${{ env.ARTIFACT_PUBLIC_DIR }}'
+          LATEST_PATH: '${{ env.ARTIFACT_LATEST_PATH }}'
           PLACE: 'Yokosuka, Japan'
           MIRROR_AUG: '0'
           SEED_OFFSET: '0'
           SDXL_MODEL_ID: stabilityai/sdxl-turbo
         run: |
           set -euo pipefail
-          test -f frontend/app/public/latest.json
+          test -f "${ARTIFACT_LATEST_PATH:-frontend/app/public/latest.json}"
           docker compose -f docker-compose.yml run --rm illustrate
 
       - name: Stop stack
@@ -113,7 +125,12 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git pull --ff-only origin main
-          git add frontend/app/public/latest.json frontend/app/public/feed/*.json frontend/app/public/image/* || true
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+
+          git add "$LATEST_PATH_RESOLVED" "$FEED_DIR_RESOLVED"/*.json "$IMAGE_DIR_RESOLVED"/* || true
 
           if git diff --cached --quiet; then
             echo 'changed=0' >> "$GITHUB_OUTPUT"

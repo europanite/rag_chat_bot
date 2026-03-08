@@ -28,6 +28,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+try:
+    from artifact_paths import (
+        artifact_feed_dir,
+        artifact_latest_path,
+        artifact_public_dir,
+        resolve_public_avatar_url,
+        resolve_public_feed_url,
+        resolve_public_image_url,
+    )
+except ImportError:
+    from scripts.artifact_paths import (
+        artifact_feed_dir,
+        artifact_latest_path,
+        artifact_public_dir,
+        resolve_public_avatar_url,
+        resolve_public_feed_url,
+        resolve_public_image_url,
+    )
+
 
 def _load_json(p: Path) -> Any:
     return json.loads(p.read_text(encoding="utf-8"))
@@ -145,11 +164,16 @@ def _apply_snapshot_canonicalization(
     if not (has_image or has_image_url):
         img_path = public_dir / "image" / f"{src_stem}.png"
         if img_path.exists():
-            it["image_url"] = f"./image/{src_stem}.png"
+            image_ref = resolve_public_image_url(f"image/{src_stem}.png")
+            it["image"] = image_ref
+            it["image_url"] = image_ref
+    avatar_image = str(it.get("avatar_image") or "").strip()
+    if avatar_image and not (isinstance(it.get("avatar_url"), str) and it["avatar_url"].strip()):
+        it["avatar_url"] = resolve_public_avatar_url(avatar_image)
 
 
-def _iter_sources(public_dir: Path) -> Iterable[Tuple[Path, str]]:
-    feed_dir = public_dir / "feed"
+def _iter_sources(public_dir: Path, feed_dir: Path | None = None) -> Iterable[Tuple[Path, str]]:
+    feed_dir = feed_dir or artifact_feed_dir(public_dir)
 
     # Primary: snapshot files
     if feed_dir.exists():
@@ -170,10 +194,10 @@ def _iter_sources(public_dir: Path) -> Iterable[Tuple[Path, str]]:
 
 
 def main() -> int:
-    public_dir = Path(os.environ.get("FEED_PATH", "frontend/app/public"))
-    latest_path = Path(os.environ.get("LATEST_PATH", str(public_dir / "latest.json")))
+    public_dir = artifact_public_dir()
+    latest_path = artifact_latest_path(public_dir)
 
-    feed_dir = public_dir / "feed"
+    feed_dir = artifact_feed_dir(public_dir)
     feed_dir.mkdir(parents=True, exist_ok=True)
 
     page_size = int(os.environ.get("PAGE_SIZE", "30"))
@@ -182,7 +206,7 @@ def main() -> int:
     items: List[Dict[str, Any]] = []
     seen_fp: set[str] = set()
 
-    for src, kind in _iter_sources(public_dir):
+    for src, kind in _iter_sources(public_dir, feed_dir):
         try:
             obj = _load_json(src)
         except Exception:
@@ -256,7 +280,7 @@ def main() -> int:
     if not updated_at:
         updated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
-    pointer = {"feed_url": "./feed/page_000.json", "updated_at": updated_at}
+    pointer = {"feed_url": resolve_public_feed_url("feed/page_000.json"), "updated_at": updated_at}
     _dump_json(latest_path, pointer)
 
     print(f"Wrote {len(page_paths)} pages, {len(items)} items. latest -> {pointer['feed_url']}")

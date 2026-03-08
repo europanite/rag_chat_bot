@@ -16,6 +16,23 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
+try:
+    from artifact_paths import (
+        artifact_latest_path,
+        artifact_public_dir,
+        artifact_snapshot_dir,
+        computed_feed_snapshot_path,
+        resolve_public_avatar_url,
+    )
+except ImportError:
+    from scripts.artifact_paths import (
+        artifact_latest_path,
+        artifact_public_dir,
+        artifact_snapshot_dir,
+        computed_feed_snapshot_path,
+        resolve_public_avatar_url,
+    )
+
 
 # -----------------------------
 # Utilities
@@ -777,7 +794,9 @@ def build_entry(
          "required_mention": (required_mention or "").strip(),
      }
     if (avatar_image or "").strip():
-        obj["avatar_image"] = str(avatar_image).strip()
+        avatar_rel = str(avatar_image).strip()
+        obj["avatar_image"] = avatar_rel
+        obj["avatar_url"] = resolve_public_avatar_url(avatar_rel)
     if (kind or "").strip():
         obj["kind"] = str(kind).strip()
     if (image_fixed or "").strip():
@@ -854,7 +873,7 @@ def write_outputs(feed_path: str, latest_path: str, entry: Dict[str, Any], snap_
     print(f"Wrote: {lp}")
 
     # 3) raw weather snapshot next to latest (debug/transparency)
-    snap_path = lp.parent / "snapshot" / f"snapshot_{now_local}.json"
+    snap_path = artifact_snapshot_dir(latest_path=lp) / f"snapshot_{now_local}.json"
     snap_path.parent.mkdir(parents=True, exist_ok=True)
     try:
         snap_obj = json.loads(snap_json_raw)
@@ -924,10 +943,10 @@ def main() -> int:
     hashtags = env("HASHTAGS", "")
 
     now_local = local_stamp(tz_name)
-    # Output paths (match bash behavior)
-    feed_path_dir = env("FEED_PATH", "")
-    latest_path_default = env("LATEST_PATH", "frontend/app/public/latest.json")
-    computed_feed_path = str(Path(feed_path_dir) / "feed" / f"feed_{now_local}.json") if feed_path_dir else ""
+    # Output paths (stage 1: local paths are centralized but behavior stays the same)
+    public_dir = artifact_public_dir()
+    latest_path_default = str(artifact_latest_path(public_dir))
+    computed_feed_path = str(computed_feed_snapshot_path(now_local, public_dir))
 
     feed_paths_raw = env("FEED_PATHS", "")
     if is_blank(feed_paths_raw):

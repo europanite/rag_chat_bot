@@ -60,6 +60,18 @@ on:
 permissions:
   contents: write
 
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+
 concurrency:
   group: fixed-entry
   cancel-in-progress: false
@@ -196,9 +208,14 @@ jobs:
 
           git pull --ff-only origin main
 
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
+
+          git add "$FEED_DIR_RESOLVED"/*.json || true
+          git add "$LATEST_PATH_RESOLVED" || true
+          git add "$SNAPSHOT_DIR_RESOLVED"/*.json || true
 
           if git diff --cached --quiet; then
             echo "No staged changes"

@@ -55,6 +55,18 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+
 jobs:
   rag:
     runs-on: ubuntu-latest
@@ -119,8 +131,8 @@ jobs:
           CURL_MAX_TIME: "512"
           CURL_RETRIES: "1"
           PLACE: "Yokosuka"
-          FEED_PATH: "frontend/app/public"
-          LATEST_PATH: "frontend/app/public/latest.json"
+          FEED_PATH: ${{ env.ARTIFACT_PUBLIC_DIR }}
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
           MAX_CHARS: "220"
           REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
           TOPIC_VARIANT: ${{ github.run_number }}
@@ -157,9 +169,14 @@ jobs:
 
           git pull --ff-only origin main
 
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
+
+          git add "$FEED_DIR_RESOLVED"/*.json || true
+          git add "$LATEST_PATH_RESOLVED" || true
+          git add "$SNAPSHOT_DIR_RESOLVED"/*.json || true
 
           if git diff --cached --quiet; then
             echo "No staged changes"
@@ -253,7 +270,7 @@ jobs:
         if: steps.style.outputs.use_camera == '1'
         env:
           SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
-          LATEST_PATH: "frontend/app/public/latest.json"
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
           REF_MAX_CANDIDATES: "8"
         run: |
           python scripts/retrieve_snapshot.py
@@ -293,14 +310,14 @@ jobs:
           # arrange(img2img)
           REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
           PATCH_JSON: "1"
-          OUT_DIR: "frontend/app/public/image"
+          OUT_DIR: ${{ env.ARTIFACT_IMAGE_DIR }}
           PLACE: "Yokosuka, Japan"
           MIRROR_AUG: "1"
           SEED_OFFSET: "${{ github.run_number }}"
           SDXL_MODEL_ID: stabilityai/sdxl-turbo
         run: |
           set -euo pipefail
-          test -f frontend/app/public/latest.json
+          test -f "${ARTIFACT_LATEST_PATH:-frontend/app/public/latest.json}"
           docker compose -f docker-compose.yml run --rm illustrate
 
       - name: Commit & push illustrated changes if any
@@ -318,9 +335,14 @@ jobs:
 
           git pull --ff-only origin main
 
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/image/*.png || true
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+
+          git add "$LATEST_PATH_RESOLVED" || true
+          git add "$FEED_DIR_RESOLVED"/*.json || true
+          git add "$IMAGE_DIR_RESOLVED"/*.png || true
 
           if git diff --cached --quiet; then
             echo "No staged changes"
@@ -394,7 +416,7 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-          LATEST_PATH: frontend/app/public/latest.json
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
         run: |
           set -euo pipefail
           python scripts/post_to_x.py

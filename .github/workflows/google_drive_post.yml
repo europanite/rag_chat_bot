@@ -83,6 +83,18 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+
 concurrency:
   group: google-drive-random-post
   cancel-in-progress: false
@@ -158,8 +170,8 @@ jobs:
             --place "$INPUT_PLACE" \
             --recent-exclude-limit "$INPUT_RECENT_EXCLUDE_LIMIT" \
             --random-seed "$INPUT_RANDOM_SEED" \
-            --public-dir 'frontend/app/public' \
-            --latest-path 'frontend/app/public/latest.json' \
+            --public-dir "${ARTIFACT_PUBLIC_DIR:-frontend/app/public}" \
+            --latest-path "${ARTIFACT_LATEST_PATH:-frontend/app/public/latest.json}" \
             --output-state /tmp/drive_post_state.json
 
       - name: Export prepare metadata
@@ -190,10 +202,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add frontend/app/public/feed/*.json || true
-          git add frontend/app/public/latest.json || true
-          git add frontend/app/public/snapshot/*.json || true
-          git add frontend/app/public/image/* || true
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
+          IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+
+          git add "$FEED_DIR_RESOLVED"/*.json || true
+          git add "$LATEST_PATH_RESOLVED" || true
+          git add "$SNAPSHOT_DIR_RESOLVED"/*.json || true
+          git add "$IMAGE_DIR_RESOLVED"/* || true
 
           if git diff --cached --quiet; then
             echo "No staged changes"
@@ -254,7 +272,7 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-          LATEST_PATH: frontend/app/public/latest.json
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
         run: |
           set -euo pipefail
           python scripts/post_to_x.py

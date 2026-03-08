@@ -22,6 +22,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+try:
+    from artifact_paths import (
+        artifact_feed_dir,
+        artifact_image_dir,
+        artifact_latest_path,
+        artifact_public_dir,
+        resolve_public_avatar_url,
+        resolve_public_image_url,
+    )
+except ImportError:
+    from scripts.artifact_paths import (
+        artifact_feed_dir,
+        artifact_image_dir,
+        artifact_latest_path,
+        artifact_public_dir,
+        resolve_public_avatar_url,
+        resolve_public_image_url,
+    )
+
 import torch
 from diffusers import AutoPipelineForText2Image
 
@@ -115,7 +134,11 @@ def patch_feed_file(
             it["legacy_id"] = old_id
         it["id"] = feed_stem
         it["permalink"] = f"./?post={feed_stem}"
+        it["image"] = rel_image_url
         it["image_url"] = rel_image_url
+        avatar_image = safe_str(it.get("avatar_image")).strip()
+        if avatar_image:
+            it["avatar_url"] = resolve_public_avatar_url(avatar_image)
         it["image_prompt"] = image_prompt
         it["image_negative"] = image_negative
         it["image_model"] = image_model
@@ -161,8 +184,8 @@ def resolve_fixed_image_path(value: str, public_dir: Path) -> Path:
     raise FileNotFoundError(f"fixed image not found. tried: {msg}")
 
 def main() -> int:
-    public_dir = Path(os.environ.get("FEED_PATH"))
-    latest_path = Path(os.environ.get("LATEST_PATH"))
+    public_dir = artifact_public_dir()
+    latest_path = artifact_latest_path(public_dir)
 
     if not latest_path.exists():
         print(f"ERROR: latest.json not found: {latest_path}")
@@ -182,7 +205,7 @@ def main() -> int:
         print("ERROR: latest.json missing date/text")
         return 2
 
-    feed_dir = public_dir / "feed"
+    feed_dir = artifact_feed_dir(public_dir)
     feeds = sorted(feed_dir.glob("feed_*.json"), reverse=True)
     if not feeds:
         print(f"ERROR: No feed snapshots found in {feed_dir}")
@@ -191,7 +214,7 @@ def main() -> int:
     # We name the image by the newest snapshot filename stem.
     feed_stem = feeds[0].stem
 
-    out_dir = public_dir / "image"
+    out_dir = artifact_image_dir(public_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     fixed = safe_str(latest.get("image_fixed")).strip()
@@ -259,7 +282,7 @@ def main() -> int:
         image.save(out_path)
 
 
-    rel_image_url = f"./image/{out_path.name}"
+    rel_image_url = resolve_public_image_url(f"image/{out_path.name}")
     now_iso = now_iso_utc()
 
     # Patch latest.json entry
@@ -268,7 +291,11 @@ def main() -> int:
         latest["legacy_id"] = old_latest_id
     latest["id"] = feed_stem
     latest["permalink"] = f"./?post={feed_stem}"
+    latest["image"] = rel_image_url
     latest["image_url"] = rel_image_url
+    avatar_image = safe_str(latest.get("avatar_image")).strip()
+    if avatar_image:
+        latest["avatar_url"] = resolve_public_avatar_url(avatar_image)
     latest["image_prompt"] = prompt
     latest["image_negative"] = negative
     latest["image_model"] = image_model

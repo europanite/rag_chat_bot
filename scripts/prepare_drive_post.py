@@ -18,6 +18,27 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
+try:
+    from artifact_paths import (
+        artifact_feed_dir,
+        artifact_image_dir,
+        artifact_latest_path,
+        artifact_public_dir,
+        artifact_snapshot_dir,
+        resolve_public_avatar_url,
+        resolve_public_image_url,
+    )
+except ImportError:
+    from scripts.artifact_paths import (
+        artifact_feed_dir,
+        artifact_image_dir,
+        artifact_latest_path,
+        artifact_public_dir,
+        artifact_snapshot_dir,
+        resolve_public_avatar_url,
+        resolve_public_image_url,
+    )
+
 USER_AGENT = "rag_chat_bot-gha/drive-random-post"
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tif", ".tiff", ".svg"}
 TEXT_EXTS = {".txt", ".md", ".markdown", ".json"}
@@ -365,8 +386,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--lat", default="35.2810")
     p.add_argument("--lon", default="139.6722")
     p.add_argument("--tz-name", default="Asia/Tokyo")
-    p.add_argument("--public-dir", default="frontend/app/public")
-    p.add_argument("--latest-path", default="frontend/app/public/latest.json")
+    p.add_argument("--public-dir", default="")
+    p.add_argument("--latest-path", default="")
     p.add_argument("--output-state", default="")
     p.add_argument("--recent-exclude-limit", type=int, default=20)
     p.add_argument("--random-seed", default="")
@@ -376,13 +397,15 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     repo_root = Path.cwd()
-    public_dir = Path(args.public_dir)
-    latest_path = Path(args.latest_path)
+    public_dir = Path(args.public_dir) if str(args.public_dir).strip() else artifact_public_dir()
+    latest_path = Path(args.latest_path) if str(args.latest_path).strip() else artifact_latest_path(public_dir)
+    feed_dir = artifact_feed_dir(public_dir)
+    image_dir = artifact_image_dir(public_dir)
 
     folder = extract_folder_ref(args.folder_url)
     entries = list_public_folder_entries(folder)
     pairs = choose_pairs(entries)
-    excluded_ids = recent_source_image_ids(public_dir / "feed", args.recent_exclude_limit)
+    excluded_ids = recent_source_image_ids(feed_dir, args.recent_exclude_limit)
     image_entry, caption_entry = choose_random_pair(
         pairs,
         excluded_image_ids=excluded_ids,
@@ -411,7 +434,7 @@ def main() -> int:
     feed_stem = f"feed_{now_local}"
 
     image_filename = f"{feed_stem}{image_ext.lower()}"
-    image_path = public_dir / "image" / image_filename
+    image_path = image_dir / image_filename
     image_path.parent.mkdir(parents=True, exist_ok=True)
     image_path.write_bytes(image_bytes)
 
@@ -433,7 +456,9 @@ def main() -> int:
         "links": [],
         "kind": args.kind,
         "avatar_image": args.avatar_image,
-        "image_url": f"./image/{image_filename}",
+        "avatar_url": resolve_public_avatar_url(args.avatar_image),
+        "image": resolve_public_image_url(f"image/{image_filename}"),
+        "image_url": resolve_public_image_url(f"image/{image_filename}"),
         "source_folder_id": folder.folder_id,
         "source_folder_url": args.folder_url,
         "source_image_name": image_entry.name,
@@ -444,11 +469,11 @@ def main() -> int:
         "recent_exclude_limit": args.recent_exclude_limit,
     }
 
-    feed_path = public_dir / "feed" / f"{feed_stem}.json"
+    feed_path = feed_dir / f"{feed_stem}.json"
     write_json(feed_path, item)
     write_json(latest_path, item)
 
-    snap_path = latest_path.parent / "snapshot" / f"snapshot_{now_local}.json"
+    snap_path = artifact_snapshot_dir(public_dir=public_dir, latest_path=latest_path) / f"snapshot_{now_local}.json"
     snap_path.parent.mkdir(parents=True, exist_ok=True)
     snap_path.write_text(snap_json_raw, encoding="utf-8")
 
