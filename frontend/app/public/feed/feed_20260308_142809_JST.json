@@ -62,9 +62,10 @@
   "avatar_image": "image/avatar/event.png",
   "image": "./image/feed_20260308_142809_JST.png",
   "image_url": "./image/feed_20260308_142809_JST.png",
-  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's a cloudy day with 12°C in Yokosuka today 🌫️. If you're looking for a unique dining experience, check out 5F SHELL / Gokai Shell for their cozy atmosphere and delicious food 😊. Their small plates are",
   "image_model": "stabilityai/sdxl-turbo",
   "image_mirror_aug": true,
-  "image_generated_at": "2026-03-08T05:41:03.806266Z",
-  "permalink": "./?post=feed_20260308_142809_JST"
+  "image_generated_at": "2026-03-08T06:42:31Z",
+  "permalink": "./?post=feed_20260308_142809_JST",
+  "image_negative": ""
 }
