@@ -60,24 +60,71 @@ if [[ "$DO_BUILD" == "auto" ]]; then
   fi
 fi
 
+LOG_DIR="${FEED_LOG_DIR:-tmp/feed-debug}"
+RUN_LOG="${LOG_DIR%/}/feed.log"
+GENERATE_TALK_LOG="${LOG_DIR%/}/generate_talk.log"
+DOCKER_DEBUG_LOG="${LOG_DIR%/}/docker_debug.log"
+mkdir -p "$LOG_DIR"
+: > "$RUN_LOG"
+: > "$GENERATE_TALK_LOG"
+: > "$DOCKER_DEBUG_LOG"
+
+exec > >(tee -a "$RUN_LOG") 2>&1
+
+if [[ "${GITHUB_ACTIONS:-}" == "true" && -z "${FEED_TRACE_SHELL:-}" ]]; then
+  FEED_TRACE_SHELL="1"
+fi
+if [[ "${FEED_TRACE_SHELL:-0}" == "1" ]]; then
+  export PS4='+(${BASH_SOURCE##*/}:${LINENO}): '
+  set -x
+fi
+
 log() { printf "\n[%s] %s\n" "$(date +'%Y-%m-%d %H:%M:%S')" "$*"; }
+
+append_summary_block() {
+  local title="$1"
+  local file="$2"
+  local lines="${3:-200}"
+  [[ -n "${GITHUB_STEP_SUMMARY:-}" ]] || return 0
+  [[ -f "$file" ]] || return 0
+  {
+    echo "## ${title}"
+    echo
+    echo '```text'
+    tail -n "$lines" "$file" || true
+    echo '```'
+    echo
+  } >> "$GITHUB_STEP_SUMMARY"
+}
 
 dump_debug() {
   set +e
-  log "docker compose ps"
-  "${COMPOSE[@]}" ps || true
-  log "docker compose logs (tail=300)"
-  "${COMPOSE[@]}" logs --no-color --tail=300 backend ollama db 2>/dev/null || true
-  log "docker system df"
-  docker system df || true
-  log "df -h"
-  df -h || true
+  {
+    log "docker compose ps"
+    "${COMPOSE[@]}" ps || true
+    log "docker compose logs (tail=300)"
+    "${COMPOSE[@]}" logs --no-color --tail=300 backend ollama db 2>/dev/null || true
+    log "docker system df"
+    docker system df || true
+    log "df -h"
+    df -h || true
+  } | tee -a "$DOCKER_DEBUG_LOG"
 }
 
 on_error() {
   local rc=$?
-  log "ERROR (exit=$rc). Showing debug info..."
+  local line_no="${BASH_LINENO[0]:-unknown}"
+  local cmd="${BASH_COMMAND:-unknown}"
+  log "ERROR (exit=$rc line=$line_no cmd=$cmd). Showing debug info..."
+  if [[ -s "$GENERATE_TALK_LOG" ]]; then
+    log "generate_talk.py log tail (200)"
+    tail -n 200 "$GENERATE_TALK_LOG" || true
+  fi
   dump_debug
+  append_summary_block "feed.sh tail" "$RUN_LOG" 200
+  append_summary_block "generate_talk.py tail" "$GENERATE_TALK_LOG" 200
+  append_summary_block "docker debug tail" "$DOCKER_DEBUG_LOG" 200
+  log "Log files: $RUN_LOG | $GENERATE_TALK_LOG | $DOCKER_DEBUG_LOG"
   exit "$rc"
 }
 trap on_error ERR
@@ -112,6 +159,7 @@ fix_permissions() {
 
 main() {
   log "FEED start (mode=$MODE build=$DO_BUILD down=$DO_DOWN)"
+  log "FEED logs -> $LOG_DIR"
   if [[ "$DO_BUILD" == "1" ]]; then
     log "docker compose build --pull"
     export DOCKER_BUILDKIT=1
@@ -133,7 +181,14 @@ main() {
   fix_permissions
 
   log "Run: ${PYTHON_BIN} scripts/generate_talk.py"
-  "${PYTHON_BIN}" scripts/generate_talk.py
+  set +e
+  "${PYTHON_BIN}" scripts/generate_talk.py 2>&1 | tee "$GENERATE_TALK_LOG"
+  local py_rc=${PIPESTATUS[0]}
+  set -e
+  if [[ "$py_rc" -ne 0 ]]; then
+    log "generate_talk.py failed (exit=$py_rc)"
+    return "$py_rc"
+  fi
 
   if [[ "$DO_DOWN" == "1" ]]; then
     log "docker compose down"
@@ -142,6 +197,8 @@ main() {
     log "Skip docker compose down (--no-down)"
   fi
 
+  append_summary_block "feed.sh tail" "$RUN_LOG" 120
+  append_summary_block "generate_talk.py tail" "$GENERATE_TALK_LOG" 120
   log "FEED done"
 }
 
