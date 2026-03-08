@@ -190,3 +190,67 @@ jobs:
 
           echo 'changed=1' >> "$GITHUB_OUTPUT"
           echo "feed_stem=$FEED_STEM" >> "$GITHUB_OUTPUT"
+
+      - name: Upload latest.json for x_post
+        if: steps.publish.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-json-${{ github.run_id }}
+          path: ${{ env.ARTIFACT_LATEST_PATH }}
+          if-no-files-found: error
+          retention-days: 1
+
+  x_post:
+    needs: illustrate
+    if: needs.illustrate.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: post-x
+      cancel-in-progress: false
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download latest.json artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: latest-json-${{ github.run_id }}
+          path: /tmp/latest-json
+
+      - name: Place latest.json where post_to_x.py expects it
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "${ARTIFACT_LATEST_PATH}")"
+          cp /tmp/latest-json/latest.json "${ARTIFACT_LATEST_PATH}"
+
+      - name: Cache posted marker (per feed stem)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .x-posted
+          key: x-posted-${{ needs.illustrate.outputs.feed_stem }}
+
+      - name: Post latest to X
+        if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
+        run: |
+          set -euo pipefail
+          python scripts/post_to_x.py
+          mkdir -p .x-posted
+          echo '${{ needs.illustrate.outputs.feed_stem }}' > .x-posted/posted.txt
+
