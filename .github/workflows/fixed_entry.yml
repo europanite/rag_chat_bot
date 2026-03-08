@@ -54,7 +54,7 @@ on:
         description: "1 if feed files were updated"
         value: ${{ jobs.fixed.outputs.changed }}
       sha:
-        description: "Commit SHA that contains the generated feed"
+        description: "Workflow SHA associated with the generated feed"
         value: ${{ jobs.fixed.outputs.sha }}
 
 permissions:
@@ -115,8 +115,8 @@ jobs:
           JSON
 
           python - <<'PY'
-          import json
           import importlib.util
+          import json
           import sys
           from pathlib import Path
 
@@ -129,14 +129,13 @@ jobs:
           links = payload.get("links") or []
 
           if isinstance(links, str):
-            links = [links] if links.strip() else []
+              links = [links] if links.strip() else []
 
           if not kind:
-            raise SystemExit("entry_json.kind is required")
+              raise SystemExit("entry_json.kind is required")
           if not str(text).strip():
-            raise SystemExit("entry_json.text is required")
+              raise SystemExit("entry_json.text is required")
 
-          # Load scripts/generate_talk.py without assuming it's a package
           path = Path("scripts/generate_talk.py")
           spec = importlib.util.spec_from_file_location("generate_talk", path)
           mod = importlib.util.module_from_spec(spec)
@@ -157,38 +156,47 @@ jobs:
           now_local = mod.local_stamp(tz_name)
 
           computed_feed_path = (
-            str(Path(feed_path_dir) / "feed" / f"feed_{now_local}.json")
-            if feed_path_dir else ""
+              str(Path(feed_path_dir) / "feed" / f"feed_{now_local}.json")
+              if feed_path_dir else ""
           )
 
           if mod.is_blank(feed_paths_raw):
-            feed_paths_raw = computed_feed_path
+              feed_paths_raw = computed_feed_path
           if mod.is_blank(latest_paths_raw):
-            latest_paths_raw = latest_path_default
+              latest_paths_raw = latest_path_default
 
           feeds = mod.split_paths(feed_paths_raw)
           latests = mod.split_paths(latest_paths_raw)
 
           snap_json_raw, snap_obj = mod.fetch_weather_snapshot(
-            lat=lat, lon=lon, tz_name=tz_name, place=place
+              lat=lat, lon=lon, tz_name=tz_name, place=place
           )
 
           entry = mod.build_fixed_post_entry(
-            today=mod.utc_date(),
-            now_iso=mod.utc_now_iso_z(),
-            tweet=text,
-            place=place,
-            snap_obj=snap_obj,
-            links=links,
-            kind=kind,
-            fixed_image=fixed_image,
-            avatar_image=avatar_image,
+              today=mod.utc_date(),
+              now_iso=mod.utc_now_iso_z(),
+              tweet=text,
+              place=place,
+              snap_obj=snap_obj,
+              links=links,
+              kind=kind,
+              fixed_image=fixed_image,
+              avatar_image=avatar_image,
           )
 
           for feed_path, latest_path in mod.pair_paths(feeds, latests):
-            mod.write_outputs(
-              feed_path=feed_path,
-              latest_path=la      - name: Configure AWS credentials via OIDC
+              mod.write_outputs(
+                  feed_path=feed_path,
+                  latest_path=latest_path,
+                  entry=entry,
+                  snap_json_raw=snap_json_raw,
+                  now_local=now_local,
+              )
+
+          print("OK: fixed entry generated")
+          PY
+
+      - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
