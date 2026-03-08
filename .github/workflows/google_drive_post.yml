@@ -20,9 +20,9 @@ on:
           - activity
           - garbage
       avatar_image:
-        description: "Avatar image path under public/ (e.g. avatar/spot.png)"
+        description: "Avatar image path under public/ (e.g. image/avatar/spot.png)"
         required: false
-        default: "avatar/spot.png"
+        default: "image/avatar/spot.png"
         type: string
       place:
         description: "Place label"
@@ -59,7 +59,7 @@ on:
         type: string
       avatar_image:
         required: false
-        default: "avatar/spot.png"
+        default: "image/avatar/spot.png"
         type: string
       place:
         required: false
@@ -135,19 +135,19 @@ jobs:
           if [ -z "$AVATAR_IMAGE" ]; then
             case "$INPUT_KIND" in
               activity)
-                AVATAR_IMAGE="avatar/activity.png"
+                AVATAR_IMAGE="image/avatar/activity.png"
                 ;;
               event)
-                AVATAR_IMAGE="avatar/event.png"
+                AVATAR_IMAGE="image/avatar/event.png"
                 ;;
               restaurant)
-                AVATAR_IMAGE="avatar/food.png"
+                AVATAR_IMAGE="image/avatar/food.png"
                 ;;
               garbage)
-                AVATAR_IMAGE="avatar/night.png"
+                AVATAR_IMAGE="image/avatar/night.png"
                 ;;
               spot|*)
-                AVATAR_IMAGE="avatar/spot.png"
+                AVATAR_IMAGE="image/avatar/spot.png"
                 ;;
             esac
           fi

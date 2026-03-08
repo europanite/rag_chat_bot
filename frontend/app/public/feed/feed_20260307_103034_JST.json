@@ -59,7 +59,7 @@
   ],
   "required_mention": "TSUNAMI — Yokosuka Burger / Hamburger",
   "kind": "restaurant",
-  "avatar_image": "avatar/food.png",
+  "avatar_image": "image/avatar/food.png",
   "image": "./image/feed_20260307_103034_JST.png",
   "image_url": "./image/feed_20260307_103034_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",

@@ -59,7 +59,7 @@
   ],
   "required_mention": "Happy (ハッピー)",
   "kind": "spot",
-  "avatar_image": "avatar/event.png",
+  "avatar_image": "image/avatar/event.png",
   "legacy_id": "2026-02-25T17:15:38Z",
   "permalink": "./?post=feed_20260226_020757_JST",
   "image_url": "./image/feed_20260226_020757_JST.png",

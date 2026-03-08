@@ -10,7 +10,7 @@ on:
         description: >
           JSON string.
           Example:
-          {"kind":"event","text":"...","fixed_image":"fixed/xxx.png","avatar_image":"avatar/event.png","links":["https://..."]}
+          {"kind":"event","text":"...","fixed_image":"fixed/xxx.png","avatar_image":"image/avatar/event.png","links":["https://..."]}
 
       # Weather/paths (defaults match your feed.yml conventions)
       lat:
@@ -109,7 +109,7 @@ jobs:
           kind = (payload.get("kind") or "").strip()
           text = payload.get("text") or payload.get("tweet") or ""
           fixed_image = payload.get("fixed_image") or payload.get("image") or ""
-          avatar_image = payload.get("avatar_image") or payload.get("avatar") or "avatar/normal.png"
+          avatar_image = payload.get("avatar_image") or payload.get("avatar") or "image/avatar/normal.png"
           links = payload.get("links") or []
 
           if isinstance(links, str):

@@ -1,8 +1,8 @@
 {
   "kind": "event",
   "text": "Coaska is a good first stop. You can get most daily essentials there.\n• Main access: Keikyu Yokosuka-Chuo Station / Keikyu Shioiri Station / JR Yokosuka Station / ",
-  "fixed_image": "img/cheetsheet.png",
-  "avatar_image": "avatar/normal.png",
+  "fixed_image": "image/fixed/cheetsheet.png",
+  "avatar_image": "image/avatar/normal.png",
   "links": [],
   "place": "Yokosuka"
 }

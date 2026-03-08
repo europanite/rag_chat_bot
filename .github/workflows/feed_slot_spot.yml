@@ -25,5 +25,5 @@ jobs:
     uses: ./.github/workflows/feed_core.yml
     with:
       scheduled_kind: "spot"
-      avatar_image: "avatar/night.png"
+      avatar_image: "image/avatar/night.png"
     secrets: inherit

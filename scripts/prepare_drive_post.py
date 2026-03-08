@@ -360,7 +360,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Pick a random image+caption pair from a public Google Drive folder and write a feed entry")
     p.add_argument("--folder-url", required=True, help="Public Google Drive folder URL or folder ID")
     p.add_argument("--kind", default="spot")
-    p.add_argument("--avatar-image", default="avatar/spot.png")
+    p.add_argument("--avatar-image", default="image/avatar/spot.png")
     p.add_argument("--place", default="Yokosuka")
     p.add_argument("--lat", default="35.2810")
     p.add_argument("--lon", default="139.6722")

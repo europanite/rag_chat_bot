@@ -94,7 +94,7 @@ const MASCOT_COL_W = 128;
 const MASCOT_SIZE = 96;
 const MASCOT_RADIUS = 18; // rounded rectangle for avatar frame
 const MASCOT_BORDER_W = 2;
-const DEFAULT_AVATAR_IMAGE = "fixed/normal.png";
+const DEFAULT_AVATAR_IMAGE = "image/avatar/normal.png";
 const SIDEBAR_W = 240;
 
 const FEED_SCROLL_ID = "feed-scroll";
@@ -411,9 +411,24 @@ function normalizeFeed(parsed: unknown): Feed | null {
           ? obj.imageUri
           : undefined;
       const image_prompt = typeof obj?.image_prompt === "string" ? obj.image_prompt : undefined;
+      const kind = typeof obj?.kind === "string" ? obj.kind : undefined;
+      const avatar_image =
+        typeof obj?.avatar_image === "string"
+          ? obj.avatar_image
+          : typeof obj?.avatarImage === "string"
+            ? obj.avatarImage
+            : typeof obj?.avatar === "string"
+              ? obj.avatar
+              : typeof obj?.avatar_url === "string"
+                ? obj.avatar_url
+                : undefined;
       const updated_at = generated_at;
       const links = normalizeLinks(obj?.links ?? obj?.link);
-      return { updated_at, place, items: [{ id, date, text, place, generated_at, image, image_prompt, links }] };
+      return {
+        updated_at,
+        place,
+        items: [{ id, date, text, place, generated_at, image, image_prompt, kind, avatar_image, links }],
+      };
     }
   }
 
@@ -435,8 +450,19 @@ function normalizeFeed(parsed: unknown): Feed | null {
               ? it.imageUri
               : undefined;
           const image_prompt = typeof it?.image_prompt === "string" ? it.image_prompt : undefined;
+          const kind = typeof it?.kind === "string" ? it.kind : undefined;
+          const avatar_image =
+            typeof it?.avatar_image === "string"
+              ? it.avatar_image
+              : typeof it?.avatarImage === "string"
+                ? it.avatarImage
+                : typeof it?.avatar === "string"
+                  ? it.avatar
+                  : typeof it?.avatar_url === "string"
+                    ? it.avatar_url
+                    : undefined;
           const links = normalizeLinks(it?.links ?? it?.link);
-          return { id, date, text, place, generated_at, image, image_prompt, links };
+          return { id, date, text, place, generated_at, image, image_prompt, kind, avatar_image, links };
         })
       .filter(Boolean) as FeedItem[];
 

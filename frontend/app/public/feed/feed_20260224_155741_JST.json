@@ -59,7 +59,7 @@
   ],
   "required_mention": "cake屋popo (Cake-ya popo)",
   "kind": "event",
-  "avatar_image": "avatar/event.png",
+  "avatar_image": "image/avatar/event.png",
   "image": "./image/feed_20260224_155741_JST.png",
   "image_url": "./image/feed_20260224_155741_JST.png",
   "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's a rainy day with 16°C. If you're looking for a sweet treat, popo at cake屋popo is a must-try!",

@@ -983,7 +983,7 @@ def main() -> int:
             links=links, 
             kind=scheduled_kind, 
             fixed_image="img/cheetsheet.png",
-            avatar_image=env("AVATAR_IMAGE", "avatar/normal.png"),
+            avatar_image=env("AVATAR_IMAGE", "image/avatar/normal.png"),
             )
         for feed_path, latest_path in pair_paths(feeds, latests):
             write_outputs(feed_path=feed_path, latest_path=latest_path, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
@@ -1007,8 +1007,8 @@ def main() -> int:
             snap_obj=snap_obj, 
             links=links, 
             kind=scheduled_kind, 
-            fixed_image="avatar/garbage.png",
-            avatar_image=env("AVATAR_IMAGE", "avatar/normal.png"),
+            fixed_image="image/avatar/garbage.png",
+            avatar_image=env("AVATAR_IMAGE", "image/avatar/normal.png"),
             )
         for feed_path, latest_path in pair_paths(feeds, latests):
             write_outputs(feed_path=feed_path, latest_path=latest_path, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
@@ -1139,7 +1139,7 @@ def main() -> int:
         links=links,
         required_mention=required_mention,
         kind=scheduled_kind,
-        avatar_image=env("AVATAR_IMAGE", f"avatar/normal.png"),
+        avatar_image=env("AVATAR_IMAGE", f"image/avatar/normal.png"),
     )
 
     for feed_p, latest_p in pair_paths(feeds, latests):

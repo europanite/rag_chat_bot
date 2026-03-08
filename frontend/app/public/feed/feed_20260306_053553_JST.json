@@ -60,7 +60,7 @@
   "required_mention": "",
   "kind": "garbage_today",
   "image_fixed": "fixed/garbage.png",
-  "avatar_image": "avatar/day.png",
+  "avatar_image": "image/avatar/day.png",
   "image": "./image/feed_20260306_053553_JST.png",
   "image_url": "./image/feed_20260306_053553_JST.png",
   "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",

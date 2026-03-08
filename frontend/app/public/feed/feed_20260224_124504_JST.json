@@ -59,7 +59,7 @@
   ],
   "required_mention": "cake屋popo (Cake-ya popo)",
   "kind": "restaurant",
-  "avatar_image": "avatar/food.png",
+  "avatar_image": "image/avatar/food.png",
   "image": "./image/feed_20260224_124504_JST.png",
   "image_url": "./image/feed_20260224_124504_JST.png",
   "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! 🌞 It's a chilly day here in Yokosuka with 16°C of rain. I'm craving something warm and cozy, like the delicious cake at Cake-ya popo! 😋",

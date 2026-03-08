@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       avatar_image:
-        description: "Avatar image path (e.g. avatar/night.png)"
+        description: "Avatar image path (e.g. image/avatar/night.png)"
         required: true
         type: string
       post_to_x:
@@ -39,7 +39,7 @@ on:
       avatar_image:
         description: "Avatar image path"
         required: true
-        default: "avatar/night.png"
+        default: "image/avatar/night.png"
         type: string
       post_to_x:
         description: "1 to post to X after generation"

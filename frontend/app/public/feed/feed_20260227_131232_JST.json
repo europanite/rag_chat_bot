@@ -59,7 +59,7 @@
   ],
   "required_mention": "cake屋popo (Cake-ya popo)",
   "kind": "event",
-  "avatar_image": "avatar/event.png",
+  "avatar_image": "image/avatar/event.png",
   "image": "./image/feed_20260227_131232_JST.png",
   "image_url": "./image/feed_20260227_131232_JST.png",
   "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's cloudy with 14°C today. Get your dessert fix at Cake-ya popo, offering a sweet treat for this winter afternoon! 🍰🌫️",

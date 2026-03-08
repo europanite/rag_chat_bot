@@ -59,7 +59,7 @@
   ],
   "required_mention": "Happy (ハッピー)",
   "kind": "event",
-  "avatar_image": "avatar/event.png",
+  "avatar_image": "image/avatar/event.png",
   "image": "./image/feed_20260307_140342_JST.png",
   "image_url": "./image/feed_20260307_140342_JST.png",
   "image_prompt": "cinematic illustration, Yokosuka, Kanagawa, JP, based on this short story: Good afternoon! It's a cloudy day with 16°C. If you're feeling down, visit Happy in Yokosuka and let the smiles lift your spirits 🌞👍😊",
