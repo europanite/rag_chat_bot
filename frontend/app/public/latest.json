@@ -1,5 +1,5 @@
 {
-  "id": "2026-03-08T04:18:00Z",
+  "id": "feed_20260308_131104_JST",
   "date": "2026-03-08",
   "text": "Good afternoon! It's a cloudy day with 11°C. Get ready for the upcoming Yokosuka Genic Street event, featuring exciting activities and entertainment! 🌫️🎉",
   "place": "Yokosuka, Kanagawa, JP",
@@ -59,5 +59,12 @@
   ],
   "required_mention": "Yokosuka Genic Street (YOKOSUKA GENIC STREET)",
   "kind": "event",
-  "avatar_image": "image/avatar/event.png"
+  "avatar_image": "image/avatar/event.png",
+  "image": "./image/feed_20260308_131104_JST.png",
+  "image_url": "./image/feed_20260308_131104_JST.png",
+  "image_prompt": "photorealistic photo, natural colors, documentary style, scene in Yokosuka, Japan, same scene and composition as the input image. ",
+  "permalink": "./?post=feed_20260308_131104_JST",
+  "image_model": "stabilityai/sdxl-turbo",
+  "image_mirror_aug": true,
+  "image_generated_at": "2026-03-08T04:22:32.306798Z"
 }
