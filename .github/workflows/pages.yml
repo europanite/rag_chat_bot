@@ -162,28 +162,46 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
-      - name: Deploy frontend to S3
+      - name: Deploy frontend shell to S3 (preserve generated feed/image history)
         env:
           STATE_ARTIFACT_NAME: ${{ inputs.state_artifact_name }}
         run: |
           set -euo pipefail
 
           BUCKET="s3://${AWS_S3_BUCKET_PUBLIC}"
+          PUBLIC_DIR="frontend/app/public"
+          WEB_BUILD_DIR="frontend/app/web-build"
+
+          aws s3 sync "$WEB_BUILD_DIR" "$BUCKET/"             --delete             --exclude "latest.json"             --exclude "feed/*"             --exclude "snapshot/*"             --exclude "image/*"
+
+          if [ -d "$WEB_BUILD_DIR/image/fixed" ]; then
+            aws s3 sync "$WEB_BUILD_DIR/image/fixed" "$BUCKET/image/fixed/"
+          fi
+
+          if [ -d "$WEB_BUILD_DIR/image/avatar" ]; then
+            aws s3 sync "$WEB_BUILD_DIR/image/avatar" "$BUCKET/image/avatar/"
+          fi
 
           if [ -n "${STATE_ARTIFACT_NAME}" ]; then
-            echo "Deploying full site with generated feed/image state"
-            aws s3 sync frontend/app/web-build "$BUCKET/" --delete
+            echo "Syncing generated latest/feed/snapshot/image state without deleting remote history"
+
+            if [ -f "$PUBLIC_DIR/latest.json" ]; then
+              aws s3 cp "$PUBLIC_DIR/latest.json" "$BUCKET/latest.json"
+            fi
+
+            if [ -d "$PUBLIC_DIR/feed" ]; then
+              aws s3 sync "$PUBLIC_DIR/feed" "$BUCKET/feed/"                 --exclude ".gitkeep"                 --exclude ".nojekyll"
+            fi
+
+            if [ -d "$PUBLIC_DIR/snapshot" ]; then
+              aws s3 sync "$PUBLIC_DIR/snapshot" "$BUCKET/snapshot/"                 --exclude ".gitkeep"
+            fi
+
+            if [ -d "$PUBLIC_DIR/image" ]; then
+              aws s3 sync "$PUBLIC_DIR/image" "$BUCKET/image/"                 --exclude ".gitkeep"
+            fi
           else
-            echo "No state artifact provided; preserving remote feed/latest/generated images"
-            aws s3 sync frontend/app/web-build "$BUCKET/"               --delete               --exclude "latest.json"               --exclude "feed/*"               --exclude "snapshot/*"               --exclude "image/*"
-
-            if [ -d frontend/app/web-build/image/fixed ]; then
-              aws s3 sync frontend/app/web-build/image/fixed "$BUCKET/image/fixed/"
-            fi
-
-            if [ -d frontend/app/web-build/image/avatar ]; then
-              aws s3 sync frontend/app/web-build/image/avatar "$BUCKET/image/avatar/"
-            fi
+            echo "No state artifact provided; skipped generated state sync"
           fi
 
       - name: Invalidate CloudFront cache

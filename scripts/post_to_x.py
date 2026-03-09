@@ -24,15 +24,21 @@ import base64
 import hashlib
 import hmac
 import json
+import mimetypes
 import os
 import random
 import re
+import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Dict, List, Sequence, Tuple
+import uuid
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple
 
 API_URL = "https://api.x.com/2/tweets"
+MEDIA_UPLOAD_URL = "https://upload.twitter.com/1.1/media/upload.json"
 URL_RE = re.compile(r"https?://\S+", re.IGNORECASE)
 
 # X counts any URL (https/http) as a fixed t.co length (usually 23).
@@ -196,6 +202,75 @@ def make_share_url(site: str, base: str, post_id: str) -> str:
     return f"{site}{base_part}/"
 
 
+def resolve_local_image_path(latest_path: str, obj: Dict[str, object]) -> Optional[Path]:
+    latest_file = Path(latest_path).resolve()
+    public_dir = latest_file.parent
+    candidates = [
+        str(obj.get("image") or "").strip(),
+        str(obj.get("image_url") or "").strip(),
+        str(obj.get("fixed_image") or "").strip(),
+        str(obj.get("avatar_image") or "").strip(),
+    ]
+
+    for raw in candidates:
+        if not raw:
+            continue
+        if raw.startswith(("http://", "https://")):
+            continue
+        rel = raw.lstrip("/")
+        path = (public_dir / rel).resolve()
+        if path.is_file():
+            return path
+    return None
+
+
+def build_multipart_form(field_name: str, filename: str, content_type: str, data: bytes) -> Tuple[bytes, str]:
+    boundary = f"----ragchatbot{uuid.uuid4().hex}"
+    body = bytearray()
+    body.extend(f"--{boundary}\r\n".encode("utf-8"))
+    body.extend(
+        f'Content-Disposition: form-data; name="{field_name}"; filename="{filename}"\r\n'.encode("utf-8")
+    )
+    body.extend(f"Content-Type: {content_type}\r\n\r\n".encode("utf-8"))
+    body.extend(data)
+    body.extend(f"\r\n--{boundary}--\r\n".encode("utf-8"))
+    return bytes(body), boundary
+
+
+def upload_media(
+    image_path: Path,
+    *,
+    consumer_key: str,
+    consumer_secret: str,
+    token: str,
+    token_secret: str,
+) -> Optional[str]:
+    mime_type = mimetypes.guess_type(image_path.name)[0] or "application/octet-stream"
+    body, boundary = build_multipart_form("media", image_path.name, mime_type, image_path.read_bytes())
+    auth = oauth1_header("POST", MEDIA_UPLOAD_URL, consumer_key, consumer_secret, token, token_secret)
+    req = urllib.request.Request(
+        MEDIA_UPLOAD_URL,
+        data=body,
+        method="POST",
+        headers={
+            "Authorization": auth,
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Accept": "application/json",
+            "User-Agent": "rag_chat_bot-gha",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            payload = json.loads(resp.read().decode("utf-8", errors="replace"))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace") if hasattr(e, "read") else str(e)
+        print(f"WARN: media upload failed: HTTP {e.code}: {body}", file=sys.stderr)
+        return None
+
+    media_id = str(payload.get("media_id_string") or payload.get("media_id") or "").strip()
+    return media_id or None
+
+
 def oauth1_header(
     method: str,
     url: str,
@@ -276,7 +351,22 @@ def main() -> int:
         print(tweet)
         return 0
 
-    payload = json.dumps({"text": tweet}).encode("utf-8")
+    image_path = resolve_local_image_path(latest_path, obj)
+    media_id = None
+    if image_path is not None:
+        media_id = upload_media(
+            image_path,
+            consumer_key=api_key,
+            consumer_secret=api_secret,
+            token=access_token,
+            token_secret=access_secret,
+        )
+
+    payload_obj = {"text": tweet}
+    if media_id:
+        payload_obj["media"] = {"media_ids": [media_id]}
+
+    payload = json.dumps(payload_obj).encode("utf-8")
     auth = oauth1_header("POST", API_URL, api_key, api_secret, access_token, access_secret)
 
     req = urllib.request.Request(
