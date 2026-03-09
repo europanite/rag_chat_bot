@@ -52,7 +52,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
   id-token: write
 
 env:
@@ -422,12 +421,12 @@ jobs:
     needs: [rag, illustrate]
     if: needs.illustrate.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
+    secrets: inherit
     with:
       ref: main
       state_artifact_name: pages-state-${{ github.run_id }}
     permissions:
       contents: read
-      pages: write
       id-token: write
 
   export:

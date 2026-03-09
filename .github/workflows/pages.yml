@@ -26,7 +26,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
   id-token: write
 
 env:
@@ -40,6 +39,9 @@ env:
   PUBLIC_ASSET_BASE_URL: ""
   PUBLIC_FEED_BASE_URL: ""
   PUBLIC_IMAGE_BASE_URL: ""
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+  AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
 
 concurrency:
   group: "pages"
@@ -154,21 +156,37 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/build_social_pages.py
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          path: frontend/app/web-build
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy frontend to S3
+        env:
+          STATE_ARTIFACT_NAME: ${{ inputs.state_artifact_name }}
+        run: |
+          set -euo pipefail
+
+          BUCKET="s3://${AWS_S3_BUCKET_PUBLIC}"
+
+          if [ -n "${STATE_ARTIFACT_NAME}" ]; then
+            echo "Deploying full site with generated feed/image state"
+            aws s3 sync frontend/app/web-build "$BUCKET/" --delete
+          else
+            echo "No state artifact provided; preserving remote feed/latest/generated images"
+            aws s3 sync frontend/app/web-build "$BUCKET/"               --delete               --exclude "latest.json"               --exclude "feed/*"               --exclude "snapshot/*"               --exclude "image/*"
+
+            if [ -d frontend/app/web-build/image/fixed ]; then
+              aws s3 sync frontend/app/web-build/image/fixed "$BUCKET/image/fixed/"
+            fi
+
+            if [ -d frontend/app/web-build/image/avatar ]; then
+              aws s3 sync frontend/app/web-build/image/avatar "$BUCKET/image/avatar/"
+            fi
+          fi
+
+      - name: Invalidate CloudFront cache
+        run: |
+          set -euo pipefail
+          aws cloudfront create-invalidation             --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID"             --paths '/*'
