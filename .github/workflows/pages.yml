@@ -113,10 +113,15 @@ jobs:
       - name: Build
         working-directory: frontend/app
         env:
-          EXPO_PUBLIC_FEED_URL: ${{ vars.EXPO_PUBLIC_FEED_URL }}
-          EXPO_PUBLIC_ASSET_BASE_URL: ${{ vars.EXPO_PUBLIC_ASSET_BASE_URL }}
-          EXPO_PUBLIC_FEED_BASE_URL: ${{ vars.EXPO_PUBLIC_FEED_BASE_URL }}
-          EXPO_PUBLIC_IMAGE_BASE_URL: ${{ vars.EXPO_PUBLIC_IMAGE_BASE_URL }}
+          # GitHub Pages should read the co-located JSON/image assets that are
+          # restored into frontend/app/public and copied into web-build below.
+          # Do not bake CloudFront URLs into the Pages bundle; that creates a
+          # cross-origin runtime dependency and breaks the site when the browser
+          # cannot fetch CloudFront JSON directly.
+          EXPO_PUBLIC_FEED_URL: ""
+          EXPO_PUBLIC_ASSET_BASE_URL: ""
+          EXPO_PUBLIC_FEED_BASE_URL: ""
+          EXPO_PUBLIC_IMAGE_BASE_URL: ""
           EXPO_PUBLIC_FEEDBACK_FORM_URL: ${{ vars.EXPO_PUBLIC_FEEDBACK_FORM_URL }}
           EXPO_PUBLIC_USE_SLOT: 1
           EXPO_PUBLIC_SLOT_ROTATE_MS: 6500
