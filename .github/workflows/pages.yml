@@ -8,12 +8,21 @@ on:
         required: false
         type: string
         default: "main"
+      state_artifact_name:
+        description: "Optional artifact name containing latest/feed/image/snapshot to overlay before export"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       ref:
         description: "Branch/ref to build & deploy"
         required: false
         default: "main"
+      state_artifact_name:
+        description: "Optional artifact name containing latest/feed/image/snapshot to overlay before export"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -79,6 +88,28 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Download generated state artifact (optional)
+        if: inputs.state_artifact_name != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.state_artifact_name }}
+          path: /tmp/pages-state
+
+      - name: Restore generated state artifact into public dir (optional)
+        if: inputs.state_artifact_name != ''
+        run: |
+          set -euo pipefail
+          mkdir -p frontend/app/public
+          tar -C frontend/app/public -xzf /tmp/pages-state/pages-state.tgz
+
+      - name: Build paged feed
+        env:
+          FEED_PATH: ${{ env.ARTIFACT_PUBLIC_DIR }}
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
+          FEED_PAGE_SIZE: "20"
+        run: |
+          python scripts/build_feed_pages.py
+
       - name: Build
         working-directory: frontend/app
         env:
@@ -92,6 +123,12 @@ jobs:
           EXPO_PUBLIC_SLOT_FADE_MS: 800
         run: |
           npx expo export --platform web --output-dir web-build
+
+      - name: Copy local public assets into exported site
+        working-directory: frontend/app
+        run: |
+          set -euo pipefail
+          cp -av public/. web-build/
 
       - name: Compute site base path (GitHub Pages)
         run: |

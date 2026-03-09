@@ -51,7 +51,7 @@ on:
           - "1"
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -66,6 +66,9 @@ env:
   PUBLIC_ASSET_BASE_URL: ""
   PUBLIC_FEED_BASE_URL: ""
   PUBLIC_IMAGE_BASE_URL: ""
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+  AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
 
 jobs:
   rag:
@@ -74,8 +77,8 @@ jobs:
       SCHEDULED_KIND: ${{ inputs.scheduled_kind }}
       AVATAR_IMAGE: ${{ inputs.avatar_image }}
     outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
+      changed: ${{ steps.package.outputs.changed }}
+      sha: ${{ steps.package.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -154,9 +157,11 @@ jobs:
         run: |
           docker compose -f docker-compose.yml down || true
 
-      - name: Commit & push if changed
-        id: commit
+      - name: Package generated feed state for downstream jobs
+        id: package
         run: |
+          set -euo pipefail
+
           if git diff --quiet; then
             echo "No changes"
             echo "changed=0" >> "$GITHUB_OUTPUT"
@@ -164,40 +169,45 @@ jobs:
             exit 0
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git pull --ff-only origin main
-
           PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
           LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
           FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
           SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
 
-          git add "$FEED_DIR_RESOLVED"/*.json || true
-          git add "$LATEST_PATH_RESOLVED" || true
-          git add "$SNAPSHOT_DIR_RESOLVED"/*.json || true
+          STAGE_DIR=/tmp/rag-feed-state
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/feed" "$STAGE_DIR/snapshot"
+          cp "$LATEST_PATH_RESOLVED" "$STAGE_DIR/latest.json"
 
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
+          if [ -d "$FEED_DIR_RESOLVED" ]; then
+            cp -a "$FEED_DIR_RESOLVED"/. "$STAGE_DIR/feed/"
           fi
 
-          git commit -m "chore: image feed"
-          git push origin HEAD:main
+          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
+            cp -a "$SNAPSHOT_DIR_RESOLVED"/. "$STAGE_DIR/snapshot/"
+          fi
+
+          tar -C "$STAGE_DIR" -czf /tmp/rag-feed-state.tgz .
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated feed state for downstream jobs
+        if: steps.package.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rag-feed-state-${{ github.run_id }}
+          path: /tmp/rag-feed-state.tgz
+          if-no-files-found: error
+          retention-days: 1
 
   illustrate:
     needs: rag
     if: needs.rag.outputs.changed == '1'
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
+      changed: ${{ steps.publish.outputs.changed }}
+      sha: ${{ steps.publish.outputs.sha }}
     steps:
       - name: Checkout (main)
         uses: actions/checkout@v4
@@ -215,24 +225,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
+      - name: Download generated feed state
+        uses: actions/download-artifact@v4
+        with:
+          name: rag-feed-state-${{ github.run_id }}
+          path: /tmp/rag-feed-state
 
-      - name: Sync to latest main (ff-only)
+      - name: Restore generated feed state
         run: |
           set -euo pipefail
-          git pull --ff-only origin main
-
-      - name: Verify rag commit is included
-        env:
-          RAG_SHA: ${{ needs.rag.outputs.sha }}
-        run: |
-          set -euo pipefail
-          if [ -n "${RAG_SHA}" ]; then
-            git merge-base --is-ancestor "${RAG_SHA}" HEAD || {
-              echo "HEAD does not include rag sha yet; fetching and resetting."
-              git fetch origin "${RAG_SHA}"
-              git reset --hard "${RAG_SHA}"
-            }
-          fi
+          mkdir -p frontend/app/public
+          tar -C frontend/app/public -xzf /tmp/rag-feed-state/rag-feed-state.tgz
 
       - name: Choose style by JST hour (day=img2img, night=text2img)
         id: style
@@ -320,9 +323,18 @@ jobs:
           test -f "${ARTIFACT_LATEST_PATH:-frontend/app/public/latest.json}"
           docker compose -f docker-compose.yml run --rm illustrate
 
-      - name: Commit & push illustrated changes if any
-        id: commit
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          disable-retry: true
+
+      - name: Publish generated artifacts to S3
+        id: publish
         run: |
+          set -euo pipefail
+
           if git diff --quiet; then
             echo "No changes"
             echo "changed=0" >> "$GITHUB_OUTPUT"
@@ -330,38 +342,89 @@ jobs:
             exit 0
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git pull --ff-only origin main
-
           PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
           LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
           FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
           IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
 
-          git add "$LATEST_PATH_RESOLVED" || true
-          git add "$FEED_DIR_RESOLVED"/*.json || true
-          git add "$IMAGE_DIR_RESOLVED"/*.png || true
+          test -n "$AWS_S3_BUCKET_PUBLIC"
+          test -f "$LATEST_PATH_RESOLVED"
+          test -d "$FEED_DIR_RESOLVED"
 
-          if git diff --cached --quiet; then
-            echo "No staged changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
+          aws s3 cp "$LATEST_PATH_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/latest.json"
+          aws s3 sync "$FEED_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/feed/"
+
+          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
+            aws s3 sync "$SNAPSHOT_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/snapshot/"
           fi
 
-          git commit -m "chore: illustrated image"
-          git push origin HEAD:main
+          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
+            aws s3 sync "$IMAGE_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/image/"
+          fi
+
+          if [ -n "${AWS_CLOUDFRONT_DISTRIBUTION_ID:-}" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID" \
+              --paths "/latest.json" "/feed/*" "/image/*" "/snapshot/*"
+          fi
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Package generated state for downstream jobs
+        if: steps.publish.outputs.changed == '1'
+        run: |
+          set -euo pipefail
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
+          IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+
+          STAGE_DIR=/tmp/pages-state
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/feed" "$STAGE_DIR/snapshot" "$STAGE_DIR/image"
+          cp "$LATEST_PATH_RESOLVED" "$STAGE_DIR/latest.json"
+
+          if [ -d "$FEED_DIR_RESOLVED" ]; then
+            cp -a "$FEED_DIR_RESOLVED"/. "$STAGE_DIR/feed/"
+          fi
+
+          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
+            cp -a "$SNAPSHOT_DIR_RESOLVED"/. "$STAGE_DIR/snapshot/"
+          fi
+
+          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
+            cp -a "$IMAGE_DIR_RESOLVED"/. "$STAGE_DIR/image/"
+          fi
+
+          tar -C "$STAGE_DIR" -czf /tmp/pages-state.tgz .
+
+      - name: Upload generated state for downstream jobs
+        if: steps.publish.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload latest.json for x_post
+        if: steps.publish.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-json-${{ github.run_id }}
+          path: ${{ env.ARTIFACT_LATEST_PATH }}
+          if-no-files-found: error
+          retention-days: 1
   pages:
     needs: [rag, illustrate]
-    if: needs.rag.outputs.changed == '1'
+    if: needs.illustrate.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
     with:
       ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
     permissions:
       contents: read
       pages: write
@@ -378,7 +441,7 @@ jobs:
       - name: Export outputs
         id: out
         run: |
-          echo "changed=${{ needs.rag.outputs.changed }}" >> "$GITHUB_OUTPUT"
+          echo "changed=${{ needs.illustrate.outputs.changed || needs.rag.outputs.changed }}" >> "$GITHUB_OUTPUT"
           echo "sha=${{ needs.illustrate.outputs.sha || needs.rag.outputs.sha }}" >> "$GITHUB_OUTPUT"
 
   x_post:
@@ -391,23 +454,35 @@ jobs:
       group: post-x
       cancel-in-progress: false
     steps:
-      - name: Checkout (generated commit)
+      - name: Checkout (main)
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.export.outputs.sha }}
-          fetch-depth: 0
+          ref: main
+          fetch-depth: 1
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Cache posted marker (per commit)
+      - name: Download latest.json artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: latest-json-${{ github.run_id }}
+          path: /tmp/latest-json
+
+      - name: Place latest.json where post_to_x.py expects it
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "${ARTIFACT_LATEST_PATH}")"
+          cp /tmp/latest-json/latest.json "${ARTIFACT_LATEST_PATH}"
+
+      - name: Cache posted marker (per workflow run)
         id: cache
         uses: actions/cache@v4
         with:
           path: .x-posted
-          key: x-posted-${{ needs.export.outputs.sha }}
+          key: x-posted-${{ github.run_id }}
 
       - name: Post latest to X
         if: steps.cache.outputs.cache-hit != 'true'
@@ -421,7 +496,7 @@ jobs:
           set -euo pipefail
           python scripts/post_to_x.py
           mkdir -p .x-posted
-          echo "${{ needs.export.outputs.sha }}" > .x-posted/sha
+          echo '${{ github.run_id }}' > .x-posted/posted.txt
 
       - name: Skip (already posted)
         if: steps.cache.outputs.cache-hit == 'true'
