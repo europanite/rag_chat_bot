@@ -272,7 +272,7 @@ jobs:
       - name: Capture snapshot (rag image url preferred)
         if: steps.style.outputs.use_camera == '1'
         env:
-          SNAP_URL: "https://coast-cam.com/images/cam1.jpg"  # yokosuka
+          SNAP_URL: "https://coast-cam.com/images/cam3.jpg"  # yokosuka
           LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
           REF_MAX_CANDIDATES: "8"
         run: |
