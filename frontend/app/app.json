@@ -3,9 +3,6 @@
     "name": "GOODDAY YOKOSUKA",
     "description": "Local news and tourism tips for Yokosuka City.",
     "slug": "rag_chat_bot",
-    "experiments": {
-      "baseUrl": "/rag_chat_bot"
-    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://europanite.github.io/rag_chat_bot/sitemap.xml
+Sitemap: https://d1zqctpt4hkgrr.cloudfront.net/sitemap.xml
