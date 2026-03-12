@@ -124,12 +124,7 @@ jobs:
   sspot_intro:
     needs: select
     if: needs.select.outputs.slot == 'spot_intro'
-    uses: ./.github/workflows/google_drive_post.yml
-    with:
-      kind: "event"
-      avatar_image: "image/avatar/event.png"
-      place: "Yokosuka"
-      post_to_x: "1"
+    uses: ./.github/workflows/feed_slot_spot_intro.yml
     secrets: inherit
 
   sactivity:
