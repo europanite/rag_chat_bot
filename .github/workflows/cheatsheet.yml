@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   id-token: write
 
@@ -206,6 +207,7 @@ jobs:
       state_artifact_name: pages-state-${{ github.run_id }}
       artifact_run_id: ${{ github.run_id }}
     permissions:
+      actions: read
       contents: read
       id-token: write
 
