@@ -1,0 +1,129 @@
+*** Begin Patch
+*** Update File: .github/workflows/feed.yml
+@@
+ permissions:
++  actions: read
+   contents: write
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/feed_core.yml
+@@
+ permissions:
++  actions: read
+   contents: read
+   id-token: write
+@@
+   pages:
+     needs: [rag, illustrate]
+     if: needs.illustrate.outputs.changed == '1'
+     uses: ./.github/workflows/pages.yml
+@@
+     permissions:
++      actions: read
+       contents: read
+       id-token: write
+*** Update File: .github/workflows/feed_slot_activity.yml
+@@
+ permissions:
++  actions: read
+   contents: write
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/feed_slot_event.yml
+@@
+ permissions:
++  actions: read
+   contents: write
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/feed_slot_garbage.yml
+@@
+ permissions:
++  actions: read
+   contents: write
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/feed_slot_google_random.yml
+@@
+ permissions:
++  actions: read
+   contents: read
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/feed_slot_restaurant.yml
+@@
+ permissions:
++  actions: read
+   contents: write
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/feed_slot_spot.yml
+@@
+ permissions:
++  actions: read
+   contents: write
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/feed_slot_spot_intro.yml
+@@
+ permissions:
++  actions: read
+   contents: read
+   pages: write
+   id-token: write
+*** Update File: .github/workflows/google_drive_post.yml
+@@
+ permissions:
++  actions: read
+   contents: read
+   pages: write
+   id-token: write
+@@
+   pages:
+     needs: prepare
+     if: needs.prepare.outputs.changed == '1'
+     uses: ./.github/workflows/pages.yml
+@@
+     permissions:
++      actions: read
+       contents: read
+       id-token: write
+*** Update File: .github/workflows/cheatsheet.yml
+@@
+ permissions:
++  actions: read
+   contents: read
+   id-token: write
+@@
+   pages:
+     needs: illustrate
+     if: needs.illustrate.outputs.changed == '1'
+     uses: ./.github/workflows/pages.yml
+@@
+     permissions:
++      actions: read
+       contents: read
+       id-token: write
+*** Update File: .github/workflows/fixed_entry.yml
+@@
+ permissions:
++  actions: read
+   contents: read
+   pages: write
+   id-token: write
+@@
+   pages:
+     needs: prepare
+     uses: ./.github/workflows/pages.yml
+@@
+     permissions:
++      actions: read
+       contents: read
+       id-token: write
+*** Update File: .github/workflows/pages.yml
+@@
+ permissions:
++  actions: read
+   contents: read
+   id-token: write
+*** End Patch
