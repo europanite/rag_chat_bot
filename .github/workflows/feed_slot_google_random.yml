@@ -1,0 +1,24 @@
+name: Feed Google Random
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
+
+jobs:
+  run:
+    uses: ./.github/workflows/google_drive_post.yml
+    with:
+      kind: "spot"
+      avatar_image: "image/avatar/night.png"
+      place: "Yokosuka"
+      post_to_x: "1"
+    secrets: inherit

@@ -24,6 +24,7 @@ on:
           - cheatsheet
           - restaurant
           - event
+          - google_random
           - spot_intro
           - activity
 
@@ -60,7 +61,7 @@ jobs:
           DOW="$(TZ=Asia/Tokyo date +%u)"  # 1=Mon ... 7=Sun
 
           if (( HOUR >= 0 && HOUR < 2 )); then
-            SLOT="spot"
+            SLOT="google_random"
           elif (( HOUR >= 2 && HOUR < 5 )); then
             SLOT="cheetsheet"
           elif (( HOUR >= 5 && HOUR < 7 )); then
@@ -119,6 +120,12 @@ jobs:
     needs: select
     if: needs.select.outputs.slot == 'event'
     uses: ./.github/workflows/feed_slot_event.yml
+    secrets: inherit
+
+  sgoogle_random:
+    needs: select
+    if: needs.select.outputs.slot == 'google_random'
+    uses: ./.github/workflows/feed_slot_google_random.yml
     secrets: inherit
 
   sspot_intro:
