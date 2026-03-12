@@ -63,7 +63,7 @@ jobs:
           if (( HOUR >= 0 && HOUR < 2 )); then
             SLOT="google_random"
           elif (( HOUR >= 2 && HOUR < 5 )); then
-            SLOT="cheetsheet"
+            SLOT="cheatsheet"
           elif (( HOUR >= 5 && HOUR < 7 )); then
             if (( DOW >= 1 && DOW <= 5 )); then
               SLOT="garbage"
