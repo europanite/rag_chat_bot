@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -16,6 +17,10 @@ concurrency:
 jobs:
   run:
     uses: ./.github/workflows/google_drive_post.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     with:
       kind: "event"
       avatar_image: "image/avatar/event.png"

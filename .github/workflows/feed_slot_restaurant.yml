@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: write
   pages: write
   id-token: write
@@ -23,6 +24,10 @@ concurrency:
 jobs:
   run:
     uses: ./.github/workflows/feed_core.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     with:
       scheduled_kind: "restaurant"
       avatar_image: "image/avatar/food.png"

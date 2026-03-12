@@ -51,6 +51,7 @@ on:
           - "1"
 
 permissions:
+  actions: read
   contents: read
   id-token: write
 

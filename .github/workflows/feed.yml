@@ -29,6 +29,7 @@ on:
           - activity
 
 permissions:
+  actions: read
   contents: write
   pages: write
   id-token: write
@@ -96,46 +97,78 @@ jobs:
     needs: select
     if: needs.select.outputs.slot == 'spot'
     uses: ./.github/workflows/feed_slot_spot.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
 
   sgarbage:
     needs: select
     if: needs.select.outputs.slot == 'garbage'
     uses: ./.github/workflows/feed_slot_garbage.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
 
   scheatsheet:
     needs: select
     if: needs.select.outputs.slot == 'cheatsheet'
     uses: ./.github/workflows/cheatsheet.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
 
   srestaurant:
     needs: select
     if: needs.select.outputs.slot == 'restaurant'
     uses: ./.github/workflows/feed_slot_restaurant.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
 
   sevent:
     needs: select
     if: needs.select.outputs.slot == 'event'
     uses: ./.github/workflows/feed_slot_event.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
 
   sgoogle_random:
     needs: select
     if: needs.select.outputs.slot == 'google_random'
     uses: ./.github/workflows/feed_slot_google_random.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
 
   sspot_intro:
     needs: select
     if: needs.select.outputs.slot == 'spot_intro'
     uses: ./.github/workflows/feed_slot_spot_intro.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
 
   sactivity:
     needs: select
     if: needs.select.outputs.slot == 'activity'
     uses: ./.github/workflows/feed_slot_activity.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     secrets: inherit
