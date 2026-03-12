@@ -22,6 +22,11 @@ on:
       state_artifact_name:
         description: "Optional artifact name containing latest/feed/image/snapshot to overlay before export"
         required: false
+        type: string
+        default: ""
+      artifact_run_id:
+        description: "Workflow run ID that owns state_artifact_name"
+        required: false
         default: ""
 
 permissions:
@@ -116,6 +121,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.state_artifact_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.artifact_run_id }}
           path: /tmp/pages-state
 
       - name: Restore generated state artifact into public dir (optional)
