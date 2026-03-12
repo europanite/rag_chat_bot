@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: ""
+      artifact_run_id:
+        description: "Workflow run ID that owns state_artifact_name"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
       ref:
