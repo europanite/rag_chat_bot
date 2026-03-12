@@ -249,6 +249,7 @@ jobs:
 
   pages:
     needs: prepare
+    if: needs.prepare.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
     secrets: inherit
     with:
@@ -262,7 +263,7 @@ jobs:
 
   x_post:
     needs: [prepare, pages]
-    if: inputs.post_to_x == '1'
+    if: needs.prepare.outputs.changed == '1' && inputs.post_to_x == '1'
     runs-on: ubuntu-latest
     permissions:
       contents: read
