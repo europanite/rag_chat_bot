@@ -99,7 +99,8 @@ jobs:
     uses: ./.github/workflows/feed_slot_spot.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
 
@@ -109,7 +110,8 @@ jobs:
     uses: ./.github/workflows/feed_slot_garbage.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
 
@@ -119,7 +121,8 @@ jobs:
     uses: ./.github/workflows/cheatsheet.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
 
@@ -129,7 +132,8 @@ jobs:
     uses: ./.github/workflows/feed_slot_restaurant.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
 
@@ -139,7 +143,8 @@ jobs:
     uses: ./.github/workflows/feed_slot_event.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
 
@@ -149,7 +154,8 @@ jobs:
     uses: ./.github/workflows/feed_slot_google_random.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
 
@@ -159,7 +165,8 @@ jobs:
     uses: ./.github/workflows/feed_slot_spot_intro.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
 
@@ -169,6 +176,7 @@ jobs:
     uses: ./.github/workflows/feed_slot_activity.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     secrets: inherit
