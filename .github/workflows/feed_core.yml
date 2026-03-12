@@ -329,14 +329,7 @@ jobs:
           test -f "${ARTIFACT_LATEST_PATH:-frontend/app/public/latest.json}"
           docker compose -f docker-compose.yml run --rm illustrate
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          disable-retry: true
-
-      - name: Publish generated artifacts to S3
+      - name: Package generated state for downstream jobs
         id: publish
         run: |
           set -euo pipefail
@@ -347,39 +340,8 @@ jobs:
           SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
           IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
 
-          test -n "$AWS_S3_BUCKET_PUBLIC"
           test -f "$LATEST_PATH_RESOLVED"
           test -d "$FEED_DIR_RESOLVED"
-
-          aws s3 cp "$LATEST_PATH_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/latest.json"
-          aws s3 sync "$FEED_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/feed/"
-
-          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
-            aws s3 sync "$SNAPSHOT_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/snapshot/"
-          fi
-
-          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
-            aws s3 sync "$IMAGE_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/image/"
-          fi
-
-          if [ -n "${AWS_CLOUDFRONT_DISTRIBUTION_ID:-}" ]; then
-            aws cloudfront create-invalidation \
-              --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID" \
-              --paths "/latest.json" "/feed/*" "/image/*" "/snapshot/*"
-          fi
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-
-      - name: Package generated state for downstream jobs
-        if: steps.publish.outputs.changed == '1'
-        run: |
-          set -euo pipefail
-          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
-          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
-          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
-          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
-          IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
 
           STAGE_DIR=/tmp/pages-state
           rm -rf "$STAGE_DIR"
@@ -399,6 +361,9 @@ jobs:
           fi
 
           tar -C "$STAGE_DIR" -czf /tmp/pages-state.tgz .
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Upload generated state for downstream jobs
         if: steps.publish.outputs.changed == '1'

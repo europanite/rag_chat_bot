@@ -107,23 +107,8 @@ jobs:
           test -f "${ARTIFACT_LATEST_PATH:-frontend/app/public/latest.json}"
           docker compose -f docker-compose.yml run --rm illustrate
 
-      - name: Stop stack
-        if: always()
-        run: docker compose -f docker-compose.yml down || true
-
-      - name: Configure AWS credentials via OIDC
-        if: success()
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ vars.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-
-      - name: Publish cheat sheet artifacts to S3
+      - name: Package generated state for pages deploy
         id: publish
-        env:
-          AWS_REGION: ${{ vars.AWS_REGION }}
-          AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
-          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           set -euo pipefail
 
@@ -133,7 +118,6 @@ jobs:
           IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
           SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$PUBLIC_DIR/snapshot}"
 
-          test -n "${AWS_S3_BUCKET_PUBLIC:-}"
           test -f "$LATEST_PATH_RESOLVED"
 
           export LATEST_PATH_RESOLVED FEED_DIR_RESOLVED
@@ -171,25 +155,37 @@ jobs:
             exit 1
           fi
 
-          aws s3 cp "$LATEST_PATH_RESOLVED" "s3://${AWS_S3_BUCKET_PUBLIC}/latest.json"
-          aws s3 cp "$FEED_DIR_RESOLVED/${FEED_STEM}.json" "s3://${AWS_S3_BUCKET_PUBLIC}/feed/${FEED_STEM}.json"
-
-          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
-            aws s3 sync "$IMAGE_DIR_RESOLVED/" "s3://${AWS_S3_BUCKET_PUBLIC}/image/" --delete
-          fi
+          STAGE_DIR=/tmp/pages-state
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/feed" "$STAGE_DIR/snapshot" "$STAGE_DIR/image"
+          cp "$LATEST_PATH_RESOLVED" "$STAGE_DIR/latest.json"
+          cp "$FEED_DIR_RESOLVED/${FEED_STEM}.json" "$STAGE_DIR/feed/${FEED_STEM}.json"
 
           if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
-            aws s3 sync "$SNAPSHOT_DIR_RESOLVED/" "s3://${AWS_S3_BUCKET_PUBLIC}/snapshot/"
+            cp -a "$SNAPSHOT_DIR_RESOLVED"/. "$STAGE_DIR/snapshot/"
           fi
 
-          if [ -n "${AWS_CLOUDFRONT_DISTRIBUTION_ID:-}" ]; then
-            aws cloudfront create-invalidation \
-              --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID" \
-              --paths "/latest.json" "/feed/${FEED_STEM}.json" "/image/*" "/snapshot/*"
+          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
+            cp -a "$IMAGE_DIR_RESOLVED"/. "$STAGE_DIR/image/"
           fi
+
+          tar -C "$STAGE_DIR" -czf /tmp/pages-state.tgz .
 
           echo 'changed=1' >> "$GITHUB_OUTPUT"
           echo "feed_stem=$FEED_STEM" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated state artifact
+        if: steps.publish.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Stop stack
+        if: always()
+        run: docker compose -f docker-compose.yml down || true
 
       - name: Upload latest.json for x_post
         if: steps.publish.outputs.changed == '1'
@@ -200,8 +196,20 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  x_post:
+  pages:
     needs: illustrate
+    if: needs.illustrate.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
+    permissions:
+      contents: read
+      id-token: write
+
+  x_post:
+    needs: [illustrate, pages]
     if: needs.illustrate.outputs.changed == '1'
     runs-on: ubuntu-latest
     permissions:

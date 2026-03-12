@@ -196,14 +196,7 @@ jobs:
           print("OK: fixed entry generated")
           PY
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          disable-retry: true
-
-      - name: Publish generated artifacts to S3
+      - name: Package fixed entry artifacts
         id: publish
         run: |
           set -euo pipefail
@@ -220,32 +213,8 @@ jobs:
           FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
           SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
 
-          test -n "$AWS_S3_BUCKET_PUBLIC"
           test -f "$LATEST_PATH_RESOLVED"
           test -d "$FEED_DIR_RESOLVED"
-
-          aws s3 cp "$LATEST_PATH_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/latest.json"
-          aws s3 sync "$FEED_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/feed/"
-
-          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
-            aws s3 sync "$SNAPSHOT_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/snapshot/"
-          fi
-
-          if [ -n "${AWS_CLOUDFRONT_DISTRIBUTION_ID:-}" ]; then
-            aws cloudfront create-invalidation               --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID"               --paths "/latest.json" "/feed/*" "/snapshot/*"
-          fi
-
-          echo "changed=1" >> "$GITHUB_OUTPUT"
-          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-
-      - name: Package fixed entry artifacts
-        if: steps.publish.outputs.changed == '1'
-        run: |
-          set -euo pipefail
-          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
-          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
-          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
-          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
 
           STAGE_DIR=/tmp/fixed-entry-state
           rm -rf "$STAGE_DIR"
@@ -261,6 +230,9 @@ jobs:
           fi
 
           tar -C "$STAGE_DIR" -czf /tmp/fixed-entry-state.tgz .
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Upload fixed entry artifacts for downstream jobs
         if: steps.publish.outputs.changed == '1'

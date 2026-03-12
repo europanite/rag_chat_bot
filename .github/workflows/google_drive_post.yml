@@ -189,17 +189,8 @@ jobs:
               f.write(f"feed_stem={state['feed_stem']}\n")
           PY
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          disable-retry: true
-
-      - name: Publish generated artifacts to S3
+      - name: Package generated state for pages deploy
         id: publish
-        env:
-          FEED_STEM: ${{ steps.meta.outputs.feed_stem }}
         run: |
           set -euo pipefail
 
@@ -214,30 +205,38 @@ jobs:
           FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
           SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
           IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+          FEED_STEM="${{ steps.meta.outputs.feed_stem }}"
           FEED_JSON_PATH="$FEED_DIR_RESOLVED/$FEED_STEM.json"
 
-          test -n "$AWS_S3_BUCKET_PUBLIC"
           test -f "$LATEST_PATH_RESOLVED"
           test -f "$FEED_JSON_PATH"
 
-          aws s3 cp "$LATEST_PATH_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/latest.json"
-          aws s3 cp "$FEED_JSON_PATH" "s3://$AWS_S3_BUCKET_PUBLIC/feed/$FEED_STEM.json"
+          STAGE_DIR=/tmp/pages-state
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/feed" "$STAGE_DIR/snapshot" "$STAGE_DIR/image"
+          cp "$LATEST_PATH_RESOLVED" "$STAGE_DIR/latest.json"
+          cp "$FEED_JSON_PATH" "$STAGE_DIR/feed/$FEED_STEM.json"
 
           if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
-            aws s3 sync "$SNAPSHOT_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/snapshot/"
+            cp -a "$SNAPSHOT_DIR_RESOLVED"/. "$STAGE_DIR/snapshot/"
           fi
 
           if [ -d "$IMAGE_DIR_RESOLVED" ]; then
-            aws s3 sync "$IMAGE_DIR_RESOLVED" "s3://$AWS_S3_BUCKET_PUBLIC/image/"
+            cp -a "$IMAGE_DIR_RESOLVED"/. "$STAGE_DIR/image/"
           fi
 
-          if [ -n "${AWS_CLOUDFRONT_DISTRIBUTION_ID:-}" ]; then
-            aws cloudfront create-invalidation \
-              --distribution-id "$AWS_CLOUDFRONT_DISTRIBUTION_ID" \
-              --paths "/latest.json" "/feed/$FEED_STEM.json" "/image/*" "/snapshot/*"
-          fi
+          tar -C "$STAGE_DIR" -czf /tmp/pages-state.tgz .
 
           echo "changed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated state artifact
+        if: steps.publish.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Upload latest.json for x_post
         if: steps.publish.outputs.changed == '1'
@@ -248,8 +247,20 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  x_post:
+  pages:
     needs: prepare
+    if: needs.prepare.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
+    permissions:
+      contents: read
+      id-token: write
+
+  x_post:
+    needs: [prepare, pages]
     if: inputs.post_to_x == '1' && needs.prepare.outputs.changed == '1'
     runs-on: ubuntu-latest
     permissions:

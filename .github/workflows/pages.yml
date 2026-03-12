@@ -90,6 +90,27 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Configure AWS credentials via OIDC
+        if: env.AWS_S3_BUCKET_PUBLIC != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Hydrate currently published generated state from S3 (best effort)
+        if: env.AWS_S3_BUCKET_PUBLIC != ''
+        run: |
+          set -euo pipefail
+          PUBLIC_DIR="frontend/app/public"
+          BUCKET="s3://${AWS_S3_BUCKET_PUBLIC}"
+
+          mkdir -p "$PUBLIC_DIR/feed" "$PUBLIC_DIR/image" "$PUBLIC_DIR/snapshot"
+
+          aws s3 cp "$BUCKET/latest.json" "$PUBLIC_DIR/latest.json" 2>/dev/null || true
+          aws s3 sync "$BUCKET/feed/" "$PUBLIC_DIR/feed/" --exclude ".gitkeep" --exclude ".nojekyll" 2>/dev/null || true
+          aws s3 sync "$BUCKET/snapshot/" "$PUBLIC_DIR/snapshot/" --exclude ".gitkeep" 2>/dev/null || true
+          aws s3 sync "$BUCKET/image/" "$PUBLIC_DIR/image/" --exclude ".gitkeep" 2>/dev/null || true
+
       - name: Download generated state artifact (optional)
         if: inputs.state_artifact_name != ''
         uses: actions/download-artifact@v4
@@ -143,12 +164,6 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/build_social_pages.py
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-
       - name: Deploy frontend shell to S3 (preserve generated feed/image history)
         env:
           STATE_ARTIFACT_NAME: ${{ inputs.state_artifact_name }}
