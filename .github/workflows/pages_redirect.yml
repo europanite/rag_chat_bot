@@ -27,7 +27,7 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Build redirect site
+      - name: Build notice-only landing site
         shell: bash
         run: |
           set -euo pipefail
@@ -50,10 +50,63 @@ jobs:
             <head>
               <meta charset="utf-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>Redirecting…</title>
+              <title>Site moved</title>
               <meta name="robots" content="noindex" />
-              <link rel="canonical" href="__TARGET__/" />
-              <meta http-equiv="refresh" content="0; url=__TARGET__/" />
+              <style>
+                :root {
+                  color-scheme: light dark;
+                }
+                body {
+                  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                  line-height: 1.6;
+                  margin: 0;
+                  padding: 2rem;
+                }
+                main {
+                  max-width: 48rem;
+                  margin: 0 auto;
+                }
+                .card {
+                  border: 1px solid rgba(127, 127, 127, 0.35);
+                  border-radius: 12px;
+                  padding: 1.25rem;
+                }
+                code {
+                  word-break: break-all;
+                }
+                a.button {
+                  display: inline-block;
+                  margin-top: 1rem;
+                  padding: 0.75rem 1rem;
+                  border: 1px solid currentColor;
+                  border-radius: 999px;
+                  text-decoration: none;
+                }
+              </style>
+            </head>
+            <body>
+              <main>
+                <div class="card">
+                  <h1>This site has moved</h1>
+                  <p>
+                    The GitHub Pages site is no longer the primary public site.
+                    Please use the AWS-hosted site below.
+                  </p>
+                  <p>
+                    Destination:
+                    <br />
+                    <code id="target-text">__TARGET__/</code>
+                  </p>
+                  <p>
+                    <a id="target-link" class="button" href="__TARGET__/">Open the new site</a>
+                  </p>
+                  <noscript>
+                    <p>
+                      JavaScript is disabled, so the destination link points to the site root.
+                    </p>
+                  </noscript>
+                </div>
+              </main>
               <script>
                 (function () {
                   var base = "__TARGET__";
@@ -73,24 +126,16 @@ jobs:
                   }
 
                   var next = base + (path === "/" ? "" : path) + query + hash;
-                  window.location.replace(next);
+                  var link = document.getElementById("target-link");
+                  var text = document.getElementById("target-text");
+                  if (link) {
+                    link.href = next;
+                  }
+                  if (text) {
+                    text.textContent = next;
+                  }
                 })();
               </script>
-              <style>
-                body {
-                  font-family: system-ui, sans-serif;
-                  line-height: 1.5;
-                  margin: 0;
-                  padding: 2rem;
-                }
-              </style>
-            </head>
-            <body>
-              <p>
-                Redirecting to
-                <a id="target-link" href="__TARGET__/">__TARGET__/</a>
-                …
-              </p>
             </body>
           </html>
           HTML
