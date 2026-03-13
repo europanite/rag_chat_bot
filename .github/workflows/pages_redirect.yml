@@ -16,9 +16,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  REDIRECT_TARGET: ${{ vars.GITHUB_PAGES_REDIRECT_TARGET }}
-  CUSTOM_DOMAIN: ${{ vars.GITHUB_PAGES_CUSTOM_DOMAIN }}
-  PATH_PREFIX_TO_STRIP: ${{ vars.GITHUB_PAGES_PATH_PREFIX_TO_STRIP }}
+  REDIRECT_TARGET: ${{ vars.REDIRECT_TARGET }}
+  CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+  PATH_PREFIX_TO_STRIP: ${{ vars.PATH_PREFIX_TO_STRIP }}
 
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
 
           if [ -z "${REDIRECT_TARGET}" ]; then
-            echo "Repository variable GITHUB_PAGES_REDIRECT_TARGET is empty." >&2
+            echo "Repository variable REDIRECT_TARGET is empty." >&2
             exit 1
           fi
 
