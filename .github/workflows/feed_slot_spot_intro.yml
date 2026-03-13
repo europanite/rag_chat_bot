@@ -15,14 +15,14 @@ concurrency:
 
 jobs:
   run:
-    uses: ./.github/workflows/google_drive_post.yml
+    uses: ./.github/workflows/feed_slot_spot_random.yml
     permissions:
       actions: read
       contents: read
       id-token: write
     with:
-      kind: "event"
-      avatar_image: "image/avatar/event.png"
+      kind: "spot"
+      avatar_image: "image/avatar/spot.png"
       place: "Yokosuka"
       post_to_x: "1"
     secrets: inherit

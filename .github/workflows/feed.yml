@@ -151,7 +151,7 @@ jobs:
   sgoogle_random:
     needs: select
     if: needs.select.outputs.slot == 'google_random'
-    uses: ./.github/workflows/feed_slot_google_random.yml
+    uses: ./.github/workflows/feed_slot_spot_random.yml
     permissions:
       actions: read
       contents: write

@@ -1,4 +1,4 @@
-name: Google Drive Random Post
+name: Feed Spot Random
 
 on:
   workflow_dispatch:
