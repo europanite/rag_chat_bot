@@ -202,13 +202,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          if git diff --quiet; then
-            echo "No changes"
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "sha=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
           LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
           FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
@@ -216,6 +209,13 @@ jobs:
 
           test -f "$LATEST_PATH_RESOLVED"
           test -d "$FEED_DIR_RESOLVED"
+
+          GIT_STATUS_OUTPUT="$(git status --porcelain --untracked-files=all -- "$PUBLIC_DIR" || true)"
+          if [ -n "$GIT_STATUS_OUTPUT" ]; then
+            printf '%s\n' "$GIT_STATUS_OUTPUT"
+          else
+            echo "No Git-visible changes under $PUBLIC_DIR; packaging generated state because latest/feed files exist."
+          fi
 
           STAGE_DIR=/tmp/fixed-entry-state
           rm -rf "$STAGE_DIR"
