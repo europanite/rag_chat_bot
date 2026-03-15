@@ -79,6 +79,21 @@ jobs:
           ref: ${{ needs.fixed.outputs.sha }}
           fetch-depth: 0
 
+      - name: Download fixed state artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state
+
+      - name: Restore fixed state into public dir
+        run: |
+          set -euo pipefail
+          mkdir -p "${ARTIFACT_PUBLIC_DIR}"
+          tar -C "${ARTIFACT_PUBLIC_DIR}" -xzf /tmp/pages-state/pages-state.tgz
+          test -f "${ARTIFACT_LATEST_PATH}"
+          find "${ARTIFACT_PUBLIC_DIR}/feed" -maxdepth 1 -type f -name 'feed_*.json' | sort | tail -n 5
+          cat "${ARTIFACT_LATEST_PATH}"
+
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
