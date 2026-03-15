@@ -1,5 +1,5 @@
 #!/bin/sh
-set -euo pipefail
+set -eu
 
 FEED_PATH="${FEED_PATH:-frontend/app/public}"
 LATEST_PATH="${LATEST_PATH:-$FEED_PATH/latest.json}"
