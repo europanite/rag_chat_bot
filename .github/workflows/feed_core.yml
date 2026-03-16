@@ -69,6 +69,8 @@ env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
   AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+  DATA_JSON_URL: ${{ vars.DATA_JSON_URL }}
+  DATA_JSON_OUT: data/json/data.json
 
 jobs:
   rag:
@@ -109,11 +111,27 @@ jobs:
 
       - name: Make pipeline scripts executable
         run: |
-          chmod +x scripts/feed.sh
+          chmod +x scripts/feed.sh scripts/fetch_data_json_from_gdrive.py
+
+      - name: Fetch data.json from Google Drive public link
+        env:
+          DATA_JSON_URL: ${{ env.DATA_JSON_URL }}
+          DATA_JSON_OUT: ${{ env.DATA_JSON_OUT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DATA_JSON_URL}" ]; then
+            echo "ERROR: Repository variable DATA_JSON_URL is required."
+            exit 1
+          fi
+          python3 scripts/fetch_data_json_from_gdrive.py \
+            --url "${DATA_JSON_URL}" \
+            --out "${DATA_JSON_OUT}"
+
       - name: Echo selected entry
         run: |
           echo "SCHEDULED_KIND=${SCHEDULED_KIND}"
           echo "AVATAR_IMAGE=${AVATAR_IMAGE}"
+          echo "DATA_JSON_OUT=${DATA_JSON_OUT}"
 
       - name: Run feed pipeline
         env:
