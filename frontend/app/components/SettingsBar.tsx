@@ -98,16 +98,6 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
           minHeight: 28 }}>
           {/* Row content (left small label + right buttons) */}
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            {/* Powered by: unobtrusive (left) */}
-            <TouchableOpacity
-              onPress={() => openUrl(REPO_URL)}
-              accessibilityRole="link"
-              style={{ opacity: 0.55 }}
-            >
-              <Text style={{ fontSize: 9, color: "#fff" }}>
-                Powered by <Text style={{ fontWeight: "600" }}>RAG Chat Bot</Text>
-              </Text>
-            </TouchableOpacity>
 
             {/* Buttons (right) */}
             <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
