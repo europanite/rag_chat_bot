@@ -302,6 +302,21 @@ def choose_article_doc(entries: Sequence[DriveEntry]) -> DriveEntry:
     return sorted(candidates, key=sort_key)[0]
 
 
+def choose_default_hero_image(entries: Sequence[DriveEntry]) -> Optional[DriveEntry]:
+    candidates = [it for it in entries if it.kind == "image"]
+    if not candidates:
+        return None
+
+    def sort_key(it: DriveEntry) -> tuple[int, str]:
+        name = it.name.lower().strip()
+        preferred = 0 if any(
+            token in name for token in ("hero", "cover", "main", "header", "top", "eyecatch")
+        ) else 1
+        return (preferred, name)
+
+    return sorted(candidates, key=sort_key)[0]
+
+
 def file_download_url(entry: DriveEntry) -> str:
     q = f"&resourcekey={urllib.parse.quote(entry.resource_key)}" if entry.resource_key else ""
     if entry.kind == "doc" or DOC_URL_RE.search(entry.href):
@@ -702,6 +717,15 @@ def main() -> int:
     article_doc = choose_article_doc(article_entries)
     article_text = download_text(article_doc)
     parsed = parse_article_markdown(article_text)
+
+    hero_ref = parsed.get("hero_image")
+    if not (isinstance(hero_ref, ImageRef) and hero_ref.source):
+        fallback_image = choose_default_hero_image(article_entries)
+        if fallback_image is not None:
+            parsed["hero_image"] = ImageRef(
+                source=fallback_image.name,
+                alt=Path(fallback_image.name).stem.replace("_", " ").replace("-", " ").strip(),
+            )
 
     slug = slugify(str(parsed.get("slug") or parsed.get("title") or chosen_folder.name))
     published_at = ensure_iso(str(parsed.get("published_at") or ""))
