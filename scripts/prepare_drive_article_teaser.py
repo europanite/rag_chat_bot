@@ -676,7 +676,7 @@ def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", fee
     <div class="card">
       <div class="nav">
         <a href="{feed_href}">← Back to feed</a>
-        <a href="{guides_href}">Latest guide page</a>
+        <a href="{guides_href}">Guide list</a>
       </div>
       <div class="eyebrow">GOODDAY YOKOSUKA / long-form guide</div>
       <h1>{title}</h1>
@@ -693,14 +693,58 @@ def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", fee
 """
 
 
-def build_articles_index_html(article: Dict[str, Any], *, article_href: str = "./", feed_href: str = "../") -> str:
-    title = html.escape(str(article.get("title") or "GOODDAY YOKOSUKA"))
-    summary = html.escape(str(article.get("summary") or ""))
-    place = html.escape(str(article.get("place") or "Yokosuka"))
-    published_at = html.escape(str(article.get("published_at") or ""))
-    hero = html.escape(rebase_public_url(str(article.get("hero_image") or ""), levels_up=1))
-    article_href = html.escape(article_href)
+def load_existing_articles(articles_dir: Path) -> list[Dict[str, Any]]:
+    items: list[Dict[str, Any]] = []
+    for path in sorted(articles_dir.glob("*.json")):
+        if path.name == "featured.json":
+            continue
+        try:
+            obj = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(obj, dict):
+            continue
+        slug = slugify(str(obj.get("slug") or obj.get("title") or path.stem))
+        title = str(obj.get("title") or "").strip()
+        if not title:
+            continue
+        item = dict(obj)
+        item["slug"] = slug
+        item["_sort_key"] = (
+            str(obj.get("published_at") or ""),
+            str(obj.get("date") or ""),
+            title.casefold(),
+        )
+        items.append(item)
+
+    items.sort(key=lambda it: it.get("_sort_key") or ("", "", ""), reverse=True)
+    return items
+
+
+def build_articles_index_html(articles: Sequence[Dict[str, Any]], *, feed_href: str = "../") -> str:
+    cards_html: list[str] = []
+    for article in articles:
+        title = html.escape(str(article.get("title") or "GOODDAY YOKOSUKA"))
+        summary = html.escape(str(article.get("summary") or ""))
+        place = html.escape(str(article.get("place") or "Yokosuka"))
+        published_at = html.escape(str(article.get("published_at") or article.get("date") or ""))
+        hero = html.escape(rebase_public_url(str(article.get("hero_image") or ""), levels_up=1))
+        slug = slugify(str(article.get("slug") or article.get("title") or "article"))
+        article_href = html.escape(f"./{slug}/index.html")
+
+        cards_html.append(
+            f"""<article class="guide-card">
+        {f'<img src="{hero}" alt="{title}" />' if hero else ''}
+        <div class="eyebrow">Guide</div>
+        <h2>{title}</h2>
+        <div class="meta">{place} · {published_at}</div>
+        {f'<p>{summary}</p>' if summary else ''}
+        <a class="cta" href="{article_href}">Open this article →</a>
+      </article>"""
+        )
+
     feed_href = html.escape(feed_href)
+    cards = "\n".join(cards_html) if cards_html else "<p>No guides yet.</p>"
 
     return f"""<!doctype html>
 <html lang="en">
@@ -708,16 +752,20 @@ def build_articles_index_html(article: Dict[str, Any], *, article_href: str = ".
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Guides | GOODDAY YOKOSUKA</title>
-  <meta name="description" content="Latest long-form guide on GOODDAY YOKOSUKA" />
+  <meta name="description" content="Long-form guides on GOODDAY YOKOSUKA" />
   <style>
     body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}
-    .wrap {{ max-width: 860px; margin: 0 auto; padding: 24px 16px 72px; }}
+    .wrap {{ max-width: 980px; margin: 0 auto; padding: 24px 16px 72px; }}
     .card {{ background: #fff; border: 2px solid #000; border-radius: 20px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }}
     .eyebrow {{ display: inline-block; font-size: 12px; background: #ede9fe; border-radius: 999px; padding: 6px 10px; margin-bottom: 12px; }}
-    .meta {{ color: #4b5563; font-size: 14px; margin-bottom: 16px; }}
-    img {{ display: block; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid #ddd; margin-bottom: 16px; }}
+    .meta {{ color: #4b5563; font-size: 14px; margin-bottom: 12px; }}
+    img {{ display: block; width: 100%; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid #ddd; margin-bottom: 16px; }}
     a {{ color: #0B57D0; }}
     .nav {{ display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }}
+    .guides {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }}
+    .guide-card {{ border: 1px solid #d1d5db; border-radius: 16px; padding: 16px; background: #fcfcff; }}
+    .guide-card h2 {{ margin: 0 0 8px; font-size: 22px; line-height: 1.35; }}
+    .guide-card p {{ line-height: 1.7; margin: 0; }}
     .cta {{ display: inline-block; margin-top: 12px; font-weight: 600; }}
   </style>
 </head>
@@ -728,12 +776,11 @@ def build_articles_index_html(article: Dict[str, Any], *, article_href: str = ".
         <a href="{feed_href}">← Back to feed</a>
       </div>
       <div class="eyebrow">GOODDAY YOKOSUKA / guides</div>
-      <h1>Latest guide</h1>
-      <h2>{title}</h2>
-      <div class="meta">{place} · {published_at}</div>
-      {f'<img src="{hero}" alt="{title}" />' if hero else ''}
-      {f'<p>{summary}</p>' if summary else ''}
-      <a class="cta" href="{article_href}">Open this article →</a>
+      <h1>Guide list</h1>
+      <p>Browse long-form guides collected from the Google Drive article folders.</p>
+      <div class="guides">
+        {cards}
+      </div>
     </div>
   </main>
 </body>
@@ -853,8 +900,9 @@ def main() -> int:
         build_article_html(article_json, guides_href="../index.html", feed_href="../../"),
         encoding="utf-8",
     )
+    articles_index_items = load_existing_articles(articles_dir)
     (articles_dir / "index.html").write_text(
-        build_articles_index_html(article_json, article_href=f"./{slug}/index.html", feed_href="../"),
+        build_articles_index_html(articles_index_items, feed_href="../"),
         encoding="utf-8",
     )
 
@@ -877,7 +925,7 @@ def main() -> int:
         "permalink": permalink,
         "guides_permalink": guides_permalink,
         "links": [
-            {"title": "Open guide page", "url": guides_permalink},
+            {"title": "Open guide list", "url": guides_permalink},
             {"title": "Open this article", "url": permalink},
         ],
         "image": hero_url,
@@ -898,7 +946,7 @@ def main() -> int:
     print(f"Selected article doc: {article_doc.name} ({article_doc.file_id})")
     print(f"Wrote article JSON: {articles_dir / f'{slug}.json'}")
     print(f"Wrote article HTML: {article_page_dir / 'index.html'}")
-    print(f"Wrote guide index HTML: {articles_dir / 'index.html'}")
+    print(f"Wrote guide index HTML: {articles_dir / 'index.html'} ({len(articles_index_items)} guides)")
     print(f"Wrote teaser feed snapshot: {feed_path}")
     return 0
 
