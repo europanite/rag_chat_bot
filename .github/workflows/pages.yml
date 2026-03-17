@@ -100,6 +100,22 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Debug AWS inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "event=${GITHUB_EVENT_NAME}"
+          echo "actor=${GITHUB_ACTOR}"
+          echo "ref=${GITHUB_REF}"
+          [ -n "${AWS_REGION:-}" ] && echo "AWS_REGION=set" || echo "AWS_REGION=empty"
+          [ -n "${AWS_S3_BUCKET_PUBLIC:-}" ] && echo "AWS_S3_BUCKET_PUBLIC=set" || echo "AWS_S3_BUCKET_PUBLIC=empty"
+          if [ -n "${{ secrets.AWS_ROLE_ARN }}" ]; then
+            echo "AWS_ROLE_ARN=set"
+          else
+            echo "AWS_ROLE_ARN=empty"
+            exit 1
+          fi
+
       - name: Configure AWS credentials via OIDC
         if: env.AWS_S3_BUCKET_PUBLIC != ''
         uses: aws-actions/configure-aws-credentials@v4
