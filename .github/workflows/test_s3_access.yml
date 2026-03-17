@@ -8,6 +8,24 @@ permissions:
   id-token: write
 
 jobs:
+  smoke-oidc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Show caller identity
+        run: aws sts get-caller-identity
+
   test-s3:
     runs-on: ubuntu-latest
     steps:
