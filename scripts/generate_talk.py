@@ -986,7 +986,7 @@ def main() -> int:
     if scheduled_kind == "garbage":
         
         str_date = "today"
-        if now_local.hour < 12:
+        if now_dt_local.hour < 12:
             str_date = "tomorrow"
         tweet = build_garbage_post(place=place, date=str_date)
         links = [GARBAGE_REMINDER_URL]
