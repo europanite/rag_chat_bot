@@ -821,8 +821,8 @@ def main() -> int:
             continue
         links.append({"title": link_ref.title or link_ref.url, "url": link_ref.url})
 
-    permalink = f"./articles/{slug}/"
-    guides_permalink = "./articles/"
+    permalink = f"./articles/{slug}/index.html"
+    guides_permalink = "./articles/index.html"
     article_json = {
         "id": slug,
         "slug": slug,
@@ -850,11 +850,11 @@ def main() -> int:
     article_page_dir = articles_dir / slug
     article_page_dir.mkdir(parents=True, exist_ok=True)
     (article_page_dir / "index.html").write_text(
-        build_article_html(article_json, guides_href="../", feed_href="../../"),
+        build_article_html(article_json, guides_href="../index.html", feed_href="../../"),
         encoding="utf-8",
     )
     (articles_dir / "index.html").write_text(
-        build_articles_index_html(article_json, article_href=f"./{slug}/", feed_href="../"),
+        build_articles_index_html(article_json, article_href=f"./{slug}/index.html", feed_href="../"),
         encoding="utf-8",
     )
 

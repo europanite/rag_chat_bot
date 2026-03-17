@@ -8,7 +8,7 @@ const CONTACT_URL =
   RAW_CONTACT_URL.startsWith("http://") || RAW_CONTACT_URL.startsWith("https://")
     ? RAW_CONTACT_URL
     : `${REPO_URL}/issues/new`;
-const GUIDES_URL = RAW_GUIDES_URL || "./articles/";
+const GUIDES_URL = RAW_GUIDES_URL || "./articles/index.html";
 
 function Btn({ title, onPress }: { title: string; onPress: () => void }) {
   return (
