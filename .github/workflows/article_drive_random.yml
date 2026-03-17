@@ -1,9 +1,6 @@
 name: Article Drive Random
 
 on:
-  schedule:
-    # 08:15 JST
-    - cron: '15 23 * * *'
   workflow_dispatch:
     inputs:
       root_folder_url_override:
