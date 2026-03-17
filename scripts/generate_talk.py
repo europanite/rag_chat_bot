@@ -62,7 +62,7 @@ def _append_if_fit(tweet: str, extra: str, max_chars: int) -> str:
     candidate = f"{tweet} {extra}".strip()
     return candidate if len(candidate) <= max_chars else tweet
 
-def build_garbage_post(*, place: str, date: str) -> str:
+def build_garbage_post(*, date: str) -> str:
     # URL is provided via links[] (NOT in text).
     return f"🗑️ Garbage reminder: please check {date}'s collection and sorting rules."
 
@@ -988,7 +988,7 @@ def main() -> int:
         str_date = "today"
         if now_dt_local.hour < 12:
             str_date = "today"
-        tweet = build_garbage_post(place=place, date=str_date)
+        tweet = build_garbage_post(date=str_date)
         links = [GARBAGE_REMINDER_URL]
 
         if hashtags and "#" not in tweet:
