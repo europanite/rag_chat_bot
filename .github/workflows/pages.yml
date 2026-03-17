@@ -111,7 +111,7 @@ jobs:
           echo "ref=${GITHUB_REF}"
           [ -n "${AWS_REGION:-}" ] && echo "AWS_REGION=set" || echo "AWS_REGION=empty"
           [ -n "${AWS_S3_BUCKET_PUBLIC:-}" ] && echo "AWS_S3_BUCKET_PUBLIC=set" || echo "AWS_S3_BUCKET_PUBLIC=empty"
-          [ -n "${AWS_ROLE_ARN_SECRET:-}" ] && echo "AWS_ROLE_ARN=set" || { echo "AWS_ROLE_ARN=empty"; exit 1; }
+          [ -n "${AWS_ROLE_ARN_SECRET:-}" ] && echo "AWS_ROLE_ARN=set" || echo "AWS_ROLE_ARN=empty"
 
       - name: Configure AWS credentials via OIDC
         if: env.AWS_S3_BUCKET_PUBLIC != ''
@@ -119,6 +119,10 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Show caller identity
+        if: env.AWS_S3_BUCKET_PUBLIC != ''
+        run: aws sts get-caller-identity
 
       - name: Hydrate currently published generated state from S3 (best effort)
         if: env.AWS_S3_BUCKET_PUBLIC != ''
