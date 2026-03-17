@@ -983,8 +983,12 @@ def main() -> int:
         )
 
     # garbage posts: DO NOT call RAG. Just reminder + 1 URL in links[].
-    if scheduled_kind == "garbage_tomorrow":
-        tweet = build_garbage_post(place=place, date="tomorrow")
+    if scheduled_kind == "garbage":
+        
+        str_date = "today"
+        if now_local.hour < 12:
+            str_date = "tomorrow"
+        tweet = build_garbage_post(place=place, date=str_date)
         links = [GARBAGE_REMINDER_URL]
 
         if hashtags and "#" not in tweet:
@@ -1002,31 +1006,6 @@ def main() -> int:
             links=links, 
             kind=scheduled_kind, 
             fixed_image="fixed/garbage.png",
-            avatar_image=env("AVATAR_IMAGE", "image/avatar/normal.png"),
-            )
-        for feed_path, latest_path in pair_paths(feeds, latests):
-            write_outputs(feed_path=feed_path, latest_path=latest_path, entry=entry, snap_json_raw=snap_json_raw, now_local=now_local)
-        return 0
-    
-    if scheduled_kind == "garbage_today":
-        tweet = build_garbage_post(place=place, date="today")
-        links = [GARBAGE_REMINDER_URL]
-            
-        if hashtags and "#" not in tweet:
-            picked = _pick_hashtags(hashtags, k=3, seed=now_local)
-            tweet = _append_if_fit(tweet, picked, max_chars)
-
-        today = utc_date()
-        now_iso = utc_now_iso_z()
-        entry = build_fixed_post_entry(
-            today=today, 
-            now_iso=now_iso, 
-            tweet=tweet, 
-            place=place, 
-            snap_obj=snap_obj, 
-            links=links, 
-            kind=scheduled_kind, 
-            fixed_image="image/avatar/garbage.png",
             avatar_image=env("AVATAR_IMAGE", "image/avatar/normal.png"),
             )
         for feed_path, latest_path in pair_paths(feeds, latests):

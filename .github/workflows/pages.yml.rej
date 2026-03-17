@@ -1,0 +1,26 @@
+diff a/.github/workflows/pages.yml b/.github/workflows/pages.yml	(rejected hunks)
+@@ -67,11 +67,12 @@ jobs:
+         run: |
+           set -euo pipefail
+           PUBLIC_DIR="frontend/app/public"
+           BUCKET="s3://${AWS_S3_BUCKET_PUBLIC}"
+ 
+-          mkdir -p "$PUBLIC_DIR/feed" "$PUBLIC_DIR/image" "$PUBLIC_DIR/snapshot"
++          mkdir -p "$PUBLIC_DIR/feed" "$PUBLIC_DIR/image" "$PUBLIC_DIR/snapshot" "$PUBLIC_DIR/articles"
+ 
+           aws s3 cp "$BUCKET/latest.json" "$PUBLIC_DIR/latest.json" 2>/dev/null || true
+           aws s3 sync "$BUCKET/feed/" "$PUBLIC_DIR/feed/" --exclude ".gitkeep" --exclude ".nojekyll" 2>/dev/null || true
+           aws s3 sync "$BUCKET/snapshot/" "$PUBLIC_DIR/snapshot/" --exclude ".gitkeep" 2>/dev/null || true
+           aws s3 sync "$BUCKET/image/" "$PUBLIC_DIR/image/" --exclude ".gitkeep" 2>/dev/null || true
++          aws s3 sync "$BUCKET/articles/" "$PUBLIC_DIR/articles/" --exclude ".gitkeep" 2>/dev/null || true
+@@ -184,6 +185,10 @@ jobs:
+           if [ -d "$WEB_BUILD_DIR/image/avatar" ]; then
+             aws s3 sync "$WEB_BUILD_DIR/image/avatar" "$BUCKET/image/avatar/"
+           fi
++
++          if [ -d "$WEB_BUILD_DIR/image/articles" ]; then
++            aws s3 sync "$WEB_BUILD_DIR/image/articles" "$BUCKET/image/articles/"
++          fi
+ 
+           if [ -n "${STATE_ARTIFACT_NAME}" ]; then
+             if [ -f "$PUBLIC_DIR/latest.json" ]; then

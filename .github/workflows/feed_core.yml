@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       scheduled_kind:
-        description: "Entry kind to generate (spot/restaurant/event/activity/garbage_today/garbage_tomorrow)"
+        description: "Entry kind to generate"
         required: true
         type: string
       avatar_image:
@@ -35,7 +35,6 @@ on:
           - restaurant
           - event
           - activity
-          - garbage
       avatar_image:
         description: "Avatar image path"
         required: true
