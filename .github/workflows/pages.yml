@@ -102,6 +102,9 @@ jobs:
 
       - name: Debug AWS inputs
         shell: bash
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         run: |
           set -euo pipefail
           echo "event=${GITHUB_EVENT_NAME}"
