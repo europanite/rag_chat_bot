@@ -131,3 +131,13 @@ jobs:
     needs: prepare
     if: needs.prepare.outputs.changed == '1'
     uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
+      artifact_run_id: ${{ github.run_id }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+
