@@ -776,8 +776,6 @@ def build_articles_index_html(articles: Sequence[Dict[str, Any]], *, feed_href: 
         <a href="{feed_href}">← Back to feed</a>
       </div>
       <div class="eyebrow">GOODDAY YOKOSUKA / guides</div>
-      <h1>Guide list</h1>
-      <p>Browse long-form guides collected from the Google Drive article folders.</p>
       <div class="guides">
         {cards}
       </div>
