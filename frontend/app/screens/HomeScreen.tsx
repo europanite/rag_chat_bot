@@ -39,6 +39,23 @@ type Feed = {
   items: FeedItem[];
 };
 
+type GuideItem = {
+  id: string;
+  slug?: string;
+  title: string;
+  summary?: string;
+  place?: string;
+  published_at?: string;
+  date?: string;
+  hero_image?: string;
+  permalink?: string;
+};
+
+type GuidesIndex = {
+  updated_at?: string;
+  items: GuideItem[];
+};
+
 type SlotItem = {
   kind: "ad";
   id: string;
@@ -476,6 +493,43 @@ function normalizeFeed(parsed: unknown): Feed | null {
   }
 
   return null;
+}
+
+function normalizeGuidesIndex(parsed: unknown): GuidesIndex | null {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as any;
+  if (!Array.isArray(obj.items)) return null;
+
+  const items: GuideItem[] = obj.items
+    .map((it: any): GuideItem | null => {
+      const title = typeof it?.title === "string" ? it.title.trim() : "";
+      if (!title) return null;
+
+      const slug = typeof it?.slug === "string" ? it.slug.trim() : undefined;
+      const permalink = typeof it?.permalink === "string" ? it.permalink.trim() : undefined;
+      const id =
+        typeof it?.id === "string" && it.id.trim()
+          ? it.id.trim()
+          : slug || permalink || title;
+
+      return {
+        id,
+        slug,
+        title,
+        summary: typeof it?.summary === "string" ? it.summary : undefined,
+        place: typeof it?.place === "string" ? it.place : undefined,
+        published_at: typeof it?.published_at === "string" ? it.published_at : undefined,
+        date: typeof it?.date === "string" ? it.date : undefined,
+        hero_image: typeof it?.hero_image === "string" ? it.hero_image : undefined,
+        permalink,
+      };
+    })
+    .filter(Boolean) as GuideItem[];
+
+  return {
+    updated_at: typeof obj.updated_at === "string" ? obj.updated_at : undefined,
+    items,
+  };
 }
 
 type ShareSdItem = {
@@ -976,6 +1030,94 @@ function SlotCard({
   );
 }
 
+function GuideSidebar({
+  guides,
+  assetBase,
+}: {
+  guides: GuideItem[];
+  assetBase: string;
+}) {
+  return (
+    <View
+      style={{
+        minHeight: 0,
+        height: "100%",
+        borderWidth: 2,
+        borderColor: BORDER,
+        borderRadius: 20,
+        backgroundColor: "#ffffff",
+        padding: 14,
+      }}
+    >
+      <Text style={{ fontSize: 12, fontWeight: "800", color: TEXT_DIM, marginBottom: 6 }}>
+        LONG-FORM GUIDES
+      </Text>
+      <Text style={{ fontSize: 20, fontWeight: "800", color: "#000", marginBottom: 12 }}>
+        Guide list
+      </Text>
+
+      <View style={{ gap: 10 }}>
+        {guides.length > 0 ? (
+          guides.slice(0, 8).map((guide) => {
+            const hero = guide.hero_image
+              ? resolveUrl(normalizeWebAssetPath(guide.hero_image), assetBase)
+              : "";
+            const target = guide.permalink || "./articles/index.html";
+            const meta = [guide.place, guide.published_at || guide.date].filter(Boolean).join(" · ");
+            return (
+              <Pressable
+                key={guide.id}
+                onPress={() => openResolvedUrl(target)}
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#d1d5db",
+                  borderRadius: 16,
+                  backgroundColor: "#fcfcff",
+                  overflow: "hidden",
+                }}
+              >
+                {hero ? (
+                  <Image
+                    source={{ uri: hero }}
+                    style={{ width: "100%", aspectRatio: 4 / 3, backgroundColor: "#f3f4f6" }}
+                    resizeMode="cover"
+                  />
+                ) : null}
+                <View style={{ padding: 12 }}>
+                  <Text style={{ fontSize: 16, fontWeight: "800", color: "#000", lineHeight: 22 }}>
+                    {guide.title}
+                  </Text>
+                  {meta ? (
+                    <Text style={{ marginTop: 4, color: TEXT_DIM, fontSize: 12, lineHeight: 16 }}>{meta}</Text>
+                  ) : null}
+                  {guide.summary ? (
+                    <Text style={{ marginTop: 6, color: TEXT_DIM, fontSize: 13, lineHeight: 18 }} numberOfLines={4}>
+                      {guide.summary}
+                    </Text>
+                  ) : null}
+                  <Text style={{ marginTop: 8, color: "#0B57D0", fontSize: 12, fontWeight: "700" }}>
+                    Open this article →
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })
+        ) : (
+          <Text style={{ color: TEXT_DIM, fontSize: 13, lineHeight: 18 }}>
+            No guides yet.
+          </Text>
+        )}
+      </View>
+
+      <Pressable onPress={() => openResolvedUrl("./articles/index.html")} style={{ marginTop: 12 }}>
+        <Text style={{ color: "#0B57D0", textDecorationLine: "underline", fontSize: 12 }}>
+          Open all guides
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
 function Slot({ side }: { side: "left" | "right" }) {
   const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
   if (!enabled) return null;
@@ -1004,6 +1146,7 @@ export default function HomeScreen() {
   const FEED_BASE_URL = (process.env.EXPO_PUBLIC_FEED_BASE_URL || ASSET_BASE_URL || "").trim();
   const IMAGE_BASE_URL = (process.env.EXPO_PUBLIC_IMAGE_BASE_URL || ASSET_BASE_URL || "").trim();
   const SHARE_SD_INDEX_URL = (process.env.EXPO_PUBLIC_SHARE_SD_INDEX_URL || "").trim();
+  const GUIDES_INDEX_URL = (process.env.EXPO_PUBLIC_LONGFORM_GUIDES_INDEX_URL || "./articles/index.json").trim();
   const { width } = useWindowDimensions();
   const showSidebars = width >= 980;
 
@@ -1028,6 +1171,7 @@ export default function HomeScreen() {
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
 
   const [shareSdIndex, setShareSdIndex] = useState<ShareSdIndex | null>(null);
+  const [guidesIndex, setGuidesIndex] = useState<GuidesIndex | null>(null);
 
   const fetchJson = useCallback(async (url: string): Promise<{ raw: string; parsed: unknown }> => {
     const finalUrl = addCacheBuster(url);
@@ -1093,6 +1237,36 @@ useEffect(() => {
   };
 }, [SHARE_SD_INDEX_URL, FEED_BASE_URL, RESOLVED_FEED_URL, fetchJson]);
 
+useEffect(() => {
+  if (!GUIDES_INDEX_URL) return;
+
+  let cancelled = false;
+
+  (async () => {
+    try {
+      const base =
+        ASSET_BASE_URL ||
+        (Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : RESOLVED_FEED_URL);
+
+      const resolved = resolveUrl(normalizeWebAssetPath(GUIDES_INDEX_URL), base);
+      const target = await fetchJson(resolved);
+      const normalized = normalizeGuidesIndex(target.parsed);
+
+      if (!cancelled) {
+        setGuidesIndex(normalized);
+      }
+    } catch {
+      if (!cancelled) {
+        setGuidesIndex(null);
+      }
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [GUIDES_INDEX_URL, ASSET_BASE_URL, RESOLVED_FEED_URL, fetchJson]);
+
 const sharePromptToImage = useMemo(() => {
   const m = new Map<string, string>();
   for (const it of shareSdIndex?.items ?? []) {
@@ -1113,6 +1287,8 @@ const assetBase = useMemo(() => {
   if (Platform.OS === "web" && typeof window !== "undefined") return window.location.href;
   return effectiveUrl || RESOLVED_FEED_URL;
 }, [IMAGE_BASE_URL, ASSET_BASE_URL, effectiveUrl, RESOLVED_FEED_URL]);
+
+const visibleGuides = useMemo(() => guidesIndex?.items ?? [], [guidesIndex]);
 
 const getImageUrisForItem = useCallback(
   (item: FeedItem): string[] => {
@@ -1519,9 +1695,9 @@ const getImageUrisForItem = useCallback(
         alignItems: "stretch",
       }}
     >
-      {/* Left sidebar: grows to consume extra space */}
+      {/* Left sidebar: dedicated guide list */}
       <View style={{ flex: 1, minWidth: SIDEBAR_W, minHeight: 0 }}>
-        <Slot side="left" />
+        <GuideSidebar guides={visibleGuides} assetBase={assetBase} />
       </View>
 
       {/* Center: keep 760 as the “target” width, but allow shrinking */}

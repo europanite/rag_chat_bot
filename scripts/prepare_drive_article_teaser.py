@@ -905,6 +905,26 @@ def main() -> int:
         build_articles_index_html(articles_index_items, feed_href="../"),
         encoding="utf-8",
     )
+    write_json(
+        articles_dir / "index.json",
+        {
+            "updated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            "items": [
+                {
+                    "id": str(item.get("id") or item.get("slug") or ""),
+                    "slug": str(item.get("slug") or ""),
+                    "title": str(item.get("title") or ""),
+                    "summary": str(item.get("summary") or ""),
+                    "place": str(item.get("place") or ""),
+                    "published_at": str(item.get("published_at") or ""),
+                    "date": str(item.get("date") or ""),
+                    "hero_image": str(item.get("hero_image") or ""),
+                    "permalink": str(item.get("permalink") or f"./{slugify(str(item.get('slug') or item.get('title') or 'article'))}/index.html"),
+                }
+                for item in articles_index_items
+            ],
+        },
+    )
 
     stamp = local_stamp()
     feed_stem = f"feed_{stamp}"
