@@ -29,6 +29,6 @@ jobs:
       contents: read
       id-token: write
     with:
-      scheduled_kind: "garbage_tomorrow"
+      scheduled_kind: "garbage"
       avatar_image: "image/avatar/night.png"
     secrets: inherit
