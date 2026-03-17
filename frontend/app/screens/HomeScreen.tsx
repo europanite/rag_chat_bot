@@ -1063,7 +1063,6 @@ function GuideSidebar({
               ? resolveUrl(normalizeWebAssetPath(guide.hero_image), assetBase)
               : "";
             const target = guide.permalink || "./articles/index.html";
-            const meta = [guide.place, guide.published_at || guide.date].filter(Boolean).join(" · ");
             return (
               <Pressable
                 key={guide.id}
@@ -1084,19 +1083,8 @@ function GuideSidebar({
                   />
                 ) : null}
                 <View style={{ padding: 12 }}>
-                  <Text style={{ fontSize: 16, fontWeight: "800", color: "#000", lineHeight: 22 }}>
+                  <Text style={{ fontSize: 16, fontWeight: "800", color: "#000", lineHeight: 22 }} numberOfLines={3}>
                     {guide.title}
-                  </Text>
-                  {meta ? (
-                    <Text style={{ marginTop: 4, color: TEXT_DIM, fontSize: 12, lineHeight: 16 }}>{meta}</Text>
-                  ) : null}
-                  {guide.summary ? (
-                    <Text style={{ marginTop: 6, color: TEXT_DIM, fontSize: 13, lineHeight: 18 }} numberOfLines={4}>
-                      {guide.summary}
-                    </Text>
-                  ) : null}
-                  <Text style={{ marginTop: 8, color: "#0B57D0", fontSize: 12, fontWeight: "700" }}>
-                    Open this article →
                   </Text>
                 </View>
               </Pressable>
@@ -1108,12 +1096,6 @@ function GuideSidebar({
           </Text>
         )}
       </View>
-
-      <Pressable onPress={() => openResolvedUrl("./articles/index.html")} style={{ marginTop: 12 }}>
-        <Text style={{ color: "#0B57D0", textDecorationLine: "underline", fontSize: 12 }}>
-          Open all guides
-        </Text>
-      </Pressable>
     </View>
   );
 }
