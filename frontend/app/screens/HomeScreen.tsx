@@ -15,6 +15,11 @@ import {
 
 const RAW_CONTACT_URL = (process.env.EXPO_PUBLIC_FEEDBACK_FORM_URL ?? "").trim();
 
+type FeedLink = {
+  title: string;
+  url: string;
+};
+
 type FeedItem = {
   id: string;
   date: string; // YYYY-MM-DD
@@ -25,7 +30,7 @@ type FeedItem = {
   generated_at?: string; // ISO string (often Z)
   image?: string; // local path or absolute URL
   image_prompt?: string; // optional (for matching)
-  links?: string[];
+  links?: FeedLink[];
 };
 
 type Feed = {
@@ -48,32 +53,29 @@ type SlotItem = {
 
 type TimelineItem = FeedItem | SlotItem;
 
-function normalizeLinks(raw: any): string[] | undefined {
-  // Accept both `links: string[]` and legacy `link: string`
-  const v = raw;
-
-  let arr: string[] = [];
-  if (Array.isArray(v)) {
-    arr = v
-      .filter((x) => typeof x === "string")
-      .map((x) => x.trim())
-      .filter(Boolean);
-  } else if (typeof v === "string") {
-    const s = v.trim();
-    if (s) arr = [s];
-  }
-
-  if (!arr.length) return undefined;
-
-  // De-dupe while preserving order
+function normalizeLinks(raw: any): FeedLink[] | undefined {
+  const items = Array.isArray(raw) ? raw : raw == null ? [] : [raw];
+  const out: FeedLink[] = [];
   const seen = new Set<string>();
-  const out: string[] = [];
-  for (const u of arr) {
-    if (seen.has(u)) continue;
-    seen.add(u);
-    out.push(u);
+
+  for (const item of items) {
+    let title = "";
+    let url = "";
+
+    if (typeof item === "string") {
+      url = item.trim();
+      title = url;
+    } else if (item && typeof item === "object") {
+      url = typeof item.url === "string" ? item.url.trim() : "";
+      title = typeof item.title === "string" ? item.title.trim() : url;
+    }
+
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    out.push({ title: title || url, url });
   }
-  return out;
+
+  return out.length ? out : undefined;
 }
 
 
@@ -644,6 +646,14 @@ function resolveUrl(maybeRelative: string, baseUrl: string): string {
     // ignore
   }
   return maybeRelative;
+}
+
+function openResolvedUrl(url: string) {
+  const raw = String(url ?? "").trim();
+  if (!raw) return;
+  const base = typeof window !== "undefined" ? window.location.href : raw;
+  const target = resolveUrl(raw, base);
+  void Linking.openURL(target).catch(() => {});
 }
 
 function addCacheBuster(url: string): string {
@@ -1364,7 +1374,7 @@ const getImageUrisForItem = useCallback(
 
           const open = () => {
             if (!item.url) return;
-            void Linking.openURL(item.url);
+            openResolvedUrl(item.url);
           };
 
           return (
@@ -1448,15 +1458,13 @@ const getImageUrisForItem = useCallback(
 
                     {Array.isArray(item.links) && item.links.length > 0 ? (
                       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                        {item.links.slice(0, 1).map((u, idx) => (
+                        {item.links.slice(0, 2).map((link, idx) => (
                           <Pressable
-                            key={`${u}-${idx}`}
-                            onPress={() => {
-                              try { void Linking.openURL(u); } catch {}
-                            }}
+                            key={`${link.url}-${idx}`}
+                            onPress={() => openResolvedUrl(link.url)}
                           >
                             <Text style={{ color: "#0B57D0", textDecorationLine: "underline", fontSize: 12 }}>
-                              🔗 {u}
+                              🔗 {link.title || link.url}
                             </Text>
                           </Pressable>
                         ))}

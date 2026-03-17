@@ -548,6 +548,20 @@ def save_article_image(public_dir: Path, slug: str, filename: str, data: bytes, 
     return resolve_public_image_url(str(rel).replace("\\", "/"))
 
 
+def rebase_public_url(url: str, *, levels_up: int) -> str:
+    s = str(url or "").strip()
+    if not s:
+        return ""
+    if re.match(r"^[a-z][a-z0-9+.-]*://", s) or s.startswith("//"):
+        return s
+    while s.startswith("./"):
+        s = s[2:]
+    if s.startswith("/"):
+        return s
+    prefix = "../" * max(0, levels_up)
+    return f"{prefix}{s}"
+
+
 def md_inline_to_html(text: str) -> str:
     s = html.escape(text or "")
     s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', s)
@@ -611,17 +625,19 @@ def markdown_to_html(md: str) -> str:
     return "\n".join(out)
 
 
-def build_article_html(article: Dict[str, Any]) -> str:
+def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", feed_href: str = "../../") -> str:
     title = html.escape(str(article.get("title") or "GOODDAY YOKOSUKA"))
     summary = html.escape(str(article.get("summary") or ""))
     place = html.escape(str(article.get("place") or "Yokosuka"))
     published_at = html.escape(str(article.get("published_at") or ""))
-    hero = html.escape(str(article.get("hero_image") or ""))
+    hero = html.escape(rebase_public_url(str(article.get("hero_image") or ""), levels_up=2))
     body_html = markdown_to_html(str(article.get("body_md") or ""))
+    guides_href = html.escape(guides_href)
+    feed_href = html.escape(feed_href)
 
     photo_html: list[str] = []
     for photo in article.get("photos") or []:
-        url = html.escape(str(photo.get("url") or ""))
+        url = html.escape(rebase_public_url(str(photo.get("url") or ""), levels_up=2))
         alt = html.escape(str(photo.get("alt") or ""))
         if url:
             photo_html.append(f'<figure><img src="{url}" alt="{alt}" /><figcaption>{alt}</figcaption></figure>')
@@ -634,14 +650,14 @@ def build_article_html(article: Dict[str, Any]) -> str:
             links_html.append(f'<li><a href="{url}">{label}</a></li>')
 
     return f"""<!doctype html>
-<html lang=\"en\">
+<html lang="en">
 <head>
-  <meta charset=\"utf-8\" />
-  <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{title} | GOODDAY YOKOSUKA</title>
-  <meta name=\"description\" content=\"{summary}\" />
+  <meta name="description" content="{summary}" />
   <style>
-    body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; background: #f6f4ff; color: #111827; }}
+    body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}
     .wrap {{ max-width: 860px; margin: 0 auto; padding: 24px 16px 72px; }}
     .card {{ background: #fff; border: 2px solid #000; border-radius: 20px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }}
     h1, h2, h3 {{ line-height: 1.25; }}
@@ -652,19 +668,72 @@ def build_article_html(article: Dict[str, Any]) -> str:
     figure {{ margin: 20px 0; }}
     figcaption {{ color: #6b7280; font-size: 13px; margin-top: 8px; }}
     a {{ color: #0B57D0; }}
+    .nav {{ display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }}
   </style>
 </head>
 <body>
-  <main class=\"wrap\">
-    <div class=\"card\">
-      <div class=\"eyebrow\">GOODDAY YOKOSUKA / long-form guide</div>
+  <main class="wrap">
+    <div class="card">
+      <div class="nav">
+        <a href="{feed_href}">← Back to feed</a>
+        <a href="{guides_href}">Latest guide page</a>
+      </div>
+      <div class="eyebrow">GOODDAY YOKOSUKA / long-form guide</div>
       <h1>{title}</h1>
-      <div class=\"meta\">{place} · {published_at}</div>
+      <div class="meta">{place} · {published_at}</div>
       {f'<img src="{hero}" alt="{title}" />' if hero else ''}
       {f'<p>{summary}</p>' if summary else ''}
       {body_html}
       {''.join(photo_html)}
       {f'<h2>Links</h2><ul>{"".join(links_html)}</ul>' if links_html else ''}
+    </div>
+  </main>
+</body>
+</html>
+"""
+
+
+def build_articles_index_html(article: Dict[str, Any], *, article_href: str = "./", feed_href: str = "../") -> str:
+    title = html.escape(str(article.get("title") or "GOODDAY YOKOSUKA"))
+    summary = html.escape(str(article.get("summary") or ""))
+    place = html.escape(str(article.get("place") or "Yokosuka"))
+    published_at = html.escape(str(article.get("published_at") or ""))
+    hero = html.escape(rebase_public_url(str(article.get("hero_image") or ""), levels_up=1))
+    article_href = html.escape(article_href)
+    feed_href = html.escape(feed_href)
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Guides | GOODDAY YOKOSUKA</title>
+  <meta name="description" content="Latest long-form guide on GOODDAY YOKOSUKA" />
+  <style>
+    body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}
+    .wrap {{ max-width: 860px; margin: 0 auto; padding: 24px 16px 72px; }}
+    .card {{ background: #fff; border: 2px solid #000; border-radius: 20px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }}
+    .eyebrow {{ display: inline-block; font-size: 12px; background: #ede9fe; border-radius: 999px; padding: 6px 10px; margin-bottom: 12px; }}
+    .meta {{ color: #4b5563; font-size: 14px; margin-bottom: 16px; }}
+    img {{ display: block; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid #ddd; margin-bottom: 16px; }}
+    a {{ color: #0B57D0; }}
+    .nav {{ display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }}
+    .cta {{ display: inline-block; margin-top: 12px; font-weight: 600; }}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="card">
+      <div class="nav">
+        <a href="{feed_href}">← Back to feed</a>
+      </div>
+      <div class="eyebrow">GOODDAY YOKOSUKA / guides</div>
+      <h1>Latest guide</h1>
+      <h2>{title}</h2>
+      <div class="meta">{place} · {published_at}</div>
+      {f'<img src="{hero}" alt="{title}" />' if hero else ''}
+      {f'<p>{summary}</p>' if summary else ''}
+      <a class="cta" href="{article_href}">Open this article →</a>
     </div>
   </main>
 </body>
@@ -753,6 +822,7 @@ def main() -> int:
         links.append({"title": link_ref.title or link_ref.url, "url": link_ref.url})
 
     permalink = f"./articles/{slug}/"
+    guides_permalink = "./articles/"
     article_json = {
         "id": slug,
         "slug": slug,
@@ -769,6 +839,7 @@ def main() -> int:
         "links": links,
         "body_md": parsed["body_md"],
         "permalink": permalink,
+        "guides_permalink": guides_permalink,
         "source_article_folder_id": chosen_folder.file_id,
         "source_article_doc_id": article_doc.file_id,
     }
@@ -778,7 +849,14 @@ def main() -> int:
 
     article_page_dir = articles_dir / slug
     article_page_dir.mkdir(parents=True, exist_ok=True)
-    (article_page_dir / "index.html").write_text(build_article_html(article_json), encoding="utf-8")
+    (article_page_dir / "index.html").write_text(
+        build_article_html(article_json, guides_href="../", feed_href="../../"),
+        encoding="utf-8",
+    )
+    (articles_dir / "index.html").write_text(
+        build_articles_index_html(article_json, article_href=f"./{slug}/", feed_href="../"),
+        encoding="utf-8",
+    )
 
     stamp = local_stamp()
     feed_stem = f"feed_{stamp}"
@@ -797,7 +875,11 @@ def main() -> int:
         "category": parsed.get("category") or "article",
         "summary": parsed["summary"],
         "permalink": permalink,
-        "links": [{"title": "Read the full guide", "url": permalink}],
+        "guides_permalink": guides_permalink,
+        "links": [
+            {"title": "Open guide page", "url": guides_permalink},
+            {"title": "Open this article", "url": permalink},
+        ],
         "image": hero_url,
         "image_url": hero_url,
         "avatar_image": args.avatar_image,
@@ -816,6 +898,7 @@ def main() -> int:
     print(f"Selected article doc: {article_doc.name} ({article_doc.file_id})")
     print(f"Wrote article JSON: {articles_dir / f'{slug}.json'}")
     print(f"Wrote article HTML: {article_page_dir / 'index.html'}")
+    print(f"Wrote guide index HTML: {articles_dir / 'index.html'}")
     print(f"Wrote teaser feed snapshot: {feed_path}")
     return 0
 
