@@ -35,11 +35,35 @@ def verify_local(chroma_dir: Path, collection_name: str, min_count: int) -> int:
                 f"ERROR: collection '{collection_name}' not found. collections={json.dumps(names)}"
             )
         collection_id, _ = row
-        count = cur.execute(
-            "SELECT COUNT(*) FROM embeddings WHERE collection_id = ?",
+
+        total_embeddings = cur.execute("SELECT COUNT(*) FROM embeddings").fetchone()[0]
+        segment_rows = cur.execute(
+            "SELECT id, scope, type, collection FROM segments WHERE collection = ? ORDER BY id",
             (collection_id,),
-        ).fetchone()[0]
-        print(f"VERIFY collection={collection_name} embeddings={count}")
+        ).fetchall()
+        segment_ids = [r[0] for r in segment_rows]
+
+        if segment_ids:
+            placeholders = ",".join("?" for _ in segment_ids)
+            count = cur.execute(
+                f"SELECT COUNT(*) FROM embeddings WHERE segment_id IN ({placeholders})",
+                segment_ids,
+            ).fetchone()[0]
+        else:
+            count = 0
+
+        print(
+            json.dumps(
+                {
+                    "verify_collection": collection_name,
+                    "collection_id": collection_id,
+                    "segments": segment_rows,
+                    "sqlite_total_embeddings": total_embeddings,
+                    "sqlite_collection_embeddings": count,
+                },
+                ensure_ascii=False,
+            )
+        )
         if count < min_count:
             raise SystemExit(
                 f"ERROR: collection '{collection_name}' has only {count} embeddings; expected >= {min_count}"
