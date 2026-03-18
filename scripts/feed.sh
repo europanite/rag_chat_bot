@@ -149,6 +149,33 @@ wait_backend_health() {
   [[ "$ok" -ge 3 ]]
 }
 
+debug_chroma_host() {
+  log "Host chroma_db inventory"
+  if [[ -d "chroma_db" ]]; then
+    echo "host chroma_db file count: $(find chroma_db -type f | wc -l)"
+    du -sh chroma_db || true
+    test -f chroma_db/chroma.sqlite3 && ls -lh chroma_db/chroma.sqlite3 || true
+    find chroma_db -maxdepth 2 -type f | sed -n '1,20p' || true
+  else
+    echo "host chroma_db directory is missing"
+  fi
+}
+
+debug_chroma_container() {
+  log "Backend-visible /chroma inventory"
+  "${COMPOSE[@]}" exec -T backend sh -lc '
+    echo "CHROMA_DB_DIR=${CHROMA_DB_DIR:-}";
+    if [ -d /chroma ]; then
+      echo "container /chroma file count: $(find /chroma -type f | wc -l)";
+      du -sh /chroma || true;
+      test -f /chroma/chroma.sqlite3 && ls -lh /chroma/chroma.sqlite3 || true;
+      find /chroma -maxdepth 2 -type f | sed -n "1,20p" || true;
+    else
+      echo "/chroma directory is missing inside backend";
+    fi
+  ' || true
+}
+
 fix_permissions() {
   log "Fix permissions for frontend/app/public (best effort)"
   if command -v sudo >/dev/null 2>&1; then
@@ -160,6 +187,8 @@ fix_permissions() {
 main() {
   log "FEED start (mode=$MODE build=$DO_BUILD down=$DO_DOWN)"
   log "FEED logs -> $LOG_DIR"
+  debug_chroma_host
+
   if [[ "$DO_BUILD" == "1" ]]; then
     log "docker compose build --pull"
     export DOCKER_BUILDKIT=1
@@ -177,6 +206,8 @@ main() {
     dump_debug
     exit 1
   fi
+
+  debug_chroma_container
 
   fix_permissions
 

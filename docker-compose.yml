@@ -64,6 +64,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend
+    working_dir: /app
     tty: true
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -111,10 +112,19 @@ services:
       ollama:
         condition: service_healthy
     volumes:
-      - ./backend/app:/app
-      - ./data/json:/data/json:ro
-      - ./chroma_db:/chroma
-      - ./scripts:/scripts
+      - type: bind
+        source: ./backend/app
+        target: /app
+      - type: bind
+        source: ./data/json
+        target: /data/json
+        read_only: true
+      - type: bind
+        source: ./chroma_db
+        target: /chroma
+      - type: bind
+        source: ./scripts
+        target: /scripts
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
   frontend:
     build:
