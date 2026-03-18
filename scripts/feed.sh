@@ -175,6 +175,16 @@ debug_chroma_container() {
     fi
   ' || true
 }
+show_rag_status() {
+  log "Backend /rag/status"
+  curl -fsS --connect-timeout 2 --max-time 10 "http://localhost:${BACKEND_PORT:-8000}/rag/status" || true
+  echo
+}
+
+debug_rag_visibility() {
+  log "Backend direct Chroma verification"
+  "${COMPOSE[@]}" exec -T backend python /scripts/verify_rag_visibility.py || true
+}
 
 fix_permissions() {
   log "Fix permissions for frontend/app/public (best effort)"
@@ -208,6 +218,8 @@ main() {
   fi
 
   debug_chroma_container
+  show_rag_status
+  debug_rag_visibility
 
   fix_permissions
 
