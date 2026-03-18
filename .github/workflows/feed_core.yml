@@ -91,13 +91,49 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Sanity check (repo chroma_db exists)
+      - name: Resolve latest successful ingest run
+        id: ingest_run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              owner,
+              repo,
+              workflow_id: 'ingest.yml',
+              branch: 'main',
+              status: 'success',
+              per_page: 100,
+            });
+            const run = runs.find((r) => r.conclusion === 'success');
+            if (!run) {
+              core.setFailed('No successful ingest.yml workflow run was found on main.');
+              return;
+            }
+            core.info(`Using ingest workflow run id=${run.id}`);
+            core.setOutput('run_id', String(run.id));
+
+      - name: Download chroma_db artifact from latest ingest run
+        uses: actions/download-artifact@v4
+        with:
+          name: chroma-db
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.ingest_run.outputs.run_id }}
+          path: /tmp/chroma-db
+
+      - name: Restore chroma_db artifact
+        run: |
+          set -euo pipefail
+          rm -rf chroma_db
+          tar -C . -xzf /tmp/chroma-db/chroma-db.tgz
+
+      - name: Sanity check (restored chroma_db exists)
         run: |
           echo "chroma_db file count:"
           find chroma_db -type f | wc -l
           n=$(find chroma_db -type f | wc -l)
           if [ "$n" -lt 5 ]; then
-            echo "ERROR: chroma_db seems empty. Run the Ingest workflow to rebuild/commit it."
+            echo "ERROR: restored chroma_db seems empty. Check the latest successful Ingest artifact."
             exit 1
           fi
 

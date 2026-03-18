@@ -62,6 +62,19 @@ jobs:
             exit 1
           fi
 
+      - name: Package chroma_db artifact
+        run: |
+          set -euo pipefail
+          tar -C . -czf /tmp/chroma-db.tgz chroma_db
+
+      - name: Upload chroma_db artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chroma-db
+          path: /tmp/chroma-db.tgz
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Commit & push chroma_db
         run: |
           set -euo pipefail
