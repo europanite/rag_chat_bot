@@ -28,7 +28,7 @@ jobs:
       - name: Ensure pipeline scripts are executable
         run: |
           set -eux
-          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py
+          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py scripts/verify_ingest_state.py
 
       - name: Validate AWS snapshot settings
         env:
@@ -46,6 +46,14 @@ jobs:
         with:
           aws-region: ${{ vars.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Debug docs directory before ingest
+        run: |
+          set -euo pipefail
+          mkdir -p tmp/ingest-debug
+          python3 scripts/verify_ingest_state.py docs \
+            --docs-dir data/json \
+            --sample-limit 10 | tee tmp/ingest-debug/docs-before-ingest.json
 
       - name: Ingest (via shared pipeline script)
         env:
@@ -65,6 +73,28 @@ jobs:
           set -euo pipefail
           bash scripts/ingest.sh ingest --ci
 
+      - name: Show reindex response captured by ingest.sh
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p tmp/ingest-debug
+          {
+            echo "=== /tmp/reindex_headers.txt ==="
+            if [ -f /tmp/reindex_headers.txt ]; then
+              sed -n '1,200p' /tmp/reindex_headers.txt
+            else
+              echo "(missing)"
+            fi
+            echo
+            echo "=== /tmp/reindex_body.json ==="
+            if [ -f /tmp/reindex_body.json ]; then
+              sed -n '1,200p' /tmp/reindex_body.json
+              cp /tmp/reindex_body.json tmp/ingest-debug/reindex-body.json
+            else
+              echo "(missing)"
+            fi
+          } | tee tmp/ingest-debug/reindex-response.txt
+
       - name: Verify chroma_db written
         run: |
           set -euo pipefail
@@ -80,10 +110,28 @@ jobs:
             exit 1
           fi
 
+      - name: Debug chroma sqlite state before strict verify
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p tmp/ingest-debug
+          python3 scripts/verify_ingest_state.py chroma \
+            --chroma-dir chroma_db \
+            --collection-name documents | tee tmp/ingest-debug/chroma-after-ingest.json
+
       - name: Verify live embeddings inside chroma_db
         run: |
           set -euo pipefail
           python3 scripts/rag_snapshot_s3.py verify-local             --chroma-dir chroma_db             --collection-name documents             --min-count 1
+
+      - name: Upload ingest debug artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingest-debug-${{ github.run_id }}
+          path: tmp/ingest-debug
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Package chroma_db artifact
         run: |
