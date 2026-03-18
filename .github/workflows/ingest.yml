@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 concurrency:
   group: ingest
@@ -24,10 +25,27 @@ jobs:
           docker system prune -af || true
           df -h
 
-      - name: Ensure pipeline script is executable
+      - name: Ensure pipeline scripts are executable
         run: |
           set -eux
-          chmod +x scripts/ingest.sh
+          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py
+
+      - name: Validate AWS snapshot settings
+        env:
+          AWS_ROLE_ARN_SECRET: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_REGION_VALUE: ${{ vars.AWS_REGION }}
+          AWS_S3_BUCKET_BACKUP_VALUE: ${{ vars.AWS_S3_BUCKET_BACKUP }}
+        run: |
+          set -euo pipefail
+          [ -n "${AWS_REGION_VALUE:-}" ] || { echo "ERROR: vars.AWS_REGION is required."; exit 1; }
+          [ -n "${AWS_ROLE_ARN_SECRET:-}" ] || { echo "ERROR: secrets.AWS_ROLE_ARN is required."; exit 1; }
+          [ -n "${AWS_S3_BUCKET_BACKUP_VALUE:-}" ] || { echo "ERROR: vars.AWS_S3_BUCKET_BACKUP is required."; exit 1; }
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
       - name: Ingest (via shared pipeline script)
         env:
@@ -62,6 +80,11 @@ jobs:
             exit 1
           fi
 
+      - name: Verify live embeddings inside chroma_db
+        run: |
+          set -euo pipefail
+          python3 scripts/rag_snapshot_s3.py verify-local             --chroma-dir chroma_db             --collection-name documents             --min-count 1
+
       - name: Package chroma_db artifact
         run: |
           set -euo pipefail
@@ -75,7 +98,15 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Commit & push chroma_db
+      - name: Upload verified RAG snapshot to S3
+        env:
+          AWS_S3_BUCKET_BACKUP: ${{ vars.AWS_S3_BUCKET_BACKUP }}
+        run: |
+          set -euo pipefail
+          python3 scripts/rag_snapshot_s3.py upload-latest             --bucket "${AWS_S3_BUCKET_BACKUP}"             --prefix "rag/chroma"             --chroma-dir chroma_db
+
+      - name: Commit & push chroma_db (disabled; S3 snapshot is the source of truth)
+        if: ${{ false }}
         run: |
           set -euo pipefail
 

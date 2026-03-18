@@ -67,6 +67,7 @@ env:
   PUBLIC_IMAGE_BASE_URL: ""
   AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+  AWS_S3_BUCKET_BACKUP: ${{ vars.AWS_S3_BUCKET_BACKUP }}
   AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   DATA_JSON_URL: ${{ vars.DATA_JSON_URL }}
   DATA_JSON_OUT: data/json/data.json
@@ -91,51 +92,34 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Resolve latest successful ingest run
-        id: ingest_run
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
-              owner,
-              repo,
-              workflow_id: 'ingest.yml',
-              branch: 'main',
-              status: 'success',
-              per_page: 100,
-            });
-            const run = runs.find((r) => r.conclusion === 'success');
-            if (!run) {
-              core.setFailed('No successful ingest.yml workflow run was found on main.');
-              return;
-            }
-            core.info(`Using ingest workflow run id=${run.id}`);
-            core.setOutput('run_id', String(run.id));
+      - name: Validate AWS snapshot settings
+        env:
+          AWS_ROLE_ARN_SECRET: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_REGION_VALUE: ${{ vars.AWS_REGION }}
+          AWS_S3_BUCKET_BACKUP_VALUE: ${{ vars.AWS_S3_BUCKET_BACKUP }}
+        run: |
+          set -euo pipefail
+          [ -n "${AWS_REGION_VALUE:-}" ] || { echo "ERROR: vars.AWS_REGION is required."; exit 1; }
+          [ -n "${AWS_ROLE_ARN_SECRET:-}" ] || { echo "ERROR: secrets.AWS_ROLE_ARN is required."; exit 1; }
+          [ -n "${AWS_S3_BUCKET_BACKUP_VALUE:-}" ] || { echo "ERROR: vars.AWS_S3_BUCKET_BACKUP is required."; exit 1; }
 
-      - name: Download chroma_db artifact from latest ingest run
-        uses: actions/download-artifact@v4
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          name: chroma-db
-          github-token: ${{ github.token }}
-          run-id: ${{ steps.ingest_run.outputs.run_id }}
-          path: /tmp/chroma-db
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
-      - name: Restore chroma_db artifact
+      - name: Restore verified RAG snapshot from S3
         run: |
           set -euo pipefail
           rm -rf chroma_db
-          tar -C . -xzf /tmp/chroma-db/chroma-db.tgz
+          mkdir -p chroma_db
+          python3 scripts/rag_snapshot_s3.py download-latest             --bucket "${AWS_S3_BUCKET_BACKUP}"             --prefix "rag/chroma"             --out-dir chroma_db
 
-      - name: Sanity check (restored chroma_db exists)
+      - name: Verify restored chroma_db
         run: |
-          echo "chroma_db file count:"
-          find chroma_db -type f | wc -l
-          n=$(find chroma_db -type f | wc -l)
-          if [ "$n" -lt 5 ]; then
-            echo "ERROR: restored chroma_db seems empty. Check the latest successful Ingest artifact."
-            exit 1
-          fi
+          set -euo pipefail
+          python3 scripts/rag_snapshot_s3.py verify-local             --chroma-dir chroma_db             --collection-name documents             --min-count 1
 
       - name: Free disk space
         run: |
@@ -146,7 +130,7 @@ jobs:
 
       - name: Make pipeline scripts executable
         run: |
-          chmod +x scripts/feed.sh scripts/fetch_data_json_from_gdrive.py
+          chmod +x scripts/feed.sh scripts/fetch_data_json_from_gdrive.py scripts/rag_snapshot_s3.py
 
       - name: Fetch data.json from Google Drive public link
         env:
@@ -172,6 +156,7 @@ jobs:
         env:
           RAG_AUTO_INDEX: "false"
           RAG_REBUILD_ON_START: "false"
+          RAG_REINDEX_ENABLED: "false"
           OLLAMA_BASE_URL: "http://ollama:11434"
           OLLAMA_TIMEOUT_S: "512"
           EMBEDDING_MODEL: "mxbai-embed-large"
