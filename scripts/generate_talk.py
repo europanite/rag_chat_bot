@@ -1018,15 +1018,15 @@ def main() -> int:
     status = http_json("GET", f"{api_base}/rag/status", None, cfg)
     chunks_in_store = int(status.get("chunks_in_store", 0) or 0)
     if chunks_in_store == 0:
-        print("No chunks in store -> POST /rag/reindex")
-        _ = http_json("POST", f"{api_base}/rag/reindex", {}, cfg)
         if debug:
-            status2 = {}
-            try:
-                status2 = http_json("GET", f"{api_base}/rag/status", None, cfg)
-            except Exception:
-                status2 = {"_error": "failed to re-check status"}
-            print(f"DEBUG: status(after reindex)={json.dumps(status2, ensure_ascii=False)}", file=sys.stderr)
+            print(
+                "DEBUG: RAG store is empty; automatic /rag/reindex is disabled during feed generation.",
+                file=sys.stderr,
+            )
+        raise RuntimeError(
+            "RAG store is empty. Automatic /rag/reindex is disabled during feed generation. "
+            "Update data first, then run the ingest/reindex workflow explicitly."
+        )
 
     # Build query URL with location hints (place is NOT a QueryRequest field)
     q = {"place": place, "lat": str(lat), "lon": str(lon), "tz": tz_name}
