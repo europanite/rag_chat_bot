@@ -1,0 +1,82 @@
+diff --git a/.github/workflows/ingest.yml b/.github/workflows/ingest.yml
+index a8d5f42..5607e0b 100644
+--- a/.github/workflows/ingest.yml
++++ b/.github/workflows/ingest.yml
+@@ -28,7 +28,7 @@ jobs:
+       - name: Ensure pipeline scripts are executable
+         run: |
+           set -eux
+-          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py scripts/verify_ingest_state.py
++          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py scripts/verify_ingest_state.py scripts/fetch_data_json_from_gdrive.py
+ 
+       - name: Validate AWS snapshot settings
+         env:
+@@ -41,12 +41,31 @@ jobs:
+           [ -n "${AWS_ROLE_ARN_SECRET:-}" ] || { echo "ERROR: secrets.AWS_ROLE_ARN is required."; exit 1; }
+           [ -n "${AWS_S3_BUCKET_BACKUP_VALUE:-}" ] || { echo "ERROR: vars.AWS_S3_BUCKET_BACKUP is required."; exit 1; }
+ 
++      - name: Validate Google Drive source settings
++        env:
++          GDRIVE_DATA_JSON_URL_VALUE: ${{ vars.GDRIVE_DATA_JSON_URL }}
++        run: |
++          set -euo pipefail
++          [ -n "${GDRIVE_DATA_JSON_URL_VALUE:-}" ] || { echo "ERROR: vars.GDRIVE_DATA_JSON_URL is required."; exit 1; }
++
++
+       - name: Configure AWS credentials via OIDC
+         uses: aws-actions/configure-aws-credentials@v4
+         with:
+           aws-region: ${{ vars.AWS_REGION }}
+           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+ 
++      - name: Fetch data.json from Google Drive
++        env:
++          GDRIVE_DATA_JSON_URL: ${{ vars.GDRIVE_DATA_JSON_URL }}
++        run: |
++          set -euo pipefail
++          mkdir -p data/json tmp/ingest-debug
++          python3 scripts/fetch_data_json_from_gdrive.py \
++            --url "${GDRIVE_DATA_JSON_URL}" \
++            --out data/json/data.json | tee tmp/ingest-debug/fetch-data-json.txt
++          ls -lh data/json/data.json
++
+       - name: Debug docs directory before ingest
+         run: |
+           set -euo pipefail
+@@ -55,6 +74,29 @@ jobs:
+             --docs-dir data/json \
+             --sample-limit 10 | tee tmp/ingest-debug/docs-before-ingest.json
+ 
++      - name: Fail fast when docs source is empty in GitHub Actions
++        run: |
++          set -euo pipefail
++          python3 - <<'PY2'
++          import json
++          from pathlib import Path
++
++          path = Path('tmp/ingest-debug/docs-before-ingest.json')
++          data = json.loads(path.read_text(encoding='utf-8'))
++          file_count = int(data.get('file_count') or 0)
++          samples = data.get('samples') or []
++          valid_json = any(sample.get('json_valid') for sample in samples)
++          print(json.dumps({
++              'file_count': file_count,
++              'valid_json_sample_found': valid_json,
++              'sample_paths': [sample.get('path') for sample in samples[:5]],
++          }, ensure_ascii=False))
++          if file_count < 1:
++              raise SystemExit('ERROR: data/json is empty before reindex. Google Drive fetch did not populate the workspace.')
++          if not valid_json:
++              raise SystemExit('ERROR: fetched docs exist but no valid JSON sample was found before reindex.')
++          PY2
++
+       - name: Ingest (via shared pipeline script)
+         env:
+           RAG_AUTO_INDEX: "false"
+@@ -170,4 +212,4 @@ jobs:
+           fi
+ 
+           git commit -m "chore: update chroma_db index"
+-          git push
+\ No newline at end of file
++          git push
