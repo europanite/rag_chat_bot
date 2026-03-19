@@ -182,6 +182,15 @@ type SlotBanner = {
   disclaimer?: string;
 };
 
+type GuideBanner = {
+  id: string;
+  title: string;
+  summary: string;
+  url: string;
+  imageUri: string;
+  meta?: string;
+};
+
 const SLOT_ROTATE_MS = Math.max(2500, Number((process.env.EXPO_PUBLIC_SLOT_ROTATE_MS || "6500").trim()) || 6500);
 const SLOT_FADE_MS = Math.max(200, Number((process.env.EXPO_PUBLIC_SLOT_FADE_MS || "800").trim()) || 800);
 
@@ -1037,65 +1046,243 @@ function GuideSidebar({
   guides: GuideItem[];
   assetBase: string;
 }) {
+  const banners = useMemo<GuideBanner[]>(
+    () =>
+      guides.map((guide) => {
+        const hero = guide.hero_image
+          ? resolveUrl(normalizeWebAssetPath(guide.hero_image), assetBase)
+          : "";
+
+        const dateLabel =
+          typeof guide.date === "string" && guide.date.trim()
+            ? guide.date.trim()
+            : typeof guide.published_at === "string" && guide.published_at.trim()
+              ? guide.published_at.trim().slice(0, 10)
+              : "";
+
+        const meta = [guide.place, dateLabel].filter(Boolean).join(" • ");
+
+        return {
+          id: guide.id,
+          title: guide.title,
+          summary: guide.summary || "Open this long-form guide.",
+          url: guide.permalink || "./articles/index.html",
+          imageUri: hero,
+          meta: meta || undefined,
+        };
+      }),
+    [guides, assetBase],
+  );
+
+  const len = Math.max(1, banners.length);
+  const [active, setActive] = useState(0);
+  const [next, setNext] = useState(len > 1 ? 1 : 0);
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (active >= len) setActive(0);
+    if (next >= len) setNext((active + 1) % len);
+  }, [active, next, len]);
+
+  useEffect(() => {
+    if (len <= 1) return;
+
+    let cancelled = false;
+
+    const interval = setInterval(() => {
+      const n = (active + 1) % len;
+      setNext(n);
+
+      progress.stopAnimation();
+      progress.setValue(0);
+
+      Animated.timing(progress, {
+        toValue: 1,
+        duration: SLOT_FADE_MS,
+        useNativeDriver: Platform.OS !== "web",
+      }).start(({ finished }) => {
+        if (!finished || cancelled) return;
+        setActive(n);
+        progress.setValue(0);
+      });
+    }, SLOT_ROTATE_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      progress.stopAnimation();
+    };
+  }, [active, len, progress]);
+
+  if (!banners.length) {
+    return (
+      <View
+        style={{
+          minHeight: 0,
+          height: "100%",
+          borderWidth: 2,
+          borderColor: BORDER,
+          borderRadius: 20,
+          backgroundColor: "#ffffff",
+          padding: 14,
+        }}
+      >
+        <Text style={{ fontSize: 12, fontWeight: "800", color: TEXT_DIM, marginBottom: 6 }}>
+          LONG-FORM GUIDES
+        </Text>
+        <Text style={{ fontSize: 20, fontWeight: "800", color: "#000", marginBottom: 12 }}>
+          Guide
+        </Text>
+        <Text style={{ color: TEXT_DIM, fontSize: 13, lineHeight: 18 }}>
+          No guides yet.
+        </Text>
+      </View>
+    );
+  }
+
+  const activeOpacity =
+    len <= 1
+      ? 1
+      : progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0],
+        });
+
+  const nextOpacity = len <= 1 ? 0 : progress;
+
+  const activeBanner = banners[active] ?? banners[0];
+  const nextBanner = banners[next] ?? banners[0];
+
   return (
     <View
       style={{
-        minHeight: 0,
-        height: "100%",
-        borderWidth: 2,
-        borderColor: BORDER,
-        borderRadius: 20,
-        backgroundColor: "#ffffff",
-        padding: 14,
+        flex: 1,
+        backgroundColor: APP_BG,
+        borderRadius: 12,
+        ...(Platform.OS === "web" ? ({ position: "sticky", top: 16 } as any) : null),
       }}
     >
-      <Text style={{ fontSize: 12, fontWeight: "800", color: TEXT_DIM, marginBottom: 6 }}>
-        LONG-FORM GUIDES
-      </Text>
-      <Text style={{ fontSize: 20, fontWeight: "800", color: "#000", marginBottom: 12 }}>
-        Guide list
-      </Text>
-
-      <View style={{ gap: 10 }}>
-        {guides.length > 0 ? (
-          guides.slice(0, 8).map((guide) => {
-            const hero = guide.hero_image
-              ? resolveUrl(normalizeWebAssetPath(guide.hero_image), assetBase)
-              : "";
-            const target = guide.permalink || "./articles/index.html";
-            return (
-              <Pressable
-                key={guide.id}
-                onPress={() => openResolvedUrl(target)}
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`Guide: ${activeBanner?.title ?? "Guide"}`}
+        onPress={() => openResolvedUrl(activeBanner?.url || "./articles/index.html")}
+        style={({ pressed }) => ({
+          flex: 1,
+          opacity: pressed ? 0.92 : 1,
+          ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : null),
+        })}
+      >
+        <View
+          style={{
+            flex: 1,
+            minHeight: 0,
+            backgroundColor: CARD_BG,
+            borderWidth: 2,
+            borderColor: BORDER,
+            borderRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          <View style={{ flex: 1, minHeight: 0, backgroundColor: "#e5e7eb" }}>
+            {activeBanner?.imageUri ? (
+              <Animated.Image
+                source={{ uri: activeBanner.imageUri }}
+                resizeMode="cover"
                 style={{
-                  borderWidth: 1,
-                  borderColor: "#d1d5db",
-                  borderRadius: 16,
-                  backgroundColor: "#fcfcff",
-                  overflow: "hidden",
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  opacity: activeOpacity as any,
                 }}
-              >
-                {hero ? (
-                  <Image
-                    source={{ uri: hero }}
-                    style={{ width: "100%", aspectRatio: 4 / 3, backgroundColor: "#f3f4f6" }}
-                    resizeMode="cover"
+              />
+            ) : null}
+            {len > 1 && nextBanner?.imageUri ? (
+              <Animated.Image
+                source={{ uri: nextBanner.imageUri }}
+                resizeMode="cover"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  opacity: nextOpacity as any,
+                }}
+              />
+            ) : null}
+
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 999,
+                backgroundColor: "rgba(0,0,0,0.55)",
+              }}
+            >
+              <Text style={{ color: "#ffffff", fontSize: 10, fontWeight: "800", letterSpacing: 0.4 }}>
+                GUIDE
+              </Text>
+            </View>
+          </View>
+
+          <View style={{ padding: 12, gap: 6 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>LONG-FORM GUIDES</Text>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
+            </View>
+
+            <Text style={{ color: "#000000", fontSize: 18, fontWeight: "800", lineHeight: 24 }} numberOfLines={3}>
+              {activeBanner?.title ?? "Guide"}
+            </Text>
+
+            {activeBanner?.meta ? (
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700", lineHeight: 16 }}>
+                {activeBanner.meta}
+              </Text>
+            ) : null}
+
+            <Text style={{ color: TEXT_DIM, fontSize: 12, lineHeight: 18 }} numberOfLines={5}>
+              {activeBanner?.summary ?? ""}
+            </Text>
+
+            <View
+              style={{
+                marginTop: 6,
+                alignSelf: "flex-start",
+                borderWidth: 2,
+                borderColor: BORDER,
+                borderRadius: 999,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Text style={{ color: "#000000", fontSize: 12, fontWeight: "800" }}>Open guide</Text>
+            </View>
+
+            {len > 1 ? (
+              <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 8 }}>
+                {banners.map((banner, i) => (
+                  <View
+                    key={banner.id}
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 999,
+                      backgroundColor: i === active ? "#111827" : "#d1d5db",
+                    }}
                   />
-                ) : null}
-                <View style={{ padding: 12 }}>
-                  <Text style={{ fontSize: 16, fontWeight: "800", color: "#000", lineHeight: 22 }} numberOfLines={3}>
-                    {guide.title}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          })
-        ) : (
-          <Text style={{ color: TEXT_DIM, fontSize: 13, lineHeight: 18 }}>
-            No guides yet.
-          </Text>
-        )}
-      </View>
+                ))}
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </Pressable>
     </View>
   );
 }
@@ -1677,7 +1864,7 @@ const getImageUrisForItem = useCallback(
         alignItems: "stretch",
       }}
     >
-      {/* Left sidebar: dedicated guide list */}
+      {/* Left sidebar: rotating guide card */}
       <View style={{ flex: 1, minWidth: SIDEBAR_W, minHeight: 0 }}>
         <GuideSidebar guides={visibleGuides} assetBase={assetBase} />
       </View>
