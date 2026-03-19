@@ -71,6 +71,7 @@ env:
   AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   DATA_JSON_URL: ${{ vars.DATA_JSON_URL }}
   DATA_JSON_OUT: data/json/data.json
+  RAG_SNAPSHOT_URL: ${{ vars.RAG_SNAPSHOT_URL }}
 
 jobs:
   rag:
@@ -92,29 +93,23 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate AWS snapshot settings
+      - name: Validate Google Drive snapshot settings
         env:
-          AWS_ROLE_ARN_SECRET: ${{ secrets.AWS_ROLE_ARN }}
-          AWS_REGION_VALUE: ${{ vars.AWS_REGION }}
-          AWS_S3_BUCKET_BACKUP_VALUE: ${{ vars.AWS_S3_BUCKET_BACKUP }}
+          RAG_SNAPSHOT_URL_VALUE: ${{ env.RAG_SNAPSHOT_URL }}
         run: |
           set -euo pipefail
-          [ -n "${AWS_REGION_VALUE:-}" ] || { echo "ERROR: vars.AWS_REGION is required."; exit 1; }
-          [ -n "${AWS_ROLE_ARN_SECRET:-}" ] || { echo "ERROR: secrets.AWS_ROLE_ARN is required."; exit 1; }
-          [ -n "${AWS_S3_BUCKET_BACKUP_VALUE:-}" ] || { echo "ERROR: vars.AWS_S3_BUCKET_BACKUP is required."; exit 1; }
+          [ -n "${RAG_SNAPSHOT_URL_VALUE:-}" ] || { echo "ERROR: Repository variable RAG_SNAPSHOT_URL is required."; exit 1; }
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ vars.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-
-      - name: Restore verified RAG snapshot from S3
+      - name: Restore verified RAG snapshot from Google Drive public link
+        env:
+          RAG_SNAPSHOT_URL: ${{ env.RAG_SNAPSHOT_URL }}
         run: |
           set -euo pipefail
           rm -rf chroma_db
-          mkdir -p chroma_db
-          python3 scripts/rag_snapshot_s3.py download-latest             --bucket "${AWS_S3_BUCKET_BACKUP}"             --prefix "rag/chroma"             --out-dir chroma_db
+          mkdir -p chroma_db tmp
+          python3 scripts/fetch_public_file.py             --url "${RAG_SNAPSHOT_URL}"             --out tmp/chroma-db.tgz             --min-bytes 1024
+          tar -xzf tmp/chroma-db.tgz -C .
+          test -f chroma_db/chroma.sqlite3
 
       - name: Verify restored chroma_db
         run: |
@@ -130,7 +125,7 @@ jobs:
 
       - name: Make pipeline scripts executable
         run: |
-          chmod +x scripts/feed.sh scripts/fetch_data_json_from_gdrive.py scripts/rag_snapshot_s3.py
+          chmod +x scripts/feed.sh scripts/fetch_data_json_from_gdrive.py scripts/fetch_public_file.py scripts/rag_snapshot_s3.py
 
       - name: Fetch data.json from Google Drive public link
         env:
