@@ -18,6 +18,11 @@ const CONTACT_FORM_URL =
   RAW_CONTACT_URL.startsWith("http://") || RAW_CONTACT_URL.startsWith("https://")
     ? RAW_CONTACT_URL
     : "";
+const RAW_ADS_URL = (process.env.EXPO_PUBLIC_ADS_FORM_URL ?? "").trim();
+const ADS_FORM_URL =
+  RAW_ADS_URL.startsWith("http://") || RAW_ADS_URL.startsWith("https://")
+    ? RAW_ADS_URL
+    : "";
 
 type FeedLink = {
   title: string;
@@ -132,7 +137,7 @@ const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
     title: "demo1",
     body: "demo1",
     cta: "check",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     sponsor: "demo1",
     disclaimer: "demo1",
     emoji: "🧜‍♀️",
@@ -141,7 +146,7 @@ const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
     title: "demo1",
     body: "demo1",
     cta: "check",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     sponsor: "demo1",
     disclaimer: "demo1",
     emoji: "🧜‍♀️",
@@ -150,7 +155,7 @@ const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
     title: "demo1",
     body: "demo1",
     cta: "check",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     sponsor: "demo1",
     disclaimer: "demo1",
     emoji: "🧜‍♀️",
@@ -159,7 +164,7 @@ const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
     title: "demo1",
     body: "demo1",
     cta: "check",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     sponsor: "demo1",
     disclaimer: "demo1",
     emoji: "🧜‍♀️",
@@ -168,7 +173,7 @@ const FAKE_ITEM_TEMPLATES: Omit<SlotItem, "id" | "kind">[] = [
     title: "demo1",
     body: "demo1",
     cta: "check",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     sponsor: "demo1",
     disclaimer: "demo1",
     emoji: "🧜‍♀️",
@@ -214,7 +219,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     title: "Ocean view, zero effort",
     body: "",
     cta: "Open demo",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     imageUri: "https://picsum.photos/seed/goodday_ocean/900/650",
     sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
@@ -224,7 +229,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     title: "Coffee & quiet time",
     body: "",
     cta: "See more",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     imageUri: "https://picsum.photos/seed/goodday_coffee/900/650",
     sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
@@ -234,7 +239,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     title: "Weekend micro trip",
     body: "",
     cta: "View route",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     imageUri: "https://picsum.photos/seed/goodday_trip/900/650",
     sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
@@ -244,7 +249,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     title: "Sunset soundtrack",
     body: "",
     cta: "Play",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     imageUri: "https://picsum.photos/seed/goodday_sunset/900/650",
     sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
@@ -254,7 +259,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     title: "Mountain air",
     body: "",
     cta: "Learn more",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     imageUri: "https://picsum.photos/seed/goodday_mountain/900/650",
     sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
@@ -264,7 +269,7 @@ const SLOT_BANNERS: SlotBanner[] = [
     title: "City lights",
     body: "",
     cta: "Open",
-    url: RAW_CONTACT_URL,
+    url: ADS_FORM_URL,
     imageUri: "https://picsum.photos/seed/goodday_city/900/650",
     sponsor: "GOODDAY",
     disclaimer: "Demo ad slot — not a real promotion.",
@@ -1060,7 +1065,7 @@ function makeGuideRecruitmentBanner(anchorId: string): GuideBanner {
     title: "広告掲載を募集中 / Ad space available",
     summary:
       "期間限定で無料掲載中。Google Form からお申し込みください。\nFree for a limited time. Apply via Google Form.",
-    url: CONTACT_FORM_URL,
+    url: ADS_FORM_URL,
     imageUri: "https://picsum.photos/seed/goodday-guide-ad/900/650",
     meta: "期間限定無料 • Limited-time free",
     badgeLabel: "AD",
@@ -1099,7 +1104,7 @@ function buildGuideBanners(guides: GuideItem[], assetBase: string): GuideBanner[
     };
   });
 
-  if (!guideCards.length || !CONTACT_FORM_URL) return guideCards;
+  if (!guideCards.length || !ADS_FORM_URL) return guideCards;
 
   const out: GuideBanner[] = [];
 
