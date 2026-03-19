@@ -2,6 +2,12 @@ name: Ingest
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_snapshot_to_s3:
+        description: "Upload verified chroma_db snapshot to S3 (otherwise keep artifact-only for manual handoff)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -31,6 +37,7 @@ jobs:
           chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py scripts/verify_ingest_state.py scripts/fetch_data_json_from_gdrive.py
 
       - name: Validate AWS snapshot settings
+        if: ${{ inputs.upload_snapshot_to_s3 }}
         env:
           AWS_ROLE_ARN_SECRET: ${{ secrets.AWS_ROLE_ARN }}
           AWS_REGION_VALUE: ${{ vars.AWS_REGION }}
@@ -42,6 +49,7 @@ jobs:
           [ -n "${AWS_S3_BUCKET_BACKUP_VALUE:-}" ] || { echo "ERROR: vars.AWS_S3_BUCKET_BACKUP is required."; exit 1; }
 
       - name: Configure AWS credentials via OIDC
+        if: ${{ inputs.upload_snapshot_to_s3 }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ vars.AWS_REGION }}
@@ -213,11 +221,20 @@ jobs:
           retention-days: 7
 
       - name: Upload verified RAG snapshot to S3
+        if: ${{ inputs.upload_snapshot_to_s3 }}
         env:
           AWS_S3_BUCKET_BACKUP: ${{ vars.AWS_S3_BUCKET_BACKUP }}
         run: |
           set -euo pipefail
           python3 scripts/rag_snapshot_s3.py upload-latest             --bucket "${AWS_S3_BUCKET_BACKUP}"             --prefix "rag/chroma"             --chroma-dir chroma_db
+
+
+      - name: Skip S3 upload (artifact/manual handoff mode)
+        if: ${{ !inputs.upload_snapshot_to_s3 }}
+        run: |
+          set -euo pipefail
+          echo "S3 upload is disabled for this run."
+          echo "Use the chroma-db artifact for manual handoff to Google Drive or other storage."
 
       - name: Commit & push chroma_db (disabled; S3 snapshot is the source of truth)
         if: ${{ false }}
