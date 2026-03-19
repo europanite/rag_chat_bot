@@ -74,17 +74,21 @@ jobs:
 
       - name: Build long-form guide index from public Google Drive root
         env:
-          ROOT_FOLDER_URL_DEFAULT: ${{ vars.GOOGLE_DRIVE_PUBLIC_ARTICLES_ROOT_FOLDER_URL }}
+          ROOT_FOLDER_URL_GUIDES: ${{ vars.GOOGLE_DRIVE_PUBLIC_GUIDES_ROOT_FOLDER_URL }}
+          ROOT_FOLDER_URL_ARTICLES: ${{ vars.GOOGLE_DRIVE_PUBLIC_ARTICLES_ROOT_FOLDER_URL }}
           INPUT_ROOT_FOLDER_URL_OVERRIDE: ${{ inputs.root_folder_url_override }}
           INPUT_PLACE: ${{ inputs.place }}
         run: |
           set -euo pipefail
-          ROOT_FOLDER_URL="$ROOT_FOLDER_URL_DEFAULT"
+          ROOT_FOLDER_URL="$ROOT_FOLDER_URL_GUIDES"
+          if [ -z "$ROOT_FOLDER_URL" ]; then
+            ROOT_FOLDER_URL="$ROOT_FOLDER_URL_ARTICLES"
+          fi
           if [ -n "$INPUT_ROOT_FOLDER_URL_OVERRIDE" ]; then
             ROOT_FOLDER_URL="$INPUT_ROOT_FOLDER_URL_OVERRIDE"
           fi
           if [ -z "$ROOT_FOLDER_URL" ]; then
-            echo "ERROR: GOOGLE_DRIVE_PUBLIC_ARTICLES_ROOT_FOLDER_URL is empty and no root_folder_url_override was provided." >&2
+            echo "ERROR: GOOGLE_DRIVE_PUBLIC_GUIDES_ROOT_FOLDER_URL is empty (and legacy GOOGLE_DRIVE_PUBLIC_ARTICLES_ROOT_FOLDER_URL is also empty) and no root_folder_url_override was provided." >&2
             exit 1
           fi
 

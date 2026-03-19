@@ -288,16 +288,17 @@ def choose_random_article_folder(
 
 
 def choose_article_doc(entries: Sequence[DriveEntry]) -> DriveEntry:
-    candidates = [it for it in entries if it.kind in {"text", "doc"}]
+    candidates = [
+        it for it in entries
+        if it.kind == "text" and it.name.lower().strip().endswith((".md", ".markdown"))
+    ]
     if not candidates:
-        raise SystemExit("Selected article folder does not contain any .md/.txt/Google Docs article source")
+        raise SystemExit("Selected article folder does not contain any .md article source")
 
-    def sort_key(it: DriveEntry) -> tuple[int, int, str]:
+    def sort_key(it: DriveEntry) -> tuple[int, str]:
         name = it.name.lower().strip()
-        preferred = 0 if name in {"article.md", "index.md", "post.md", "article.txt", "index.txt"} else 1
-        md_first = 0 if name.endswith(".md") or name.endswith(".markdown") else 1
-        doc_second = 0 if it.kind == "doc" else 1
-        return (preferred, md_first, doc_second, name)
+        preferred = 0 if name in {"article.md", "index.md", "post.md"} else 1
+        return (preferred, name)
 
     return sorted(candidates, key=sort_key)[0]
 
