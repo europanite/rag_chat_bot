@@ -28,7 +28,7 @@ jobs:
       - name: Ensure pipeline scripts are executable
         run: |
           set -eux
-          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py scripts/verify_ingest_state.py
+          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py scripts/verify_ingest_state.py scripts/fetch_data_json_from_gdrive.py
 
       - name: Validate AWS snapshot settings
         env:
@@ -46,6 +46,72 @@ jobs:
         with:
           aws-region: ${{ vars.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Validate Google Drive data source settings
+        env:
+          DATA_JSON_URL_VALUE: ${{ vars.DATA_JSON_URL }}
+        run: |
+          set -euo pipefail
+          [ -n "${DATA_JSON_URL_VALUE:-}" ] || { echo "ERROR: vars.DATA_JSON_URL is required."; exit 1; }
+
+      - name: Fetch data.json from Google Drive
+        env:
+          DATA_JSON_URL: ${{ vars.DATA_JSON_URL }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/json tmp/ingest-debug
+          python3 scripts/fetch_data_json_from_gdrive.py             --url "${DATA_JSON_URL}"             --out data/json/data.json | tee tmp/ingest-debug/fetch-data-json.txt
+          ls -lh data/json/data.json
+
+      - name: Validate data.json shape for ingest
+        run: |
+          set -euo pipefail
+          mkdir -p tmp/ingest-debug
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("data/json/data.json")
+          if not path.exists():
+              raise SystemExit(f"ERROR: {path} was not created")
+
+          raw = path.read_text(encoding="utf-8")
+          data = json.loads(raw)
+
+          if isinstance(data, dict):
+              docs = [data]
+          elif isinstance(data, list):
+              docs = data
+          else:
+              raise SystemExit(f"ERROR: data.json root must be an object or list, got {type(data).__name__}")
+
+          if not docs:
+              raise SystemExit("ERROR: data.json is empty")
+
+          valid = 0
+          first = docs[0]
+          for item in docs:
+              if isinstance(item, dict) and isinstance(item.get("id"), str) and item.get("id", "").strip() and isinstance(item.get("text"), str) and item.get("text", "").strip():
+                  valid += 1
+
+          summary = {
+              "path": str(path),
+              "root_type": type(data).__name__,
+              "doc_count": len(docs),
+              "valid_doc_count": valid,
+              "first_doc_keys": sorted(first.keys())[:20] if isinstance(first, dict) else None,
+              "first_doc_id": first.get("id") if isinstance(first, dict) else None,
+              "first_text_preview": (first.get("text") or "")[:160] if isinstance(first, dict) and isinstance(first.get("text"), str) else None,
+          }
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          Path("tmp/ingest-debug/data-json-validate.json").write_text(
+              json.dumps(summary, ensure_ascii=False, indent=2),
+              encoding="utf-8",
+          )
+
+          if valid < 1:
+              raise SystemExit("ERROR: data.json contains no valid documents with non-empty 'id' and 'text'")
+          PY
 
       - name: Debug docs directory before ingest
         run: |
