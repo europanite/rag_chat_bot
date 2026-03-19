@@ -14,6 +14,10 @@ import {
 } from "react-native";
 
 const RAW_CONTACT_URL = (process.env.EXPO_PUBLIC_FEEDBACK_FORM_URL ?? "").trim();
+const CONTACT_FORM_URL =
+  RAW_CONTACT_URL.startsWith("http://") || RAW_CONTACT_URL.startsWith("https://")
+    ? RAW_CONTACT_URL
+    : "";
 
 type FeedLink = {
   title: string;
@@ -184,12 +188,22 @@ type SlotBanner = {
 
 type GuideBanner = {
   id: string;
+  kind: "guide" | "ad";
   title: string;
   summary: string;
   url: string;
   imageUri: string;
   meta?: string;
+  badgeLabel?: string;
+  headerLabel?: string;
+  ctaLabel?: string;
+  disclaimer?: string;
 };
+
+const GUIDE_RECRUIT_EVERY_N = Math.max(
+  4,
+  Number((process.env.EXPO_PUBLIC_GUIDE_RECRUIT_EVERY_N || "4").trim()) || 4
+);
 
 const SLOT_ROTATE_MS = Math.max(2500, Number((process.env.EXPO_PUBLIC_SLOT_ROTATE_MS || "6500").trim()) || 6500);
 const SLOT_FADE_MS = Math.max(200, Number((process.env.EXPO_PUBLIC_SLOT_FADE_MS || "800").trim()) || 800);
@@ -1039,8 +1053,25 @@ function SlotCard({
   );
 }
 
+function makeGuideRecruitmentBanner(anchorId: string): GuideBanner {
+  return {
+    id: `guide-ad-${anchorId}`,
+    kind: "ad",
+    title: "広告掲載を募集中 / Ad space available",
+    summary:
+      "期間限定で無料掲載中。Google Form からお申し込みください。\nFree for a limited time. Apply via Google Form.",
+    url: CONTACT_FORM_URL,
+    imageUri: "https://picsum.photos/seed/goodday-guide-ad/900/650",
+    meta: "期間限定無料 • Limited-time free",
+    badgeLabel: "AD",
+    headerLabel: "ADS / 広告募集",
+    ctaLabel: "無料で掲載する / Apply free",
+    disclaimer: "Google Form が開きます。 / Opens Google Form.",
+  };
+}
+
 function buildGuideBanners(guides: GuideItem[], assetBase: string): GuideBanner[] {
-  return guides.map((guide) => {
+  const guideCards = guides.map((guide) => {
     const hero = guide.hero_image
       ? resolveUrl(normalizeWebAssetPath(guide.hero_image), assetBase)
       : "";
@@ -1056,13 +1087,32 @@ function buildGuideBanners(guides: GuideItem[], assetBase: string): GuideBanner[
 
     return {
       id: guide.id,
+      kind: "guide" as const,
       title: guide.title,
       summary: guide.summary || "Open this long-form guide.",
       url: guide.permalink || "./articles/index.html",
       imageUri: hero,
       meta: meta || undefined,
+      badgeLabel: "GUIDE",
+      headerLabel: "LONG-FORM GUIDES",
+      ctaLabel: "Open guide",
     };
   });
+
+  if (!guideCards.length || !CONTACT_FORM_URL) return guideCards;
+
+  const out: GuideBanner[] = [];
+
+  for (let i = 0; i < guideCards.length; i += 1) {
+    const guideCard = guideCards[i];
+    out.push(guideCard);
+
+    if ((i + 1) % GUIDE_RECRUIT_EVERY_N === 0) {
+      out.push(makeGuideRecruitmentBanner(guideCard.id || String(i)));
+    }
+  }
+
+  return out;
 }
 
 function GuideSidebar({
@@ -1131,7 +1181,7 @@ function GuideSidebar({
     >
       <Pressable
         accessibilityRole="link"
-        accessibilityLabel={`Guide: ${activeBanner?.title ?? "Guide"}`}
+        accessibilityLabel={`${activeBanner?.kind === "ad" ? "Ad" : "Guide"}: ${activeBanner?.title ?? "Guide"}`}
         onPress={() => openResolvedUrl(activeBanner?.url || "./articles/index.html")}
         style={({ pressed }) => ({
           flex: 1,
@@ -1192,14 +1242,16 @@ function GuideSidebar({
               }}
             >
               <Text style={{ color: "#ffffff", fontSize: 10, fontWeight: "800", letterSpacing: 0.4 }}>
-                GUIDE
+                {activeBanner?.badgeLabel ?? "GUIDE"}
               </Text>
             </View>
           </View>
 
           <View style={{ padding: 12, gap: 6 }}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>LONG-FORM GUIDES</Text>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>
+                {activeBanner?.headerLabel ?? "LONG-FORM GUIDES"}
+              </Text>
               <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
             </View>
 
@@ -1229,8 +1281,16 @@ function GuideSidebar({
                 backgroundColor: "#ffffff",
               }}
             >
-              <Text style={{ color: "#000000", fontSize: 12, fontWeight: "800" }}>Open guide</Text>
+              <Text style={{ color: "#000000", fontSize: 12, fontWeight: "800" }}>
+                {activeBanner?.ctaLabel ?? "Open guide"}
+              </Text>
             </View>
+
+            {activeBanner?.disclaimer ? (
+              <Text style={{ color: TEXT_DIM, fontSize: 10, lineHeight: 14 }}>
+                {activeBanner.disclaimer}
+              </Text>
+            ) : null}
 
             {len > 1 ? (
               <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 8 }}>
