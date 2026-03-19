@@ -1,8 +1,8 @@
 {
   "kind": "event",
-  "text": "What you remember first are Keikyu-line stations and Coaska. Coaska is a good first stop. You can get most daily essentials with card.",
+  "text": "What you remember first are Keikyu-line stations and Coaska. Coaska is your first stop. You can get almost all daily essentials with card.",
   "fixed_image": "image/fixed/cheatsheet.png",
   "avatar_image": "image/avatar/normal.png",
-  "links": [],
+  "links": ["https://coaska.jp/"],
   "place": "Yokosuka"
 }
