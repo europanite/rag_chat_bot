@@ -1039,80 +1039,44 @@ function SlotCard({
   );
 }
 
-function GuideSidebar({
-  guides,
-  assetBase,
-}: {
-  guides: GuideItem[];
-  assetBase: string;
-}) {
-  const banners = useMemo<GuideBanner[]>(
-    () =>
-      guides.map((guide) => {
-        const hero = guide.hero_image
-          ? resolveUrl(normalizeWebAssetPath(guide.hero_image), assetBase)
+function buildGuideBanners(guides: GuideItem[], assetBase: string): GuideBanner[] {
+  return guides.map((guide) => {
+    const hero = guide.hero_image
+      ? resolveUrl(normalizeWebAssetPath(guide.hero_image), assetBase)
+      : "";
+
+    const dateLabel =
+      typeof guide.date === "string" && guide.date.trim()
+        ? guide.date.trim()
+        : typeof guide.published_at === "string" && guide.published_at.trim()
+          ? guide.published_at.trim().slice(0, 10)
           : "";
 
-        const dateLabel =
-          typeof guide.date === "string" && guide.date.trim()
-            ? guide.date.trim()
-            : typeof guide.published_at === "string" && guide.published_at.trim()
-              ? guide.published_at.trim().slice(0, 10)
-              : "";
+    const meta = [guide.place, dateLabel].filter(Boolean).join(" • ");
 
-        const meta = [guide.place, dateLabel].filter(Boolean).join(" • ");
-
-        return {
-          id: guide.id,
-          title: guide.title,
-          summary: guide.summary || "Open this long-form guide.",
-          url: guide.permalink || "./articles/index.html",
-          imageUri: hero,
-          meta: meta || undefined,
-        };
-      }),
-    [guides, assetBase],
-  );
-
-  const len = Math.max(1, banners.length);
-  const [active, setActive] = useState(0);
-  const [next, setNext] = useState(len > 1 ? 1 : 0);
-  const progress = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (active >= len) setActive(0);
-    if (next >= len) setNext((active + 1) % len);
-  }, [active, next, len]);
-
-  useEffect(() => {
-    if (len <= 1) return;
-
-    let cancelled = false;
-
-    const interval = setInterval(() => {
-      const n = (active + 1) % len;
-      setNext(n);
-
-      progress.stopAnimation();
-      progress.setValue(0);
-
-      Animated.timing(progress, {
-        toValue: 1,
-        duration: SLOT_FADE_MS,
-        useNativeDriver: Platform.OS !== "web",
-      }).start(({ finished }) => {
-        if (!finished || cancelled) return;
-        setActive(n);
-        progress.setValue(0);
-      });
-    }, SLOT_ROTATE_MS);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-      progress.stopAnimation();
+    return {
+      id: guide.id,
+      title: guide.title,
+      summary: guide.summary || "Open this long-form guide.",
+      url: guide.permalink || "./articles/index.html",
+      imageUri: hero,
+      meta: meta || undefined,
     };
-  }, [active, len, progress]);
+  });
+}
+
+function GuideSidebar({
+  banners,
+  active,
+  next,
+  progress,
+}: {
+  banners: GuideBanner[];
+  active: number;
+  next: number;
+  progress: Animated.Value;
+}) {
+  const len = banners.length;
 
   if (!banners.length) {
     return (
@@ -1140,6 +1104,9 @@ function GuideSidebar({
     );
   }
 
+  const safeActive = Math.max(0, Math.min(active, len - 1));
+  const safeNext = Math.max(0, Math.min(next, len - 1));
+
   const activeOpacity =
     len <= 1
       ? 1
@@ -1150,8 +1117,8 @@ function GuideSidebar({
 
   const nextOpacity = len <= 1 ? 0 : progress;
 
-  const activeBanner = banners[active] ?? banners[0];
-  const nextBanner = banners[next] ?? banners[0];
+  const activeBanner = banners[safeActive] ?? banners[0];
+  const nextBanner = banners[safeNext] ?? banners[0];
 
   return (
     <View
@@ -1274,7 +1241,7 @@ function GuideSidebar({
                       width: 6,
                       height: 6,
                       borderRadius: 999,
-                      backgroundColor: i === active ? "#111827" : "#d1d5db",
+                      backgroundColor: i === safeActive ? "#111827" : "#d1d5db",
                     }}
                   />
                 ))}
@@ -1458,6 +1425,49 @@ const assetBase = useMemo(() => {
 }, [IMAGE_BASE_URL, ASSET_BASE_URL, effectiveUrl, RESOLVED_FEED_URL]);
 
 const visibleGuides = useMemo(() => guidesIndex?.items ?? [], [guidesIndex]);
+const guideBanners = useMemo(() => buildGuideBanners(visibleGuides, assetBase), [visibleGuides, assetBase]);
+const guideLen = guideBanners.length;
+const [activeGuide, setActiveGuide] = useState(0);
+const guideProgress = useRef(new Animated.Value(0)).current;
+
+useEffect(() => {
+  if (activeGuide >= guideLen) setActiveGuide(0);
+}, [activeGuide, guideLen]);
+
+useEffect(() => {
+  if (guideLen <= 1) return;
+
+  let cancelled = false;
+
+  const interval = setInterval(() => {
+    const nextGuide = (activeGuide + 1) % guideLen;
+
+    guideProgress.stopAnimation();
+    guideProgress.setValue(0);
+
+    Animated.timing(guideProgress, {
+      toValue: 1,
+      duration: SLOT_FADE_MS,
+      useNativeDriver: Platform.OS !== "web",
+    }).start(({ finished }) => {
+      if (!finished || cancelled) return;
+      setActiveGuide(nextGuide);
+      guideProgress.setValue(0);
+    });
+  }, SLOT_ROTATE_MS);
+
+  return () => {
+    cancelled = true;
+    clearInterval(interval);
+    guideProgress.stopAnimation();
+  };
+}, [activeGuide, guideLen, guideProgress]);
+
+const leftGuideActiveIndex = guideLen <= 1 ? 0 : activeGuide % guideLen;
+const leftGuideNextIndex = guideLen <= 1 ? 0 : (leftGuideActiveIndex + 1) % guideLen;
+const rightGuideActiveIndex = guideLen <= 1 ? 0 : (leftGuideActiveIndex + 1) % guideLen;
+const rightGuideNextIndex =
+  guideLen <= 1 ? 0 : guideLen === 2 ? leftGuideActiveIndex : (rightGuideActiveIndex + 1) % guideLen;
 
 const getImageUrisForItem = useCallback(
   (item: FeedItem): string[] => {
@@ -1866,7 +1876,12 @@ const getImageUrisForItem = useCallback(
     >
       {/* Left sidebar: rotating guide card */}
       <View style={{ flex: 1, minWidth: SIDEBAR_W, minHeight: 0 }}>
-        <GuideSidebar guides={visibleGuides} assetBase={assetBase} />
+        <GuideSidebar
+          banners={guideBanners}
+          active={leftGuideActiveIndex}
+          next={leftGuideNextIndex}
+          progress={guideProgress}
+        />
       </View>
 
       {/* Center: keep 760 as the “target” width, but allow shrinking */}
@@ -1874,9 +1889,14 @@ const getImageUrisForItem = useCallback(
         {list}
       </View>
 
-      {/* Right sidebar: grows to consume extra space */}
+      {/* Right sidebar: rotating guide card, always offset from left */}
       <View style={{ flex: 1, minWidth: SIDEBAR_W, minHeight: 0 }}>
-        <Slot side="right" />
+        <GuideSidebar
+          banners={guideBanners}
+          active={rightGuideActiveIndex}
+          next={rightGuideNextIndex}
+          progress={guideProgress}
+        />
       </View>
     </View>
   );
