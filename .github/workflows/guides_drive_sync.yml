@@ -1,0 +1,129 @@
+name: Guides Drive Sync
+
+on:
+  workflow_call:
+    inputs:
+      root_folder_url_override:
+        description: "Optional override for the public Google Drive root folder URL"
+        required: false
+        type: string
+        default: ""
+      place:
+        description: "Fallback place label when article metadata omits Place:"
+        required: false
+        type: string
+        default: "Yokosuka"
+  workflow_dispatch:
+    inputs:
+      root_folder_url_override:
+        description: "Optional override for the public Google Drive root folder URL"
+        required: false
+        default: ""
+        type: string
+      place:
+        description: "Fallback place label when article metadata omits Place:"
+        required: false
+        default: "Yokosuka"
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+  AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+
+concurrency:
+  group: guides-drive-sync
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.publish.outputs.changed }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pull latest main
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin main
+
+      - name: Build long-form guide index from public Google Drive root
+        env:
+          ROOT_FOLDER_URL_DEFAULT: ${{ vars.GOOGLE_DRIVE_PUBLIC_ARTICLES_ROOT_FOLDER_URL }}
+          INPUT_ROOT_FOLDER_URL_OVERRIDE: ${{ inputs.root_folder_url_override }}
+          INPUT_PLACE: ${{ inputs.place }}
+        run: |
+          set -euo pipefail
+          ROOT_FOLDER_URL="$ROOT_FOLDER_URL_DEFAULT"
+          if [ -n "$INPUT_ROOT_FOLDER_URL_OVERRIDE" ]; then
+            ROOT_FOLDER_URL="$INPUT_ROOT_FOLDER_URL_OVERRIDE"
+          fi
+          if [ -z "$ROOT_FOLDER_URL" ]; then
+            echo "ERROR: GOOGLE_DRIVE_PUBLIC_ARTICLES_ROOT_FOLDER_URL is empty and no root_folder_url_override was provided." >&2
+            exit 1
+          fi
+
+          python scripts/build_drive_guides_index.py \
+            --root-folder-url "$ROOT_FOLDER_URL" \
+            --place "$INPUT_PLACE" \
+            --public-dir "${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+
+      - name: Package generated state for pages deploy
+        id: publish
+        run: |
+          set -euo pipefail
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          STAGE_DIR=/tmp/pages-state
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR"
+          cp -a "$PUBLIC_DIR"/. "$STAGE_DIR"/
+          tar -C "$STAGE_DIR" -czf /tmp/pages-state.tgz .
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated state artifact
+        if: steps.publish.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+  pages:
+    needs: prepare
+    if: needs.prepare.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
+      artifact_run_id: ${{ github.run_id }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
