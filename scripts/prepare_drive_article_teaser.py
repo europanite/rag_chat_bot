@@ -503,10 +503,36 @@ def parse_article_json(text: str) -> Dict[str, Any]:
     body_parts = [part for part in [description, caption] if part]
     body_md = "\n\n".join(body_parts).strip()
 
-    images_raw = obj.get("images") or []
+    images_raw = obj.get("images")
+    if images_raw is None:
+        images_raw = obj.get("photos")
+    images_raw = images_raw or []
     image_names = [str(x).strip() for x in images_raw if str(x).strip()]
-    hero_image = parse_image_line(image_names[0]) if image_names else None
-    photos = [parse_image_line(name) for name in image_names[1:]]
+
+    hero_raw = (
+        obj.get("hero_image")
+        or obj.get("heroImage")
+        or obj.get("hero")
+        or obj.get("featured_image")
+        or obj.get("featuredImage")
+        or obj.get("cover_image")
+        or obj.get("coverImage")
+        or ""
+    )
+    hero_name = str(hero_raw).strip()
+    hero_image = parse_image_line(hero_name) if hero_name else None
+
+    if hero_image and hero_image.source:
+        hero_source = hero_image.source.strip().lower()
+        photos = []
+        for name in image_names:
+            ref = parse_image_line(name)
+            if ref.source.strip().lower() == hero_source:
+                continue
+            photos.append(ref)
+    else:
+        hero_image = parse_image_line(image_names[0]) if image_names else None
+        photos = [parse_image_line(name) for name in image_names[1:]]
 
     links: list[LinkRef] = []
     direct_link = str(obj.get("link") or "").strip()
