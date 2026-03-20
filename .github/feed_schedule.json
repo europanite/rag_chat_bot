@@ -1,101 +1,79 @@
 {
   "timezone": "Asia/Tokyo",
-  "windows": [
-    {
-      "name": "morning",
-      "start_hour": 6,
-      "end_hour": 12,
-      "weekdays": [1, 2, 3, 4, 5],
-      "slot": "garbage",
-      "label": "morning-weekday-garbage"
+  "weekday_groups": {
+    "weekday": [1, 2, 3, 4, 5],
+    "weekend": [6, 7]
+  },
+  "profiles": {
+    "weekday": {
+      "weekdays": "weekday",
+      "windows": [
+        {
+          "name": "morning",
+          "start_hour": 7,
+          "end_hour": 9,
+          "slot_by_weekday": {
+            "1": "garbage",
+            "2": "spot_intro",
+            "3": "garbage",
+            "4": "spot_intro",
+            "5": "garbage"
+          }
+        },
+        {
+          "name": "midday",
+          "start_hour": 12,
+          "end_hour": 13,
+          "slot_by_weekday": {
+            "1": "restaurant",
+            "2": "google_random",
+            "3": "restaurant",
+            "4": "google_random",
+            "5": "restaurant"
+          }
+        },
+        {
+          "name": "night",
+          "start_hour": 20,
+          "end_hour": 22,
+          "slot_by_weekday": {
+            "1": "event",
+            "2": "spot",
+            "3": "activity",
+            "4": "event",
+            "5": "spot_intro"
+          }
+        }
+      ]
     },
-    {
-      "name": "morning",
-      "start_hour": 6,
-      "end_hour": 12,
-      "weekdays": [6, 7],
-      "slot": "spot",
-      "label": "morning-weekend-spot"
-    },
-    {
-      "name": "noon",
-      "start_hour": 12,
-      "end_hour": 18,
-      "weekdays": [1, 2, 3, 4, 5, 6, 7],
-      "slot": "restaurant",
-      "label": "noon-restaurant"
-    },
-    {
-      "name": "evening",
-      "start_hour": 18,
-      "end_hour": 21,
-      "weekdays": [1, 2, 3, 4, 5],
-      "slot": "event",
-      "label": "evening-weekday-event"
-    },
-    {
-      "name": "evening",
-      "start_hour": 18,
-      "end_hour": 21,
-      "weekdays": [6, 7],
-      "slot": "activity",
-      "label": "evening-weekend-activity"
-    },
-    {
-      "name": "night",
-      "start_hour": 21,
-      "end_hour": 24,
-      "weekdays": [1],
-      "slot": "spot_intro",
-      "label": "night-mon-spot_intro"
-    },
-    {
-      "name": "night",
-      "start_hour": 21,
-      "end_hour": 24,
-      "weekdays": [2],
-      "slot": "google_random",
-      "label": "night-tue-google_random"
-    },
-    {
-      "name": "night",
-      "start_hour": 21,
-      "end_hour": 24,
-      "weekdays": [3],
-      "slot": "cheatsheet",
-      "label": "night-wed-cheatsheet"
-    },
-    {
-      "name": "night",
-      "start_hour": 21,
-      "end_hour": 24,
-      "weekdays": [4],
-      "slot": "spot",
-      "label": "night-thu-spot"
-    },
-    {
-      "name": "night",
-      "start_hour": 21,
-      "end_hour": 24,
-      "weekdays": [5],
-      "slot": "spot_intro",
-      "label": "night-fri-spot_intro"
-    },
-    {
-      "name": "night",
-      "start_hour": 21,
-      "end_hour": 24,
-      "weekdays": [6],
-      "slot": "spot",
-      "label": "night-sat-spot"
-    },
-    {
-      "name": "night",
-      "start_hour": 21,
-      "end_hour": 24,
-      "weekdays": [7],
-      "slot": "google_random",
-      "label": "night-sun-google_random"
+    "weekend": {
+      "weekdays": "weekend",
+      "windows": [
+        {
+          "name": "morning",
+          "start_hour": 10,
+          "end_hour": 11,
+          "slot": "spot"
+        },
+        {
+          "name": "midday",
+          "start_hour": 15,
+          "end_hour": 17,
+          "slot_by_weekday": {
+            "6": "restaurant",
+            "7": "google_random"
+          }
+        },
+        {
+          "name": "night",
+          "start_hour": 20,
+          "end_hour": 22,
+          "slot_by_weekday": {
+            "6": "activity",
+            "7": "event"
+          }
+        }
+      ]
     }
-  ]
+  }
 }

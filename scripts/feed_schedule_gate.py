@@ -7,9 +7,26 @@ import sys
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from datetime import UTC, datetime, time, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+
+DEFAULT_WEEKDAY_GROUPS: dict[str, tuple[int, ...]] = {
+    "weekday": (1, 2, 3, 4, 5),
+    "weekend": (6, 7),
+    "all": (1, 2, 3, 4, 5, 6, 7),
+}
+
+WEEKDAY_NAMES: dict[int, str] = {
+    1: "mon",
+    2: "tue",
+    3: "wed",
+    4: "thu",
+    5: "fri",
+    6: "sat",
+    7: "sun",
+}
 
 
 @dataclass(frozen=True)
@@ -44,10 +61,123 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _normalize_weekday_groups(raw_groups: dict[str, object]) -> dict[str, tuple[int, ...]]:
+    groups = dict(DEFAULT_WEEKDAY_GROUPS)
+    for name, weekdays in raw_groups.items():
+        groups[str(name)] = tuple(int(day) for day in list(weekdays))
+    return groups
+
+
+def _resolve_weekdays(raw_value: object, groups: dict[str, tuple[int, ...]]) -> tuple[int, ...]:
+    if raw_value is None:
+        return groups["all"]
+    if isinstance(raw_value, str):
+        if raw_value not in groups:
+            raise SystemExit(f"feed_schedule.json: unknown weekday group '{raw_value}'")
+        return groups[raw_value]
+    return tuple(int(day) for day in list(raw_value))
+
+
+def _weekday_tag(weekdays: tuple[int, ...], groups: dict[str, tuple[int, ...]]) -> str:
+    for group_name, group_days in groups.items():
+        if weekdays == group_days:
+            return group_name
+    if len(weekdays) == 1:
+        return WEEKDAY_NAMES.get(weekdays[0], str(weekdays[0]))
+    return "-".join(WEEKDAY_NAMES.get(day, str(day)) for day in weekdays)
+
+
+def _append_window(
+    windows: list[Window],
+    *,
+    name: str,
+    start_hour: int,
+    end_hour: int,
+    weekdays: tuple[int, ...],
+    slot: str,
+    groups: dict[str, tuple[int, ...]],
+    label: str = "",
+) -> None:
+    window_label = label or f"{name}-{_weekday_tag(weekdays, groups)}-{slot}"
+    windows.append(
+        Window(
+            name=name,
+            start_hour=start_hour,
+            end_hour=end_hour,
+            weekdays=weekdays,
+            slot=slot,
+            label=window_label,
+        )
+    )
+
+
+def _build_windows_from_profiles(data: dict[str, object]) -> list[Window]:
+    groups = _normalize_weekday_groups(dict(data.get("weekday_groups") or {}))
+    raw_profiles = dict(data.get("profiles") or {})
+    if not raw_profiles:
+        raise SystemExit("feed_schedule.json: either windows or profiles must be configured")
+
+    windows: list[Window] = []
+    for profile_name, profile_value in raw_profiles.items():
+        profile = dict(profile_value)
+        profile_weekdays = _resolve_weekdays(profile.get("weekdays", profile_name), groups)
+
+        for block_value in list(profile.get("windows") or []):
+            block = dict(block_value)
+            name = str(block["name"])
+            start_hour = int(block["start_hour"])
+            end_hour = int(block["end_hour"])
+            block_weekdays = _resolve_weekdays(block.get("weekdays"), groups)
+            active_weekdays = tuple(day for day in profile_weekdays if day in block_weekdays)
+            if not active_weekdays:
+                continue
+
+            explicit_label = str(block.get("label") or "")
+            slot = str(block.get("slot") or "")
+            slot_by_weekday = dict(block.get("slot_by_weekday") or {})
+
+            if slot:
+                _append_window(
+                    windows,
+                    name=name,
+                    start_hour=start_hour,
+                    end_hour=end_hour,
+                    weekdays=active_weekdays,
+                    slot=slot,
+                    groups=groups,
+                    label=explicit_label,
+                )
+                continue
+
+            if slot_by_weekday:
+                for day in active_weekdays:
+                    slot_for_day = str(slot_by_weekday.get(str(day)) or "")
+                    if not slot_for_day:
+                        continue
+                    _append_window(
+                        windows,
+                        name=name,
+                        start_hour=start_hour,
+                        end_hour=end_hour,
+                        weekdays=(day,),
+                        slot=slot_for_day,
+                        groups=groups,
+                        label=explicit_label,
+                    )
+                continue
+
+            raise SystemExit(
+                f"feed_schedule.json: profile window '{name}' must define slot or slot_by_weekday"
+            )
+
+    return windows
+
+
 def load_windows(config_path: str) -> tuple[str, list[Window]]:
     data = json.loads(Path(config_path).read_text(encoding="utf-8"))
     tz_name = data.get("timezone", "Asia/Tokyo")
     windows: list[Window] = []
+
     for raw in data.get("windows", []):
         windows.append(
             Window(
@@ -59,6 +189,10 @@ def load_windows(config_path: str) -> tuple[str, list[Window]]:
                 label=str(raw["label"]),
             )
         )
+
+    if not windows:
+        windows = _build_windows_from_profiles(data)
+
     if not windows:
         raise SystemExit("feed_schedule.json: windows is empty")
     return tz_name, windows
