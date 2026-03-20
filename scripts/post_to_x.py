@@ -180,6 +180,11 @@ def compute_site_and_base() -> Tuple[str, str]:
 
     site = (os.environ.get("SITE_URL") or "").strip().rstrip("/")
     base = (os.environ.get("BASE_PATH") or "").strip().strip("/")
+    custom_domain = (os.environ.get("CUSTOM_DOMAIN") or "").strip()
+
+    if not site and custom_domain:
+        site = f"https://{custom_domain}"
+        base = ""
 
     if not site and owner:
         site = f"https://{owner}.github.io"
@@ -187,7 +192,7 @@ def compute_site_and_base() -> Tuple[str, str]:
         # Default base path: project pages -> /repo, user/organization pages -> ""
         if repo.lower() == f"{owner.lower()}.github.io":
             base = ""
-        else:
+        elif not custom_domain:
             base = repo
 
     return site, base
@@ -208,6 +213,7 @@ def resolve_local_image_path(latest_path: str, obj: Dict[str, object]) -> Option
     candidates = [
         str(obj.get("image") or "").strip(),
         str(obj.get("image_url") or "").strip(),
+        str(obj.get("image_fixed") or "").strip(),
         str(obj.get("fixed_image") or "").strip(),
         str(obj.get("avatar_image") or "").strip(),
     ]

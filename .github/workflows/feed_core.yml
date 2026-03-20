@@ -504,6 +504,7 @@ jobs:
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
           LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
         run: |
           set -euo pipefail
           python scripts/post_to_x.py
