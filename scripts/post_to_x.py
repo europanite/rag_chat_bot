@@ -217,7 +217,7 @@ def compute_site_and_base() -> Tuple[str, str]:
     base = (os.environ.get("BASE_PATH") or "").strip().strip("/")
     custom_domain = normalize_custom_domain(os.environ.get("CUSTOM_DOMAIN") or "")
 
-    if not site and custom_domain:
+    if custom_domain:
         site = f"https://{custom_domain}"
         base = ""
 
