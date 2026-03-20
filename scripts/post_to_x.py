@@ -173,14 +173,49 @@ def compose_tweet(*, raw_text: str, links: Sequence[str], share_url: str, hashta
     return tweet
 
 
+def strip_wrapping_quotes(s: str) -> str:
+    s = (s or "").strip()
+    if len(s) >= 2 and s[0] == s[-1] and s[0] in {'"', "'"}:
+        return s[1:-1].strip()
+    return s
+
+
+def normalize_site_url(raw: str) -> str:
+    s = strip_wrapping_quotes(raw).strip().rstrip("/")
+    if not s:
+        return ""
+    if s.startswith(("http://", "https://")):
+        parsed = urllib.parse.urlsplit(s)
+        if parsed.netloc:
+            path = parsed.path.rstrip("/")
+            return urllib.parse.urlunsplit((parsed.scheme or "https", parsed.netloc, path, "", ""))
+        return ""
+    return f"https://{s.lstrip('/').rstrip('/')}"
+
+
+def normalize_custom_domain(raw: str) -> str:
+    s = strip_wrapping_quotes(raw)
+    if not s:
+        return ""
+    if s.startswith(("http://", "https://")):
+        parsed = urllib.parse.urlsplit(s)
+        s = parsed.netloc or parsed.path
+    s = strip_wrapping_quotes(s).strip().strip("/")
+    if "/" in s:
+        s = s.split("/", 1)[0].strip()
+    if not s or s in {".", ".."}:
+        return ""
+    return s
+
+
 def compute_site_and_base() -> Tuple[str, str]:
     owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "").strip()
     repo_full = os.environ.get("GITHUB_REPOSITORY", "").strip()  # owner/repo
     repo = repo_full.split("/", 1)[1] if "/" in repo_full else os.environ.get("GITHUB_EVENT_REPOSITORY_NAME", "").strip()
 
-    site = (os.environ.get("SITE_URL") or "").strip().rstrip("/")
+    site = normalize_site_url(os.environ.get("SITE_URL") or "")
     base = (os.environ.get("BASE_PATH") or "").strip().strip("/")
-    custom_domain = (os.environ.get("CUSTOM_DOMAIN") or "").strip()
+    custom_domain = normalize_custom_domain(os.environ.get("CUSTOM_DOMAIN") or "")
 
     if not site and custom_domain:
         site = f"https://{custom_domain}"
