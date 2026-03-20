@@ -1120,6 +1120,116 @@ function buildGuideBanners(guides: GuideItem[], assetBase: string): GuideBanner[
   return out;
 }
 
+function pickInlineGuideBanner(banners: GuideBanner[], anchorId: string): GuideBanner | null {
+  if (!banners.length) return null;
+  const idx = hashString(anchorId) % banners.length;
+  return banners[idx] ?? banners[0] ?? null;
+}
+
+function InlineGuideCard({
+  banner,
+  onPress,
+}: {
+  banner: GuideBanner;
+  onPress: () => void;
+}) {
+  return (
+    <View style={{ width: "100%", backgroundColor: APP_BG, borderRadius: 12 }}>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`${banner?.kind === "ad" ? "Ad" : "Guide"}: ${banner?.title ?? "Guide"}`}
+        onPress={onPress}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.92 : 1,
+          ...(Platform.OS === "web" ? ({ cursor: "pointer" } as any) : null),
+        })}
+      >
+        <View
+          style={{
+            backgroundColor: CARD_BG,
+            borderWidth: 2,
+            borderColor: BORDER,
+            borderRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          <View style={{ height: 200, backgroundColor: "#e5e7eb" }}>
+            {banner?.imageUri ? (
+              <Image
+                source={{ uri: banner.imageUri }}
+                resizeMode="cover"
+                style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
+              />
+            ) : null}
+
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 999,
+                backgroundColor: "rgba(0,0,0,0.55)",
+              }}
+            >
+              <Text style={{ color: "#ffffff", fontSize: 10, fontWeight: "800", letterSpacing: 0.4 }}>
+                {banner?.badgeLabel ?? "GUIDE"}
+              </Text>
+            </View>
+          </View>
+
+          <View style={{ padding: 12, gap: 6 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>
+                {banner?.headerLabel ?? "LONG-FORM GUIDES"}
+              </Text>
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
+            </View>
+
+            <Text style={{ color: "#000000", fontSize: 16, fontWeight: "800", lineHeight: 22 }} numberOfLines={3}>
+              {banner?.title ?? "Guide"}
+            </Text>
+
+            {banner?.meta ? (
+              <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700", lineHeight: 16 }} numberOfLines={1}>
+                {banner.meta}
+              </Text>
+            ) : null}
+
+            <Text style={{ color: TEXT_DIM, fontSize: 12, lineHeight: 18 }} numberOfLines={4}>
+              {banner?.summary ?? ""}
+            </Text>
+
+            <View
+              style={{
+                marginTop: 6,
+                alignSelf: "flex-start",
+                borderWidth: 2,
+                borderColor: BORDER,
+                borderRadius: 999,
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Text style={{ color: "#000000", fontSize: 12, fontWeight: "800" }}>
+                {banner?.ctaLabel ?? "Open guide"}
+              </Text>
+            </View>
+
+            {banner?.disclaimer ? (
+              <Text style={{ color: TEXT_DIM, fontSize: 10, marginTop: 8, lineHeight: 14 }}>
+                {banner.disclaimer}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      </Pressable>
+    </View>
+  );
+}
+
 function GuideSidebar({
   banners,
   active,
@@ -1774,18 +1884,15 @@ const getImageUrisForItem = useCallback(
             }
       renderItem={({ item }) => {
         if (isSlotItem(item)) {
-          const enabled = process.env.EXPO_PUBLIC_USE_SLOT === "1";
-          const banners = SLOT_BANNERS;
+          const banner = pickInlineGuideBanner(guideBanners, item.id);
 
-          if (enabled && banners.length) {
-            const startIndex = hashString(item.id) % banners.length;
-
+          if (banner) {
             return (
               <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
                 <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
                   {/* keep alignment with the mascot column */}
                   <View style={{ flex: 1 }}>
-                    <SlotCard banners={banners} startIndex={startIndex} variant="inline" />
+                    <InlineGuideCard banner={banner} onPress={() => openResolvedUrl(banner.url)} />
                   </View>
                 </View>
               </View>
