@@ -36,7 +36,7 @@ except ImportError:
 
 USER_AGENT = "rag_chat_bot-gha/article-drive-random"
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tif", ".tiff", ".svg"}
-TEXT_EXTS = {".md", ".markdown", ".txt"}
+TEXT_EXTS = {".md", ".markdown", ".txt", ".json"}
 FOLDER_PATTERNS = [
     re.compile(r"https?://drive\.google\.com/drive/(?:u/\d+/)?folders/([A-Za-z0-9_-]+)"),
     re.compile(r"https?://drive\.google\.com/drive/mobile/folders/([A-Za-z0-9_-]+)"),
@@ -288,17 +288,25 @@ def choose_random_article_folder(
 
 
 def choose_article_doc(entries: Sequence[DriveEntry]) -> DriveEntry:
-    candidates = [
-        it for it in entries
-        if it.kind == "text" and it.name.lower().strip().endswith((".md", ".markdown"))
-    ]
+    candidates = [it for it in entries if it.kind in {"text", "doc"}]
     if not candidates:
-        raise SystemExit("Selected article folder does not contain any .md article source")
+        raise SystemExit("Selected article folder does not contain any article.json/.md/.txt/Google Docs article source")
 
-    def sort_key(it: DriveEntry) -> tuple[int, str]:
+    def sort_key(it: DriveEntry) -> tuple[int, int, int, int, str]:
         name = it.name.lower().strip()
-        preferred = 0 if name in {"article.md", "index.md", "post.md"} else 1
-        return (preferred, name)
+        preferred = 0 if name in {
+            "article.json",
+            "metadata.json",
+            "article.md",
+            "index.md",
+            "post.md",
+            "article.txt",
+            "index.txt",
+        } else 1
+        json_first = 0 if name.endswith(".json") else 1
+        md_first = 0 if name.endswith(".md") or name.endswith(".markdown") else 1
+        txt_first = 0 if name.endswith(".txt") else 1
+        return (preferred, json_first, md_first, txt_first, name)
 
     return sorted(candidates, key=sort_key)[0]
 
@@ -467,6 +475,81 @@ def parse_article_markdown(text: str) -> Dict[str, Any]:
     if not meta["short_text"]:
         meta["short_text"] = summarize_text(str(meta["summary"]), 140)
     return meta
+
+
+def parse_article_json(text: str) -> Dict[str, Any]:
+    try:
+        obj = json.loads(text or "{}")
+    except Exception as exc:
+        raise SystemExit(f"Article JSON could not be parsed: {exc}")
+
+    if not isinstance(obj, dict):
+        raise SystemExit("Article JSON must be an object")
+
+    title = str(
+        obj.get("title")
+        or obj.get("title_en")
+        or obj.get("title_ja")
+        or ""
+    ).strip()
+    if not title:
+        raise SystemExit("Article JSON is missing title/title_en/title_ja")
+
+    category = str(obj.get("category") or "article").strip() or "article"
+    place = str(obj.get("place") or "Yokosuka").strip() or "Yokosuka"
+    summary = str(obj.get("summary") or "").strip()
+    description = str(obj.get("description") or "").strip()
+    caption = str(obj.get("caption") or "").strip()
+    body_parts = [part for part in [description, caption] if part]
+    body_md = "\n\n".join(body_parts).strip()
+
+    images_raw = obj.get("images") or []
+    image_names = [str(x).strip() for x in images_raw if str(x).strip()]
+    hero_image = parse_image_line(image_names[0]) if image_names else None
+    photos = [parse_image_line(name) for name in image_names[1:]]
+
+    links: list[LinkRef] = []
+    direct_link = str(obj.get("link") or "").strip()
+    if direct_link:
+        links.append(parse_link_line(direct_link))
+
+    for idx, url in enumerate(obj.get("download_page_urls") or [], start=1):
+        u = str(url).strip()
+        if not u:
+            continue
+        links.append(LinkRef(title=f"Source {idx}", url=u))
+
+    slug_source = str(obj.get("slug") or obj.get("title_en") or obj.get("title") or title)
+    published_at = str(
+        obj.get("published_at")
+        or obj.get("publishedAt")
+        or obj.get("date")
+        or obj.get("datetime")
+        or ""
+    ).strip()
+
+    meta: Dict[str, Any] = {
+        "title": title,
+        "slug": slugify(slug_source),
+        "category": category,
+        "place": place,
+        "published_at": published_at,
+        "summary": summary or summarize_text(first_paragraph(body_md), 220),
+        "short_title": summarize_text(title, 80),
+        "short_text": summarize_text(summary or first_paragraph(body_md), 140),
+        "hero_image": hero_image,
+        "photos": [ref for ref in photos if ref.source],
+        "links": [ref for ref in links if ref.url],
+        "body_md": body_md,
+    }
+    return meta
+
+
+def parse_article_source(entry: DriveEntry, text: str) -> Dict[str, Any]:
+    name = (entry.name or "").lower().strip()
+    if name.endswith(".json"):
+        return parse_article_json(text)
+    return parse_article_markdown(text)
 
 
 def find_entry_by_name(entries: Sequence[DriveEntry], name: str) -> Optional[DriveEntry]:
@@ -831,7 +914,7 @@ def main() -> int:
     article_entries = list_public_folder_entries(article_folder, include_folders=False)
     article_doc = choose_article_doc(article_entries)
     article_text = download_text(article_doc)
-    parsed = parse_article_markdown(article_text)
+    parsed = parse_article_source(article_doc, article_text)
 
     hero_ref = parsed.get("hero_image")
     if not (isinstance(hero_ref, ImageRef) and hero_ref.source):

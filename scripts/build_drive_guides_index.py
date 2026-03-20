@@ -25,7 +25,7 @@ try:
         ensure_iso,
         extract_folder_ref,
         list_public_folder_entries,
-        parse_article_markdown,
+        parse_article_source,
         save_article_image,
         slugify,
         utc_date_from_iso,
@@ -44,7 +44,7 @@ except ImportError:
         ensure_iso,
         extract_folder_ref,
         list_public_folder_entries,
-        parse_article_markdown,
+        parse_article_source,
         save_article_image,
         slugify,
         utc_date_from_iso,
@@ -117,7 +117,7 @@ def main() -> int:
             folder_ref = FolderRef(folder_id=folder.file_id, resource_key=folder.resource_key)
             folder_entries = list_public_folder_entries(folder_ref, include_folders=False)
             article_doc = choose_article_doc(folder_entries)
-            parsed = parse_article_markdown(download_text(article_doc))
+            parsed = parse_article_source(article_doc, download_text(article_doc))
 
             slug = make_unique_slug(
                 str(parsed.get("slug") or parsed.get("title") or folder.name),
