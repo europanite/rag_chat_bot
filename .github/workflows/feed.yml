@@ -2,18 +2,18 @@ name: Feed
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 * * * *'
   workflow_call:
     inputs:
       slot:
-        description: "Which slot to run (auto = decide by JST hour)"
+        description: "Which slot to run (auto = decide by schedule gate)"
         required: false
         type: string
         default: "auto"
   workflow_dispatch:
     inputs:
       slot:
-        description: "Which slot to run (auto = decide by JST hour)"
+        description: "Which slot to run (auto = decide by schedule gate)"
         required: false
         default: "auto"
         type: choice
@@ -39,63 +39,53 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       slot: ${{ steps.sel.outputs.slot }}
+      should_run: ${{ steps.sel.outputs.should_run }}
+      window_id: ${{ steps.sel.outputs.window_id }}
+      reason: ${{ steps.sel.outputs.reason }}
     steps:
-      - name: Select slot (JST)
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Select slot (schedule gate)
         id: sel
-        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_SLOT: ${{ inputs.slot }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_API_URL: ${{ github.api_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
+          python scripts/feed_schedule_gate.py \
+            --config .github/feed_schedule.json \
+            --event-name "${EVENT_NAME}" \
+            --requested-slot "${REQUESTED_SLOT:-}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --workflow-file "feed.yml" \
+            --github-api-url "${GITHUB_API_URL}" \
+            --github-token "${GITHUB_TOKEN}" \
+            --current-run-id "${GITHUB_RUN_ID}" \
+            --github-output "${GITHUB_OUTPUT}"
 
-          SLOT="${{ inputs.slot }}"
-          if [ -z "$SLOT" ]; then
-            SLOT="auto"
-          fi
-
-          if [ "$SLOT" != "auto" ]; then
-            echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
-            echo "manual slot=$SLOT"
-            exit 0
-          fi
-
-          HOUR="$(TZ=Asia/Tokyo date +%H)"
-          HOUR="${HOUR#0}"
-          DOW="$(TZ=Asia/Tokyo date +%u)"  # 1=Mon ... 7=Sun
-
-          if (( HOUR >= 0 && HOUR < 2 )); then
-            SLOT="google_random"
-          elif (( HOUR >= 2 && HOUR < 5 )); then
-            SLOT="cheatsheet"
-          elif (( HOUR >= 5 && HOUR < 7 )); then
-            if (( DOW >= 1 && DOW <= 5 )); then
-              SLOT="garbage"
-            else
-              SLOT="spot"
-            fi
-          elif (( HOUR >= 7 && HOUR < 13 )); then
-            SLOT="restaurant"
-          elif (( HOUR >= 13 && HOUR < 17 )); then
-            SLOT="event"
-          elif (( HOUR >= 17 && HOUR < 20 )); then
-            SLOT="activity"
-          elif (( HOUR >= 20 && HOUR < 22 )); then
-            if (( (DOW >= 1 && DOW <= 4) || DOW == 7 )); then
-              SLOT="garbage"
-            else
-              SLOT="spot"
-            fi
-          elif (( HOUR >= 22 && HOUR < 24 )); then
-            SLOT="spot_intro"
-          else
-            echo "ERROR: unexpected hour: $HOUR"
-            exit 1
-          fi
-
-          echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
-          echo "JST hour=$HOUR dow=$DOW -> slot=$SLOT"
+      - name: Log selection
+        run: |
+          echo "should_run=${{ steps.sel.outputs.should_run }}"
+          echo "slot=${{ steps.sel.outputs.slot }}"
+          echo "window_id=${{ steps.sel.outputs.window_id }}"
+          echo "reason=${{ steps.sel.outputs.reason }}"
 
   sspot:
     needs: select
-    if: needs.select.outputs.slot == 'spot'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'spot'
     uses: ./.github/workflows/feed_slot_spot.yml
     permissions:
       actions: read
@@ -106,7 +96,7 @@ jobs:
 
   sgarbage:
     needs: select
-    if: needs.select.outputs.slot == 'garbage'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'garbage'
     uses: ./.github/workflows/feed_slot_garbage.yml
     permissions:
       actions: read
@@ -117,7 +107,7 @@ jobs:
 
   scheatsheet:
     needs: select
-    if: needs.select.outputs.slot == 'cheatsheet'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'cheatsheet'
     uses: ./.github/workflows/cheatsheet.yml
     permissions:
       actions: read
@@ -128,7 +118,7 @@ jobs:
 
   srestaurant:
     needs: select
-    if: needs.select.outputs.slot == 'restaurant'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'restaurant'
     uses: ./.github/workflows/feed_slot_restaurant.yml
     permissions:
       actions: read
@@ -139,7 +129,7 @@ jobs:
 
   sevent:
     needs: select
-    if: needs.select.outputs.slot == 'event'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'event'
     uses: ./.github/workflows/feed_slot_event.yml
     permissions:
       actions: read
@@ -150,7 +140,7 @@ jobs:
 
   sgoogle_random:
     needs: select
-    if: needs.select.outputs.slot == 'google_random'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'google_random'
     uses: ./.github/workflows/feed_slot_spot_random.yml
     permissions:
       actions: read
@@ -161,7 +151,7 @@ jobs:
 
   sspot_intro:
     needs: select
-    if: needs.select.outputs.slot == 'spot_intro'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'spot_intro'
     uses: ./.github/workflows/feed_slot_spot_intro.yml
     permissions:
       actions: read
@@ -172,7 +162,7 @@ jobs:
 
   sactivity:
     needs: select
-    if: needs.select.outputs.slot == 'activity'
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'activity'
     uses: ./.github/workflows/feed_slot_activity.yml
     permissions:
       actions: read

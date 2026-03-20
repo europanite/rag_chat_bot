@@ -1,0 +1,101 @@
+{
+  "timezone": "Asia/Tokyo",
+  "windows": [
+    {
+      "name": "morning",
+      "start_hour": 6,
+      "end_hour": 12,
+      "weekdays": [1, 2, 3, 4, 5],
+      "slot": "garbage",
+      "label": "morning-weekday-garbage"
+    },
+    {
+      "name": "morning",
+      "start_hour": 6,
+      "end_hour": 12,
+      "weekdays": [6, 7],
+      "slot": "spot",
+      "label": "morning-weekend-spot"
+    },
+    {
+      "name": "noon",
+      "start_hour": 12,
+      "end_hour": 18,
+      "weekdays": [1, 2, 3, 4, 5, 6, 7],
+      "slot": "restaurant",
+      "label": "noon-restaurant"
+    },
+    {
+      "name": "evening",
+      "start_hour": 18,
+      "end_hour": 21,
+      "weekdays": [1, 2, 3, 4, 5],
+      "slot": "event",
+      "label": "evening-weekday-event"
+    },
+    {
+      "name": "evening",
+      "start_hour": 18,
+      "end_hour": 21,
+      "weekdays": [6, 7],
+      "slot": "activity",
+      "label": "evening-weekend-activity"
+    },
+    {
+      "name": "night",
+      "start_hour": 21,
+      "end_hour": 24,
+      "weekdays": [1],
+      "slot": "spot_intro",
+      "label": "night-mon-spot_intro"
+    },
+    {
+      "name": "night",
+      "start_hour": 21,
+      "end_hour": 24,
+      "weekdays": [2],
+      "slot": "google_random",
+      "label": "night-tue-google_random"
+    },
+    {
+      "name": "night",
+      "start_hour": 21,
+      "end_hour": 24,
+      "weekdays": [3],
+      "slot": "cheatsheet",
+      "label": "night-wed-cheatsheet"
+    },
+    {
+      "name": "night",
+      "start_hour": 21,
+      "end_hour": 24,
+      "weekdays": [4],
+      "slot": "spot",
+      "label": "night-thu-spot"
+    },
+    {
+      "name": "night",
+      "start_hour": 21,
+      "end_hour": 24,
+      "weekdays": [5],
+      "slot": "spot_intro",
+      "label": "night-fri-spot_intro"
+    },
+    {
+      "name": "night",
+      "start_hour": 21,
+      "end_hour": 24,
+      "weekdays": [6],
+      "slot": "spot",
+      "label": "night-sat-spot"
+    },
+    {
+      "name": "night",
+      "start_hour": 21,
+      "end_hour": 24,
+      "weekdays": [7],
+      "slot": "google_random",
+      "label": "night-sun-google_random"
+    }
+  ]
+}
