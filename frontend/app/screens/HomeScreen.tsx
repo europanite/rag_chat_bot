@@ -1638,11 +1638,10 @@ useEffect(() => {
   };
 }, [activeGuide, guideLen, guideProgress]);
 
-const leftGuideActiveIndex = guideLen <= 1 ? 0 : activeGuide % guideLen;
-const leftGuideNextIndex = guideLen <= 1 ? 0 : (leftGuideActiveIndex + 1) % guideLen;
-const rightGuideActiveIndex = guideLen <= 1 ? 0 : (leftGuideActiveIndex + 1) % guideLen;
-const rightGuideNextIndex =
-  guideLen <= 1 ? 0 : guideLen === 2 ? leftGuideActiveIndex : (rightGuideActiveIndex + 1) % guideLen;
+const leftGuideActiveIndex  = guideLen <= 1 ? 0 : activeGuide % guideLen;
+const leftGuideNextIndex    = guideLen <= 1 ? 0 : (leftGuideActiveIndex + 1) % guideLen;
+const rightGuideActiveIndex = guideLen <= 1 ? 0 : (leftGuideActiveIndex + Math.floor(guideLen / 2)) % guideLen;
+const rightGuideNextIndex   = guideLen <= 1 ? 0 : guideLen === 2 ? leftGuideActiveIndex : (rightGuideActiveIndex + 1) % guideLen;
 
 const getImageUrisForItem = useCallback(
   (item: FeedItem): string[] => {
