@@ -81,7 +81,17 @@ def active_window(now: datetime, windows: list[Window]) -> Window | None:
 
 def window_bounds(now: datetime, window: Window) -> tuple[datetime, datetime]:
     start = now.replace(hour=window.start_hour, minute=0, second=0, microsecond=0)
-    end = now.replace(hour=window.end_hour, minute=0, second=0, microsecond=0)
+
+    if window.end_hour == 24:
+        end = (start + timedelta(days=1)).replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+    else:
+        end = now.replace(hour=window.end_hour, minute=0, second=0, microsecond=0)
+
     return start, end
 
 
