@@ -2,12 +2,13 @@ name: Ingest
 
 on:
   workflow_dispatch:
-    inputs:
-      upload_snapshot_to_s3:
-        description: "Upload verified chroma_db snapshot to S3 (otherwise keep artifact-only for manual handoff)"
-        required: false
-        type: boolean
-        default: false
+
+env:
+  RAG_CHROMA_SOURCE: ${{ vars.RAG_CHROMA_SOURCE }}
+  RAG_CHROMA_GDRIVE_URL: ${{ vars.RAG_SNAPSHOT_URL }}
+  RAG_CHROMA_S3_BUCKET: ${{ vars.AWS_S3_BUCKET_BACKUP }}
+  RAG_CHROMA_S3_PREFIX: rag/chroma
+  RAG_CHROMA_LOCAL_DIR: chroma_db_seed
 
 permissions:
   contents: write
@@ -34,22 +35,38 @@ jobs:
       - name: Ensure pipeline scripts are executable
         run: |
           set -eux
-          chmod +x scripts/ingest.sh scripts/rag_snapshot_s3.py scripts/verify_ingest_state.py scripts/fetch_data_json_from_gdrive.py
+          chmod +x scripts/ingest.sh scripts/chroma_switch.py scripts/verify_ingest_state.py scripts/fetch_data_json_from_gdrive.py scripts/fetch_public_file.py
 
-      - name: Validate AWS snapshot settings
-        if: ${{ inputs.upload_snapshot_to_s3 }}
+      - name: Validate chroma source settings
         env:
+          RAG_CHROMA_SOURCE: ${{ env.RAG_CHROMA_SOURCE }}
+          RAG_CHROMA_GDRIVE_URL: ${{ env.RAG_CHROMA_GDRIVE_URL }}
+          RAG_CHROMA_S3_BUCKET: ${{ env.RAG_CHROMA_S3_BUCKET }}
           AWS_ROLE_ARN_SECRET: ${{ secrets.AWS_ROLE_ARN }}
           AWS_REGION_VALUE: ${{ vars.AWS_REGION }}
-          AWS_S3_BUCKET_BACKUP_VALUE: ${{ vars.AWS_S3_BUCKET_BACKUP }}
         run: |
           set -euo pipefail
-          [ -n "${AWS_REGION_VALUE:-}" ] || { echo "ERROR: vars.AWS_REGION is required."; exit 1; }
-          [ -n "${AWS_ROLE_ARN_SECRET:-}" ] || { echo "ERROR: secrets.AWS_ROLE_ARN is required."; exit 1; }
-          [ -n "${AWS_S3_BUCKET_BACKUP_VALUE:-}" ] || { echo "ERROR: vars.AWS_S3_BUCKET_BACKUP is required."; exit 1; }
+          SOURCE="${RAG_CHROMA_SOURCE:-gdrive}"
+          case "$SOURCE" in
+            gdrive)
+              [ -n "${RAG_CHROMA_GDRIVE_URL:-}" ] || { echo "ERROR: vars.RAG_SNAPSHOT_URL is required when RAG_CHROMA_SOURCE=gdrive."; exit 1; }
+              ;;
+            s3)
+              [ -n "${AWS_REGION_VALUE:-}" ] || { echo "ERROR: vars.AWS_REGION is required when RAG_CHROMA_SOURCE=s3."; exit 1; }
+              [ -n "${AWS_ROLE_ARN_SECRET:-}" ] || { echo "ERROR: secrets.AWS_ROLE_ARN is required when RAG_CHROMA_SOURCE=s3."; exit 1; }
+              [ -n "${RAG_CHROMA_S3_BUCKET:-}" ] || { echo "ERROR: vars.AWS_S3_BUCKET_BACKUP is required when RAG_CHROMA_SOURCE=s3."; exit 1; }
+              ;;
+            local)
+              echo "Using local chroma seed directory: ${RAG_CHROMA_LOCAL_DIR:-chroma_db_seed}"
+              ;;
+            *)
+              echo "ERROR: unsupported RAG_CHROMA_SOURCE=$SOURCE"
+              exit 1
+              ;;
+          esac
 
       - name: Configure AWS credentials via OIDC
-        if: ${{ inputs.upload_snapshot_to_s3 }}
+        if: ${{ env.RAG_CHROMA_SOURCE == 's3' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ vars.AWS_REGION }}
@@ -196,7 +213,10 @@ jobs:
       - name: Verify live embeddings inside chroma_db
         run: |
           set -euo pipefail
-          python3 scripts/rag_snapshot_s3.py verify-local             --chroma-dir chroma_db             --collection-name documents             --min-count 1
+          python3 scripts/chroma_switch.py verify-local \
+            --chroma-dir chroma_db \
+            --collection-name documents \
+            --min-count 1
 
       - name: Upload ingest debug artifact
         if: always()
@@ -220,23 +240,21 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload verified RAG snapshot to S3
-        if: ${{ inputs.upload_snapshot_to_s3 }}
+      - name: Publish verified chroma_db snapshot for selected source
         env:
-          AWS_S3_BUCKET_BACKUP: ${{ vars.AWS_S3_BUCKET_BACKUP }}
+          RAG_CHROMA_SOURCE: ${{ env.RAG_CHROMA_SOURCE }}
+          RAG_CHROMA_S3_BUCKET: ${{ env.RAG_CHROMA_S3_BUCKET }}
+          RAG_CHROMA_S3_PREFIX: ${{ env.RAG_CHROMA_S3_PREFIX }}
         run: |
           set -euo pipefail
-          python3 scripts/rag_snapshot_s3.py upload-latest             --bucket "${AWS_S3_BUCKET_BACKUP}"             --prefix "rag/chroma"             --chroma-dir chroma_db
+          python3 scripts/chroma_switch.py publish \
+            --source "${RAG_CHROMA_SOURCE:-gdrive}" \
+            --chroma-dir chroma_db \
+            --s3-bucket "${RAG_CHROMA_S3_BUCKET:-}" \
+            --s3-prefix "${RAG_CHROMA_S3_PREFIX:-rag/chroma}" \
+            --artifact-out /tmp/chroma-db.tgz
 
-
-      - name: Skip S3 upload (artifact/manual handoff mode)
-        if: ${{ !inputs.upload_snapshot_to_s3 }}
-        run: |
-          set -euo pipefail
-          echo "S3 upload is disabled for this run."
-          echo "Use the chroma-db artifact for manual handoff to Google Drive or other storage."
-
-      - name: Commit & push chroma_db (disabled; S3 snapshot is the source of truth)
+      - name: Commit & push chroma_db (disabled; remote/manual snapshot is the source of truth)
         if: ${{ false }}
         run: |
           set -euo pipefail

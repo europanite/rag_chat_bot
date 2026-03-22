@@ -71,7 +71,11 @@ env:
   AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
   DATA_JSON_URL: ${{ vars.DATA_JSON_URL }}
   DATA_JSON_OUT: data/json/data.json
-  RAG_SNAPSHOT_URL: ${{ vars.RAG_SNAPSHOT_URL }}
+  RAG_CHROMA_SOURCE: ${{ vars.RAG_CHROMA_SOURCE }}
+  RAG_CHROMA_GDRIVE_URL: ${{ vars.RAG_SNAPSHOT_URL }}
+  RAG_CHROMA_S3_BUCKET: ${{ vars.AWS_S3_BUCKET_BACKUP }}
+  RAG_CHROMA_S3_PREFIX: rag/chroma
+  RAG_CHROMA_LOCAL_DIR: chroma_db_seed
 
 jobs:
   rag:
@@ -93,28 +97,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate Google Drive snapshot settings
+      - name: Restore chroma_db from selected source
         env:
-          RAG_SNAPSHOT_URL_VALUE: ${{ env.RAG_SNAPSHOT_URL }}
+          RAG_CHROMA_SOURCE: ${{ env.RAG_CHROMA_SOURCE }}
+          RAG_CHROMA_GDRIVE_URL: ${{ env.RAG_CHROMA_GDRIVE_URL }}
+          RAG_CHROMA_S3_BUCKET: ${{ env.RAG_CHROMA_S3_BUCKET }}
+          RAG_CHROMA_S3_PREFIX: ${{ env.RAG_CHROMA_S3_PREFIX }}
+          RAG_CHROMA_LOCAL_DIR: ${{ env.RAG_CHROMA_LOCAL_DIR }}
         run: |
           set -euo pipefail
-          [ -n "${RAG_SNAPSHOT_URL_VALUE:-}" ] || { echo "ERROR: Repository variable RAG_SNAPSHOT_URL is required."; exit 1; }
-
-      - name: Restore verified RAG snapshot from Google Drive public link
-        env:
-          RAG_SNAPSHOT_URL: ${{ env.RAG_SNAPSHOT_URL }}
-        run: |
-          set -euo pipefail
-          rm -rf chroma_db
-          mkdir -p chroma_db tmp
-          python3 scripts/fetch_public_file.py             --url "${RAG_SNAPSHOT_URL}"             --out tmp/chroma-db.tgz             --min-bytes 1024
-          tar -xzf tmp/chroma-db.tgz -C .
-          test -f chroma_db/chroma.sqlite3
+          python3 scripts/chroma_switch.py restore             --source "${RAG_CHROMA_SOURCE:-gdrive}"             --out-dir chroma_db             --gdrive-url "${RAG_CHROMA_GDRIVE_URL:-}"             --s3-bucket "${RAG_CHROMA_S3_BUCKET:-}"             --s3-prefix "${RAG_CHROMA_S3_PREFIX:-rag/chroma}"             --local-dir "${RAG_CHROMA_LOCAL_DIR:-chroma_db_seed}"
 
       - name: Verify restored chroma_db
         run: |
           set -euo pipefail
-          python3 scripts/rag_snapshot_s3.py verify-local             --chroma-dir chroma_db             --collection-name documents             --min-count 1
+          python3 scripts/chroma_switch.py verify-local             --chroma-dir chroma_db             --collection-name documents             --min-count 1
 
       - name: Free disk space
         run: |
@@ -125,7 +122,7 @@ jobs:
 
       - name: Make pipeline scripts executable
         run: |
-          chmod +x scripts/feed.sh scripts/fetch_data_json_from_gdrive.py scripts/fetch_public_file.py scripts/rag_snapshot_s3.py
+          chmod +x scripts/feed.sh scripts/fetch_data_json_from_gdrive.py scripts/fetch_public_file.py scripts/chroma_switch.py
 
       - name: Fetch data.json from Google Drive public link
         env:

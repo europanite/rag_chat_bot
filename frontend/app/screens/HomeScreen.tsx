@@ -1256,9 +1256,6 @@ function GuideSidebar({
           padding: 14,
         }}
       >
-        <Text style={{ fontSize: 12, fontWeight: "800", color: TEXT_DIM, marginBottom: 6 }}>
-          LONG-FORM GUIDES
-        </Text>
         <Text style={{ fontSize: 20, fontWeight: "800", color: "#000", marginBottom: 12 }}>
           Guide
         </Text>
