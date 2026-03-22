@@ -862,7 +862,7 @@ def build_articles_index_html(articles: Sequence[Dict[str, Any]], *, feed_href: 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Guides | GOODDAY YOKOSUKA</title>
-  <meta name="description" content="Long-form guides on GOODDAY YOKOSUKA" />
+  <meta name="description" content="guides on GOODDAY YOKOSUKA" />
   <style>
     body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}
     .wrap {{ max-width: 980px; margin: 0 auto; padding: 24px 16px 72px; }}

@@ -1094,12 +1094,12 @@ function buildGuideBanners(guides: GuideItem[], assetBase: string): GuideBanner[
       id: guide.id,
       kind: "guide" as const,
       title: guide.title,
-      summary: guide.summary || "Open this long-form guide.",
+      summary: guide.summary || "Open the guide.",
       url: guide.permalink || "./articles/index.html",
       imageUri: hero,
       meta: meta || undefined,
       badgeLabel: "GUIDE",
-      headerLabel: "LONG-FORM GUIDES",
+      headerLabel: "GUIDES",
       ctaLabel: "Open guide",
     };
   });
@@ -1182,7 +1182,7 @@ function InlineGuideCard({
           <View style={{ padding: 12, gap: 6 }}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
               <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>
-                {banner?.headerLabel ?? "LONG-FORM GUIDES"}
+                {banner?.headerLabel ?? "GUIDES"}
               </Text>
               <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
             </View>
@@ -1362,7 +1362,7 @@ function GuideSidebar({
           <View style={{ padding: 12, gap: 6 }}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
               <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>
-                {activeBanner?.headerLabel ?? "LONG-FORM GUIDES"}
+                {activeBanner?.headerLabel ?? "GUIDES"}
               </Text>
               <Text style={{ color: TEXT_DIM, fontSize: 11, fontWeight: "700" }}>↗</Text>
             </View>
