@@ -25,6 +25,13 @@ def main() -> int:
     limit = int(os.environ.get("SOCIAL_PAGE_LIMIT", "300"))
 
     site = (os.environ.get("SITE_URL", "") or "").rstrip("/")
+    custom_domain = (os.environ.get("CUSTOM_DOMAIN", "") or "").strip().strip("/")
+    if not site and custom_domain:
+        if custom_domain.startswith(("http://", "https://")):
+            site = custom_domain.rstrip("/")
+        else:
+            site = f"https://{custom_domain}"
+
     base_path = (os.environ.get("BASE_PATH", "") or "").rstrip("/")
     if not base_path.startswith("/") and base_path:
         base_path = "/" + base_path
@@ -61,7 +68,7 @@ def main() -> int:
         og_image = abs_url(site, base_path, img_rel) if site else ""
 
         share_path = out_dir / pid / "index.html"
-        share_url = f"{site}{base_path}/p/{pid}/" if site else f"./p/{pid}/"
+        share_url = f"{site}{base_path}/p/{pid}/index.html" if site else f"./p/{pid}/index.html"
         app_url = f"{site}{base_path}/?post={pid}" if site else f"./?post={pid}"
 
         share_path.parent.mkdir(parents=True, exist_ok=True)

@@ -192,8 +192,12 @@ jobs:
       - name: Build social share pages (OG tags)
         env:
           PUBLIC_DIR: frontend/app/web-build
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
         run: |
           set -euo pipefail
+          if [ -n "${CUSTOM_DOMAIN:-}" ]; then
+            export SITE_URL="https://${CUSTOM_DOMAIN}"
+          fi
           python scripts/build_social_pages.py
       - name: Deploy frontend shell to S3 (preserve generated feed/image history)
         env:

@@ -236,9 +236,12 @@ def compute_site_and_base() -> Tuple[str, str]:
 def make_share_url(site: str, base: str, post_id: str) -> str:
     base_part = f"/{base}" if base else ""
     if post_id:
-        # Keep the URL clickable even if post_id contains ":" or other reserved chars.
+        # CloudFront + S3 bucket origins do not automatically resolve nested
+        # directory indexes like /p/<id>/ -> /p/<id>/index.html.
+        # Point directly at index.html so the shared URL stays reachable even
+        # without an edge rewrite function.
         post_id_q = urllib.parse.quote(post_id, safe="")
-        return f"{site}{base_part}/p/{post_id_q}/"
+        return f"{site}{base_part}/p/{post_id_q}/index.html"
     return f"{site}{base_part}/"
 
 
