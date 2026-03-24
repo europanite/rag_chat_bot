@@ -12,13 +12,7 @@
           "name": "morning",
           "start_hour": 7,
           "end_hour": 9,
-          "slot_by_weekday": {
-            "1": "garbage",
-            "2": "spot_intro",
-            "3": "garbage",
-            "4": "spot_intro",
-            "5": "garbage"
-          }
+          "slot": "garbage|cheatsheet"
         },
         {
           "name": "midday",
@@ -36,13 +30,7 @@
           "name": "night",
           "start_hour": 20,
           "end_hour": 22,
-          "slot_by_weekday": {
-            "1": "event",
-            "2": "spot",
-            "3": "activity",
-            "4": "event",
-            "5": "spot_intro"
-          }
+          "slot": "spot_intro"
         }
       ]
     },
@@ -68,10 +56,7 @@
           "name": "night",
           "start_hour": 20,
           "end_hour": 22,
-          "slot_by_weekday": {
-            "6": "activity",
-            "7": "event"
-          }
+          "slot": "spot_intro"
         }
       ]
     }

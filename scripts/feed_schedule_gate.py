@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import urllib.parse
@@ -213,6 +214,18 @@ def active_window(now: datetime, windows: list[Window]) -> Window | None:
     return None
 
 
+def resolve_slot(slot_expr: str, *, seed: str) -> str:
+    choices = [part.strip() for part in slot_expr.split("|") if part.strip()]
+    if not choices:
+        return ""
+    if len(choices) == 1:
+        return choices[0]
+
+    digest = hashlib.sha256(seed.encode("utf-8")).digest()
+    idx = int.from_bytes(digest[:4], "big") % len(choices)
+    return choices[idx]
+
+
 def window_bounds(now: datetime, window: Window) -> tuple[datetime, datetime]:
     start = now.replace(hour=window.start_hour, minute=0, second=0, microsecond=0)
 
@@ -306,10 +319,11 @@ def decide(args: argparse.Namespace) -> Decision:
         )
 
     window_id = f"{current.date().isoformat()}-{window.label}"
+    resolved_slot = resolve_slot(window.slot, seed=window_id)
     if args.event_name == "workflow_dispatch":
         return Decision(
             should_run=True,
-            slot=window.slot,
+            slot=resolved_slot,
             window_id=window_id,
             reason="manual_auto_bypass_history",
         )
@@ -330,14 +344,14 @@ def decide(args: argparse.Namespace) -> Decision:
     if blocked:
         return Decision(
             should_run=False,
-            slot=window.slot,
+            slot=resolved_slot,
             window_id=window_id,
             reason=reason,
         )
 
     return Decision(
         should_run=True,
-        slot=window.slot,
+        slot=resolved_slot,
         window_id=window_id,
         reason="scheduled_window_open",
     )
