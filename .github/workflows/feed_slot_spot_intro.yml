@@ -15,13 +15,12 @@ concurrency:
 
 jobs:
   run:
-    uses: ./.github/workflows/feed_slot_spot_random.yml
+    uses: ./.github/workflows/feed_slot_guide_random.yml
     permissions:
       actions: read
       contents: read
       id-token: write
     with:
-      kind: "spot"
       avatar_image: "image/avatar/spot.png"
       place: "Yokosuka"
       post_to_x: "1"
