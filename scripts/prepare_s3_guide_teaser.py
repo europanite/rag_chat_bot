@@ -17,8 +17,7 @@ except ImportError:
 
 def write_json(path: Path, obj: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "
-", encoding="utf-8")
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def load_json(path: Path) -> Any:
@@ -197,8 +196,7 @@ def main() -> int:
     if args.output_state:
         out = Path(args.output_state)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "
-", encoding="utf-8")
+        out.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     print(json.dumps(state, ensure_ascii=False, indent=2))
     return 0
