@@ -37,6 +37,7 @@ def main() -> int:
         base_path = "/" + base_path
 
     files = sorted(feed_dir.glob("feed_*.json"), reverse=True)[:limit]
+    ga_measurement_id = (os.environ.get("EXPO_PUBLIC_GA_MEASUREMENT_ID", "") or "").strip()
 
     urls_for_sitemap = []
     # root
@@ -72,6 +73,20 @@ def main() -> int:
         app_url = f"{site}{base_path}/?post={pid}" if site else f"./?post={pid}"
 
         share_path.parent.mkdir(parents=True, exist_ok=True)
+        ga_tag = ""
+        if ga_measurement_id:
+            ga_tag = f"""
+  <script async src="https://www.googletagmanager.com/gtag/js?id={ga_measurement_id}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){{dataLayer.push(arguments);}}
+    gtag('js', new Date());
+    gtag('config', '{ga_measurement_id}', {{
+      page_location: '{share_url}',
+      page_path: '/p/{pid}/index.html',
+      page_title: 'GOODDAY YOKOSUKA'
+    }});
+  </script>"""
         html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -87,6 +102,7 @@ def main() -> int:
   <meta property="og:url" content="{share_url}" />
   {"<meta property=\"og:image\" content=\"" + og_image + "\" />" if og_image else ""}
   <meta name="twitter:card" content="summary_large_image" />
+  {ga_tag}
   <meta http-equiv="refresh" content="0;url={app_url}" />
 </head>
 <body>

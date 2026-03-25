@@ -735,6 +735,25 @@ def markdown_to_html(md: str) -> str:
     return "\n".join(out)
 
 
+def ga4_head_snippet(*, page_title: str, page_path: str = "") -> str:
+    measurement_id = (os.environ.get("EXPO_PUBLIC_GA_MEASUREMENT_ID", "") or "").strip()
+    if not measurement_id:
+        return ""
+
+    page_path_line = f"\n      page_path: {json.dumps(page_path)}," if page_path else ""
+    return f"""
+  <script async src="https://www.googletagmanager.com/gtag/js?id={measurement_id}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){{dataLayer.push(arguments);}}
+    gtag('js', new Date());
+    gtag('config', '{measurement_id}', {{
+      page_title: {json.dumps(page_title)},{page_path_line}
+      send_page_view: true
+    }});
+  </script>"""
+
+
 def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", feed_href: str = "../../") -> str:
     title = html.escape(str(article.get("title") or "GOODDAY YOKOSUKA"))
     summary = html.escape(str(article.get("summary") or ""))
@@ -744,6 +763,8 @@ def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", fee
     body_html = markdown_to_html(str(article.get("body_md") or ""))
     guides_href = html.escape(guides_href)
     feed_href = html.escape(feed_href)
+    slug = slugify(str(article.get("slug") or article.get("title") or "article"))
+    ga_tag = ga4_head_snippet(page_title=f"{title} | GOODDAY YOKOSUKA", page_path=f"/articles/{slug}/index.html")
 
     photo_html: list[str] = []
     for photo in article.get("photos") or []:
@@ -766,6 +787,7 @@ def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", fee
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{title} | GOODDAY YOKOSUKA</title>
   <meta name="description" content="{summary}" />
+  {ga_tag}
   <style>
     body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}
     .wrap {{ max-width: 860px; margin: 0 auto; padding: 24px 16px 72px; }}
@@ -855,6 +877,7 @@ def build_articles_index_html(articles: Sequence[Dict[str, Any]], *, feed_href: 
 
     feed_href = html.escape(feed_href)
     cards = "\n".join(cards_html) if cards_html else "<p>No guides yet.</p>"
+    ga_tag = ga4_head_snippet(page_title="Guides | GOODDAY YOKOSUKA", page_path="/articles/index.html")
 
     return f"""<!doctype html>
 <html lang="en">
@@ -863,6 +886,7 @@ def build_articles_index_html(articles: Sequence[Dict[str, Any]], *, feed_href: 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Guides | GOODDAY YOKOSUKA</title>
   <meta name="description" content="guides on GOODDAY YOKOSUKA" />
+  {ga_tag}
   <style>
     body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}
     .wrap {{ max-width: 980px; margin: 0 auto; padding: 24px 16px 72px; }}
