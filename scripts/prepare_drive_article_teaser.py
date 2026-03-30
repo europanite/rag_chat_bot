@@ -754,6 +754,45 @@ def ga4_head_snippet(*, page_title: str, page_path: str = "") -> str:
   </script>"""
 
 
+def site_origin() -> str:
+    site = (os.environ.get("SITE_URL", "") or "").strip().rstrip("/")
+    custom_domain = (os.environ.get("CUSTOM_DOMAIN", "") or "").strip().strip("/")
+    if not site and custom_domain:
+        if custom_domain.startswith(("http://", "https://")):
+            site = custom_domain.rstrip("/")
+        else:
+            site = f"https://{custom_domain}"
+    return site
+
+
+def site_base_path() -> str:
+    base_path = (os.environ.get("BASE_PATH", "") or "").strip().rstrip("/")
+    if base_path and not base_path.startswith("/"):
+        base_path = "/" + base_path
+    return base_path
+
+
+def absolute_site_url(rel: str) -> str:
+    s = str(rel or "").strip()
+    if not s:
+        return ""
+    if re.match(r"^[a-z][a-z0-9+.-]*://", s) or s.startswith("//"):
+        return s
+
+    site = site_origin()
+    if not site:
+        return ""
+
+    base_path = site_base_path()
+    while s.startswith("./"):
+        s = s[2:]
+    while s.startswith("../"):
+        s = s[3:]
+    s = s.lstrip("/")
+    root = f"{site}{base_path}".rstrip("/")
+    return f"{root}/{s}" if s else f"{root}/"
+
+
 def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", feed_href: str = "../../") -> str:
     title = html.escape(str(article.get("title") or "GOODDAY YOKOSUKA"))
     summary = html.escape(str(article.get("summary") or ""))
@@ -764,6 +803,9 @@ def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", fee
     guides_href = html.escape(guides_href)
     feed_href = html.escape(feed_href)
     slug = slugify(str(article.get("slug") or article.get("title") or "article"))
+    article_path = f"articles/{slug}/index.html"
+    canonical_url = html.escape(absolute_site_url(article_path))
+    hero_abs = html.escape(absolute_site_url(str(article.get("hero_image") or "")))
     ga_tag = ga4_head_snippet(page_title=f"{title} | GOODDAY YOKOSUKA", page_path=f"/articles/{slug}/index.html")
 
     photo_html: list[str] = []
@@ -787,6 +829,14 @@ def build_article_html(article: Dict[str, Any], *, guides_href: str = "../", fee
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{title} | GOODDAY YOKOSUKA</title>
   <meta name="description" content="{summary}" />
+  {f'<link rel="canonical" href="{canonical_url}" />' if canonical_url else ''}
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="GOODDAY YOKOSUKA" />
+  <meta property="og:title" content="{title} | GOODDAY YOKOSUKA" />
+  <meta property="og:description" content="{summary}" />
+  {f'<meta property="og:url" content="{canonical_url}" />' if canonical_url else ''}
+  {f'<meta property="og:image" content="{hero_abs}" />' if hero_abs else ''}
+  <meta name="twitter:card" content="summary_large_image" />
   {ga_tag}
   <style>
     body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}
@@ -854,6 +904,7 @@ def load_existing_articles(articles_dir: Path) -> list[Dict[str, Any]]:
 
 
 def build_articles_index_html(articles: Sequence[Dict[str, Any]], *, feed_href: str = "../") -> str:
+    canonical_url = html.escape(absolute_site_url("articles/index.html"))
     cards_html: list[str] = []
     for article in articles:
         title = html.escape(str(article.get("title") or "GOODDAY YOKOSUKA"))
@@ -886,6 +937,8 @@ def build_articles_index_html(articles: Sequence[Dict[str, Any]], *, feed_href: 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Guides | GOODDAY YOKOSUKA</title>
   <meta name="description" content="guides on GOODDAY YOKOSUKA" />
+  {f'<link rel="canonical" href="{canonical_url}" />' if canonical_url else ''}
+  {f'<meta property="og:url" content="{canonical_url}" />' if canonical_url else ''}
   {ga_tag}
   <style>
     body {{ margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f4ff; color: #111827; }}

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os, json, re
+from html import escape as html_escape
 from pathlib import Path
 from datetime import datetime
 
@@ -15,8 +16,58 @@ def abs_url(site: str, base_path: str, rel: str) -> str:
         return ""
     if rel.startswith("http://") or rel.startswith("https://"):
         return rel
-    rel2 = rel.lstrip("./")
-    return f"{site}{base_path}/{rel2}"
+    rel2 = rel
+    while rel2.startswith("./"):
+        rel2 = rel2[2:]
+    while rel2.startswith("../"):
+        rel2 = rel2[3:]
+    rel2 = rel2.lstrip("/")
+    root = f"{site}{base_path}".rstrip("/")
+    return f"{root}/{rel2}" if rel2 else f"{root}/"
+
+
+def xml_text(s: str) -> str:
+    return html_escape(s or "", quote=False)
+
+
+def article_sitemap_urls(public_dir: Path, site: str, base_path: str):
+    articles_dir = public_dir / "articles"
+    seen: set[str] = set()
+    urls = []
+
+    index_url = abs_url(site, base_path, "articles/index.html")
+    urls.append((index_url, None))
+    seen.add(index_url)
+
+    for path in sorted(articles_dir.glob("*.json")):
+        if path.name in {"featured.json", "index.json"}:
+            continue
+        try:
+            obj = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(obj, dict):
+            continue
+
+        permalink = str(obj.get("permalink") or "").strip()
+        if not permalink:
+            continue
+        loc = abs_url(site, base_path, permalink)
+        if not loc or loc in seen:
+            continue
+
+        lastmod = None
+        published_at = str(obj.get("published_at") or "").strip()
+        if published_at:
+            try:
+                lastmod = datetime.fromisoformat(published_at.replace("Z", "+00:00")).date().isoformat()
+            except Exception:
+                lastmod = None
+
+        urls.append((loc, lastmod))
+        seen.add(loc)
+
+    return urls
 
 def main() -> int:
     public_dir = Path(os.environ.get("PUBLIC_DIR", "frontend/app/public"))
@@ -94,7 +145,9 @@ def main() -> int:
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>GOODDAY YOKOSUKA</title>
   <meta name="description" content="{desc}" />
-  <link rel="canonical" href="{share_url}" />
+  <meta name="robots" content="noindex,follow,max-image-preview:large" />
+  <meta name="googlebot" content="noindex,follow,max-image-preview:large" />
+  <link rel="canonical" href="{app_url}" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="GOODDAY YOKOSUKA" />
   <meta property="og:title" content="GOODDAY YOKOSUKA" />
@@ -112,20 +165,28 @@ def main() -> int:
 """
         share_path.write_text(html, encoding="utf-8")
 
-        if site:
-            urls_for_sitemap.append((share_url, lastmod))
 
     # robots.txt + sitemap.xml
     if site:
+        urls_for_sitemap.extend(article_sitemap_urls(public_dir, site, base_path))
+
+        deduped_urls = []
+        seen = set()
+        for loc, lm in urls_for_sitemap:
+            if not loc or loc in seen:
+                continue
+            deduped_urls.append((loc, lm))
+            seen.add(loc)
+
         robots = f"User-agent: *\nAllow: /\nSitemap: {site}{base_path}/sitemap.xml\n"
         (public_dir / "robots.txt").write_text(robots, encoding="utf-8")
 
         items = []
-        for loc, lm in urls_for_sitemap:
+        for loc, lm in deduped_urls:
             if lm:
-                items.append(f"<url><loc>{loc}</loc><lastmod>{lm}</lastmod></url>")
+                items.append(f"<url><loc>{xml_text(loc)}</loc><lastmod>{xml_text(lm)}</lastmod></url>")
             else:
-                items.append(f"<url><loc>{loc}</loc></url>")
+                items.append(f"<url><loc>{xml_text(loc)}</loc></url>")
         sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" \
                   "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n" + \
                   "\n".join(items) + "\n</urlset>\n"
