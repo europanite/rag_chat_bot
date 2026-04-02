@@ -12,7 +12,7 @@
           "name": "morning",
           "start_hour": 7,
           "end_hour": 9,
-          "slot": "garbage|cheatsheet"
+          "slot": "cheatsheet"
         },
         {
           "name": "midday",

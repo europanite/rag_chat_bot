@@ -20,7 +20,6 @@ on:
         options:
           - auto
           - spot
-          - garbage
           - cheatsheet
           - restaurant
           - event
@@ -96,7 +95,7 @@ jobs:
 
   sgarbage:
     needs: select
-    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'garbage'
+    if: false
     uses: ./.github/workflows/feed_slot_garbage.yml
     permissions:
       actions: read
