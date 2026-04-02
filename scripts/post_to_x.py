@@ -237,11 +237,11 @@ def make_share_url(site: str, base: str, post_id: str) -> str:
     base_part = f"/{base}" if base else ""
     if post_id:
         # CloudFront + S3 bucket origins do not automatically resolve nested
-        # directory indexes like /p/<id>/ -> /p/<id>/index.html.
+        # directory indexes like /post/<id>/ -> /post/<id>/index.html.
         # Point directly at index.html so the shared URL stays reachable even
         # without an edge rewrite function.
         post_id_q = urllib.parse.quote(post_id, safe="")
-        return f"{site}{base_part}/p/{post_id_q}/index.html"
+        return f"{site}{base_part}/post/{post_id_q}/index.html"
     return f"{site}{base_part}/"
 
 

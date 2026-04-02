@@ -72,7 +72,7 @@ def article_sitemap_urls(public_dir: Path, site: str, base_path: str):
 def main() -> int:
     public_dir = Path(os.environ.get("PUBLIC_DIR", "frontend/app/public"))
     feed_dir = Path(os.environ.get("FEED_DIR", str(public_dir / "feed")))
-    out_dir = Path(os.environ.get("OUT_DIR", str(public_dir / "p")))
+    out_dir = Path(os.environ.get("OUT_DIR", str(public_dir / "post")))
     limit = int(os.environ.get("SOCIAL_PAGE_LIMIT", "300"))
 
     site = (os.environ.get("SITE_URL", "") or "").rstrip("/")
@@ -120,7 +120,7 @@ def main() -> int:
         og_image = abs_url(site, base_path, img_rel) if site else ""
 
         share_path = out_dir / pid / "index.html"
-        share_url = f"{site}{base_path}/p/{pid}/index.html" if site else f"./p/{pid}/index.html"
+        share_url = f"{site}{base_path}/post/{pid}/index.html" if site else f"./post/{pid}/index.html"
         app_url = f"{site}{base_path}/?post={pid}" if site else f"./?post={pid}"
 
         share_path.parent.mkdir(parents=True, exist_ok=True)
@@ -134,7 +134,7 @@ def main() -> int:
     gtag('js', new Date());
     gtag('config', '{ga_measurement_id}', {{
       page_location: '{share_url}',
-      page_path: '/p/{pid}/index.html',
+      page_path: '/post/{pid}/index.html',
       page_title: 'GOODDAY YOKOSUKA'
     }});
   </script>"""
