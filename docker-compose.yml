@@ -233,29 +233,26 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
-    entrypoint:
-      - /bin/sh
-      - -lc
-      - |
-        set -eu
-        model_dir="/repo/models/ollama/llama3.1_8b_lora"
-        adapter_path="$model_dir/adapter_model.safetensors"
-        test -f "$adapter_path"
-        tmp_modelfile="$(mktemp)"
-        {
-          printf 'FROM %s
-' "${OLLAMA_BASE_MODEL}"
-          printf 'ADAPTER %s
-' "$adapter_path"
-          if [ -n "${SYSTEM_PROMPT}" ]; then
-            printf 'SYSTEM """%s"""
-' "${SYSTEM_PROMPT}"
-          fi
-        } > "$tmp_modelfile"
-        ollama create "${OLLAMA_MODEL}" -f "$tmp_modelfile"
+      entrypoint:
+        - /bin/sh
+        - -lc
+        - |
+          set -eu
+          model_dir="/repo/models/ollama/llama3.1_8b_lora"
+          adapter_path="$model_dir/adapter_model.safetensors"
+          test -f "$adapter_path"
+          tmp_modelfile="$(mktemp)"
+          {
+            printf 'FROM %s\n' "${OLLAMA_BASE_MODEL}"
+            printf 'ADAPTER %s\n' "$adapter_path"
+            if [ -n "${SYSTEM_PROMPT}" ]; then
+              printf 'SYSTEM """%s"""\n' "${SYSTEM_PROMPT}"
+            fi
+          } > "$tmp_modelfile"
+          ollama create "${OLLAMA_MODEL}" -f "$tmp_modelfile"
     restart: "no"
-volumes:
-  db_data:
-  ollama:
-  hf_cache:
-  torch_cache:
+  volumes:
+    db_data:
+    ollama:
+    hf_cache:
+    torch_cache:
