@@ -233,23 +233,26 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
-      entrypoint:
-        - /bin/sh
-        - -lc
-        - |
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - |
           set -eu
-          model_dir="/repo/models/ollama/llama3.1_8b_lora"
-          adapter_path="$model_dir/adapter_model.safetensors"
+          adapter_path="/repo/models/ollama/llama3.1_8b_lora/adapter_model.safetensors"
           test -f "$adapter_path"
           tmp_modelfile="$(mktemp)"
           {
-            printf 'FROM %s\n' "${OLLAMA_BASE_MODEL}"
+            printf 'FROM %s\n' "$1"
             printf 'ADAPTER %s\n' "$adapter_path"
-            if [ -n "${SYSTEM_PROMPT}" ]; then
-              printf 'SYSTEM """%s"""\n' "${SYSTEM_PROMPT}"
+            if [ -n "$3" ]; then
+              printf 'SYSTEM """%s"""\n' "$3"
             fi
           } > "$tmp_modelfile"
-          ollama create "${OLLAMA_MODEL}" -f "$tmp_modelfile"
+          ollama create "$2" -f "$tmp_modelfile"
+      - sh
+      - "${OLLAMA_BASE_MODEL}"
+      - "${OLLAMA_MODEL}"
+      - "${SYSTEM_PROMPT:-}"
     restart: "no"
   volumes:
     db_data:
