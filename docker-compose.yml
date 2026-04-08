@@ -254,8 +254,8 @@ services:
       - "${OLLAMA_MODEL}"
       - "${SYSTEM_PROMPT:-}"
     restart: "no"
-  volumes:
-    db_data:
-    ollama:
-    hf_cache:
-    torch_cache:
+volumes:
+  db_data:
+  ollama:
+  hf_cache:
+  torch_cache:
