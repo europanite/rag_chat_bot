@@ -22,6 +22,8 @@ COMPOSE=(docker compose -f "$COMPOSE_FILE")
 PYTHON_BIN="${PYTHON_BIN:-python}"
 BACKEND_PORT="${BACKEND_PORT:-8000}"
 
+RUNTIME_SERVICES=(db ollama backend)
+
 MODE="local"        # local|ci
 DO_BUILD="auto"     # auto|0|1
 DO_DOWN="1"         # 0|1
@@ -200,15 +202,15 @@ main() {
   debug_chroma_host
 
   if [[ "$DO_BUILD" == "1" ]]; then
-    log "docker compose build --pull"
+    log "docker compose build --pull ${RUNTIME_SERVICES[*]}"
     export DOCKER_BUILDKIT=1
     export COMPOSE_DOCKER_CLI_BUILD=1
     export BUILDKIT_PROGRESS=plain
-    "${COMPOSE[@]}" build --pull
+    "${COMPOSE[@]}" build --pull "${RUNTIME_SERVICES[@]}"
   fi
 
-  log "docker compose up -d"
-  "${COMPOSE[@]}" up -d
+  log "docker compose up -d ${RUNTIME_SERVICES[*]}"
+  "${COMPOSE[@]}" up -d "${RUNTIME_SERVICES[@]}"
   "${COMPOSE[@]}" ps
 
   if ! wait_backend_health; then
