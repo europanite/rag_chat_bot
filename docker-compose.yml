@@ -212,7 +212,9 @@ services:
       SEED: ${SEED:-42}
     volumes:
       - ./:/repo
-      - ${MODELS_DIR:-./models}:/repo/models
+      - type: bind
+        source: ./models
+        target: /repo/models
       - ${HF_CACHE_DIR:-hf_cache}:/root/.cache/huggingface
       - ${TORCH_CACHE_DIR:-torch_cache}:/root/.cache/torch
     command: ["python", "llm_finetune/train_sft_lora.py"]
@@ -229,7 +231,9 @@ services:
       OLLAMA_BASE_MODEL: ${OLLAMA_BASE_MODEL:-llama3.1:8b}
       SYSTEM_PROMPT: ${SYSTEM_PROMPT:-}
     volumes:
-      - ${MODELS_DIR:-./models}:/repo/models
+      - type: bind
+        source: ./models
+        target: /repo/models
     depends_on:
       ollama:
         condition: service_healthy
