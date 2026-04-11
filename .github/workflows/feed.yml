@@ -23,7 +23,6 @@ on:
           - cheatsheet
           - restaurant
           - event
-          - google_random
           - spot_intro
           - activity
 
@@ -130,17 +129,6 @@ jobs:
     needs: select
     if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'event'
     uses: ./.github/workflows/feed_slot_event.yml
-    permissions:
-      actions: read
-      contents: write
-      pages: write
-      id-token: write
-    secrets: inherit
-
-  sgoogle_random:
-    needs: select
-    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'google_random'
-    uses: ./.github/workflows/feed_slot_spot_intro.yml
     permissions:
       actions: read
       contents: write

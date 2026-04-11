@@ -20,9 +20,9 @@
           "end_hour": 13,
           "slot_by_weekday": {
             "1": "restaurant",
-            "2": "google_random",
+            "2": "spot_intro",
             "3": "restaurant",
-            "4": "google_random",
+            "4": "spot_intro",
             "5": "restaurant"
           }
         },
@@ -49,7 +49,7 @@
           "end_hour": 17,
           "slot_by_weekday": {
             "6": "restaurant",
-            "7": "google_random"
+            "7": "spot_intro"
           }
         },
         {
