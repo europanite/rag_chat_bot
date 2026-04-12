@@ -111,7 +111,7 @@ def _node_validate_format(state: _GenState) -> _GenState:
         issues.append("no line breaks (single paragraph)")
     if "http://" in candidate or "https://" in candidate:
         issues.append("no URLs in text")
-    sents = [s for s in re.split(r"(?<=[.!?])\s+", candidate) if s.strip()]
+    sents = split_sentences(candidate)
     if len(sents) != 3:
         issues.append("exactly 3 sentences")
     low = candidate.lower()
@@ -119,6 +119,10 @@ def _node_validate_format(state: _GenState) -> _GenState:
         issues.append("sentence 2 must include weather word")
     if not re.search(r"\b-?\d{1,2}\s*°\s*c\b", low):
         issues.append("sentence 2 must include temperature like 10°C")
+    if not answer_mentions_required(candidate, state.get("required_mention") or ""):
+        issues.append("sentence 3 must mention required mention")
+    if not third_sentence_is_substantive(candidate, state.get("required_mention") or ""):
+        issues.append("sentence 3 must include one concrete supported detail")
     state["issues"] = issues
     attempt = int(state.get("attempt") or 1)
     attempts = int(state["attempts"])
@@ -1083,6 +1087,20 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
         }
     )
     answer = (out.get("answer") or "").strip()
+    final_issues: list[str] = []
+    if not answer:
+        final_issues.append("empty answer")
+    if "\n" in answer or "\r" in answer:
+        final_issues.append("no line breaks (single paragraph)")
+    sents = split_sentences(answer)
+    if len(sents) != 3:
+        final_issues.append("exactly 3 sentences")
+    if not answer_mentions_required(answer, required_mention):
+        final_issues.append("sentence 3 must mention required mention")
+    if not third_sentence_is_substantive(answer, required_mention):
+        final_issues.append("sentence 3 must include one concrete supported detail")
+    if final_issues:
+        raise HTTPException(status_code=502, detail="Generated answer failed final quality gate: " + "; ".join(final_issues))
     removed_urls_total = out.get("removed_urls_total") or []
     last_audit = out.get("last_audit")
     # Build links out (keep ONLY ONE link for UI output)

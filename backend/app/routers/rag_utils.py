@@ -17,6 +17,41 @@ _META_LINE_RE = re.compile(
     re.I,
 )
 
+_GENERIC_INSUFFICIENCY_RE = re.compile(
+    r"\b(?:not enough|insufficient|unable to determine|cannot determine|can't determine|"
+    r"cannot tell|can't tell|no relevant context|provided context)\b",
+    re.I,
+)
+
+def _normalize_match_text(s: str) -> str:
+    s = (s or "").strip().lower()
+    s = re.sub(r"[^a-z0-9]+", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+def answer_mentions_required(answer: str, required_mention: str) -> bool:
+    mention = (required_mention or "").strip()
+    if not mention or mention.lower() == "the provided context":
+        return True
+    return _normalize_match_text(mention) in _normalize_match_text(answer)
+
+def split_sentences(answer: str) -> List[str]:
+    return [s.strip() for s in re.split(r"(?<=[.!?])\s+", (answer or "").strip()) if s.strip()]
+
+def third_sentence_is_substantive(answer: str, required_mention: str) -> bool:
+    sents = split_sentences(answer)
+    if len(sents) < 3:
+        return False
+    third = sents[2].strip()
+    if not answer_mentions_required(third, required_mention):
+        return False
+    if _GENERIC_INSUFFICIENCY_RE.search(third):
+        return False
+    norm_third = _normalize_match_text(third)
+    norm_mention = _normalize_match_text(required_mention)
+    if norm_mention:
+        norm_third = norm_third.replace(norm_mention, "").strip()
+    return len(norm_third) >= 8 and len(norm_third.split()) >= 2
+
 
 def _chunk_has_mention(c: object) -> bool:
     meta = getattr(c, "metadata", None) or {}
@@ -439,8 +474,10 @@ def build_chat_prompts(
             "Do NOT invent events, places, or dates.\n"
             "Rules:\n"
             f"{style_rules}"
-            "- Try to mention the required mention provided in the user prompt.\n"
-            "- If context is insufficient, say so briefly.\n"
+            "- You MUST mention the required mention provided in the user prompt in the THIRD sentence.\n"
+            "- The THIRD sentence must include one concrete supported detail about that mention.\n"
+            "- Do NOT output a generic insufficiency/apology line such as 'not enough context' or 'provided context'.\n"
+            "- Never output only a greeting or only greeting + weather.\n"
     )
 
     # RAG context block
@@ -464,10 +501,12 @@ def build_chat_prompts(
     user_prompt += (
        "Rules:\n"
         f"{style_rules}"
-        f"- Try to mention the required mention.\n"
+        f"- You MUST mention the required mention in sentence 3.\n"
+        "- Sentence 3 must include one concrete supported detail about that mention.\n"
+        "- Do NOT write a generic insufficiency/apology line.\n"
+        "- Never output only a greeting or only greeting + weather.\n"
         f"{must_url}"
         f"{url_rule}"
-        "- If context is insufficient, say so briefly.\n\n"
         "Answer:"
     )
     return system_prompt, user_prompt

@@ -658,6 +658,45 @@ _BLOCK_TERM_STOP = {
     "metaverse yokosuka",
 }
 
+_GENERIC_INSUFFICIENCY_RE = re.compile(
+    r"\b(?:not enough|insufficient|unable to determine|cannot determine|can't determine|"
+    r"cannot tell|can't tell|no relevant context|provided context)\b",
+    re.I,
+)
+
+def _normalize_match_text(s: str) -> str:
+    s = (s or "").strip().lower()
+    s = re.sub(r"[^a-z0-9]+", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+def _split_sentences(text: str) -> List[str]:
+    return [s.strip() for s in re.split(r"(?<=[.!?])\s+", (text or "").strip()) if s.strip()]
+
+def _mentions_required(tweet: str, required_mention: str) -> bool:
+    mention = (required_mention or "").strip()
+    if not mention or mention.lower() == "the provided context":
+        return True
+    return _normalize_match_text(mention) in _normalize_match_text(tweet)
+
+def _tweet_is_usable(tweet: str, required_mention: str) -> Tuple[bool, str]:
+    if not (tweet or "").strip():
+        return False, "empty answer"
+    sents = _split_sentences(tweet)
+    if len(sents) != 3:
+        return False, "not exactly 3 sentences"
+    if not _mentions_required(tweet, required_mention):
+        return False, "missing required mention"
+    third = sents[2]
+    if _GENERIC_INSUFFICIENCY_RE.search(third):
+        return False, "generic insufficiency sentence"
+    norm_third = _normalize_match_text(third)
+    norm_mention = _normalize_match_text(required_mention)
+    if norm_mention:
+        norm_third = norm_third.replace(norm_mention, "").strip()
+    if len(norm_third) < 8 or len(norm_third.split()) < 2:
+        return False, "third sentence is too weak"
+    return True, ""
+
 def _normalize_term(s: str) -> str:
     s2 = (s or "").strip()
     s2 = re.sub(r"\s+", " ", s2)
@@ -1128,6 +1167,11 @@ def main() -> int:
     today = utc_date()
     now_iso = utc_now_iso_z()
     required_mention = extract_required_mention(resp_obj)
+    ok_tweet, tweet_issue = _tweet_is_usable(tweet, required_mention)
+    if not ok_tweet:
+        print(f"ERROR: tweet failed final quality gate: {tweet_issue}", file=sys.stderr)
+        print(json.dumps(resp_obj, ensure_ascii=False), file=sys.stderr)
+        return 1
     entry = build_entry(
         today=today, 
         now_iso=now_iso, 
