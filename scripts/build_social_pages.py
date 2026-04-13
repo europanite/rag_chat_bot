@@ -120,8 +120,9 @@ def main() -> int:
         og_image = abs_url(site, base_path, img_rel) if site else ""
 
         share_path = out_dir / pid / "index.html"
-        share_url = f"{site}{base_path}/post/{pid}/index.html" if site else f"./post/{pid}/index.html"
-        app_url = f"{site}{base_path}/?post={pid}" if site else f"./?post={pid}"
+        share_url = f"{site}{base_path}/post/{pid}/" if site else f"./post/{pid}/"
+        page_path = f"/post/{pid}/"
+        app_url = share_url
 
         share_path.parent.mkdir(parents=True, exist_ok=True)
         ga_tag = ""
@@ -134,7 +135,7 @@ def main() -> int:
     gtag('js', new Date());
     gtag('config', '{ga_measurement_id}', {{
       page_location: '{share_url}',
-      page_path: '/post/{pid}/index.html',
+      page_path: '{page_path}',
       page_title: 'GOODDAY YOKOSUKA'
     }});
   </script>"""
@@ -145,9 +146,9 @@ def main() -> int:
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>GOODDAY YOKOSUKA</title>
   <meta name="description" content="{desc}" />
-  <meta name="robots" content="noindex,follow,max-image-preview:large" />
-  <meta name="googlebot" content="noindex,follow,max-image-preview:large" />
-  <link rel="canonical" href="{app_url}" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="googlebot" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="{share_url}" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="GOODDAY YOKOSUKA" />
   <meta property="og:title" content="GOODDAY YOKOSUKA" />
@@ -156,14 +157,19 @@ def main() -> int:
   {"<meta property=\"og:image\" content=\"" + og_image + "\" />" if og_image else ""}
   <meta name="twitter:card" content="summary_large_image" />
   {ga_tag}
-  <meta http-equiv="refresh" content="0;url={app_url}" />
 </head>
 <body>
-  <p>Redirecting… <a href="{app_url}">Open post</a></p>
+  <main>
+    <h1>GOODDAY YOKOSUKA</h1>
+    <p>{html_escape(desc)}</p>
+    <p><a href="{app_url}">Open post</a></p>
+  </main>
 </body>
 </html>
 """
         share_path.write_text(html, encoding="utf-8")
+        if site:
+            urls_for_sitemap.append((share_url, lastmod))
 
 
     # robots.txt + sitemap.xml
