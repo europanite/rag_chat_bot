@@ -462,14 +462,31 @@ def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], s
 
     main_sentence, pref_line = _topic_prompt_for_kind(kind=scheduled_kind, weather=condition, temp_c=temp_i)
 
+    kind_norm = (scheduled_kind or "").strip().lower()
+
     # Fallback instruction depends on the scheduled kind.
-    if (scheduled_kind or "").strip().lower() == "event":
+    if kind_norm == "event":
         fallback = (
             "If you cannot find a future event in the RAG Context, write about a local spot or restaurant instead (still from RAG Context).\n"
+        )
+    elif kind_norm == "restaurant":
+        fallback = (
+            "If you cannot find a good restaurant in the RAG Context, do not switch topics; retry with another restaurant or cafe from the RAG Context.\n"
         )
     else:
         fallback = (
             f"If you cannot find a good {scheduled_kind} in the RAG Context, write about a local spot instead (still from RAG Context).\n"
+        )
+
+    if kind_norm == "restaurant":
+        main_detail_lines = (
+            "   - Mention the exact name explicitly.\n"
+            "   - Include at least ONE concrete supported detail from the RAG context in the SAME sentence, such as area, station proximity, cuisine type, card-friendly, cashless, or another specific attribute.\n"
+            "   - Keep sentence 3 to exactly ONE sentence.\n"
+        )
+    else:
+        main_detail_lines = (
+            "   - Mention the name explicitly.\n"
         )
 
     return (
@@ -478,7 +495,7 @@ def build_question(*, now_local: datetime, snap_obj: Optional[Dict[str, Any]], s
         "1) Greeting sentence: Good morning/Good afternoon/Good evening/Good night (match HINTS.time_of_day).\n"
         "2) Weather sentence: '<sunny|cloudy|windy|chilly|rainy> with your feelings'.\n"
         f"3) Main sentence: {main_sentence} from ONLY the RAG context.\n"
-        "   - Mention the name explicitly.\n"
+        f"{main_detail_lines}"
         f"{pref_line}"
         "   - Make it fit the situation (HINTS.weather/temp/time_of_day/season).\n"
         "Rules: Use emojis. Keep it punchy.\n"
