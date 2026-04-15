@@ -478,7 +478,7 @@ def parse_article_markdown(text: str) -> Dict[str, Any]:
     if not meta["short_title"]:
         meta["short_title"] = summarize_text(str(meta["title"]), 80)
     if not meta["short_text"]:
-        meta["short_text"] = summarize_text(str(meta["summary"]), 140)
+        meta["short_text"] = summarize_text(str(meta["description"] or meta["summary"]), 140)
     return meta
 
 
@@ -568,7 +568,7 @@ def parse_article_json(text: str) -> Dict[str, Any]:
         "description": description or first_paragraph(body_md),
         "summary": summary or summarize_text(first_paragraph(body_md), 220),
         "short_title": summarize_text(title, 80),
-        "short_text": summarize_text(summary or first_paragraph(body_md), 140),
+        "short_text": summarize_text(description or summary or first_paragraph(body_md), 140),
         "hero_image": hero_image,
         "photos": [ref for ref in photos if ref.source],
         "links": [ref for ref in links if ref.url],
@@ -1071,7 +1071,7 @@ def main() -> int:
         "published_at": published_at,
         "date": published_date,
         "description": parsed.get("description") or "",
-        "summary": parsed["summary"],
+        "summary": str(parsed.get("description") or parsed["summary"]),
         "short_text": parsed["short_text"],
         "hero_image": hero_url,
         "photos": photos,
@@ -1107,7 +1107,7 @@ def main() -> int:
                     "slug": str(item.get("slug") or ""),
                     "title": str(item.get("title") or ""),
                     "description": str(item.get("description") or ""),
-                    "summary": str(item.get("summary") or ""),
+                    "summary": str(item.get("description") or item.get("summary") or ""),
                     "place": str(item.get("place") or ""),
                     "published_at": str(item.get("published_at") or ""),
                     "date": str(item.get("date") or ""),
@@ -1124,7 +1124,7 @@ def main() -> int:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
     teaser_title = str(parsed.get("short_title") or parsed["title"]) or parsed["title"]
-    teaser_text = str(parsed.get("short_text") or parsed["summary"]) or parsed["summary"]
+    teaser_text = str(parsed.get("short_text") or parsed.get("description") or parsed["summary"]) or parsed["summary"]
     feed_item: Dict[str, Any] = {
         "id": feed_stem,
         "kind": args.kind,
@@ -1134,7 +1134,7 @@ def main() -> int:
         "text": teaser_text,
         "place": parsed.get("place") or args.place,
         "category": parsed.get("category") or "article",
-        "summary": parsed["summary"],
+        "summary": str(parsed.get("description") or parsed["summary"]),
         "permalink": permalink,
         "guides_permalink": guides_permalink,
         "links": [
