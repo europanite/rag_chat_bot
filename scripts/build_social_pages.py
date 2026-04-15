@@ -122,7 +122,12 @@ def main() -> int:
         share_path = out_dir / pid / "index.html"
         share_url = f"{site}{base_path}/post/{pid}/" if site else f"./post/{pid}/"
         page_path = f"/post/{pid}/"
-        app_url = share_url
+        permalink = str(obj.get("permalink") or "").strip()
+        article_url = ""
+        if permalink:
+            article_url = abs_url(site, base_path, permalink) if site else permalink
+        canonical_url = article_url or share_url
+        app_url = article_url or share_url
 
         share_path.parent.mkdir(parents=True, exist_ok=True)
         ga_tag = ""
@@ -148,12 +153,12 @@ def main() -> int:
   <meta name="description" content="{desc}" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="googlebot" content="index,follow,max-image-preview:large" />
-  <link rel="canonical" href="{share_url}" />
+  <link rel="canonical" href="{canonical_url}" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="GOODDAY YOKOSUKA" />
   <meta property="og:title" content="GOODDAY YOKOSUKA" />
   <meta property="og:description" content="{desc}" />
-  <meta property="og:url" content="{share_url}" />
+  <meta property="og:url" content="{canonical_url}" />
   {"<meta property=\"og:image\" content=\"" + og_image + "\" />" if og_image else ""}
   <meta name="twitter:card" content="summary_large_image" />
   {ga_tag}
@@ -162,7 +167,7 @@ def main() -> int:
   <main>
     <h1>GOODDAY YOKOSUKA</h1>
     <p>{html_escape(desc)}</p>
-    <p><a href="{app_url}">Open post</a></p>
+    <p><a href="{app_url}">Read full article</a></p>
   </main>
 </body>
 </html>
