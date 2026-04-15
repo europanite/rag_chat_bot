@@ -143,12 +143,14 @@ def main() -> int:
     generated_at = utc_now_iso_z()
 
     guide_title = str(chosen.get("title") or "").strip()
+    guide_description = str(chosen.get("description") or "").strip()
     guide_summary = str(chosen.get("summary") or "").strip() or guide_title
     guide_place = str(chosen.get("place") or args.place).strip() or args.place
     guide_permalink = str(chosen.get("permalink") or "").strip()
-    guides_permalink = "./articles/index.html"
     guide_date = str(chosen.get("date") or chosen.get("published_at") or "").strip() or utc_today()
     hero_image = str(chosen.get("hero_image") or "").strip()
+    guide_text = guide_description or guide_summary
+    links = [{"title": "Open this article", "url": guide_permalink}] if guide_permalink else []
 
     item: Dict[str, Any] = {
         "id": feed_stem,
@@ -156,21 +158,18 @@ def main() -> int:
         "date": guide_date,
         "generated_at": generated_at,
         "title": guide_title,
-        "text": guide_summary,
+        "text": guide_text,
         "place": guide_place,
         "category": "guide",
         "summary": guide_summary,
+        "description": guide_description,
         "permalink": guide_permalink,
-        "guides_permalink": guides_permalink,
-        "links": [
-            {"title": "Open guide list", "url": guides_permalink},
-            {"title": "Open this guide", "url": guide_permalink},
-        ],
+        "links": links,
         "image": hero_image,
         "image_url": hero_image,
         "avatar_image": args.avatar_image,
         "short_title": guide_title,
-        "short_text": guide_summary,
+        "short_text": guide_text,
         "guide_id": str(chosen.get("id") or "").strip(),
         "guide_slug": str(chosen.get("slug") or "").strip(),
         "selection_mode": "random_s3_guide_index",

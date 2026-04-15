@@ -414,6 +414,7 @@ def parse_article_markdown(text: str) -> Dict[str, Any]:
         "category": "article",
         "place": "Yokosuka",
         "published_at": "",
+        "description": "",
         "summary": "",
         "short_title": "",
         "short_text": "",
@@ -440,6 +441,8 @@ def parse_article_markdown(text: str) -> Dict[str, Any]:
             meta["place"] = value or "Yokosuka"
         elif key_n == "published-at":
             meta["published_at"] = value
+        elif key_n == "description":
+            meta["description"] = value
         elif key_n == "summary":
             meta["summary"] = value
         elif key_n == "short-title":
@@ -468,6 +471,8 @@ def parse_article_markdown(text: str) -> Dict[str, Any]:
         raise SystemExit("Article markdown is missing Title: and body does not contain a top-level # heading")
 
     meta["slug"] = slugify(str(meta.get("slug") or meta["title"]))
+    if not meta["description"]:
+        meta["description"] = first_paragraph(body)
     if not meta["summary"]:
         meta["summary"] = summarize_text(first_paragraph(body), 220)
     if not meta["short_title"]:
@@ -560,6 +565,7 @@ def parse_article_json(text: str) -> Dict[str, Any]:
         "category": category,
         "place": place,
         "published_at": published_at,
+        "description": description or first_paragraph(body_md),
         "summary": summary or summarize_text(first_paragraph(body_md), 220),
         "short_title": summarize_text(title, 80),
         "short_text": summarize_text(summary or first_paragraph(body_md), 140),
@@ -1064,6 +1070,7 @@ def main() -> int:
         "place": parsed.get("place") or args.place,
         "published_at": published_at,
         "date": published_date,
+        "description": parsed.get("description") or "",
         "summary": parsed["summary"],
         "short_text": parsed["short_text"],
         "hero_image": hero_url,
@@ -1099,6 +1106,7 @@ def main() -> int:
                     "id": str(item.get("id") or item.get("slug") or ""),
                     "slug": str(item.get("slug") or ""),
                     "title": str(item.get("title") or ""),
+                    "description": str(item.get("description") or ""),
                     "summary": str(item.get("summary") or ""),
                     "place": str(item.get("place") or ""),
                     "published_at": str(item.get("published_at") or ""),
