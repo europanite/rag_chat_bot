@@ -229,10 +229,16 @@ run_ingest() {
   export RAG_REINDEX_ENABLED="${RAG_REINDEX_ENABLED:-true}"
   export RAG_AUTO_INDEX="${RAG_AUTO_INDEX:-false}"
   export RAG_REBUILD_ON_START="${RAG_REBUILD_ON_START:-false}"
+  export LLM_PROVIDER="${LLM_PROVIDER:-ollama}"
+  export EMBEDDING_PROVIDER="${EMBEDDING_PROVIDER:-ollama}"
   export OLLAMA_BASE_URL="${OLLAMA_BASE_URL:-http://ollama:11434}"
   export OLLAMA_TIMEOUT_S="${OLLAMA_TIMEOUT_S:-512}"
   export EMBEDDING_MODEL="${EMBEDDING_MODEL:-mxbai-embed-large}"
   export RAG_MODEL="${RAG_MODEL:-llama3.1:8b}"
+  export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
+  export OPENAI_BASE_URL="${OPENAI_BASE_URL:-}"
+  export OPENAI_CHAT_MODEL="${OPENAI_CHAT_MODEL:-gpt-4.1-mini}"
+  export OPENAI_EMBEDDING_MODEL="${OPENAI_EMBEDDING_MODEL:-text-embedding-3-large}"
 
   local up_services
   if [[ -n "$SERVICES" ]]; then

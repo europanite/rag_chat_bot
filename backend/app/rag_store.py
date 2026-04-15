@@ -10,6 +10,11 @@ from typing import Any
 import chromadb
 import requests
 
+try:
+    from openai import OpenAI
+except ImportError:  # pragma: no cover
+    OpenAI = None
+
 logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------
@@ -82,6 +87,13 @@ _OLLAMA_EMBED_MODEL_ENV = "EMBEDDING_MODEL"
 _DEFAULT_OLLAMA_BASE_URL = "http://ollama:11434"
 _DEFAULT_EMBED_MODEL = "nomic-embed-text"
 
+_EMBEDDING_PROVIDER_ENV = "EMBEDDING_PROVIDER"
+_OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
+_OPENAI_BASE_URL_ENV = "OPENAI_BASE_URL"
+_OPENAI_EMBED_MODEL_ENV = "OPENAI_EMBEDDING_MODEL"
+_DEFAULT_EMBEDDING_PROVIDER = "ollama"
+_DEFAULT_OPENAI_EMBED_MODEL = "text-embedding-3-large"
+
 _RAG_CHUNK_SIZE_ENV = "RAG_CHUNK_SIZE"
 
 # Lint-friendly constants
@@ -130,6 +142,31 @@ def _get_embedding_model():
     if value:
         return value
     return _DEFAULT_EMBED_MODEL
+
+
+def _get_embedding_provider() -> str:
+    value = (os.getenv(_EMBEDDING_PROVIDER_ENV) or _DEFAULT_EMBEDDING_PROVIDER).strip().lower()
+    return value or _DEFAULT_EMBEDDING_PROVIDER
+
+
+def _get_openai_embedding_model() -> str:
+    value = os.getenv(_OPENAI_EMBED_MODEL_ENV)
+    if value:
+        return value
+    return _DEFAULT_OPENAI_EMBED_MODEL
+
+
+def _get_openai_client():
+    if OpenAI is None:
+        raise RuntimeError("OpenAI SDK is not installed")
+    api_key = (os.getenv(_OPENAI_API_KEY_ENV) or "").strip()
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY is not set")
+    base_url = (os.getenv(_OPENAI_BASE_URL_ENV) or "").strip() or None
+    kwargs: dict[str, Any] = {"api_key": api_key}
+    if base_url:
+        kwargs["base_url"] = base_url
+    return OpenAI(**kwargs)
 
 
 # -------------------------------------------------------------------
@@ -394,6 +431,21 @@ def _embed_with_ollama(text: str) -> list[float]:
     raise RuntimeError(f"Ollama embedding failed: {last_error}") from last_error
 
 
+def _embed_with_openai(text: str) -> list[float]:
+    client = _get_openai_client()
+    model = _get_openai_embedding_model()
+    response = client.embeddings.create(
+        model=model,
+        input=text,
+    )
+    if not response.data:
+        raise RuntimeError("OpenAI embedding response did not contain any vectors")
+    embedding = response.data[0].embedding
+    if not embedding:
+        raise RuntimeError("OpenAI embedding response returned an empty vector")
+    return embedding
+
+
 def embed_texts(texts: list[str]) -> list[list[float]]:
     if not texts:
         return []
@@ -412,12 +464,16 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
 
     embeddings: list[list[float]] = []
     errors: list[Exception] = []
+    provider = _get_embedding_provider()
 
     for t in cleaned_texts:
         last_exc: Exception | None = None
         for attempt in range(3):
             try:
-                embeddings.append(_embed_with_ollama(t))
+                if provider == "openai":
+                    embeddings.append(_embed_with_openai(t))
+                else:
+                    embeddings.append(_embed_with_ollama(t))
                 last_exc = None
                 break
             except Exception as exc:

@@ -23,6 +23,11 @@ from functools import lru_cache
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from langchain_ollama import ChatOllama
+
+try:
+    from openai import OpenAI
+except ImportError:  # pragma: no cover
+    OpenAI = None
 from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.graph import StateGraph, END
 import rag_store
@@ -32,6 +37,10 @@ RAG_MODEL = os.getenv("RAG_MODEL")
 AUDIT_MODEL = os.getenv("AUDIT_MODEL")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
 OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S"))
+LLM_PROVIDER = (os.getenv("LLM_PROVIDER") or "ollama").strip().lower()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL")
+OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL")
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/rag", tags=["rag"])
 # Reused HTTP session for Ollama calls (tests monkeypatch this).
@@ -332,7 +341,37 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
             "num_thread": num_thread,
         },
     }
+def _call_openai_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
+    if OpenAI is None:
+        raise RuntimeError("OpenAI SDK is not installed")
+    api_key = (OPENAI_API_KEY or "").strip()
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY is not set")
+    kwargs: dict[str, Any] = {"api_key": api_key}
+    base_url = (OPENAI_BASE_URL or "").strip()
+    if base_url:
+        kwargs["base_url"] = base_url
+    client = OpenAI(**kwargs)
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=_env_float("OPENAI_TEMPERATURE", 0.2),
+        max_tokens=_env_int("OPENAI_MAX_TOKENS", 256),
+    )
+    message = response.choices[0].message if response.choices else None
+    content = getattr(message, "content", "") or ""
+    return content.strip()
 def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
+    if LLM_PROVIDER == "openai":
+        openai_model = model or OPENAI_CHAT_MODEL or RAG_MODEL or "gpt-4.1-mini"
+        return _call_openai_chat_with_model(
+            model=openai_model,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+        )
     llm = _get_ollama_llm(model=model)
     payload = _ollama_chat_payload(model=model, system_prompt=system_prompt, user_prompt=user_prompt)
     lc_messages = []
@@ -387,8 +426,11 @@ def _call_ollama_chat(
             "If you don't know, say you don't know."
         )
         user_prompt = f"Question:\n{question}\n\nContext:\n{context or ''}\n\nAnswer:"
+    model = RAG_MODEL
+    if LLM_PROVIDER == "openai":
+        model = OPENAI_CHAT_MODEL or RAG_MODEL or "gpt-4.1-mini"
     return _call_ollama_chat_with_model(
-        model=RAG_MODEL,
+        model=model,
         system_prompt=system_prompt,
         user_prompt=user_prompt,
     )
