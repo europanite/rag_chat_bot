@@ -168,9 +168,6 @@ def main() -> int:
 </html>
 """
         share_path.write_text(html, encoding="utf-8")
-        if site:
-            urls_for_sitemap.append((share_url, lastmod))
-
 
     # robots.txt + sitemap.xml
     if site:
