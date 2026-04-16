@@ -217,6 +217,7 @@ def main() -> int:
                     "slug": str(item.get("slug") or ""),
                     "title": str(item.get("title") or ""),
                     "summary": str(item.get("summary") or ""),
+                    "description": str(item.get("description") or ""),
                     "place": str(item.get("place") or ""),
                     "published_at": str(item.get("published_at") or ""),
                     "date": str(item.get("date") or ""),

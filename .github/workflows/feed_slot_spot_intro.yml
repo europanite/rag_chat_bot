@@ -23,14 +23,6 @@ on:
         required: false
         default: ""
         type: string
-      post_to_x:
-        description: "1 to post to X after publish"
-        required: false
-        default: "1"
-        type: choice
-        options:
-          - "0"
-          - "1"
   workflow_call:
     inputs:
       avatar_image:
@@ -48,10 +40,6 @@ on:
       random_seed:
         required: false
         default: ""
-        type: string
-      post_to_x:
-        required: false
-        default: "1"
         type: string
 
 permissions:
