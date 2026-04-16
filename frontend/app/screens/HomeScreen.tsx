@@ -53,6 +53,7 @@ type GuideItem = {
   slug?: string;
   title: string;
   summary?: string;
+  description?: string;
   place?: string;
   published_at?: string;
   date?: string;
@@ -544,6 +545,7 @@ function normalizeGuidesIndex(parsed: unknown): GuidesIndex | null {
         id,
         slug,
         title,
+        description: typeof it?.description === "string" ? it.description : undefined,
         summary: typeof it?.summary === "string" ? it.summary : undefined,
         place: typeof it?.place === "string" ? it.place : undefined,
         published_at: typeof it?.published_at === "string" ? it.published_at : undefined,
@@ -1094,7 +1096,7 @@ function buildGuideBanners(guides: GuideItem[], assetBase: string): GuideBanner[
       id: guide.id,
       kind: "guide" as const,
       title: guide.title,
-      summary: guide.summary || "Open the guide.",
+      summary: guide.description || guide.summary || "Open the guide.",
       url: guide.permalink || "./articles/index.html",
       imageUri: hero,
       meta: meta || undefined,
