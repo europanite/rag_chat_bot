@@ -119,9 +119,9 @@ def main() -> int:
         img_rel = str(obj.get("image_url") or obj.get("image") or "").strip()
         og_image = abs_url(site, base_path, img_rel) if site else ""
 
-        share_path = out_dir / pid / "index.html"
-        share_url = f"{site}{base_path}/post/{pid}/" if site else f"./post/{pid}/"
-        page_path = f"/post/{pid}/"
+        share_path = out_dir / f"{pid}.html"
+        share_url = f"{site}{base_path}/post/{pid}.html" if site else f"./post/{pid}.html"
+        page_path = f"/post/{pid}.html"
         permalink = str(obj.get("permalink") or "").strip()
         article_url = ""
         if permalink:
