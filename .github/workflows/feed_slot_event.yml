@@ -50,11 +50,12 @@ jobs:
           OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
           RAG_MODEL: ${{ vars.OLLAMA_MODEL != '' && vars.OLLAMA_MODEL || 'llama3.1:8b' }}
           AUDIT_MODEL: ${{ vars.OLLAMA_MODEL != '' && vars.OLLAMA_MODEL || 'llama3.1:8b' }}
-          
         run: |
           set -euo pipefail
-          test -n "${OLLAMA_BASE_URL:-}"
-          curl --fail --silent --show-error "${OLLAMA_BASE_URL%/}/api/tags" >/dev/null
+          echo "OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-<empty>}"
+          echo "RAG_MODEL=${RAG_MODEL:-<empty>}"
+          test -n "${OLLAMA_BASE_URL:-}" || { echo "OLLAMA_BASE_URL is empty"; exit 1; }
+          curl --fail --show-error "${OLLAMA_BASE_URL%/}/api/tags"
           python scripts/generate_event_web_feed.py --output /tmp/cocoyoko_event_entry.json
           
       - name: Export entry_json
