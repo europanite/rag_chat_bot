@@ -267,7 +267,7 @@ def call_ollama(messages: List[Dict[str, str]]) -> str:
 def interpret_event_page(detail_url: str, raw_html: str) -> Dict[str, Any]:
     provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
     page_text = extract_candidate_text(raw_html)
-    html_excerpt = raw_html[:24000]
+    page_text = page_text[:12000]
 
     system = (
         "You extract structured event facts from Japanese tourism web pages.\n"
@@ -299,25 +299,7 @@ detail_url:
 
 page_text:
 {page_text}
-
-raw_html_excerpt:
-{html_excerpt}
 """
-    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-
-    if provider == "ollama":
-        content = call_ollama(messages)
-    else:
-        content = call_openai(messages)
-
-    parsed = parse_json_from_llm_output(content)
-    return {
-        "title": str(parsed.get("title", "") or "").strip(),
-        "venue": str(parsed.get("venue", "") or "").strip(),
-        "date_label": str(parsed.get("date_label", "") or "").strip(),
-        "description_ja": str(parsed.get("description_ja", "") or "").strip(),
-        "official_url": str(parsed.get("official_url", "") or "").strip(),
-    }
 
 
 def fallback_official_url(raw_html: str, detail_url: str) -> str:
