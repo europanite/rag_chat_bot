@@ -495,9 +495,6 @@ def main() -> int:
     links = links[:MAX_DETAIL_LINKS]
     log(f"Trying up to {len(links)} event detail links")
 
-    if links:
-        debug(f"Using first event detail link only: {links[0]}")
-
     events: List[Event] = []
     failures: List[str] = []
     for url in links:

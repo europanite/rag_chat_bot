@@ -103,8 +103,8 @@ jobs:
           OLLAMA_TIMEOUT_S: "300"
           OLLAMA_MAX_RETRIES: "3"
           COCOYOKO_MAX_DETAIL_LINKS: "7"
-          RAG_MODEL: "llama3.1:8b"
-          AUDIT_MODEL: "llama3.1:8b"
+          RAG_MODEL: "qwen2.5:3b-instruct"
+          AUDIT_MODEL: "qwen2.5:3b-instruct"
           DEBUG: "1"
           AVATAR_IMAGE: ${{ inputs.avatar_image }}
         run: |
