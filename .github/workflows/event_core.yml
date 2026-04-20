@@ -88,7 +88,7 @@ jobs:
           AVATAR_IMAGE: ${{ inputs.avatar_image }}
         run: |
           set -euo pipefail
-          python scripts/generate_event_web_feed.py --output /tmp/cocoyoko_event_entry.json
+          python scripts/generate_event_web_feed.py
 
       - name: Export entry_json
         id: payload
@@ -99,7 +99,12 @@ jobs:
           import os
           from pathlib import Path
 
-          payload = json.loads(Path('/tmp/cocoyoko_event_entry.json').read_text(encoding='utf-8'))
+          latest_path = Path("frontend/app/public/latest.json")
+          if not latest_path.exists():
+              raise SystemExit(f"latest feed JSON was not created: {latest_path}")
+
+          payload = json.loads(latest_path.read_text(encoding='utf-8'))
+
           compact = json.dumps(payload, ensure_ascii=False)
 
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:

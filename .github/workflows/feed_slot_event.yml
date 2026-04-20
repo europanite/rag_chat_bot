@@ -26,7 +26,8 @@ jobs:
     uses: ./.github/workflows/event_core.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
+      pages: write
       id-token: write
     with:
       avatar_image: "image/avatar/event.png"
