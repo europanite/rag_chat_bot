@@ -263,10 +263,15 @@ def call_ollama(messages: List[Dict[str, str]]) -> str:
         raise EventFeedError("Ollama returned no content")
     return content
 
+from bs4 import BeautifulSoup
+
+def html_to_text(raw_html: str) -> str:
+    soup = BeautifulSoup(raw_html, "html.parser")
+    return soup.get_text("\n", strip=True)
 
 def interpret_event_page(detail_url: str, raw_html: str) -> Dict[str, Any]:
     provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
-    page_text = extract_candidate_text(raw_html)
+    page_text = html_to_text(raw_html)
     page_text = page_text[:12000]
 
     system = (
@@ -277,6 +282,7 @@ def interpret_event_page(detail_url: str, raw_html: str) -> Dict[str, Any]:
         "Do not invent facts.\n"
         "Use empty string when unknown.\n"
     )
+
     user = f"""Extract the actual event information from this event detail page.
 
 Return JSON with exactly these keys:
@@ -300,7 +306,6 @@ detail_url:
 page_text:
 {page_text}
 """
-
 
 def fallback_official_url(raw_html: str, detail_url: str) -> str:
     for href in re.findall(r'href=["\']([^"\']+)["\']', raw_html, re.IGNORECASE):
