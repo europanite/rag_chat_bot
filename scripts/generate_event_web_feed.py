@@ -77,19 +77,36 @@ class Event:
     end_at: datetime
     date_label: str
 
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True)
     return parser.parse_args()
 
+def decode_html_response(response: requests.Response) -> str:
+    content_type = (response.headers.get("Content-Type") or "").lower()
+
+    if "charset=shift_jis" in content_type or "charset=cp932" in content_type:
+        return response.content.decode("cp932", errors="replace")
+    if "charset=utf-8" in content_type:
+        return response.content.decode("utf-8", errors="replace")
+
+    for enc in ("cp932", "shift_jis", response.apparent_encoding, response.encoding, "utf-8"):
+        if not enc:
+            continue
+        try:
+            text = response.content.decode(enc, errors="strict")
+        except Exception:
+            continue
+        lowered = text.lower()
+        if "<html" in lowered or "<!doctype html" in lowered or "<body" in lowered:
+            return text
+
+    return response.content.decode("utf-8", errors="replace")
 
 def fetch(url: str) -> str:
     response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
     response.raise_for_status()
-    response.encoding = response.encoding or "utf-8"
-    return response.text
-
+    return decode_html_response(response)
 
 def strip_tags(text: str) -> str:
     return WHITESPACE_RE.sub(" ", unescape(TAG_RE.sub(" ", text))).strip()
