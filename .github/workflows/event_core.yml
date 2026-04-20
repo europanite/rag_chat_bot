@@ -41,6 +41,7 @@ jobs:
           --health-timeout 5s
           --health-retries 30
     outputs:
+      changed: ${{ steps.generate.outputs.changed }}
       entry_json: ${{ steps.payload.outputs.entry_json }}
     steps:
       - name: Checkout (main)
@@ -79,6 +80,7 @@ jobs:
           curl --fail --show-error             -H 'Content-Type: application/json'             http://127.0.0.1:11434/api/pull             -d '{"name":"llama3.1:8b","stream":false}'
 
       - name: Generate future event payload from Cocoyoko
+        id: generate
         env:
           LLM_PROVIDER: ollama
           OLLAMA_BASE_URL: "http://127.0.0.1:11434"
@@ -87,11 +89,28 @@ jobs:
           DEBUG: "1"
           AVATAR_IMAGE: ${{ inputs.avatar_image }}
         run: |
-          set -euo pipefail
+          set +e
           python scripts/generate_event_web_feed.py
+          status=$?
+          set -e
+
+          if [ "$status" -eq 0 ]; then
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ ! -f frontend/app/public/latest.json ]; then
+            echo "No publishable event payload was generated; skipping downstream publish."
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "generate_event_web_feed.py failed with exit code $status even though latest.json exists" >&2
+          exit "$status"
 
       - name: Export entry_json
         id: payload
+        if: steps.generate.outputs.changed == '1'
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -113,6 +132,7 @@ jobs:
 
   fixed:
     needs: prepare
+    if: needs.prepare.outputs.changed == '1'
     uses: ./.github/workflows/fixed_entry.yml
     permissions:
       actions: read
