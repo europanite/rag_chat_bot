@@ -56,13 +56,14 @@ jobs:
         id: sel
         env:
           EVENT_NAME: ${{ github.event_name }}
-          REQUESTED_SLOT: ${{ inputs.slot }}
+          REQUESTED_SLOT: ${{ github.event.inputs.slot || '' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_API_URL: ${{ github.api_url }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
+          set +e
           python scripts/feed_schedule_gate.py \
             --config .github/feed_schedule.json \
             --event-name "${EVENT_NAME}" \
@@ -73,6 +74,18 @@ jobs:
             --github-token "${GITHUB_TOKEN}" \
             --current-run-id "${GITHUB_RUN_ID}" \
             --github-output "${GITHUB_OUTPUT}"
+          gate_rc=$?
+          set -e
+
+          if [ "$gate_rc" -ne 0 ]; then
+            echo "feed_schedule_gate.py failed with exit=${gate_rc}" >&2
+            {
+              echo "should_run=false"
+              echo "slot="
+              echo "window_id="
+              echo "reason=gate_failed_exit_${gate_rc}"
+            } >> "${GITHUB_OUTPUT}"
+          fi
 
       - name: Log selection
         run: |
