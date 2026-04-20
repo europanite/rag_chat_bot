@@ -45,10 +45,17 @@ jobs:
           pip install requests
 
       - name: Generate future event payload from Cocoyoko
+        env:
+          LLM_PROVIDER: ollama
+          OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
+          RAG_MODEL: ${{ vars.OLLAMA_MODEL }}
+          AUDIT_MODEL: ${{ vars.OLLAMA_MODEL }}
         run: |
           set -euo pipefail
+          test -n "${OLLAMA_BASE_URL:-}"
+          curl --fail --silent --show-error "${OLLAMA_BASE_URL%/}/api/tags" >/dev/null
           python scripts/generate_event_web_feed.py --output /tmp/cocoyoko_event_entry.json
-
+          
       - name: Export entry_json
         id: payload
         run: |
