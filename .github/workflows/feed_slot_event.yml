@@ -5,10 +5,10 @@ on:
     outputs:
       changed:
         description: "1 if feed files were updated"
-        value: ${{ jobs.run.outputs.changed }}
+        value: ${{ jobs.fixed.outputs.changed }}
       sha:
         description: "Commit SHA that contains the generated feed"
-        value: ${{ jobs.run.outputs.sha }}
+        value: ${{ jobs.fixed.outputs.sha }}
   workflow_dispatch:
 
 permissions:
@@ -22,13 +22,71 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  run:
-    uses: ./.github/workflows/feed_core.yml
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      entry_json: ${{ steps.payload.outputs.entry_json }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Generate future event payload from Cocoyoko
+        run: |
+          set -euo pipefail
+          python scripts/generate_event_web_feed.py --output /tmp/cocoyoko_event_entry.json
+
+      - name: Export entry_json
+        id: payload
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          payload = json.loads(Path('/tmp/cocoyoko_event_entry.json').read_text(encoding='utf-8'))
+          compact = json.dumps(payload, ensure_ascii=False)
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write(f"entry_json={compact}\n")
+          PY
+
+  fixed:
+    needs: prepare
+    uses: ./.github/workflows/fixed_entry.yml
     permissions:
       actions: read
       contents: read
       id-token: write
     with:
-      scheduled_kind: "event"
-      avatar_image: "image/avatar/event.png"
+      entry_json: ${{ needs.prepare.outputs.entry_json }}
+      place: "Yokosuka"
     secrets: inherit
+
+  pages:
+    needs: fixed
+    if: needs.fixed.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: fixed-entry-state-${{ github.run_id }}
+      artifact_run_id: ${{ github.run_id }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
