@@ -4,6 +4,7 @@ import json
 import os
 import re
 import sys
+import random
 from dataclasses import dataclass
 from datetime import datetime
 from time import sleep
@@ -43,6 +44,8 @@ DEBUG = os.getenv("DEBUG", "0").strip() == "1"
 TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
 OLLAMA_MAX_RETRIES = max(1, int(os.getenv("OLLAMA_MAX_RETRIES", "2")))
 MAX_DETAIL_LINKS = max(1, int(os.getenv("COCOYOKO_MAX_DETAIL_LINKS", "7")))
+EVENT_RANDOM_POOL = max(1, int(os.getenv("COCOYOKO_EVENT_RANDOM_POOL", "3")))
+EVENT_RANDOMIZE = os.getenv("COCOYOKO_EVENT_RANDOMIZE", "1").strip() != "0"
 UA = "goodday-yokosuka-event-bot/1.0 (+https://goodday-yokosuka.com/)"
 
 JP_DATE_STAMP_RE = re.compile(
@@ -376,17 +379,6 @@ def parse_event_detail(url: str) -> Event:
         description=description,
     )
 
-
-def select_event(events: Iterable[Event], now_dt: datetime) -> Event:
-    future = [e for e in events if e.end_at >= now_dt]
-    if not future:
-        raise EventFeedError("No future event found on Cocoyoko")
-    upcoming = [e for e in future if e.start_at >= now_dt]
-    pool = upcoming or future
-    pool.sort(key=lambda e: (e.start_at, e.end_at, e.title))
-    return pool[0]
-
-
 def english_date_phrase(event: Event) -> str:
     s = event.start_at
     e = event.end_at
@@ -460,6 +452,20 @@ def build_entry(event: Event, text: str, now_dt: datetime) -> Dict[str, Any]:
         obj["avatar_url"] = resolve_public_avatar_url(AVATAR_IMAGE)
     return obj
 
+def select_event(events: List[Event], now_dt: datetime) -> Event:
+    future_events = [e for e in events if e.end_at >= now_dt]
+    if not future_events:
+        raise SystemExit("No future Cocoyoko events were found")
+
+    future_events.sort(key=lambda e: (e.start_at, e.title))
+
+    if not EVENT_RANDOMIZE:
+        return future_events[0]
+
+    pool = future_events[:EVENT_RANDOM_POOL]
+    seed_key = now_dt.strftime("%Y-%m-%d")
+    rng = random.Random(seed_key)
+    return rng.choice(pool)
 
 def write_outputs(feed_path: Path, latest_path: Path, entry: Dict[str, Any], stamp: str) -> None:
     feed_path.parent.mkdir(parents=True, exist_ok=True)
