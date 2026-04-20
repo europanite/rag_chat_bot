@@ -474,6 +474,9 @@ def main() -> int:
     index_html = fetch(INDEX_URL)
     links = parse_index_links(index_html, INDEX_URL)
     debug(f"Found {len(links)} event detail links")
+    links = links[:1]
+    if links:
+        debug(f"Using first event detail link only: {links[0]}")
 
     events: List[Event] = []
     failures: List[str] = []
