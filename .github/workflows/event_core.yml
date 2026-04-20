@@ -75,6 +75,12 @@ jobs:
           set -euo pipefail
           curl --fail --show-error             -H 'Content-Type: application/json'             http://127.0.0.1:11434/api/pull             -d '{"name":"llama3.1:8b","stream":false}'
 
+      - name: Install deps
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
       - name: Generate future event payload from Cocoyoko
         id: generate
         env:
