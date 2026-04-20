@@ -404,7 +404,7 @@ def summarize_event_for_post(event: Event) -> str:
         "Write a short but informative English event post in 3 sentences.\n"
         "Sentence 1: event name, date, and location.\n"
         "Sentence 2: 1–2 concrete things visitors can do or experience.\n"
-        "Use factual and specific wording. Avoid vague tourism phrases such as "scenic", "wonderful", "stroll", or "don't miss".\n"
+        "Use factual and specific wording.\n"
         f"Keep it under {MAX_CHARS}.\n"
         "Use the factual event title, date, venue, and 1 clear attraction.\n"
         "Do not use vague phrases like 'Check the official page' unless needed.\n"
