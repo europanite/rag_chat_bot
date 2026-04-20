@@ -1,0 +1,162 @@
+name: Event Core
+
+on:
+  workflow_call:
+    inputs:
+      avatar_image:
+        description: "Avatar image path under public/"
+        required: false
+        type: string
+        default: "image/avatar/event.png"
+    outputs:
+      changed:
+        description: "1 if feed files were updated"
+        value: ${{ jobs.fixed.outputs.changed }}
+      sha:
+        description: "Commit SHA that contains the generated feed"
+        value: ${{ jobs.fixed.outputs.sha }}
+
+permissions:
+  actions: read
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
+        options: >-
+          --health-cmd "ollama list >/dev/null 2>&1 || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
+    outputs:
+      entry_json: ${{ steps.payload.outputs.entry_json }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Wait for Ollama API
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 90); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Ollama API did not become ready on http://127.0.0.1:11434" >&2
+          docker ps >&2 || true
+          exit 1
+
+      - name: Pull Ollama model
+        run: |
+          set -euo pipefail
+          curl --fail --show-error             -H 'Content-Type: application/json'             http://127.0.0.1:11434/api/pull             -d '{"name":"llama3.1:8b","stream":false}'
+
+      - name: Generate future event payload from Cocoyoko
+        env:
+          LLM_PROVIDER: ollama
+          OLLAMA_BASE_URL: "http://127.0.0.1:11434"
+          RAG_MODEL: "llama3.1:8b"
+          AUDIT_MODEL: "llama3.1:8b"
+          DEBUG: "1"
+          AVATAR_IMAGE: ${{ inputs.avatar_image }}
+        run: |
+          set -euo pipefail
+          python scripts/generate_event_web_feed.py --output /tmp/cocoyoko_event_entry.json
+
+      - name: Export entry_json
+        id: payload
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          payload = json.loads(Path('/tmp/cocoyoko_event_entry.json').read_text(encoding='utf-8'))
+          compact = json.dumps(payload, ensure_ascii=False)
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write(f"entry_json={compact}\n")
+          PY
+
+  fixed:
+    needs: prepare
+    uses: ./.github/workflows/fixed_entry.yml
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    with:
+      entry_json: ${{ needs.prepare.outputs.entry_json }}
+      place: "Yokosuka"
+    secrets: inherit
+
+  stage_pages_state:
+    needs: fixed
+    if: needs.fixed.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Download fixed entry artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fixed-entry-state-${{ github.run_id }}
+          path: /tmp/fixed-entry-state
+
+      - name: Repack pages state artifact
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/pages-state
+          mkdir -p /tmp/pages-state
+          tar -C /tmp/pages-state -xzf /tmp/fixed-entry-state/fixed-entry-state.tgz
+          tar -C /tmp/pages-state -czf /tmp/pages-state.tgz .
+
+      - name: Upload pages state artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+  pages:
+    needs: stage_pages_state
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
+      artifact_run_id: ${{ github.run_id }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
