@@ -53,7 +53,13 @@
           }
         },
         {
-          "name": "night",
+          "name": "night1",
+          "start_hour": 18,
+          "end_hour": 20,
+          "slot": "event"
+        },
+        {
+          "name": "night2",
           "start_hour": 20,
           "end_hour": 22,
           "slot_by_weekday": {
