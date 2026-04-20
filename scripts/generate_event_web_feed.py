@@ -271,14 +271,13 @@ def html_to_text(raw_html: str) -> str:
 
 def interpret_event_page(detail_url: str, raw_html: str) -> Dict[str, Any]:
     provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
+
     page_text = html_to_text(raw_html)
     page_text = page_text[:12000]
 
     system = (
         "You extract structured event facts from Japanese tourism web pages.\n"
         "Return only JSON.\n"
-        "Ignore site-wide labels such as 横須賀市観光情報, HOME, イベント一覧, information, access, about.\n"
-        "Prefer the actual event title, actual venue, and actual event description.\n"
         "Do not invent facts.\n"
         "Use empty string when unknown.\n"
     )
@@ -292,20 +291,32 @@ date_label
 description_ja
 official_url
 
-Rules:
-- title: the real event title, not the site name.
-- venue: venue or location text for the event.
-- date_label: the Japanese date label if visible.
-- description_ja: 1-3 sentences in Japanese summarizing the actual event content.
-- official_url: the official external URL if present; otherwise use the detail page URL.
-- If the page contains both site-wide headings and event-specific headings, choose the event-specific one.
-
 detail_url:
 {detail_url}
 
 page_text:
 {page_text}
 """
+
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+
+    if provider == "ollama":
+        content = call_ollama(messages)
+    else:
+        content = call_openai(messages)
+
+    parsed = parse_json_from_llm_output(content) or {}
+
+    return {
+        "title": str(parsed.get("title", "") or "").strip(),
+        "venue": str(parsed.get("venue", "") or "").strip(),
+        "date_label": str(parsed.get("date_label", "") or "").strip(),
+        "description_ja": str(parsed.get("description_ja", "") or "").strip(),
+        "official_url": str(parsed.get("official_url", "") or "").strip(),
+    }
 
 def fallback_official_url(raw_html: str, detail_url: str) -> str:
     for href in re.findall(r'href=["\']([^"\']+)["\']', raw_html, re.IGNORECASE):
