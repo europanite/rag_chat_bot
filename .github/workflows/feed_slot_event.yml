@@ -77,9 +77,38 @@ jobs:
       place: "Yokosuka"
     secrets: inherit
 
-  pages:
+  stage_pages_state:
     needs: fixed
     if: needs.fixed.outputs.changed == '1'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Download fixed entry artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fixed-entry-state-${{ github.run_id }}
+          path: /tmp/fixed-entry-state
+
+      - name: Repack pages state artifact
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/pages-state
+          mkdir -p /tmp/pages-state
+          tar -C /tmp/pages-state -xzf /tmp/fixed-entry-state/fixed-entry-state.tgz
+          tar -C /tmp/pages-state -czf /tmp/pages-state.tgz .
+
+      - name: Upload pages state artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+  pages:
+    needs: stage_pages_state
     uses: ./.github/workflows/pages.yml
     secrets: inherit
     with:
