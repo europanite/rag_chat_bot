@@ -1,68 +1,53 @@
-#!/usr/bin/env python3
-"""Generate a fixed feed entry for the nearest future Cocoyoko event.
-
-This script intentionally does not use the internal RAG pipeline.
-It starts from the public Cocoyoko event index and follows detail links.
-"""
-
 from __future__ import annotations
 
-import argparse
 import json
+import os
 import re
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from html import unescape
-from html.parser import HTMLParser
 from pathlib import Path
-from typing import Iterable
-from urllib.parse import urljoin
+from typing import Any, Dict, Iterable, List, Optional
+from urllib.parse import urljoin, urlparse
+from zoneinfo import ZoneInfo
 
 import requests
 
-INDEX_URL = "https://www.cocoyoko.net/event/"
-PLACE = "Yokosuka"
-AVATAR_IMAGE = "image/avatar/event.png"
-TIMEOUT = 60
-USER_AGENT = "goodday-yokosuka-event-bot/1.0 (+https://goodday-yokosuka.com/)"
+try:
+    from artifact_paths import (
+        artifact_latest_path,
+        artifact_public_dir,
+        artifact_snapshot_dir,
+        computed_feed_snapshot_path,
+        resolve_public_avatar_url,
+    )
+except ImportError:
+    from scripts.artifact_paths import (
+        artifact_latest_path,
+        artifact_public_dir,
+        artifact_snapshot_dir,
+        computed_feed_snapshot_path,
+        resolve_public_avatar_url,
+    )
 
-DATE_TOKEN_RE = re.compile(r"(\d{4}:\d{2}:\d{2}:\d{2}:\d{2}:\d{2})\|(\d{4}:\d{2}:\d{2}:\d{2}:\d{2}:\d{2})\|\d+")
-JP_DATE_RE = re.compile(r"(\d{4})年(\d{1,2})月(\d{1,2})日")
+
+INDEX_URL = os.getenv("COCOYOKO_EVENT_INDEX_URL", "https://www.cocoyoko.net/event/").strip()
+TZ_NAME = os.getenv("TZ_NAME", "Asia/Tokyo").strip() or "Asia/Tokyo"
+PLACE = os.getenv("PLACE", "Yokosuka").strip() or "Yokosuka"
+AVATAR_IMAGE = os.getenv("AVATAR_IMAGE", "image/avatar/event.png").strip()
+MAX_CHARS = max(120, int(os.getenv("MAX_CHARS", "220")))
+DEBUG = os.getenv("DEBUG", "0").strip() == "1"
+TIMEOUT = 30
+UA = "goodday-yokosuka-event-bot/1.0 (+https://goodday-yokosuka.com/)"
+
+JP_DATE_STAMP_RE = re.compile(
+    r"(\d{4}):(\d{2}):(\d{2}):\d{2}:\d{2}:\d{2}\|(\d{4}):(\d{2}):(\d{2}):\d{2}:\d{2}:\d{2}\|\d+"
+)
 TAG_RE = re.compile(r"<[^>]+>")
-WHITESPACE_RE = re.compile(r"\s+")
-TITLE_RE = re.compile(r"<h1[^>]*>(.*?)</h1>|<h2[^>]*>(.*?)</h2>", re.IGNORECASE | re.DOTALL)
-INFO_SECTION_RE = re.compile(r"##\s*information(.*?)(?:##\s*access|##\s*about|##\s*spot|$)", re.IGNORECASE | re.DOTALL)
-ABOUT_SECTION_RE = re.compile(r"##\s*about(.*?)(?:##\s*spot|##\s*access|$)", re.IGNORECASE | re.DOTALL)
-URL_RE = re.compile(r'https?://[^\s)>\'"\\]+')
-
-MONTH_NAMES = {
-    1: "January",
-    2: "February",
-    3: "March",
-    4: "April",
-    5: "May",
-    6: "June",
-    7: "July",
-    8: "August",
-    9: "September",
-    10: "October",
-    11: "November",
-    12: "December",
-}
-
-
-class LinkParser(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__()
-        self.links: list[str] = []
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag.lower() != "a":
-            return
-        attr_map = dict(attrs)
-        href = attr_map.get("href")
-        if href:
-            self.links.append(href)
+SCRIPT_STYLE_RE = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL)
+WS_RE = re.compile(r"\s+")
+SENTENCE_SPLIT_RE = re.compile(r"(?<=[。！？.!?])\s+")
 
 
 @dataclass
@@ -70,17 +55,36 @@ class Event:
     title: str
     detail_url: str
     official_url: str
-    venue: str
-    summary: str
-    description: str
     start_at: datetime
     end_at: datetime
     date_label: str
+    place: str
+    description: str
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", required=True)
-    return parser.parse_args()
+
+class EventFeedError(RuntimeError):
+    pass
+
+
+def log(msg: str) -> None:
+    print(msg, flush=True)
+
+
+def debug(msg: str) -> None:
+    if DEBUG:
+        log(msg)
+
+
+def unique_in_order(values: Iterable[str]) -> List[str]:
+    seen = set()
+    out: List[str] = []
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        out.append(value)
+    return out
+
 
 def decode_html_response(response: requests.Response) -> str:
     content_type = (response.headers.get("Content-Type") or "").lower()
@@ -103,224 +107,375 @@ def decode_html_response(response: requests.Response) -> str:
 
     return response.content.decode("utf-8", errors="replace")
 
+
 def fetch(url: str) -> str:
-    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
+    response = requests.get(
+        url,
+        headers={"User-Agent": UA, "Accept-Language": "ja,en-US;q=0.8,en;q=0.6"},
+        timeout=TIMEOUT,
+    )
     response.raise_for_status()
     return decode_html_response(response)
 
+
 def strip_tags(text: str) -> str:
-    return WHITESPACE_RE.sub(" ", unescape(TAG_RE.sub(" ", text))).strip()
+    text = SCRIPT_STYLE_RE.sub(" ", text)
+    text = text.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
+    text = re.sub(r"(?i)</?(p|div|li|section|article|h1|h2|h3|h4|tr|td|th|dt|dd|ul|ol)\b[^>]*>", "\n", text)
+    text = TAG_RE.sub(" ", text)
+    text = unescape(text)
+    text = text.replace("\xa0", " ")
+    text = re.sub(r"[ \t\r\f\v]+", " ", text)
+    text = re.sub(r"\n{2,}", "\n", text)
+    return text.strip()
 
 
-def parse_index_links(index_html: str, base_url: str) -> list[str]:
-    parser = LinkParser()
-    parser.feed(index_html)
-    urls: list[str] = []
-    seen: set[str] = set()
-    for href in parser.links:
+def parse_date_stamp(text: str) -> Optional[tuple[datetime, datetime]]:
+    m = JP_DATE_STAMP_RE.search(text)
+    if not m:
+        return None
+    tz = ZoneInfo(TZ_NAME)
+    start_at = datetime(
+        int(m.group(1)),
+        int(m.group(2)),
+        int(m.group(3)),
+        0,
+        0,
+        0,
+        tzinfo=tz,
+    )
+    end_at = datetime(
+        int(m.group(4)),
+        int(m.group(5)),
+        int(m.group(6)),
+        23,
+        59,
+        59,
+        tzinfo=tz,
+    )
+    return start_at, end_at
+
+
+def parse_index_links(index_html: str, base_url: str) -> List[str]:
+    hrefs = re.findall(r'href=["\']([^"\']+)["\']', index_html, re.IGNORECASE)
+    urls: List[str] = []
+    base_netloc = urlparse(base_url).netloc.lower()
+    for href in hrefs:
         absolute = urljoin(base_url, href)
-        if not absolute.startswith("https://www.cocoyoko.net/event/"):
+        parsed = urlparse(absolute)
+        if parsed.netloc.lower() != base_netloc:
+            continue
+        if not parsed.path.startswith("/event/"):
+            continue
+        if not parsed.path.endswith(".html"):
             continue
         if absolute.rstrip("/") == base_url.rstrip("/"):
             continue
-        if absolute in seen:
-            continue
-        seen.add(absolute)
         urls.append(absolute)
-    return urls
+    return unique_in_order(urls)
 
 
-def parse_datetime_token(token: str) -> datetime:
-    return datetime.strptime(token, "%Y:%m:%d:%H:%M:%S")
+def extract_candidate_text(raw_html: str) -> str:
+    text = strip_tags(raw_html)
+    lines = [WS_RE.sub(" ", line).strip() for line in text.splitlines()]
+    lines = [line for line in lines if line]
+    return "\n".join(lines[:220])
 
 
-def parse_date_tokens(text: str) -> tuple[datetime, datetime] | None:
-    match = DATE_TOKEN_RE.search(text)
-    if not match:
-        return None
-    start_at = parse_datetime_token(match.group(1))
-    end_at = parse_datetime_token(match.group(2))
-    return start_at, end_at
+def parse_json_from_llm_output(text: str) -> Dict[str, Any]:
+    text = text.strip()
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+
+    block = re.search(r"\{.*\}", text, re.DOTALL)
+    if not block:
+        raise EventFeedError("LLM did not return JSON")
+    return json.loads(block.group(0))
 
 
-def parse_jp_dates(text: str) -> tuple[datetime, datetime] | None:
-    matches = list(JP_DATE_RE.finditer(text))
-    if not matches:
-        return None
-    first = matches[0]
-    start_at = datetime(int(first.group(1)), int(first.group(2)), int(first.group(3)))
-    if len(matches) >= 2:
-        last = matches[1]
-        end_at = datetime(int(last.group(1)), int(last.group(2)), int(last.group(3)), 23, 59, 59)
-    else:
-        end_at = datetime(int(first.group(1)), int(first.group(2)), int(first.group(3)), 23, 59, 59)
-    return start_at, end_at
+def call_openai(messages: List[Dict[str, str]]) -> str:
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    model = os.getenv("OPENAI_CHAT_MODEL", "gpt-4.1-mini").strip() or "gpt-4.1-mini"
+    if not api_key:
+        raise EventFeedError("OPENAI_API_KEY is not set")
 
-
-def extract_title(html: str) -> str:
-    match = TITLE_RE.search(html)
-    if not match:
-        raise ValueError("Could not find event title")
-    title = match.group(1) or match.group(2) or ""
-    title = strip_tags(title)
-    if not title:
-        raise ValueError("Event title is empty")
-    return title
-
-
-def extract_section(pattern: re.Pattern[str], html: str) -> str:
-    match = pattern.search(html)
-    if not match:
-        return ""
-    return strip_tags(match.group(1))
-
-
-def extract_official_url(html: str, detail_url: str) -> str:
-    for line in strip_tags(html).splitlines():
-        if "公式サイト" in line:
-            found = URL_RE.search(line)
-            if found:
-                return found.group(0)
-    parser = LinkParser()
-    parser.feed(html)
-    for href in parser.links:
-        absolute = urljoin(detail_url, href)
-        if absolute.startswith("https://www.cocoyoko.net/"):
-            continue
-        if absolute.startswith("http://") or absolute.startswith("https://"):
-            return absolute
-    return detail_url
-
-
-def extract_venue(html: str) -> str:
-    cleaned = strip_tags(html)
-    venue_patterns = [
-        re.compile(r"開催場所[:：]?\s*(.+?)(?:公式サイト|お問合わせ|主催者情報|アクセス|$)"),
-        re.compile(r"会場[:：]?\s*(.+?)(?:公式サイト|お問合わせ|主催者情報|アクセス|$)"),
-    ]
-    for pattern in venue_patterns:
-        match = pattern.search(cleaned)
-        if match:
-            value = WHITESPACE_RE.sub(" ", match.group(1)).strip(" ・|｜:：")
-            if value:
-                return value
-    return PLACE
-
-
-def first_sentences(text: str, limit: int = 2) -> str:
-    chunks = [chunk.strip() for chunk in re.split(r"(?<=[。.!?])\s+", text) if chunk.strip()]
-    return " ".join(chunks[:limit]).strip()
-
-
-def build_summary(title: str, date_label: str, venue: str, description: str) -> str:
-    lead = f"{title} is an upcoming event in {PLACE} scheduled for {date_label}"
-    if venue and venue != PLACE:
-        lead += f" at {venue}"
-    lead += "."
-
-    detail = description.strip()
-    if not detail:
-        return lead + " Please check the official page for the latest details."
-
-    detail = detail.replace("。", ". ")
-    detail = WHITESPACE_RE.sub(" ", detail).strip()
-    detail = first_sentences(detail, limit=2)
-    if not detail.endswith((".", "!", "?")):
-        detail += "."
-    return f"{lead} {detail}"
-
-
-def format_date_range(start_at: datetime, end_at: datetime) -> str:
-    start = f"{MONTH_NAMES[start_at.month]} {start_at.day}, {start_at.year}"
-    end = f"{MONTH_NAMES[end_at.month]} {end_at.day}, {end_at.year}"
-    if start_at.date() == end_at.date():
-        return start
-    return f"{start} to {end}"
-
-
-def parse_event(detail_url: str, html: str) -> Event | None:
-    title = extract_title(html)
-
-    date_pair = parse_date_tokens(html)
-    if date_pair is None:
-        date_pair = parse_jp_dates(strip_tags(html))
-    if date_pair is None:
-        return None
-    start_at, end_at = date_pair
-
-    venue = extract_venue(html)
-    info = extract_section(INFO_SECTION_RE, html)
-    about = extract_section(ABOUT_SECTION_RE, html)
-    description = about or info or title
-    summary = build_summary(title, format_date_range(start_at, end_at), venue, description)
-    official_url = extract_official_url(html, detail_url)
-
-    return Event(
-        title=title,
-        detail_url=detail_url,
-        official_url=official_url,
-        venue=venue,
-        summary=summary,
-        description=description,
-        start_at=start_at,
-        end_at=end_at,
-        date_label=format_date_range(start_at, end_at),
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": model,
+            "temperature": 0.1,
+            "response_format": {"type": "json_object"},
+            "messages": messages,
+        },
+        timeout=TIMEOUT,
     )
+    response.raise_for_status()
+    data = response.json()
+    return data["choices"][0]["message"]["content"]
 
 
-def select_future_event(events: Iterable[Event]) -> Event:
-    now = datetime.now()
-    future_events = [event for event in events if event.end_at >= now]
-    if not future_events:
-        raise SystemExit("No future Cocoyoko events were found")
-    future_events.sort(key=lambda event: (event.start_at, event.end_at, event.title))
-    return future_events[0]
+def call_ollama(messages: List[Dict[str, str]]) -> str:
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").strip().rstrip("/")
+    model = (
+        os.getenv("OPENAI_CHAT_MODEL", "").strip()
+        or os.getenv("RAG_MODEL", "").strip()
+        or os.getenv("AUDIT_MODEL", "").strip()
+        or "llama3.1:8b"
+    )
+    response = requests.post(
+        f"{base_url}/api/chat",
+        json={
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "options": {"temperature": 0.1},
+            "format": "json",
+        },
+        timeout=TIMEOUT,
+    )
+    response.raise_for_status()
+    data = response.json()
+    msg = data.get("message", {})
+    content = msg.get("content")
+    if not content:
+        raise EventFeedError("Ollama returned no content")
+    return content
 
 
-def build_entry(event: Event) -> dict[str, object]:
-    text = event.summary
-    if not text.endswith("."):
-        text += "."
-    text += " Check the official page for the latest schedule and participation details."
+def interpret_event_page(detail_url: str, raw_html: str) -> Dict[str, Any]:
+    provider = os.getenv("LLM_PROVIDER", "openai").strip().lower() or "openai"
+    page_text = extract_candidate_text(raw_html)
+    html_excerpt = raw_html[:24000]
+
+    system = (
+        "You extract structured event facts from Japanese tourism web pages.\n"
+        "Return only JSON.\n"
+        "Ignore site-wide labels such as 横須賀市観光情報, HOME, イベント一覧, information, access, about.\n"
+        "Prefer the actual event title, actual venue, and actual event description.\n"
+        "Do not invent facts.\n"
+        "Use empty string when unknown.\n"
+    )
+    user = f"""Extract the actual event information from this event detail page.
+
+Return JSON with exactly these keys:
+title
+venue
+date_label
+description_ja
+official_url
+
+Rules:
+- title: the real event title, not the site name.
+- venue: venue or location text for the event.
+- date_label: the Japanese date label if visible.
+- description_ja: 1-3 sentences in Japanese summarizing the actual event content.
+- official_url: the official external URL if present; otherwise use the detail page URL.
+- If the page contains both site-wide headings and event-specific headings, choose the event-specific one.
+
+detail_url:
+{detail_url}
+
+page_text:
+{page_text}
+
+raw_html_excerpt:
+{html_excerpt}
+"""
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+
+    if provider == "ollama":
+        content = call_ollama(messages)
+    else:
+        content = call_openai(messages)
+
+    parsed = parse_json_from_llm_output(content)
     return {
-        "kind": "event",
-        "place": PLACE,
-        "title": event.title,
-        "text": text,
-        "summary": event.summary,
-        "description": event.description,
-        "avatar_image": AVATAR_IMAGE,
-        "links": [event.detail_url, event.official_url] if event.official_url != event.detail_url else [event.detail_url],
-        "event_start": event.start_at.isoformat(),
-        "event_end": event.end_at.isoformat(),
+        "title": str(parsed.get("title", "") or "").strip(),
+        "venue": str(parsed.get("venue", "") or "").strip(),
+        "date_label": str(parsed.get("date_label", "") or "").strip(),
+        "description_ja": str(parsed.get("description_ja", "") or "").strip(),
+        "official_url": str(parsed.get("official_url", "") or "").strip(),
     }
 
 
+def fallback_official_url(raw_html: str, detail_url: str) -> str:
+    for href in re.findall(r'href=["\']([^"\']+)["\']', raw_html, re.IGNORECASE):
+        abs_url = urljoin(detail_url, unescape(href))
+        if not abs_url.startswith("http"):
+            continue
+        if "cocoyoko.net/event/" in abs_url:
+            continue
+        if "maps.google" in abs_url:
+            continue
+        return abs_url
+    return detail_url
+
+
+def parse_event_detail(url: str) -> Event:
+    raw_html = fetch(url)
+
+    date_range = parse_date_stamp(raw_html)
+    if not date_range:
+        raise EventFeedError(f"date stamp not found: {url}")
+    start_at, end_at = date_range
+
+    interpreted = interpret_event_page(url, raw_html)
+    title = interpreted["title"]
+    place = interpreted["venue"]
+    date_label = interpreted["date_label"]
+    description = interpreted["description_ja"]
+    official_url = interpreted["official_url"] or fallback_official_url(raw_html, url)
+
+    if not title or title == "横須賀市観光情報":
+        raise EventFeedError(f"LLM failed to identify event title: {url}")
+
+    return Event(
+        title=title,
+        detail_url=url,
+        official_url=official_url,
+        start_at=start_at,
+        end_at=end_at,
+        date_label=date_label,
+        place=place,
+        description=description,
+    )
+
+
+def select_event(events: Iterable[Event], now_dt: datetime) -> Event:
+    future = [e for e in events if e.end_at >= now_dt]
+    if not future:
+        raise EventFeedError("No future event found on Cocoyoko")
+    upcoming = [e for e in future if e.start_at >= now_dt]
+    pool = upcoming or future
+    pool.sort(key=lambda e: (e.start_at, e.end_at, e.title))
+    return pool[0]
+
+
+def english_date_phrase(event: Event) -> str:
+    s = event.start_at
+    e = event.end_at
+    if s.date() == e.date():
+        return f"{s.strftime('%B')} {s.day}, {s.year}"
+    if s.year == e.year and s.month == e.month:
+        return f"{s.strftime('%B')} {s.day}-{e.day}, {s.year}"
+    return f"{s.strftime('%B')} {s.day}, {s.year} to {e.strftime('%B')} {e.day}, {e.year}"
+
+
+def summarize_event_for_post(event: Event) -> str:
+    provider = os.getenv("LLM_PROVIDER", "openai").strip().lower() or "openai"
+
+    system = (
+        "You write concise English event introductions for a public feed.\n"
+        "Return only JSON with a single key: text\n"
+        f"Keep it within {MAX_CHARS} characters.\n"
+        "Use the factual event title, date, venue, and 1 clear attraction.\n"
+        "Do not use vague phrases like 'Check the official page' unless needed.\n"
+        "Do not repeat the title twice.\n"
+    )
+    user = f"""Write one short English event post for this event.
+
+JSON schema:
+{{"text": "..."}}
+
+Facts:
+title: {event.title}
+date: {english_date_phrase(event)}
+venue: {event.place}
+description_ja: {event.description}
+official_url: {event.official_url}
+"""
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    if provider == "ollama":
+        content = call_ollama(messages)
+    else:
+        content = call_openai(messages)
+    parsed = parse_json_from_llm_output(content)
+    text = str(parsed.get("text", "") or "").strip()
+    if not text:
+        raise EventFeedError("LLM returned empty post text")
+    return text[:MAX_CHARS].rstrip()
+
+
+def build_entry(event: Event, text: str, now_dt: datetime) -> Dict[str, Any]:
+    generated_at = now_dt.astimezone(ZoneInfo("UTC")).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    obj: Dict[str, Any] = {
+        "date": now_dt.strftime("%Y-%m-%d"),
+        "generated_at": generated_at,
+        "text": text,
+        "place": PLACE,
+        "links": [event.official_url or event.detail_url],
+        "required_mention": event.title,
+        "kind": "event",
+        "event": {
+            "title": event.title,
+            "detail_url": event.detail_url,
+            "official_url": event.official_url,
+            "start_at": event.start_at.isoformat(),
+            "end_at": event.end_at.isoformat(),
+            "date_label": event.date_label,
+            "place": event.place,
+            "description": event.description,
+        },
+    }
+    if AVATAR_IMAGE:
+        obj["avatar_image"] = AVATAR_IMAGE
+        obj["avatar_url"] = resolve_public_avatar_url(AVATAR_IMAGE)
+    return obj
+
+
+def write_outputs(feed_path: Path, latest_path: Path, entry: Dict[str, Any], stamp: str) -> None:
+    feed_path.parent.mkdir(parents=True, exist_ok=True)
+    latest_path.parent.mkdir(parents=True, exist_ok=True)
+    feed_path.write_text(json.dumps(entry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    latest_path.write_text(json.dumps(entry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    snapshot_obj = {
+        "generated_at": entry["generated_at"],
+        "event": entry["event"],
+    }
+    snapshot_path = artifact_snapshot_dir(latest_path=latest_path) / f"snapshot_{stamp}.json"
+    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_path.write_text(json.dumps(snapshot_obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def main() -> int:
-    args = parse_args()
+    tz = ZoneInfo(TZ_NAME)
+    now_dt = datetime.now(tz)
+
+    public_dir = artifact_public_dir()
+    latest_path = artifact_latest_path(public_dir)
+    stamp = now_dt.strftime("%Y%m%d_%H%M%S_%Z")
+    feed_path = computed_feed_snapshot_path(stamp, public_dir)
+
     index_html = fetch(INDEX_URL)
-    detail_urls = parse_index_links(index_html, INDEX_URL)
-    if not detail_urls:
-        raise SystemExit("Found 0 event detail links on index page")
+    links = parse_index_links(index_html, INDEX_URL)
+    debug(f"Found {len(links)} event detail links")
 
-    events: list[Event] = []
-    for detail_url in detail_urls:
+    events: List[Event] = []
+    for url in links:
         try:
-            detail_html = fetch(detail_url)
-            event = parse_event(detail_url, detail_html)
-            if event is not None:
-                events.append(event)
-        except requests.RequestException:
-            continue
-        except ValueError:
-            continue
+            event = parse_event_detail(url)
+            events.append(event)
+            debug(f"Parsed event: {event.title} | {event.start_at.date()} | {event.place}")
+        except Exception as exc:
+            debug(f"WARN parse failed for {url}: {exc}")
 
-    selected = select_future_event(events)
-    payload = build_entry(selected)
-    output_path = Path(args.output)
-    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Selected future event: {selected.title}")
-    print(f"Wrote payload to {output_path}")
+    if not events:
+        raise SystemExit("No parseable Cocoyoko event pages were found")
+
+    chosen = select_event(events, now_dt)
+    post_text = summarize_event_for_post(chosen)
+    entry = build_entry(chosen, post_text, now_dt)
+    write_outputs(feed_path, latest_path, entry, stamp)
+
+    if DEBUG:
+        log(json.dumps(entry, ensure_ascii=False, indent=2))
     return 0
 
 
