@@ -48,8 +48,9 @@ jobs:
         env:
           LLM_PROVIDER: ollama
           OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
-          RAG_MODEL: ${{ vars.OLLAMA_MODEL }}
-          AUDIT_MODEL: ${{ vars.OLLAMA_MODEL }}
+          RAG_MODEL: ${{ vars.OLLAMA_MODEL != '' && vars.OLLAMA_MODEL || 'llama3.1:8b' }}
+          AUDIT_MODEL: ${{ vars.OLLAMA_MODEL != '' && vars.OLLAMA_MODEL || 'llama3.1:8b' }}
+          
         run: |
           set -euo pipefail
           test -n "${OLLAMA_BASE_URL:-}"
