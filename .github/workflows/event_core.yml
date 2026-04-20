@@ -46,6 +46,11 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Select Ollama model
+        run: |
+          set -euo pipefail
+          echo "QWEN_CHAT_MODEL=qwen2.5:3b-instruct" >> "$GITHUB_ENV"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -73,7 +78,10 @@ jobs:
       - name: Pull Ollama model
         run: |
           set -euo pipefail
-          curl --fail --show-error -H 'Content-Type: application/json' http://127.0.0.1:11434/api/pull -d '{"name":"llama3.1:8b","stream":false}'
+          curl --fail --show-error \
+            -H 'Content-Type: application/json' \
+            http://127.0.0.1:11434/api/pull \
+            -d "{\"name\":\"${QWEN_CHAT_MODEL}\",\"stream\":false}"
 
       - name: Warm up Ollama model
         run: |
@@ -81,13 +89,13 @@ jobs:
           curl --fail --show-error \
             -H 'Content-Type: application/json' \
             http://127.0.0.1:11434/api/chat \
-            -d '{
-              "model":"llama3.1:8b",
+            -d "{
+              \"model\":\"${QWEN_CHAT_MODEL}\",
               "stream":false,
-              "messages":[{"role":"user","content":"Return only this JSON: {\"ok\":true}"}],
-              "format":"json",
-              "options":{"temperature":0}
-            }' >/dev/null
+              \"messages\":[{\"role\":\"user\",\"content\":\"Return only this JSON: {\\\"ok\\\":true}\"}],
+              \"format\":\"json\",
+              \"options\":{\"temperature\":0}
+            }" >/dev/null
 
       - name: Install deps
         run: |
@@ -103,8 +111,8 @@ jobs:
           OLLAMA_TIMEOUT_S: "300"
           OLLAMA_MAX_RETRIES: "3"
           COCOYOKO_MAX_DETAIL_LINKS: "7"
-          RAG_MODEL: "qwen2.5:3b-instruct"
-          AUDIT_MODEL: "qwen2.5:3b-instruct"
+          RAG_MODEL: ${{ env.QWEN_CHAT_MODEL }}
+          AUDIT_MODEL: ${{ env.QWEN_CHAT_MODEL }}
           DEBUG: "1"
           AVATAR_IMAGE: ${{ inputs.avatar_image }}
         run: |
