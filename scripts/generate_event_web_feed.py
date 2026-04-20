@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import urljoin, urlparse
 from zoneinfo import ZoneInfo
+from bs4 import BeautifulSoup
 
 import requests
 
@@ -283,8 +284,6 @@ def call_ollama(messages: List[Dict[str, str]]) -> str:
         raise EventFeedError("Ollama returned no content")
     return content
 
-from bs4 import BeautifulSoup
-
 def html_to_text(raw_html: str) -> str:
     soup = BeautifulSoup(raw_html, "html.parser")
     return soup.get_text("\n", strip=True)
@@ -366,9 +365,6 @@ def parse_event_detail(url: str) -> Event:
     description = interpreted["description_ja"]
     official_url = interpreted["official_url"] or fallback_official_url(raw_html, url)
 
-    if not title or title == "横須賀市観光情報":
-        raise EventFeedError(f"LLM failed to identify event title: {url}")
-
     return Event(
         title=title,
         detail_url=url,
@@ -405,9 +401,11 @@ def summarize_event_for_post(event: Event) -> str:
     provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
 
     system = (
-        "You write concise English event introductions for a public feed.\n"
-        "Return only JSON with a single key: text\n"
-        f"Keep it within {MAX_CHARS} characters.\n"
+        "Write a short but informative English event post in 3 sentences.\n"
+        "Sentence 1: event name, date, and location.\n"
+        "Sentence 2: 1–2 concrete things visitors can do or experience.\n"
+        "Use factual and specific wording. Avoid vague tourism phrases such as "scenic", "wonderful", "stroll", or "don't miss".\n"
+        f"Keep it under {MAX_CHARS}.\n"
         "Use the factual event title, date, venue, and 1 clear attraction.\n"
         "Do not use vague phrases like 'Check the official page' unless needed.\n"
         "Do not repeat the title twice.\n"
