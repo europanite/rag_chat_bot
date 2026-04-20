@@ -58,7 +58,7 @@ jobs:
     uses: ./.github/workflows/fixed_entry.yml
     permissions:
       actions: read
-      contents: read
+      contents: write
       id-token: write
     with:
       entry_json: ${{ needs.prepare.outputs.entry_json }}
