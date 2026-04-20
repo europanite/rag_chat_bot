@@ -73,7 +73,21 @@ jobs:
       - name: Pull Ollama model
         run: |
           set -euo pipefail
-          curl --fail --show-error             -H 'Content-Type: application/json'             http://127.0.0.1:11434/api/pull             -d '{"name":"llama3.1:8b","stream":false}'
+          curl --fail --show-error -H 'Content-Type: application/json' http://127.0.0.1:11434/api/pull -d '{"name":"llama3.1:8b","stream":false}'
+
+      - name: Warm up Ollama model
+        run: |
+          set -euo pipefail
+          curl --fail --show-error \
+            -H 'Content-Type: application/json' \
+            http://127.0.0.1:11434/api/chat \
+            -d '{
+              "model":"llama3.1:8b",
+              "stream":false,
+              "messages":[{"role":"user","content":"Return only this JSON: {\"ok\":true}"}],
+              "format":"json",
+              "options":{"temperature":0}
+            }' >/dev/null
 
       - name: Install deps
         run: |
@@ -86,7 +100,9 @@ jobs:
         env:
           LLM_PROVIDER: ollama
           OLLAMA_BASE_URL: "http://127.0.0.1:11434"
-          OLLAMA_TIMEOUT_S: "120"
+          OLLAMA_TIMEOUT_S: "300"
+          OLLAMA_MAX_RETRIES: "3"
+          COCOYOKO_MAX_DETAIL_LINKS: "7"
           RAG_MODEL: "llama3.1:8b"
           AUDIT_MODEL: "llama3.1:8b"
           DEBUG: "1"

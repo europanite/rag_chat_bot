@@ -6,6 +6,7 @@ import re
 import sys
 from dataclasses import dataclass
 from datetime import datetime
+from time import sleep
 from html import unescape
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
@@ -39,6 +40,8 @@ AVATAR_IMAGE = os.getenv("AVATAR_IMAGE", "image/avatar/event.png").strip()
 MAX_CHARS = max(120, int(os.getenv("MAX_CHARS", "220")))
 DEBUG = os.getenv("DEBUG", "0").strip() == "1"
 TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
+OLLAMA_MAX_RETRIES = max(1, int(os.getenv("OLLAMA_MAX_RETRIES", "2")))
+MAX_DETAIL_LINKS = max(1, int(os.getenv("COCOYOKO_MAX_DETAIL_LINKS", "7")))
 UA = "goodday-yokosuka-event-bot/1.0 (+https://goodday-yokosuka.com/)"
 
 JP_DATE_STAMP_RE = re.compile(
@@ -200,24 +203,41 @@ def call_openai(messages: List[Dict[str, str]]) -> str:
     model = os.getenv("OPENAI_CHAT_MODEL", "gpt-4.1-mini").strip() or "gpt-4.1-mini"
     if not api_key:
         raise EventFeedError("OPENAI_API_KEY is not set")
+    last_exc: Optional[Exception] = None
+    for attempt in range(1, OLLAMA_MAX_RETRIES + 1):
+        try:
+            response = requests.post(
+                f"{base_url}/api/chat",
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "stream": False,
+                    "options": {"temperature": 0.1},
+                    "format": "json",
+                },
+                timeout=TIMEOUT,
+            )
+            response.raise_for_status()
+            data = response.json()
+            msg = data.get("message", {})
+            content = msg.get("content")
+            if not content:
+                raise EventFeedError("Ollama returned no content")
+            return content
+        except requests.exceptions.Timeout as exc:
+            last_exc = exc
+            log(f"WARN Ollama timeout on attempt {attempt}/{OLLAMA_MAX_RETRIES}")
+            if attempt < OLLAMA_MAX_RETRIES:
+                sleep(min(2 * attempt, 5))
+                continue
+            break
+        except requests.exceptions.RequestException as exc:
+            last_exc = exc
+            break
 
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": model,
-            "temperature": 0.1,
-            "response_format": {"type": "json_object"},
-            "messages": messages,
-        },
-        timeout=TIMEOUT,
-    )
-    response.raise_for_status()
-    data = response.json()
-    return data["choices"][0]["message"]["content"]
+    raise EventFeedError(f"Ollama chat failed after {OLLAMA_MAX_RETRIES} attempt(s): {last_exc}")
+
+
 
 
 def validate_runtime() -> None:
@@ -472,7 +492,9 @@ def main() -> int:
     index_html = fetch(INDEX_URL)
     links = parse_index_links(index_html, INDEX_URL)
     debug(f"Found {len(links)} event detail links")
-    links = links[:1]
+    links = links[:MAX_DETAIL_LINKS]
+    log(f"Trying up to {len(links)} event detail links")
+
     if links:
         debug(f"Using first event detail link only: {links[0]}")
 
