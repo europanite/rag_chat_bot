@@ -220,12 +220,28 @@ def call_openai(messages: List[Dict[str, str]]) -> str:
     return data["choices"][0]["message"]["content"]
 
 
+def validate_runtime() -> None:
+    provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
+    if provider != "ollama":
+        return
+
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").strip().rstrip("/")
+    if not base_url:
+        raise EventFeedError("OLLAMA_BASE_URL is not set")
+
+    try:
+        response = requests.get(f"{base_url}/api/tags", timeout=TIMEOUT)
+        response.raise_for_status()
+    except Exception as exc:
+        raise EventFeedError(f"Ollama is unreachable at {base_url}: {exc}") from exc
+
+
 def call_ollama(messages: List[Dict[str, str]]) -> str:
     base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").strip().rstrip("/")
     model = (
-        os.getenv("OPENAI_CHAT_MODEL", "").strip()
-        or os.getenv("RAG_MODEL", "").strip()
+        os.getenv("RAG_MODEL", "").strip()
         or os.getenv("AUDIT_MODEL", "").strip()
+        or os.getenv("OPENAI_CHAT_MODEL", "").strip()
         or "llama3.1:8b"
     )
     response = requests.post(
@@ -249,7 +265,7 @@ def call_ollama(messages: List[Dict[str, str]]) -> str:
 
 
 def interpret_event_page(detail_url: str, raw_html: str) -> Dict[str, Any]:
-    provider = os.getenv("LLM_PROVIDER", "openai").strip().lower() or "openai"
+    provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
     page_text = extract_candidate_text(raw_html)
     html_excerpt = raw_html[:24000]
 
@@ -368,7 +384,7 @@ def english_date_phrase(event: Event) -> str:
 
 
 def summarize_event_for_post(event: Event) -> str:
-    provider = os.getenv("LLM_PROVIDER", "openai").strip().lower() or "openai"
+    provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
 
     system = (
         "You write concise English event introductions for a public feed.\n"
@@ -448,6 +464,8 @@ def main() -> int:
     tz = ZoneInfo(TZ_NAME)
     now_dt = datetime.now(tz)
 
+    validate_runtime()
+
     public_dir = artifact_public_dir()
     latest_path = artifact_latest_path(public_dir)
     stamp = now_dt.strftime("%Y%m%d_%H%M%S_%Z")
@@ -458,16 +476,22 @@ def main() -> int:
     debug(f"Found {len(links)} event detail links")
 
     events: List[Event] = []
+    failures: List[str] = []
     for url in links:
         try:
             event = parse_event_detail(url)
             events.append(event)
             debug(f"Parsed event: {event.title} | {event.start_at.date()} | {event.place}")
         except Exception as exc:
-            debug(f"WARN parse failed for {url}: {exc}")
+            msg = f"{url}: {exc}"
+            failures.append(msg)
+            log(f"WARN parse failed for {msg}")
 
     if not events:
-        raise SystemExit("No parseable Cocoyoko event pages were found")
+        detail = failures[0] if failures else "unknown error"
+        raise SystemExit(
+            f"No parseable Cocoyoko event pages were found; first_error={detail}"
+        )
 
     chosen = select_event(events, now_dt)
     post_text = summarize_event_for_post(chosen)
