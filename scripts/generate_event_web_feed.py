@@ -38,7 +38,7 @@ PLACE = os.getenv("PLACE", "Yokosuka").strip() or "Yokosuka"
 AVATAR_IMAGE = os.getenv("AVATAR_IMAGE", "image/avatar/event.png").strip()
 MAX_CHARS = max(120, int(os.getenv("MAX_CHARS", "220")))
 DEBUG = os.getenv("DEBUG", "0").strip() == "1"
-TIMEOUT = 30
+TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
 UA = "goodday-yokosuka-event-bot/1.0 (+https://goodday-yokosuka.com/)"
 
 JP_DATE_STAMP_RE = re.compile(
