@@ -463,7 +463,7 @@ def select_event(events: List[Event], now_dt: datetime) -> Event:
         return future_events[0]
 
     pool = future_events[:EVENT_RANDOM_POOL]
-    seed_key = now_dt.strftime("%Y-%m-%d")
+    seed_key = now_dt.strftime("%Y-%m-%d %H:%M:%S")
     rng = random.Random(seed_key)
     return rng.choice(pool)
 
