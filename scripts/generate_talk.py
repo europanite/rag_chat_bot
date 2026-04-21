@@ -689,11 +689,41 @@ def _normalize_match_text(s: str) -> str:
 def _split_sentences(text: str) -> List[str]:
     return [s.strip() for s in re.split(r"(?<=[.!?])\s+", (text or "").strip()) if s.strip()]
 
+def _required_mention_candidates(required_mention: str) -> List[str]:
+    mention = (required_mention or "").strip()
+    if not mention:
+        return []
+
+    candidates: List[str] = [mention]
+
+    paren_head = re.split(r"\s*[\(（]\s*", mention, maxsplit=1)[0].strip(" )）-–—:：,")
+    if paren_head:
+        candidates.append(paren_head)
+
+    parts = [p.strip(" )）-–—:：,") for p in re.split(r"\s*[:：|-]\s*", mention) if p.strip(" )）-–—:：,")]
+    if parts:
+        candidates.append(parts[0])
+        candidates.append(parts[-1])
+
+    deduped: List[str] = []
+    seen = set()
+    for cand in candidates:
+        norm = _normalize_match_text(cand)
+        if not norm or norm in seen:
+            continue
+        seen.add(norm)
+        deduped.append(cand)
+    return deduped
+
 def _mentions_required(tweet: str, required_mention: str) -> bool:
     mention = (required_mention or "").strip()
     if not mention or mention.lower() == "the provided context":
         return True
-    return _normalize_match_text(mention) in _normalize_match_text(tweet)
+    norm_tweet = _normalize_match_text(tweet)
+    for cand in _required_mention_candidates(mention):
+        if _normalize_match_text(cand) in norm_tweet:
+            return True
+    return False
 
 def _tweet_is_usable(tweet: str, required_mention: str) -> Tuple[bool, str]:
     if not (tweet or "").strip():
