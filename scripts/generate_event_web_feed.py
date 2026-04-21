@@ -43,8 +43,8 @@ MAX_CHARS = max(120, int(os.getenv("MAX_CHARS", "220")))
 DEBUG = os.getenv("DEBUG", "0").strip() == "1"
 TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
 OLLAMA_MAX_RETRIES = max(1, int(os.getenv("OLLAMA_MAX_RETRIES", "2")))
-MAX_DETAIL_LINKS = max(1, int(os.getenv("ARTCLE_DETAIL_LINKS", "3")))
-EVENT_RANDOM_POOL = max(1, int(os.getenv("COCOYOKO_EVENT_RANDOM_POOL", "3")))
+MAX_DETAIL_LINKS = max(1, int(os.getenv("ARTCLE_DETAIL_LINKS", "5")))
+EVENT_RANDOM_POOL = max(1, int(os.getenv("EVENT_RANDOM_POOL", "5")))
 UA = ""
 
 JP_DATE_STAMP_RE = re.compile(
