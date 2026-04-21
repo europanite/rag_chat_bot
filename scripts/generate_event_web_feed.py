@@ -43,7 +43,7 @@ MAX_CHARS = max(120, int(os.getenv("MAX_CHARS", "220")))
 DEBUG = os.getenv("DEBUG", "0").strip() == "1"
 TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
 OLLAMA_MAX_RETRIES = max(1, int(os.getenv("OLLAMA_MAX_RETRIES", "2")))
-MAX_DETAIL_LINKS = max(1, int(os.getenv("COCOYOKO_MAX_DETAIL_LINKS", "5")))
+MAX_DETAIL_LINKS = max(1, int(os.getenv("COCOYOKO_MAX_DETAIL_LINKS", "1")))
 EVENT_RANDOM_POOL = max(1, int(os.getenv("COCOYOKO_EVENT_RANDOM_POOL", "1")))
 EVENT_RANDOMIZE = os.getenv("COCOYOKO_EVENT_RANDOMIZE", "1").strip() != "0"
 UA = "goodday-yokosuka-event-bot/1.0 (+https://goodday-yokosuka.com/)"
