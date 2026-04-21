@@ -34,17 +34,17 @@ except ImportError:
         resolve_public_avatar_url,
     )
 
-
-INDEX_URL = os.getenv("COCOYOKO_EVENT_INDEX_URL", "https://www.cocoyoko.net/event/").strip()
+COCOYOKO_EVENT_INDEX_URL = "https://www.cocoyoko.net/event/"
+INDEX_URL = COCOYOKO_EVENT_INDEX_URL
 TZ_NAME = os.getenv("TZ_NAME", "Asia/Tokyo").strip() or "Asia/Tokyo"
 PLACE = os.getenv("PLACE", "Yokosuka").strip() or "Yokosuka"
 AVATAR_IMAGE = os.getenv("AVATAR_IMAGE", "image/avatar/event.png").strip()
-MAX_CHARS = max(120, int(os.getenv("MAX_CHARS", "220")))
+MAX_CHARS = int(os.getenv("MAX_CHARS"))
 DEBUG = os.getenv("DEBUG", "0").strip() == "1"
-TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
-OLLAMA_MAX_RETRIES = max(1, int(os.getenv("OLLAMA_MAX_RETRIES", "2")))
-MAX_DETAIL_LINKS = max(1, int(os.getenv("ARTCLE_DETAIL_LINKS", "5")))
-EVENT_RANDOM_POOL = max(1, int(os.getenv("EVENT_RANDOM_POOL", "5")))
+TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT_S"))
+OLLAMA_MAX_RETRIES = 2
+MAX_DETAIL_LINKS = 5
+EVENT_RANDOM_POOL = 5
 UA = ""
 
 JP_DATE_STAMP_RE = re.compile(
