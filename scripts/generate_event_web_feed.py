@@ -43,7 +43,7 @@ MAX_CHARS = max(120, int(os.getenv("MAX_CHARS", "220")))
 DEBUG = os.getenv("DEBUG", "0").strip() == "1"
 TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
 OLLAMA_MAX_RETRIES = max(1, int(os.getenv("OLLAMA_MAX_RETRIES", "2")))
-MAX_DETAIL_LINKS = max(1, int(os.getenv("COCOYOKO_MAX_DETAIL_LINKS", "3")))
+MAX_DETAIL_LINKS = max(1, int(os.getenv("ARTCLE_DETAIL_LINKS", "3")))
 EVENT_RANDOM_POOL = max(1, int(os.getenv("COCOYOKO_EVENT_RANDOM_POOL", "3")))
 UA = ""
 
@@ -484,7 +484,7 @@ def build_entry(event: Event, text: str, now_dt: datetime) -> Dict[str, Any]:
 def select_event(candidates: List[Dict[str, Any]], now_dt: datetime) -> Dict[str, Any]:
     selectable_events = [e for e in candidates if e["end_at"] >= now_dt]
     if not selectable_events:
-        raise SystemExit("No future Cocoyoko events were found")
+        raise SystemExit("No future events were found")
 
     ongoing_events = [
         e for e in selectable_events
@@ -500,7 +500,7 @@ def select_event(candidates: List[Dict[str, Any]], now_dt: datetime) -> Dict[str
 
     prioritized_events = ongoing_events + upcoming_events
     if not prioritized_events:
-        raise SystemExit("No selectable Cocoyoko events were found")
+        raise SystemExit("No selectable events were found")
 
     pool = prioritized_events[:EVENT_RANDOM_POOL]
     seed_key = now_dt.strftime("%Y-%m-%d %H:%M:%S")
@@ -556,7 +556,7 @@ def main() -> int:
     if not candidates:
         detail = failures[0] if failures else "unknown error"
         raise SystemExit(
-            f"No parseable Cocoyoko event pages were found; first_error={detail}"
+            f"No parseable event pages were found; first_error={detail}"
         )
 
     chosen_candidate = select_event(candidates, now_dt)

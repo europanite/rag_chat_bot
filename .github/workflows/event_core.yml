@@ -120,14 +120,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4
 
-      - name: Generate future event payload from Cocoyoko
+      - name: Generate future event payload
         id: generate
         env:
           LLM_PROVIDER: ollama
           OLLAMA_BASE_URL: "http://127.0.0.1:11434"
           OLLAMA_TIMEOUT_S: "300"
           OLLAMA_MAX_RETRIES: "3"
-          COCOYOKO_MAX_DETAIL_LINKS: "7"
+          ARTCLE_DETAIL_LINKS: "3"
           RAG_MODEL: ${{ env.OLLAMA_CHAT_MODEL }}
           AUDIT_MODEL: ${{ env.OLLAMA_CHAT_MODEL }}
           DEBUG: "1"
