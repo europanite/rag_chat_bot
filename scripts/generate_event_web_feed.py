@@ -45,8 +45,7 @@ TIMEOUT = max(30, int(os.getenv("OLLAMA_TIMEOUT_S")))
 OLLAMA_MAX_RETRIES = max(1, int(os.getenv("OLLAMA_MAX_RETRIES", "2")))
 MAX_DETAIL_LINKS = max(1, int(os.getenv("COCOYOKO_MAX_DETAIL_LINKS", "1")))
 EVENT_RANDOM_POOL = max(1, int(os.getenv("COCOYOKO_EVENT_RANDOM_POOL", "1")))
-EVENT_RANDOMIZE = os.getenv("COCOYOKO_EVENT_RANDOMIZE", "1").strip() != "0"
-UA = "goodday-yokosuka-event-bot/1.0 (+https://goodday-yokosuka.com/)"
+UA = ""
 
 JP_DATE_STAMP_RE = re.compile(
     r"(\d{4}):(\d{2}):(\d{2}):\d{2}:\d{2}:\d{2}\|(\d{4}):(\d{2}):(\d{2}):\d{2}:\d{2}:\d{2}\|\d+"
@@ -409,17 +408,31 @@ def english_date_phrase(event: Event) -> str:
 
 def summarize_event_for_post(event: Event) -> str:
     provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
+
     system = (
-        "You write concise English social posts about local events.\n"
-        "Return only the post text.\n"
-        f"Keep it under {MAX_CHARS} characters.\n"
+        "Write one short English event post as strict JSON.\n"
+        "Return only JSON.\n"
+        "Schema: {\"lang\": \"en\", \"text\": \"...\"}.\n"
+        "The text must be natural English only.\n"
+        "Do not use Chinese, Japanese, or Korean characters in text.\n"
+        "Use factual and specific wording.\n"
+        f"Keep text under {MAX_CHARS} characters.\n"
         "Do not use hashtags.\n"
         "Do not invent facts.\n"
+        "Do not repeat the title twice.\n"
     )
-    user = f"""Write a short but informative English event post in 3 sentences.
+    user = f"""Write one short English event post for this event.
 
-Sentence 1: mention the event title and when it happens.
-Sentence 2: mention the venue and one concrete detail from the description.
+Return JSON with exactly these keys:
+lang
+text
+
+Rules for text:
+- exactly 2 sentences
+- sentence 1: event name, date, and venue
+- sentence 2: one concrete attraction or thing visitors can experience
+- English only
+- no hashtags
 
 Facts:
 title: {event.title}
@@ -430,14 +443,17 @@ official_url: {event.official_url}
 """
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     if provider == "ollama":
-        content = call_ollama(messages, response_format=None)
+        content = call_ollama(messages, response_format="json")
     else:
         content = call_openai(messages)
-    text = str(content or "").strip()
+    parsed = parse_json_from_llm_output(content) or {}
+    lang = str(parsed.get("lang", "") or "").strip().lower()
+    text = str(parsed.get("text", "") or "").strip()
+    if lang != "en":
+        raise EventFeedError(f"LLM returned unexpected lang: {lang!r}")
     if not text:
         raise EventFeedError("LLM returned empty post text")
-    return text[:MAX_CHARS].rstrip()
-
+    return text.rstrip()
 
 def build_entry(event: Event, text: str, now_dt: datetime) -> Dict[str, Any]:
     generated_at = now_dt.astimezone(ZoneInfo("UTC")).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -485,9 +501,6 @@ def select_event(candidates: List[Dict[str, Any]], now_dt: datetime) -> Dict[str
     prioritized_events = ongoing_events + upcoming_events
     if not prioritized_events:
         raise SystemExit("No selectable Cocoyoko events were found")
-
-    if not EVENT_RANDOMIZE:
-        return prioritized_events[0]
 
     pool = prioritized_events[:EVENT_RANDOM_POOL]
     seed_key = now_dt.strftime("%Y-%m-%d %H:%M:%S")
