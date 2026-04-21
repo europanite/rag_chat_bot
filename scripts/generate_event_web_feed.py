@@ -353,6 +353,21 @@ def fallback_official_url(raw_html: str, detail_url: str) -> str:
     return detail_url
 
 
+def parse_event_candidate(url: str) -> Dict[str, Any]:
+    raw_html = fetch(url)
+
+    date_range = parse_date_stamp(raw_html)
+    if not date_range:
+        raise EventFeedError(f"date stamp not found: {url}")
+    start_at, end_at = date_range
+
+    return {
+        "detail_url": url,
+        "start_at": start_at,
+        "end_at": end_at,
+    }
+
+
 def parse_event_detail(url: str) -> Event:
     raw_html = fetch(url)
 
@@ -452,22 +467,22 @@ def build_entry(event: Event, text: str, now_dt: datetime) -> Dict[str, Any]:
         obj["avatar_url"] = resolve_public_avatar_url(AVATAR_IMAGE)
     return obj
 
-def select_event(events: List[Event], now_dt: datetime) -> Event:
-    selectable_events = [e for e in events if e.end_at >= now_dt]
+def select_event(candidates: List[Dict[str, Any]], now_dt: datetime) -> Dict[str, Any]:
+    selectable_events = [e for e in candidates if e["end_at"] >= now_dt]
     if not selectable_events:
         raise SystemExit("No future Cocoyoko events were found")
 
     ongoing_events = [
         e for e in selectable_events
-        if e.start_at <= now_dt <= e.end_at
+        if e["start_at"] <= now_dt <= e["end_at"]
     ]
     upcoming_events = [
         e for e in selectable_events
-        if now_dt < e.start_at
+        if now_dt < e["start_at"]
     ]
 
-    ongoing_events.sort(key=lambda e: (e.start_at, e.title))
-    upcoming_events.sort(key=lambda e: (e.start_at, e.title))
+    ongoing_events.sort(key=lambda e: (e["start_at"], e["detail_url"]))
+    upcoming_events.sort(key=lambda e: (e["start_at"], e["detail_url"]))
 
     prioritized_events = ongoing_events + upcoming_events
     if not prioritized_events:
@@ -513,25 +528,32 @@ def main() -> int:
     links = links[:MAX_DETAIL_LINKS]
     log(f"Trying up to {len(links)} event detail links")
 
-    events: List[Event] = []
+    candidates: List[Dict[str, Any]] = []
     failures: List[str] = []
     for url in links:
         try:
-            event = parse_event_detail(url)
-            events.append(event)
-            debug(f"Parsed event: {event.title} | {event.start_at.date()} | {event.place}")
+            candidate = parse_event_candidate(url)
+            candidates.append(candidate)
+            debug(
+                f"Candidate event: {candidate['start_at'].date()} to {candidate['end_at'].date()} | {candidate['detail_url']}"
+            )
         except Exception as exc:
             msg = f"{url}: {exc}"
             failures.append(msg)
             log(f"WARN parse failed for {msg}")
 
-    if not events:
+    if not candidates:
         detail = failures[0] if failures else "unknown error"
         raise SystemExit(
             f"No parseable Cocoyoko event pages were found; first_error={detail}"
         )
 
-    chosen = select_event(events, now_dt)
+    chosen_candidate = select_event(candidates, now_dt)
+    debug(f"Selected event detail URL before LLM parse: {chosen_candidate['detail_url']}")
+
+    chosen = parse_event_detail(str(chosen_candidate["detail_url"]))
+    debug(f"Parsed selected event: {chosen.title} | {chosen.start_at.date()} | {chosen.place}")
+
     post_text = summarize_event_for_post(chosen)
     entry = build_entry(chosen, post_text, now_dt)
     write_outputs(feed_path, latest_path, entry, stamp)
