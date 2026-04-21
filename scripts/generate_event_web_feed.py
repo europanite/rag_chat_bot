@@ -453,16 +453,30 @@ def build_entry(event: Event, text: str, now_dt: datetime) -> Dict[str, Any]:
     return obj
 
 def select_event(events: List[Event], now_dt: datetime) -> Event:
-    future_events = [e for e in events if e.end_at >= now_dt]
-    if not future_events:
+    selectable_events = [e for e in events if e.end_at >= now_dt]
+    if not selectable_events:
         raise SystemExit("No future Cocoyoko events were found")
 
-    future_events.sort(key=lambda e: (e.start_at, e.title))
+    ongoing_events = [
+        e for e in selectable_events
+        if e.start_at <= now_dt <= e.end_at
+    ]
+    upcoming_events = [
+        e for e in selectable_events
+        if now_dt < e.start_at
+    ]
+
+    ongoing_events.sort(key=lambda e: (e.start_at, e.title))
+    upcoming_events.sort(key=lambda e: (e.start_at, e.title))
+
+    prioritized_events = ongoing_events + upcoming_events
+    if not prioritized_events:
+        raise SystemExit("No selectable Cocoyoko events were found")
 
     if not EVENT_RANDOMIZE:
-        return future_events[0]
+        return prioritized_events[0]
 
-    pool = future_events[:EVENT_RANDOM_POOL]
+    pool = prioritized_events[:EVENT_RANDOM_POOL]
     seed_key = now_dt.strftime("%Y-%m-%d %H:%M:%S")
     rng = random.Random(seed_key)
     return rng.choice(pool)
