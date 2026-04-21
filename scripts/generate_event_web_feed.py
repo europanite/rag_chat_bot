@@ -259,8 +259,7 @@ def validate_runtime() -> None:
     except Exception as exc:
         raise EventFeedError(f"Ollama is unreachable at {base_url}: {exc}") from exc
 
-
-def call_ollama(messages: List[Dict[str, str]]) -> str:
+def call_ollama(messages: List[Dict[str, str]], response_format: Optional[str] = "json") -> str:
     base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").strip().rstrip("/")
     model = (
         os.getenv("RAG_MODEL", "").strip()
@@ -268,15 +267,19 @@ def call_ollama(messages: List[Dict[str, str]]) -> str:
         or os.getenv("OPENAI_CHAT_MODEL", "").strip()
         or "llama3.1:8b"
     )
+
+    payload: Dict[str, Any] = {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+        "options": {"temperature": 0.1},
+    }
+    if response_format:
+        payload["format"] = response_format
+
     response = requests.post(
         f"{base_url}/api/chat",
-        json={
-            "model": model,
-            "messages": messages,
-            "stream": False,
-            "options": {"temperature": 0.1},
-            "format": "json",
-        },
+        json=payload,
         timeout=TIMEOUT,
     )
     response.raise_for_status()
@@ -326,7 +329,7 @@ page_text:
     ]
 
     if provider == "ollama":
-        content = call_ollama(messages)
+        content = call_ollama(messages, response_format="json")
     else:
         content = call_openai(messages)
 
@@ -406,21 +409,17 @@ def english_date_phrase(event: Event) -> str:
 
 def summarize_event_for_post(event: Event) -> str:
     provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
-
     system = (
-        "Write a short but informative English event post in 3 sentences.\n"
-        "Sentence 1: event name, date, and location.\n"
-        "Sentence 2: 1–2 concrete things visitors can do or experience.\n"
-        "Use factual and specific wording.\n"
-        f"Keep it under {MAX_CHARS}.\n"
-        "Use the factual event title, date, venue, and 1 clear attraction.\n"
-        "Do not use vague phrases like 'Check the official page' unless needed.\n"
-        "Do not repeat the title twice.\n"
+        "You write concise English social posts about local events.\n"
+        "Return only the post text.\n"
+        f"Keep it under {MAX_CHARS} characters.\n"
+        "Do not use hashtags.\n"
+        "Do not invent facts.\n"
     )
-    user = f"""Write one short English event post for this event.
+    user = f"""Write a short but informative English event post in 3 sentences.
 
-JSON schema:
-{{"text": "..."}}
+Sentence 1: mention the event title and when it happens.
+Sentence 2: mention the venue and one concrete detail from the description.
 
 Facts:
 title: {event.title}
@@ -431,11 +430,10 @@ official_url: {event.official_url}
 """
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     if provider == "ollama":
-        content = call_ollama(messages)
+        content = call_ollama(messages, response_format=None)
     else:
         content = call_openai(messages)
-    parsed = parse_json_from_llm_output(content)
-    text = str(parsed.get("text", "") or "").strip()
+    text = str(content or "").strip()
     if not text:
         raise EventFeedError("LLM returned empty post text")
     return text[:MAX_CHARS].rstrip()
