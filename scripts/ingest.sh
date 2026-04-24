@@ -234,7 +234,7 @@ run_ingest() {
   export OLLAMA_BASE_URL="${OLLAMA_BASE_URL:-http://ollama:11434}"
   export OLLAMA_TIMEOUT_S="${OLLAMA_TIMEOUT_S:-512}"
   export EMBEDDING_MODEL="${EMBEDDING_MODEL:-mxbai-embed-large}"
-  export RAG_MODEL="${RAG_MODEL:-qwen3:8b}"
+  export RAG_MODEL="${RAG_MODEL:-llama3.1:8b}"
   export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
   export OPENAI_BASE_URL="${OPENAI_BASE_URL:-}"
   export OPENAI_CHAT_MODEL="${OPENAI_CHAT_MODEL:-gpt-4.1-mini}"
