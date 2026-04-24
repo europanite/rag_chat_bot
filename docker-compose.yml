@@ -203,7 +203,7 @@ services:
       BASE_MODEL_ID: ${BASE_MODEL_ID:-meta-llama/Llama-3.1-8B-Instruct}
       DATA_PATH: ${DATA_PATH:-data/llm_sft/train.jsonl}
       OUTPUT_DIR: /repo/models/ollama/llama3.1_8b_lora
-      OLLAMA_BASE_MODEL: ${OLLAMA_BASE_MODEL:-llama3.1:8b}
+      OLLAMA_BASE_MODEL: ${OLLAMA_BASE_MODEL:-qwen3:8b}
       SYSTEM_PROMPT: ${SYSTEM_PROMPT:-}
       LOAD_IN_4BIT: ${LOAD_IN_4BIT:-1}
       BF16: ${BF16:-1}
@@ -234,7 +234,7 @@ services:
     environment:
       OLLAMA_HOST: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1_8b_lora}
-      OLLAMA_BASE_MODEL: ${OLLAMA_BASE_MODEL:-llama3.1:8b}
+      OLLAMA_BASE_MODEL: ${OLLAMA_BASE_MODEL:-qwen3:8b}
       SYSTEM_PROMPT: ${SYSTEM_PROMPT:-}
     volumes:
       - type: bind

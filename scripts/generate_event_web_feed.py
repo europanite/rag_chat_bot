@@ -264,7 +264,7 @@ def call_ollama(messages: List[Dict[str, str]], response_format: Optional[str] =
         os.getenv("RAG_MODEL", "").strip()
         or os.getenv("AUDIT_MODEL", "").strip()
         or os.getenv("OPENAI_CHAT_MODEL", "").strip()
-        or "llama3.1:8b"
+        or "qwen3:8b"
     )
 
     payload: Dict[str, Any] = {
