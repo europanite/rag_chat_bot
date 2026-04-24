@@ -10,14 +10,14 @@
       "windows": [
         {
           "name": "morning",
-          "start_hour": 7,
+          "start_hour": 6,
           "end_hour": 9,
           "slot": "restaurant"
         },
         {
           "name": "midday",
           "start_hour": 12,
-          "end_hour": 13,
+          "end_hour": 15,
           "slot_by_weekday": {
             "1": "restaurant",
             "2": "spot_intro",
@@ -28,9 +28,9 @@
         },
         {
           "name": "night",
-          "start_hour": 20,
+          "start_hour": 19,
           "end_hour": 22,
-          "slot": "spot_intro"
+          "slot": "event"
         }
       ]
     },
@@ -39,29 +39,29 @@
       "windows": [
         {
           "name": "morning",
-          "start_hour": 10,
-          "end_hour": 11,
+          "start_hour": 6,
+          "end_hour": 9,
           "slot": "restaurant"
         },
         {
           "name": "midday",
-          "start_hour": 15,
-          "end_hour": 17,
+          "start_hour": 12,
+          "end_hour": 15,
           "slot_by_weekday": {
             "6": "restaurant",
             "7": "spot_intro"
           }
         },
         {
-          "name": "night1",
-          "start_hour": 18,
-          "end_hour": 20,
+          "name": "night",
+          "start_hour": 16,
+          "end_hour": 19,
           "slot": "event"
         },
         {
           "name": "night2",
           "start_hour": 20,
-          "end_hour": 22,
+          "end_hour": 23,
           "slot_by_weekday": {
             "6": "spot_intro",
             "7": "cheatsheet"
