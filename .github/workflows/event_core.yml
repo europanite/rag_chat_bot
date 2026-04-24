@@ -127,6 +127,7 @@ jobs:
           OLLAMA_BASE_URL: "http://127.0.0.1:11434"
           OLLAMA_TIMEOUT_S: "300"
           OLLAMA_MAX_RETRIES: "3"
+          MAX_CHARS: "220"
           ARTCLE_DETAIL_LINKS: "3"
           RAG_MODEL: ${{ env.OLLAMA_CHAT_MODEL }}
           AUDIT_MODEL: ${{ env.OLLAMA_CHAT_MODEL }}
