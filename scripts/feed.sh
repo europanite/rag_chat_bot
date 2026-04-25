@@ -17,6 +17,22 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+load_env_file() {
+  local env_file="${1:-.env}"
+  [[ -f "$env_file" ]] || return 0
+
+  # .env may reference variables that are defined later in the same file.
+  # Keep nounset disabled only while sourcing dotenv-style configuration.
+  set +u
+  set -a
+  # shellcheck disable=SC1090
+  source "$env_file"
+  set +a
+  set -u
+}
+
+load_env_file ".env"
+
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 COMPOSE=(docker compose -f "$COMPOSE_FILE")
 PYTHON_BIN="${PYTHON_BIN:-python}"
@@ -130,11 +146,6 @@ on_error() {
   exit "$rc"
 }
 trap on_error ERR
-
-if [[ -f ".env" ]]; then
-  # shellcheck disable=SC1091
-  set -a; source ".env"; set +a
-fi
 
 wait_backend_health() {
   log "Waiting for backend /health..."

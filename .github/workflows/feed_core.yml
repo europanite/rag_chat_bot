@@ -133,28 +133,12 @@ jobs:
 
       - name: Run feed pipeline
         env:
-          RAG_AUTO_INDEX: "false"
-          RAG_REBUILD_ON_START: "false"
-          RAG_REINDEX_ENABLED: "false"
-          OLLAMA_BASE_URL: "http://ollama:11434"
-          OLLAMA_TIMEOUT_S: "512"
-          EMBEDDING_MODEL: "mxbai-embed-large"
-          RAG_MODEL: "llama3.1:8b"
-          AUDIT_MODEL: "llama3.1:8b"
-          RAG_AUDIT: "1"
-          RAG_AUDIT_REWRITE: "1"
-          RAG_AUDIT_MAX_ATTEMPTS: "2"
-          LAT: "35.2810"
-          LON: "139.6722"
-          TZ_NAME: "Asia/Tokyo"
-          RAG_TOP_K: "8"
-          CURL_MAX_TIME: "512"
-          CURL_RETRIES: "1"
-          PLACE: "Yokosuka"
+          # Keep CI orchestration here. Runtime/model/feed defaults are loaded
+          # from .env by scripts/feed.sh.
+          SCHEDULED_KIND: ${{ inputs.scheduled_kind }}
+          AVATAR_IMAGE: ${{ inputs.avatar_image }}
           FEED_PATH: ${{ env.ARTIFACT_PUBLIC_DIR }}
           LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
-          MAX_CHARS: "220"
-          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
           TOPIC_VARIANT: ${{ github.run_number }}
           RAG_VARIETY: "1.0"
           DEBUG: "1"

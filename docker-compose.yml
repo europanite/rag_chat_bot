@@ -150,7 +150,7 @@ services:
       EXPO_PUBLIC_GA_MEASUREMENT_ID: ${EXPO_PUBLIC_GA_MEASUREMENT_ID:-}
       REACT_NATIVE_PACKAGER_HOSTNAME: ${REACT_NATIVE_PACKAGER_HOSTNAME:-127.0.0.1}
       EXPO_PUBLIC_FEEDBACK_FORM_URL: ${EXPO_PUBLIC_FEEDBACK_FORM_URL}
-      EXPO_PUBLIC_ADS_FORM_URL: ${EXPO_PUBLIC_ADS_FORM_URL}
+      EXPO_PUBLIC_ADS_FORM_URL: ${EXPO_PUBLIC_ADS_FORM_URL:-}
       EXPO_PUBLIC_USE_SLOT: ${EXPO_PUBLIC_USE_SLOT}
       EXPO_PUBLIC_FEED_JSON_URL: ${EXPO_PUBLIC_FEED_JSON_URL}
       EXPO_PUBLIC_SHARE_SD_INDEX_URL: ${EXPO_PUBLIC_SHARE_SD_INDEX_URL}
@@ -249,16 +249,16 @@ services:
       - |
           set -eu
           adapter_path="/repo/models/ollama/llama3.1_8b_lora/adapter_model.safetensors"
-          test -f "$adapter_path"
+          test -f "$$adapter_path"
           tmp_modelfile="$(mktemp)"
           {
             printf 'FROM %s\n' "$1"
-            printf 'ADAPTER %s\n' "$adapter_path"
+            printf 'ADAPTER %s\n' "$$adapter_path"
             if [ -n "$3" ]; then
               printf 'SYSTEM """%s"""\n' "$3"
             fi
-          } > "$tmp_modelfile"
-          ollama create "$2" -f "$tmp_modelfile"
+          } > "$$tmp_modelfile"
+          ollama create "$2" -f "$$tmp_modelfile"
       - sh
       - "${OLLAMA_BASE_MODEL}"
       - "${OLLAMA_MODEL}"
