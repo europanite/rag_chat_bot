@@ -93,6 +93,7 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
               justifyContent: "center",
             }}
           >
+            <Btn title="Guides" onPress={() => openUrl(GUIDES_URL)} />
             <Btn title="Contact" onPress={() => openUrl(CONTACT_URL)} />
           </View>
         </View>
