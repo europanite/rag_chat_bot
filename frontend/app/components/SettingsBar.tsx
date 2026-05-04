@@ -4,11 +4,13 @@ import { View, Text, TouchableOpacity, useWindowDimensions, Linking, Alert, Plat
 const REPO_URL = "https://github.com/europanite/rag_chat_bot";
 const RAW_CONTACT_URL = (process.env.EXPO_PUBLIC_FEEDBACK_FORM_URL ?? "").trim();
 const RAW_GUIDES_URL = (process.env.EXPO_PUBLIC_LONGFORM_GUIDES_URL ?? "").trim();
+const RAW_RESTAURANT_GUIDES_URL = (process.env.EXPO_PUBLIC_RESTAURANT_GUIDES_URL ?? "").trim();
 const CONTACT_URL =
   RAW_CONTACT_URL.startsWith("http://") || RAW_CONTACT_URL.startsWith("https://")
     ? RAW_CONTACT_URL
     : `${REPO_URL}/issues/new`;
 const GUIDES_URL = RAW_GUIDES_URL || "./articles/index.html";
+const RESTAURANT_GUIDES_URL = RAW_RESTAURANT_GUIDES_URL || "./restaurant_articles/index.html";
 
 function Btn({ title, onPress }: { title: string; onPress: () => void }) {
   return (
@@ -94,6 +96,7 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
             }}
           >
             <Btn title="Guides" onPress={() => openUrl(GUIDES_URL)} />
+            <Btn title="Restaurants" onPress={() => openUrl(RESTAURANT_GUIDES_URL)} />
             <Btn title="Contact" onPress={() => openUrl(CONTACT_URL)} />
           </View>
         </View>
@@ -110,6 +113,7 @@ export default function SettingsBar({ title = "GOODDAY YOKOSUKA" }: Props) {
             {/* Buttons (right) */}
             <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
               <Btn title="Guides" onPress={() => openUrl(GUIDES_URL)} />
+              <Btn title="Restaurants" onPress={() => openUrl(RESTAURANT_GUIDES_URL)} />
               <Btn title="Contact" onPress={() => openUrl(CONTACT_URL)} />
             </View>
           </View>
