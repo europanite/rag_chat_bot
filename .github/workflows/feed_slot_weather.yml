@@ -30,6 +30,7 @@ env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
   AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+  SNAP_URL: ${{ vars.SNAP_URL }}
   PLACE: ${{ vars.PLACE }}
   LAT: ${{ vars.LAT }}
   LON: ${{ vars.LON }}
@@ -107,9 +108,91 @@ jobs:
           python scripts/prepare_weather_teaser.py \
             --weather-json /tmp/weather-snapshot.json \
             --place "${PLACE:-Yokosuka, Kanagawa, JP}" \
+            --tz "${TZ_NAME:-Asia/Tokyo}" \
             --avatar-image "image/avatar/weather.png" \
             --public-dir "$PUBLIC_DIR" \
             --latest-path "${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+
+      - name: Install snapshot fetch dependency
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: Capture camera snapshot for weather image
+        env:
+          SNAP_URL: ${{ env.SNAP_URL }}
+          LATEST_PATH: ${{ env.ARTIFACT_LATEST_PATH }}
+          SNAP_RETRIES: "3"
+          SNAP_TIMEOUT: "30"
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SNAP_URL:-}" ]; then
+            SNAP_URL="https://coast-cam.com/images/cam1.jpg"
+          fi
+          export SNAP_URL
+
+          python scripts/retrieve_snapshot.py
+          test -s snapshot.jpg
+
+      - name: Free disk space before image generation
+        run: |
+          set -euo pipefail
+          df -h
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
+          sudo docker system prune -af --volumes 2>/dev/null || true
+          df -h
+
+      - name: Cache Hugging Face + Torch
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/torch
+          key: ${{ runner.os }}-hf-torch-sdturbo-v1
+          restore-keys: |
+            ${{ runner.os }}-hf-torch-sdturbo-
+            ${{ runner.os }}-hf-torch-
+
+      - name: Wire cache dirs into docker-compose
+        run: |
+          echo "HF_CACHE_DIR=$HOME/.cache/huggingface" >> "$GITHUB_ENV"
+          echo "TORCH_CACHE_DIR=$HOME/.cache/torch" >> "$GITHUB_ENV"
+
+      - name: Build illustrate image
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.yml build illustrate
+
+      - name: Generate camera-based image and patch weather feed
+        env:
+          REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
+          FEED_PATH: frontend/app/public
+          FEED_DIR: frontend/app/public/feed
+          LATEST_PATH: frontend/app/public/latest.json
+          OUT_DIR: frontend/app/public/image
+          PATCH_JSON: "1"
+          INPUT_IMAGE: snapshot.jpg
+          MODE: img2img
+          PLACE: "Yokosuka, Japan"
+          LORA_PATH: ""
+          LORA_SCALE: "0"
+          MIRROR_AUG: "1"
+          STEPS: "2"
+          STRENGTH: "0.2"
+          GUIDANCE_SCALE: "0.0"
+          PROMPT: ""
+          NEGATIVE: ""
+          SEED_OFFSET: "${{ github.run_number }}"
+          MODEL_ID: stabilityai/sdxl-turbo
+          SDXL_MODEL_ID: stabilityai/sdxl-turbo
+        run: |
+          set -euo pipefail
+          test -f "${ARTIFACT_LATEST_PATH:-frontend/app/public/latest.json}"
+          test -s snapshot.jpg
+          docker compose -f docker-compose.yml run --rm illustrate
 
       - name: Rebuild paginated feed pages
         run: |
