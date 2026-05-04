@@ -131,13 +131,14 @@ jobs:
           PUBLIC_DIR="frontend/app/public"
           BUCKET="s3://${AWS_S3_BUCKET_PUBLIC}"
 
-          mkdir -p "$PUBLIC_DIR/feed" "$PUBLIC_DIR/image" "$PUBLIC_DIR/snapshot" "$PUBLIC_DIR/articles"
+          mkdir -p "$PUBLIC_DIR/feed" "$PUBLIC_DIR/image" "$PUBLIC_DIR/snapshot" "$PUBLIC_DIR/articles" "$PUBLIC_DIR/restaurant_articles"
 
           aws s3 cp "$BUCKET/latest.json" "$PUBLIC_DIR/latest.json" 2>/dev/null || true
           aws s3 sync "$BUCKET/feed/" "$PUBLIC_DIR/feed/" --exclude ".gitkeep" --exclude ".nojekyll" 2>/dev/null || true
           aws s3 sync "$BUCKET/snapshot/" "$PUBLIC_DIR/snapshot/" --exclude ".gitkeep" 2>/dev/null || true
           aws s3 sync "$BUCKET/image/" "$PUBLIC_DIR/image/" --exclude ".gitkeep" 2>/dev/null || true
           aws s3 sync "$BUCKET/articles/" "$PUBLIC_DIR/articles/" --exclude ".gitkeep" 2>/dev/null || true
+          aws s3 sync "$BUCKET/restaurant_articles/" "$PUBLIC_DIR/restaurant_articles/" --exclude ".gitkeep" 2>/dev/null || true
 
       - name: Download generated state artifact (optional)
         if: inputs.state_artifact_name != ''
@@ -211,7 +212,7 @@ jobs:
           PUBLIC_DIR="frontend/app/public"
           WEB_BUILD_DIR="frontend/app/web-build"
 
-          aws s3 sync "$WEB_BUILD_DIR" "$BUCKET/"             --delete             --exclude "latest.json"             --exclude "feed/*"             --exclude "snapshot/*"             --exclude "image/*"
+          aws s3 sync "$WEB_BUILD_DIR" "$BUCKET/"             --delete             --exclude "latest.json"             --exclude "feed/*"             --exclude "snapshot/*"             --exclude "image/*"             --exclude "restaurant_articles/*"
 
           if [ -d "$WEB_BUILD_DIR/image/fixed" ]; then
             aws s3 sync "$WEB_BUILD_DIR/image/fixed" "$BUCKET/image/fixed/"
@@ -225,8 +226,12 @@ jobs:
             aws s3 sync "$WEB_BUILD_DIR/image/articles" "$BUCKET/image/articles/"
           fi
 
+          if [ -d "$WEB_BUILD_DIR/image/restaurant_articles" ]; then
+            aws s3 sync "$WEB_BUILD_DIR/image/restaurant_articles" "$BUCKET/image/restaurant_articles/"
+          fi
+
           if [ -n "${STATE_ARTIFACT_NAME}" ]; then
-            echo "Syncing generated latest/feed/snapshot/image/articles state without deleting remote history"
+            echo "Syncing generated latest/feed/snapshot/image/articles/restaurant_articles state without deleting remote history"
 
             if [ -f "$PUBLIC_DIR/latest.json" ]; then
               aws s3 cp "$PUBLIC_DIR/latest.json" "$BUCKET/latest.json"
@@ -246,6 +251,10 @@ jobs:
 
             if [ -d "$PUBLIC_DIR/articles" ]; then
               aws s3 sync "$PUBLIC_DIR/articles" "$BUCKET/articles/"                 --exclude ".gitkeep"
+            fi
+
+            if [ -d "$PUBLIC_DIR/restaurant_articles" ]; then
+              aws s3 sync "$PUBLIC_DIR/restaurant_articles" "$BUCKET/restaurant_articles/"                 --exclude ".gitkeep"
             fi
           else
             echo "No state artifact provided; skipped generated state sync"

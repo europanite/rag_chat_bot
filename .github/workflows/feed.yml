@@ -130,7 +130,7 @@ jobs:
   srestaurant:
     needs: select
     if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'restaurant'
-    uses: ./.github/workflows/feed_slot_restaurant.yml
+    uses: ./.github/workflows/feed_slot_restaurant_guide.yml
     permissions:
       actions: read
       contents: write

@@ -1,0 +1,180 @@
+name: Feed Restaurant Guide
+
+on:
+  workflow_call:
+    outputs:
+      changed:
+        description: "1 if feed files were updated"
+        value: ${{ jobs.export.outputs.changed }}
+      sha:
+        description: "Commit SHA that contains the generated feed"
+        value: ${{ jobs.export.outputs.sha }}
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+  AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.package.outputs.changed }}
+      sha: ${{ steps.package.outputs.sha }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure AWS credentials via OIDC
+        if: env.AWS_S3_BUCKET_PUBLIC != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Hydrate feed and restaurant guide state from S3
+        if: env.AWS_S3_BUCKET_PUBLIC != ''
+        run: |
+          set -euo pipefail
+
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          BUCKET="s3://${AWS_S3_BUCKET_PUBLIC}"
+
+          mkdir -p "$PUBLIC_DIR/feed" "$PUBLIC_DIR/image" "$PUBLIC_DIR/snapshot" "$PUBLIC_DIR/restaurant_articles"
+
+          aws s3 cp "$BUCKET/latest.json" "$PUBLIC_DIR/latest.json" 2>/dev/null || true
+          aws s3 sync "$BUCKET/feed/" "$PUBLIC_DIR/feed/" --exclude ".gitkeep" --exclude ".nojekyll" 2>/dev/null || true
+          aws s3 sync "$BUCKET/snapshot/" "$PUBLIC_DIR/snapshot/" --exclude ".gitkeep" 2>/dev/null || true
+          aws s3 sync "$BUCKET/image/" "$PUBLIC_DIR/image/" --exclude ".gitkeep" 2>/dev/null || true
+          aws s3 sync "$BUCKET/restaurant_articles/" "$PUBLIC_DIR/restaurant_articles/" --exclude ".gitkeep" 2>/dev/null || true
+
+      - name: Pick one restaurant guide and write latest/feed JSON
+        run: |
+          set -euo pipefail
+
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          INDEX_JSON="$PUBLIC_DIR/restaurant_articles/index.json"
+
+          if [ ! -f "$INDEX_JSON" ]; then
+            echo "ERROR: restaurant guide index was not found: $INDEX_JSON" >&2
+            echo "Run Restaurant Guides Drive Sync first, or set GOOGLE_DRIVE_PUBLIC_RESTAURANT_GUIDES_ROOT_FOLDER_URL and dispatch that workflow." >&2
+            exit 1
+          fi
+
+          python scripts/prepare_s3_restaurant_guide_teaser.py \
+            --articles-index "$INDEX_JSON" \
+            --place "Yokosuka" \
+            --avatar-image "image/avatar/food.png" \
+            --kind "restaurant" \
+            --category "restaurant_guide" \
+            --link-title "Open this restaurant guide" \
+            --selection-mode "random_s3_restaurant_guide_index" \
+            --public-dir "$PUBLIC_DIR" \
+            --latest-path "${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}" \
+            --recent-exclude-limit 20 \
+            --random-seed "${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --output-state /tmp/restaurant-guide-selection.json
+
+      - name: Package generated state for pages deploy
+        id: package
+        run: |
+          set -euo pipefail
+
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
+          IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+
+          test -f "$LATEST_PATH_RESOLVED"
+          test -d "$FEED_DIR_RESOLVED"
+          test -f "$PUBLIC_DIR/restaurant_articles/index.json"
+
+          STAGE_DIR=/tmp/pages-state
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/feed" "$STAGE_DIR/snapshot" "$STAGE_DIR/image" "$STAGE_DIR/restaurant_articles"
+
+          cp "$LATEST_PATH_RESOLVED" "$STAGE_DIR/latest.json"
+          cp -a "$FEED_DIR_RESOLVED"/. "$STAGE_DIR/feed/"
+
+          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
+            cp -a "$SNAPSHOT_DIR_RESOLVED"/. "$STAGE_DIR/snapshot/"
+          fi
+
+          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
+            cp -a "$IMAGE_DIR_RESOLVED"/. "$STAGE_DIR/image/"
+          fi
+
+          if [ -d "$PUBLIC_DIR/restaurant_articles" ]; then
+            cp -a "$PUBLIC_DIR/restaurant_articles"/. "$STAGE_DIR/restaurant_articles/"
+          fi
+
+          tar -C "$STAGE_DIR" -czf /tmp/pages-state.tgz .
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated state for pages deploy
+        if: steps.package.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+  pages:
+    needs: prepare
+    if: needs.prepare.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
+      artifact_run_id: ${{ github.run_id }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+
+  export:
+    needs: [prepare, pages]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.out.outputs.changed }}
+      sha: ${{ steps.out.outputs.sha }}
+    steps:
+      - name: Export outputs
+        id: out
+        run: |
+          echo "changed=${{ needs.prepare.outputs.changed }}" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ needs.prepare.outputs.sha }}" >> "$GITHUB_OUTPUT"
