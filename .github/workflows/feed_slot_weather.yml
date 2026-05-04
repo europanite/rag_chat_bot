@@ -1,0 +1,193 @@
+name: Feed Weather
+
+on:
+  workflow_call:
+    outputs:
+      changed:
+        description: "1 if feed files were updated"
+        value: ${{ jobs.export.outputs.changed }}
+      sha:
+        description: "Commit SHA that contains the generated feed"
+        value: ${{ jobs.export.outputs.sha }}
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+env:
+  ASSET_MODE: local
+  ARTIFACT_PUBLIC_DIR: frontend/app/public
+  ARTIFACT_FEED_DIR: ""
+  ARTIFACT_IMAGE_DIR: ""
+  ARTIFACT_SNAPSHOT_DIR: ""
+  ARTIFACT_LATEST_PATH: frontend/app/public/latest.json
+  PUBLIC_FEED_URL: ./latest.json
+  PUBLIC_ASSET_BASE_URL: ""
+  PUBLIC_FEED_BASE_URL: ""
+  PUBLIC_IMAGE_BASE_URL: ""
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_S3_BUCKET_PUBLIC: ${{ vars.AWS_S3_BUCKET_PUBLIC }}
+  AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+  PLACE: ${{ vars.PLACE }}
+  LAT: ${{ vars.LAT }}
+  LON: ${{ vars.LON }}
+  TZ_NAME: ${{ vars.TZ_NAME }}
+  WEATHER_PROVIDER: ${{ vars.WEATHER_PROVIDER }}
+  JMA_OFFICE_CODE: ${{ vars.JMA_OFFICE_CODE }}
+  JMA_AREA_CODE: ${{ vars.JMA_AREA_CODE }}
+  JMA_TEMP_CITY_CODE: ${{ vars.JMA_TEMP_CITY_CODE }}
+  JMA_AMEDAS_STATION: ${{ vars.JMA_AMEDAS_STATION }}
+
+concurrency:
+  group: feed
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.package.outputs.changed }}
+      sha: ${{ steps.package.outputs.sha }}
+    steps:
+      - name: Checkout (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure AWS credentials via OIDC
+        if: env.AWS_S3_BUCKET_PUBLIC != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: Hydrate existing feed state from S3
+        if: env.AWS_S3_BUCKET_PUBLIC != ''
+        run: |
+          set -euo pipefail
+
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          BUCKET="s3://${AWS_S3_BUCKET_PUBLIC}"
+
+          mkdir -p "$PUBLIC_DIR/feed" "$PUBLIC_DIR/image" "$PUBLIC_DIR/snapshot"
+
+          aws s3 cp "$BUCKET/latest.json" "$PUBLIC_DIR/latest.json" 2>/dev/null || true
+          aws s3 sync "$BUCKET/feed/" "$PUBLIC_DIR/feed/" --exclude ".gitkeep" --exclude ".nojekyll" 2>/dev/null || true
+          aws s3 sync "$BUCKET/snapshot/" "$PUBLIC_DIR/snapshot/" --exclude ".gitkeep" 2>/dev/null || true
+          aws s3 sync "$BUCKET/image/" "$PUBLIC_DIR/image/" --exclude ".gitkeep" 2>/dev/null || true
+
+      - name: Fetch Yokosuka weather snapshot
+        run: |
+          set -euo pipefail
+
+          python scripts/fetch_weather.py \
+            --provider "${WEATHER_PROVIDER:-jma}" \
+            --place "${PLACE:-Yokosuka, Kanagawa, JP}" \
+            --lat "${LAT:-35.2811}" \
+            --lon "${LON:-139.6720}" \
+            --tz "${TZ_NAME:-Asia/Tokyo}" \
+            --out /tmp/weather-snapshot.json
+
+          cat /tmp/weather-snapshot.json
+
+      - name: Write weather latest/feed JSON
+        run: |
+          set -euo pipefail
+
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+
+          python scripts/prepare_weather_teaser.py \
+            --weather-json /tmp/weather-snapshot.json \
+            --place "${PLACE:-Yokosuka, Kanagawa, JP}" \
+            --avatar-image "image/avatar/weather.png" \
+            --public-dir "$PUBLIC_DIR" \
+            --latest-path "${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+
+      - name: Rebuild paginated feed pages
+        run: |
+          python scripts/build_feed_pages.py
+
+      - name: Package generated state for pages deploy
+        id: package
+        run: |
+          set -euo pipefail
+
+          PUBLIC_DIR="${ARTIFACT_PUBLIC_DIR:-frontend/app/public}"
+          LATEST_PATH_RESOLVED="${ARTIFACT_LATEST_PATH:-$PUBLIC_DIR/latest.json}"
+          FEED_DIR_RESOLVED="${ARTIFACT_FEED_DIR:-$PUBLIC_DIR/feed}"
+          SNAPSHOT_DIR_RESOLVED="${ARTIFACT_SNAPSHOT_DIR:-$(dirname "$LATEST_PATH_RESOLVED")/snapshot}"
+          IMAGE_DIR_RESOLVED="${ARTIFACT_IMAGE_DIR:-$PUBLIC_DIR/image}"
+
+          if [ ! -f "$LATEST_PATH_RESOLVED" ]; then
+            echo "No generated latest.json"
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "sha=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          STAGE_DIR=/tmp/pages-state
+          rm -rf "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/feed" "$STAGE_DIR/snapshot" "$STAGE_DIR/image"
+          cp "$LATEST_PATH_RESOLVED" "$STAGE_DIR/latest.json"
+
+          if [ -d "$FEED_DIR_RESOLVED" ]; then
+            cp -a "$FEED_DIR_RESOLVED"/. "$STAGE_DIR/feed/"
+          fi
+
+          if [ -d "$SNAPSHOT_DIR_RESOLVED" ]; then
+            cp -a "$SNAPSHOT_DIR_RESOLVED"/. "$STAGE_DIR/snapshot/"
+          fi
+
+          if [ -d "$IMAGE_DIR_RESOLVED" ]; then
+            cp -a "$IMAGE_DIR_RESOLVED"/. "$STAGE_DIR/image/"
+          fi
+
+          tar -C "$STAGE_DIR" -czf /tmp/pages-state.tgz .
+
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated state for pages deploy
+        if: steps.package.outputs.changed == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-state-${{ github.run_id }}
+          path: /tmp/pages-state.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+  pages:
+    needs: prepare
+    if: needs.prepare.outputs.changed == '1'
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    with:
+      ref: main
+      state_artifact_name: pages-state-${{ github.run_id }}
+      artifact_run_id: ${{ github.run_id }}
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+
+  export:
+    needs: [prepare, pages]
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.out.outputs.changed }}
+      sha: ${{ steps.out.outputs.sha }}
+    steps:
+      - name: Export outputs
+        id: out
+        run: |
+          echo "changed=${{ needs.prepare.outputs.changed }}" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ needs.prepare.outputs.sha }}" >> "$GITHUB_OUTPUT"

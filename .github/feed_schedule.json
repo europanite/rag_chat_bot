@@ -12,7 +12,7 @@
           "name": "morning",
           "start_hour": 6,
           "end_hour": 9,
-          "slot": "restaurant"
+          "slot": "weather"
         },
         {
           "name": "midday",
@@ -41,7 +41,7 @@
           "name": "morning",
           "start_hour": 6,
           "end_hour": 9,
-          "slot": "restaurant"
+          "slot": "weather"
         },
         {
           "name": "midday",

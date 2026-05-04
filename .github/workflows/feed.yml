@@ -22,6 +22,7 @@ on:
           - spot
           - cheatsheet
           - restaurant
+          - weather
           - event
           - spot_intro
           - activity
@@ -123,6 +124,17 @@ jobs:
     permissions:
       actions: read
       contents: write
+      pages: write
+      id-token: write
+    secrets: inherit
+
+  sweather:
+    needs: select
+    if: needs.select.outputs.should_run == 'true' && needs.select.outputs.slot == 'weather'
+    uses: ./.github/workflows/feed_slot_weather.yml
+    permissions:
+      actions: read
+      contents: read
       pages: write
       id-token: write
     secrets: inherit
