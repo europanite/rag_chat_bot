@@ -197,7 +197,7 @@ jobs:
       contents: read
     steps:
       - name: Download fixed entry artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: fixed-entry-state-${{ github.run_id }}
           path: /tmp/fixed-entry-state
@@ -211,7 +211,7 @@ jobs:
           tar -C /tmp/pages-state -czf /tmp/pages-state.tgz .
 
       - name: Upload pages state artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pages-state-${{ github.run_id }}
           path: /tmp/pages-state.tgz
