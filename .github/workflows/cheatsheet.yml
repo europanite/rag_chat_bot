@@ -80,7 +80,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download fixed state artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: fixed-entry-state-${{ github.run_id }}
           path: /tmp/fixed-entry-state
