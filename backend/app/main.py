@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import rag_store
+import requests
 from database import engine
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from models import Base
@@ -68,8 +69,68 @@ def create_app() -> FastAPI:
 
 app = create_app()
 
+
+def _vllm_health_url(base_url: str) -> str:
+    normalized = (base_url or "").strip().rstrip("/")
+    for suffix in ("/v1/chat/completions", "/v1/embeddings", "/v1"):
+        if normalized.endswith(suffix):
+            normalized = normalized[: -len(suffix)].rstrip("/")
+            break
+    return f"{normalized}/health"
+
+
+def _check_vllm_endpoint(base_url: str, name: str) -> bool:
+    if not base_url:
+        raise RuntimeError(f"{name} base URL is not configured")
+    response = requests.get(_vllm_health_url(base_url), timeout=3)
+    response.raise_for_status()
+    return True
+
+
+@app.get("/live")
+def live():
+    return {"status": "ok"}
+
+
+@app.get("/ready")
+def ready():
+    checks: dict[str, object] = {}
+    try:
+        with engine.connect() as conn:
+            checks["db"] = conn.execute(text("SELECT 1")).scalar() == 1
+
+        llm_provider = (os.getenv("LLM_PROVIDER") or "ollama").strip().lower()
+        if llm_provider in {"vllm", "openai-compatible", "openai_compatible"}:
+            chat_base_url = (
+                os.getenv("CHAT_BASE_URL")
+                or os.getenv("VLLM_BASE_URL")
+                or os.getenv("OPENAI_BASE_URL")
+                or ""
+            )
+            checks["vllm_chat"] = _check_vllm_endpoint(chat_base_url, "chat")
+
+        embedding_provider = (os.getenv("EMBEDDING_PROVIDER") or "ollama").strip().lower()
+        if embedding_provider in {"vllm", "openai-compatible", "openai_compatible"}:
+            embedding_base_url = (
+                os.getenv("EMBEDDING_BASE_URL")
+                or os.getenv("VLLM_EMBEDDING_BASE_URL")
+                or os.getenv("OPENAI_BASE_URL")
+                or ""
+            )
+            checks["vllm_embedding"] = _check_vllm_endpoint(embedding_base_url, "embedding")
+
+        checks["chroma_collection"] = os.getenv("CHROMA_COLLECTION_NAME", "documents")
+        checks["chroma_chunks"] = rag_store.get_collection_count()
+    except Exception as exc:
+        logger.warning("Readiness check failed: %s", exc)
+        raise HTTPException(status_code=503, detail={"status": "not_ready", "checks": checks, "error": str(exc)}) from exc
+
+    return {"status": "ok", "checks": checks}
+
+
 @app.get("/health")
 def health():
+    # Backward-compatible endpoint used by existing scripts.
     with engine.connect() as conn:
         ok = conn.execute(text("SELECT 1")).scalar() == 1
     return {"status": "ok", "db": ok}

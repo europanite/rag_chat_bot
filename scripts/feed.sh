@@ -37,6 +37,8 @@ COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 COMPOSE=(docker compose -f "$COMPOSE_FILE")
 PYTHON_BIN="${PYTHON_BIN:-python}"
 BACKEND_PORT="${BACKEND_PORT:-8000}"
+RUNTIME_MODE="${RUNTIME_MODE:-compose}"  # compose | remote
+BACKEND_URL="${BACKEND_URL:-http://localhost:${BACKEND_PORT}}"
 
 RUNTIME_SERVICES=(db ollama backend)
 
@@ -55,6 +57,10 @@ Options:
   --no-build  no build
   --no-down   no docker compose down
   -h,--help   help
+
+Environment:
+  RUNTIME_MODE=compose|remote
+  BACKEND_URL=https://rag.example.com
 USAGE
 }
 
@@ -99,6 +105,19 @@ fi
 
 log() { printf "\n[%s] %s\n" "$(date +'%Y-%m-%d %H:%M:%S')" "$*"; }
 
+backend_curl() {
+  local xtrace_was_on=0
+  local rc=0
+  [[ $- == *x* ]] && xtrace_was_on=1 && set +x
+  if [[ -n "${RAG_TOKEN:-}" ]]; then
+    curl -H "Authorization: Bearer ${RAG_TOKEN}" "$@" || rc=$?
+  else
+    curl "$@" || rc=$?
+  fi
+  [[ "$xtrace_was_on" == "1" ]] && set -x
+  return "$rc"
+}
+
 append_summary_block() {
   local title="$1"
   local file="$2"
@@ -118,12 +137,18 @@ append_summary_block() {
 dump_debug() {
   set +e
   {
-    log "docker compose ps"
-    "${COMPOSE[@]}" ps || true
-    log "docker compose logs (tail=300)"
-    "${COMPOSE[@]}" logs --no-color --tail=300 backend ollama db 2>/dev/null || true
-    log "docker system df"
-    docker system df || true
+    if [[ "$RUNTIME_MODE" == "remote" ]]; then
+      log "remote backend diagnostics"
+      backend_curl -v --connect-timeout 3 --max-time 10 "${BACKEND_URL%/}/health" || true
+      backend_curl -v --connect-timeout 3 --max-time 10 "${BACKEND_URL%/}/ready" || true
+    else
+      log "docker compose ps"
+      "${COMPOSE[@]}" ps || true
+      log "docker compose logs (tail=300)"
+      "${COMPOSE[@]}" logs --no-color --tail=300 backend ollama db 2>/dev/null || true
+      log "docker system df"
+      docker system df || true
+    fi
     log "df -h"
     df -h || true
   } | tee -a "$DOCKER_DEBUG_LOG"
@@ -151,7 +176,7 @@ wait_backend_health() {
   log "Waiting for backend /health..."
   local ok=0
   for i in $(seq 1 600); do
-    if curl -fsS --connect-timeout 1 --max-time 2 "http://localhost:${BACKEND_PORT}/health" >/dev/null 2>&1; then
+    if backend_curl -fsS --connect-timeout 1 --max-time 2 "${BACKEND_URL%/}/health" >/dev/null 2>&1; then
       ok=$((ok+1))
       [[ "$ok" -ge 3 ]] && break
     else
@@ -163,6 +188,10 @@ wait_backend_health() {
 }
 
 debug_chroma_host() {
+  if [[ "$RUNTIME_MODE" == "remote" ]]; then
+    log "Skip host Chroma inventory in remote mode"
+    return 0
+  fi
   log "Host chroma_db inventory"
   if [[ -d "chroma_db" ]]; then
     echo "host chroma_db file count: $(find chroma_db -type f | wc -l)"
@@ -175,6 +204,10 @@ debug_chroma_host() {
 }
 
 debug_chroma_container() {
+  if [[ "$RUNTIME_MODE" == "remote" ]]; then
+    log "Skip container Chroma inventory in remote mode"
+    return 0
+  fi
   log "Backend-visible /chroma inventory"
   "${COMPOSE[@]}" exec -T backend sh -lc '
     echo "CHROMA_DB_DIR=${CHROMA_DB_DIR:-}";
@@ -190,11 +223,15 @@ debug_chroma_container() {
 }
 show_rag_status() {
   log "Backend /rag/status"
-  curl -fsS --connect-timeout 2 --max-time 10 "http://localhost:${BACKEND_PORT:-8000}/rag/status" || true
+  backend_curl -fsS --connect-timeout 2 --max-time 10 "${BACKEND_URL%/}/rag/status" || true
   echo
 }
 
 debug_rag_visibility() {
+  if [[ "$RUNTIME_MODE" == "remote" ]]; then
+    log "Skip direct Chroma verification in remote mode"
+    return 0
+  fi
   log "Backend direct Chroma verification"
   "${COMPOSE[@]}" exec -T backend python /scripts/verify_rag_visibility.py || true
 }
@@ -212,17 +249,21 @@ main() {
   log "FEED logs -> $LOG_DIR"
   debug_chroma_host
 
-  if [[ "$DO_BUILD" == "1" ]]; then
-    log "docker compose build --pull ${RUNTIME_SERVICES[*]}"
-    export DOCKER_BUILDKIT=1
-    export COMPOSE_DOCKER_CLI_BUILD=1
-    export BUILDKIT_PROGRESS=plain
-    "${COMPOSE[@]}" build --pull "${RUNTIME_SERVICES[@]}"
-  fi
+  if [[ "$RUNTIME_MODE" == "remote" ]]; then
+    log "Using remote backend: ${BACKEND_URL}"
+  else
+    if [[ "$DO_BUILD" == "1" ]]; then
+      log "docker compose build --pull ${RUNTIME_SERVICES[*]}"
+      export DOCKER_BUILDKIT=1
+      export COMPOSE_DOCKER_CLI_BUILD=1
+      export BUILDKIT_PROGRESS=plain
+      "${COMPOSE[@]}" build --pull "${RUNTIME_SERVICES[@]}"
+    fi
 
-  log "docker compose up -d ${RUNTIME_SERVICES[*]}"
-  "${COMPOSE[@]}" up -d "${RUNTIME_SERVICES[@]}"
-  "${COMPOSE[@]}" ps
+    log "docker compose up -d ${RUNTIME_SERVICES[*]}"
+    "${COMPOSE[@]}" up -d "${RUNTIME_SERVICES[@]}"
+    "${COMPOSE[@]}" ps
+  fi
 
   if ! wait_backend_health; then
     log "Backend did not become ready in time"
@@ -246,7 +287,9 @@ main() {
     return "$py_rc"
   fi
 
-  if [[ "$DO_DOWN" == "1" ]]; then
+  if [[ "$RUNTIME_MODE" == "remote" ]]; then
+    log "Remote mode: no runtime teardown"
+  elif [[ "$DO_DOWN" == "1" ]]; then
     log "docker compose down"
     "${COMPOSE[@]}" down
   else

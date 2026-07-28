@@ -91,6 +91,12 @@ _EMBEDDING_PROVIDER_ENV = "EMBEDDING_PROVIDER"
 _OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
 _OPENAI_BASE_URL_ENV = "OPENAI_BASE_URL"
 _OPENAI_EMBED_MODEL_ENV = "OPENAI_EMBEDDING_MODEL"
+_EMBEDDING_API_KEY_ENV = "EMBEDDING_API_KEY"
+_EMBEDDING_BASE_URL_ENV = "EMBEDDING_BASE_URL"
+_VLLM_API_KEY_ENV = "VLLM_API_KEY"
+_VLLM_EMBEDDING_BASE_URL_ENV = "VLLM_EMBEDDING_BASE_URL"
+_EMBEDDING_QUERY_PREFIX_ENV = "EMBEDDING_QUERY_PREFIX"
+_EMBEDDING_DOCUMENT_PREFIX_ENV = "EMBEDDING_DOCUMENT_PREFIX"
 _DEFAULT_EMBEDDING_PROVIDER = "ollama"
 _DEFAULT_OPENAI_EMBED_MODEL = "text-embedding-3-large"
 
@@ -149,8 +155,25 @@ def _get_embedding_provider() -> str:
     return value or _DEFAULT_EMBEDDING_PROVIDER
 
 
+_OPENAI_COMPATIBLE_EMBEDDING_PROVIDERS = {
+    "openai",
+    "vllm",
+    "openai-compatible",
+    "openai_compatible",
+}
+_VLLM_COMPATIBLE_EMBEDDING_PROVIDERS = {
+    "vllm",
+    "openai-compatible",
+    "openai_compatible",
+}
+
+
 def _get_openai_embedding_model() -> str:
-    value = os.getenv(_OPENAI_EMBED_MODEL_ENV)
+    provider = _get_embedding_provider()
+    if provider in _VLLM_COMPATIBLE_EMBEDDING_PROVIDERS:
+        value = os.getenv(_OLLAMA_EMBED_MODEL_ENV) or os.getenv(_OPENAI_EMBED_MODEL_ENV)
+    else:
+        value = os.getenv(_OPENAI_EMBED_MODEL_ENV) or os.getenv(_OLLAMA_EMBED_MODEL_ENV)
     if value:
         return value
     return _DEFAULT_OPENAI_EMBED_MODEL
@@ -159,10 +182,36 @@ def _get_openai_embedding_model() -> str:
 def _get_openai_client():
     if OpenAI is None:
         raise RuntimeError("OpenAI SDK is not installed")
-    api_key = (os.getenv(_OPENAI_API_KEY_ENV) or "").strip()
+
+    provider = _get_embedding_provider()
+    api_key = (
+        os.getenv(_EMBEDDING_API_KEY_ENV)
+        or (
+            os.getenv(_VLLM_API_KEY_ENV)
+            if provider in _VLLM_COMPATIBLE_EMBEDDING_PROVIDERS
+            else None
+        )
+        or os.getenv(_OPENAI_API_KEY_ENV)
+        or ""
+    ).strip()
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set")
-    base_url = (os.getenv(_OPENAI_BASE_URL_ENV) or "").strip() or None
+        expected = (
+            "EMBEDDING_API_KEY/VLLM_API_KEY"
+            if provider in _VLLM_COMPATIBLE_EMBEDDING_PROVIDERS
+            else "EMBEDDING_API_KEY/OPENAI_API_KEY"
+        )
+        raise RuntimeError(f"{expected} is not set")
+
+    base_url = (
+        os.getenv(_EMBEDDING_BASE_URL_ENV)
+        or (
+            os.getenv(_VLLM_EMBEDDING_BASE_URL_ENV)
+            if provider in _VLLM_COMPATIBLE_EMBEDDING_PROVIDERS
+            else None
+        )
+        or os.getenv(_OPENAI_BASE_URL_ENV)
+        or ""
+    ).strip() or None
     kwargs: dict[str, Any] = {"api_key": api_key}
     if base_url:
         kwargs["base_url"] = base_url
@@ -369,7 +418,7 @@ def _should_try_next_endpoint(
     if "model" in lower and ("not found" in lower or "does not exist" in lower):
         raise RuntimeError(
             f"Ollama model is not available: {model!r}. "
-            f"Pull it first: `docker compose exec ollama ollama pull {model}`"
+            "Install or pull the model in the configured Ollama runtime."
         ) from http_err
 
     # Missing route => try next endpoint
@@ -446,7 +495,15 @@ def _embed_with_openai(text: str) -> list[float]:
     return embedding
 
 
-def embed_texts(texts: list[str]) -> list[list[float]]:
+def _embedding_prefix(input_type: str) -> str:
+    if input_type == "query":
+        return os.getenv(_EMBEDDING_QUERY_PREFIX_ENV, "")
+    return os.getenv(_EMBEDDING_DOCUMENT_PREFIX_ENV, "")
+
+
+def embed_texts(texts: list[str], *, input_type: str = "document") -> list[list[float]]:
+    if input_type not in {"document", "query"}:
+        raise ValueError(f"Unsupported embedding input_type: {input_type!r}")
     if not texts:
         return []
 
@@ -457,7 +514,7 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
         stripped = t.strip()
         if not stripped:
             continue
-        cleaned_texts.append(stripped)
+        cleaned_texts.append(f"{_embedding_prefix(input_type)}{stripped}")
 
     if not cleaned_texts:
         return []
@@ -470,10 +527,12 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
         last_exc: Exception | None = None
         for attempt in range(3):
             try:
-                if provider == "openai":
+                if provider in _OPENAI_COMPATIBLE_EMBEDDING_PROVIDERS:
                     embeddings.append(_embed_with_openai(t))
-                else:
+                elif provider == "ollama":
                     embeddings.append(_embed_with_ollama(t))
+                else:
+                    raise RuntimeError(f"Unsupported EMBEDDING_PROVIDER: {provider!r}")
                 last_exc = None
                 break
             except Exception as exc:
@@ -567,7 +626,7 @@ def query_similar_chunks(question, top_k=3):
     if not cleaned:
         return []
 
-    query_embeddings = embed_texts([cleaned])
+    query_embeddings = embed_texts([cleaned], input_type="query")
     if not query_embeddings:
         # Could happen if embedding fails; in that case, just return empty.
         return []

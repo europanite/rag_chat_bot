@@ -24,18 +24,8 @@ permissions:
 
 jobs:
   prepare:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RAG_RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 30
-    services:
-      ollama:
-        image: ollama/ollama:latest
-        ports:
-          - 11434:11434
-        options: >-
-          --health-cmd "ollama list >/dev/null 2>&1 || exit 1"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 30
     outputs:
       changed: ${{ steps.generate.outputs.changed }}
       entry_json: ${{ steps.payload.outputs.entry_json }}
@@ -46,91 +36,49 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Select Ollama model
-        run: |
-          set -euo pipefail
-          echo "OLLAMA_CHAT_MODEL=llama3.1:8b" >> "$GITHUB_ENV"
-
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - name: Install deps
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          pip install requests
-
-      - name: Wait for Ollama API
-        run: |
-          set -euo pipefail
-          for _ in $(seq 1 90); do
-            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Ollama API did not become ready on http://127.0.0.1:11434" >&2
-          docker ps >&2 || true
-          exit 1
-
-      - name: Pull Ollama model
-        run: |
-          set -euo pipefail
-          curl --fail --show-error \
-            -H 'Content-Type: application/json' \
-            http://127.0.0.1:11434/api/pull \
-            -d "{\"name\":\"${OLLAMA_CHAT_MODEL}\",\"stream\":false}"
-
-
-      - name: Warm up Ollama model
-        run: |
-          set -euo pipefail
-          python - <<'PY' >/tmp/ollama_warmup.json
-          import json
-          import os
-
-          payload = {
-              "model": os.environ["OLLAMA_CHAT_MODEL"],
-              "stream": False,
-              "format": "json",
-              "options": {"temperature": 0},
-              "messages": [
-                  {
-                      "role": "user",
-                      "content": 'Return only this JSON: {"ok": true}'
-                  }
-              ],
-          }
-          print(json.dumps(payload, ensure_ascii=False))
-          PY
-
-          cat /tmp/ollama_warmup.json
-
-
-          curl --fail --show-error \
-            -H 'Content-Type: application/json' \
-            http://127.0.0.1:11434/api/chat \
-            --data-binary @/tmp/ollama_warmup.json >/dev/null
-
-      - name: Install deps
+      - name: Install dependencies
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4
 
+      - name: Validate vLLM endpoint
+        env:
+          CHAT_BASE_URL: ${{ secrets.VLLM_CHAT_BASE_URL }}
+          VLLM_API_KEY: ${{ secrets.VLLM_API_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$CHAT_BASE_URL" || {
+            echo "VLLM_CHAT_BASE_URL secret is required." >&2
+            exit 1
+          }
+          test -n "$VLLM_API_KEY" || {
+            echo "VLLM_API_KEY secret is required." >&2
+            exit 1
+          }
+          health_url="${CHAT_BASE_URL%/}"
+          case "$health_url" in
+            */v1/chat/completions) health_url="${health_url%/v1/chat/completions}" ;;
+            */v1) health_url="${health_url%/v1}" ;;
+          esac
+          curl --fail --show-error --silent "${health_url}/health"
+
       - name: Generate future event payload
         id: generate
         env:
-          LLM_PROVIDER: ollama
-          OLLAMA_BASE_URL: "http://127.0.0.1:11434"
-          OLLAMA_TIMEOUT_S: "300"
-          OLLAMA_MAX_RETRIES: "3"
+          LLM_PROVIDER: vllm
+          CHAT_BASE_URL: ${{ secrets.VLLM_CHAT_BASE_URL }}
+          VLLM_API_KEY: ${{ secrets.VLLM_API_KEY }}
+          CHAT_MODEL: ${{ vars.VLLM_CHAT_MODEL || 'meta-llama/Llama-3.1-8B-Instruct' }}
+          CHAT_TIMEOUT_S: "300"
+          LLM_MAX_RETRIES: "3"
           MAX_CHARS: "220"
-          ARTCLE_DETAIL_LINKS: "3"
-          RAG_MODEL: ${{ env.OLLAMA_CHAT_MODEL }}
-          AUDIT_MODEL: ${{ env.OLLAMA_CHAT_MODEL }}
+          ARTICLE_DETAIL_LINKS: "3"
           DEBUG: "1"
           AVATAR_IMAGE: ${{ inputs.avatar_image }}
         run: |

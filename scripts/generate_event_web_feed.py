@@ -39,11 +39,15 @@ INDEX_URL = COCOYOKO_EVENT_INDEX_URL
 TZ_NAME = os.getenv("TZ_NAME", "Asia/Tokyo").strip() or "Asia/Tokyo"
 PLACE = os.getenv("PLACE", "Yokosuka").strip() or "Yokosuka"
 AVATAR_IMAGE = os.getenv("AVATAR_IMAGE", "image/avatar/event.png").strip()
-MAX_CHARS = int(os.getenv("MAX_CHARS"))
+MAX_CHARS = int(os.getenv("MAX_CHARS") or "220")
 DEBUG = os.getenv("DEBUG", "0").strip() == "1"
-TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT_S"))
-OLLAMA_MAX_RETRIES = 2
-MAX_DETAIL_LINKS = 5
+TIMEOUT = int(os.getenv("CHAT_TIMEOUT_S") or os.getenv("OLLAMA_TIMEOUT_S") or "300")
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES") or os.getenv("OLLAMA_MAX_RETRIES") or "2")
+MAX_DETAIL_LINKS = int(
+    os.getenv("ARTICLE_DETAIL_LINKS")
+    or os.getenv("ARTCLE_DETAIL_LINKS")  # backward compatibility for the old typo
+    or "5"
+)
 EVENT_RANDOM_POOL = 5
 UA = ""
 
@@ -201,62 +205,124 @@ def parse_json_from_llm_output(text: str) -> Dict[str, Any]:
     return json.loads(block.group(0))
 
 
+def _openai_compatible_chat_url(base_url: str) -> str:
+    normalized = base_url.strip().rstrip("/")
+    if normalized.endswith("/v1/chat/completions"):
+        return normalized
+    if normalized.endswith("/v1"):
+        return f"{normalized}/chat/completions"
+    return f"{normalized}/v1/chat/completions"
+
+
+def _openai_compatible_health_url(base_url: str) -> str:
+    normalized = base_url.strip().rstrip("/")
+    for suffix in ("/v1/chat/completions", "/v1/embeddings", "/v1"):
+        if normalized.endswith(suffix):
+            normalized = normalized[: -len(suffix)].rstrip("/")
+            break
+    return f"{normalized}/health"
+
+
+def _chat_runtime_config() -> tuple[str, str, str]:
+    provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
+    base_url = (
+        os.getenv("CHAT_BASE_URL")
+        or os.getenv("VLLM_BASE_URL")
+        or os.getenv("OPENAI_BASE_URL")
+        or ""
+    ).strip()
+    api_key = (
+        os.getenv("CHAT_API_KEY")
+        or os.getenv("VLLM_API_KEY")
+        or os.getenv("OPENAI_API_KEY")
+        or ""
+    ).strip()
+    model = (
+        os.getenv("CHAT_MODEL")
+        or os.getenv("VLLM_CHAT_MODEL")
+        or os.getenv("OPENAI_CHAT_MODEL")
+        or os.getenv("RAG_MODEL")
+        or "gpt-4.1-mini"
+    ).strip()
+    if provider != "ollama" and not base_url and provider != "openai":
+        raise EventFeedError("CHAT_BASE_URL or VLLM_BASE_URL is not set")
+    if provider != "ollama" and not api_key:
+        raise EventFeedError("CHAT_API_KEY, VLLM_API_KEY, or OPENAI_API_KEY is not set")
+    return base_url, api_key, model
+
+
 def call_openai(messages: List[Dict[str, str]]) -> str:
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    model = os.getenv("OPENAI_CHAT_MODEL", "gpt-4.1-mini").strip() or "gpt-4.1-mini"
-    if not api_key:
-        raise EventFeedError("OPENAI_API_KEY is not set")
+    base_url, api_key, model = _chat_runtime_config()
+    url = _openai_compatible_chat_url(base_url or "https://api.openai.com/v1")
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+        "temperature": 0.1,
+        "max_tokens": int(os.getenv("CHAT_MAX_TOKENS") or "512"),
+        # Both OpenAI and vLLM support JSON object mode for this extraction call.
+        "response_format": {"type": "json_object"},
+    }
+
     last_exc: Optional[Exception] = None
-    for attempt in range(1, OLLAMA_MAX_RETRIES + 1):
+    for attempt in range(1, LLM_MAX_RETRIES + 1):
         try:
-            response = requests.post(
-                f"{base_url}/api/chat",
-                json={
-                    "model": model,
-                    "messages": messages,
-                    "stream": False,
-                    "options": {"temperature": 0.1},
-                    "format": "json",
-                },
-                timeout=TIMEOUT,
-            )
+            response = requests.post(url, headers=headers, json=payload, timeout=TIMEOUT)
             response.raise_for_status()
             data = response.json()
-            msg = data.get("message", {})
-            content = msg.get("content")
+            choices = data.get("choices") or []
+            message = choices[0].get("message", {}) if choices else {}
+            content = message.get("content")
             if not content:
-                raise EventFeedError("Ollama returned no content")
-            return content
+                raise EventFeedError("OpenAI-compatible endpoint returned no content")
+            return str(content)
         except requests.exceptions.Timeout as exc:
             last_exc = exc
-            log(f"WARN Ollama timeout on attempt {attempt}/{OLLAMA_MAX_RETRIES}")
-            if attempt < OLLAMA_MAX_RETRIES:
+            log(f"WARN LLM timeout on attempt {attempt}/{LLM_MAX_RETRIES}")
+            if attempt < LLM_MAX_RETRIES:
                 sleep(min(2 * attempt, 5))
                 continue
             break
-        except requests.exceptions.RequestException as exc:
+        except (requests.exceptions.RequestException, ValueError, EventFeedError) as exc:
             last_exc = exc
+            if attempt < LLM_MAX_RETRIES:
+                sleep(min(2 * attempt, 5))
+                continue
             break
 
-    raise EventFeedError(f"Ollama chat failed after {OLLAMA_MAX_RETRIES} attempt(s): {last_exc}")
+    raise EventFeedError(
+        f"OpenAI-compatible chat failed after {LLM_MAX_RETRIES} attempt(s): {last_exc}"
+    )
 
 
 
 
 def validate_runtime() -> None:
     provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower() or "ollama"
-    if provider != "ollama":
+    if provider == "ollama":
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").strip().rstrip("/")
+        if not base_url:
+            raise EventFeedError("OLLAMA_BASE_URL is not set")
+        health_url = f"{base_url}/api/tags"
+    elif provider in {"vllm", "openai-compatible", "openai_compatible"}:
+        base_url, _, _ = _chat_runtime_config()
+        health_url = _openai_compatible_health_url(base_url)
+    else:
+        # Public OpenAI-compatible providers do not share a standard health endpoint.
+        _chat_runtime_config()
         return
 
-    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").strip().rstrip("/")
-    if not base_url:
-        raise EventFeedError("OLLAMA_BASE_URL is not set")
-
     try:
-        response = requests.get(f"{base_url}/api/tags", timeout=TIMEOUT)
+        response = requests.get(health_url, timeout=TIMEOUT)
         response.raise_for_status()
     except Exception as exc:
-        raise EventFeedError(f"Ollama is unreachable at {base_url}: {exc}") from exc
+        raise EventFeedError(f"LLM runtime is unreachable at {health_url}: {exc}") from exc
+
 
 def call_ollama(messages: List[Dict[str, str]], response_format: Optional[str] = "json") -> str:
     base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").strip().rstrip("/")

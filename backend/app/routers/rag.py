@@ -8,19 +8,20 @@ This router provides:
 The design here matches the test helpers and scripts in this repository:
 - Uses rag_store.query_similar_chunks (not rag_store.query).
 - Uses rag_store.add_document for ingestion.
-Note: The actual LLM calls are to an Ollama server at {OLLAMA_BASE_URL}/api/chat.
+LLM calls support Ollama and OpenAI-compatible endpoints such as vLLM.
 """
 from __future__ import annotations
 import os
 import json
 import logging
 import re
+import secrets
 from pathlib import Path
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Set,TypedDict
 import requests
 from functools import lru_cache
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 from langchain_ollama import ChatOllama
 
@@ -33,14 +34,14 @@ from langgraph.graph import StateGraph, END
 import rag_store
 from .rag_utils import *
 from .rag_audit import AuditLite, run_answer_audit
-RAG_MODEL = os.getenv("RAG_MODEL")
-AUDIT_MODEL = os.getenv("AUDIT_MODEL")
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
-OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S"))
+RAG_MODEL = os.getenv("RAG_MODEL") or ""
+AUDIT_MODEL = os.getenv("AUDIT_MODEL") or ""
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL") or ""
+OLLAMA_TIMEOUT_S = int(os.getenv("OLLAMA_TIMEOUT_S") or "60")
 LLM_PROVIDER = (os.getenv("LLM_PROVIDER") or "ollama").strip().lower()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL")
-OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or ""
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL") or ""
+OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL") or ""
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/rag", tags=["rag"])
 # Reused HTTP session for Ollama calls (tests monkeypatch this).
@@ -85,7 +86,7 @@ def _node_generate(state: _GenState) -> _GenState:
             user_prompt=state["user_prompt"],
         )
     except Exception as e:
-        logger.exception("ollama chat failed")
+        logger.exception("LLM chat failed")
         raise HTTPException(status_code=502, detail=f"LLM call failed: {e}")
     state["candidate"] = candidate
     if state.get("original_answer") is None:
@@ -325,9 +326,9 @@ def _env_bool(name: str, default: bool = False) -> bool:
         return False
     return default
 def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
-    num_predict = int((os.getenv("OLLAMA_NUM_PREDICT")))
-    temperature = float((os.getenv("OLLAMA_TEMPERATURE")))
-    num_thread = int((os.getenv("OLLAMA_NUM_THREAD")))
+    num_predict = _env_int("OLLAMA_NUM_PREDICT", 256)
+    temperature = _env_float("OLLAMA_TEMPERATURE", 0.2)
+    num_thread = _env_int("OLLAMA_NUM_THREAD", 4)
     return {
         "model": model,
         "stream": False,
@@ -341,34 +342,92 @@ def _ollama_chat_payload(*, model: str, system_prompt: str, user_prompt: str) ->
             "num_thread": num_thread,
         },
     }
+_OPENAI_COMPATIBLE_PROVIDERS = {"openai", "vllm", "openai-compatible", "openai_compatible"}
+_VLLM_COMPATIBLE_PROVIDERS = {"vllm", "openai-compatible", "openai_compatible"}
+
+
+def _get_llm_provider() -> str:
+    return (os.getenv("LLM_PROVIDER") or LLM_PROVIDER or "ollama").strip().lower()
+
+
+def _is_openai_compatible_provider(provider: str | None = None) -> bool:
+    return (provider or _get_llm_provider()) in _OPENAI_COMPATIBLE_PROVIDERS
+
+
+def _chat_api_key(provider: str) -> str:
+    if provider in _VLLM_COMPATIBLE_PROVIDERS:
+        return (
+            os.getenv("CHAT_API_KEY")
+            or os.getenv("VLLM_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+            or OPENAI_API_KEY
+            or ""
+        ).strip()
+    return (os.getenv("CHAT_API_KEY") or os.getenv("OPENAI_API_KEY") or OPENAI_API_KEY or "").strip()
+
+
+def _chat_base_url(provider: str) -> str:
+    if provider in _VLLM_COMPATIBLE_PROVIDERS:
+        return (
+            os.getenv("CHAT_BASE_URL")
+            or os.getenv("VLLM_BASE_URL")
+            or os.getenv("OPENAI_BASE_URL")
+            or OPENAI_BASE_URL
+            or ""
+        ).strip()
+    return (os.getenv("CHAT_BASE_URL") or os.getenv("OPENAI_BASE_URL") or OPENAI_BASE_URL or "").strip()
+
+
+def _chat_model(model: str | None = None) -> str:
+    return (
+        model
+        or os.getenv("CHAT_MODEL")
+        or os.getenv("VLLM_CHAT_MODEL")
+        or os.getenv("OPENAI_CHAT_MODEL")
+        or OPENAI_CHAT_MODEL
+        or os.getenv("RAG_MODEL")
+        or RAG_MODEL
+        or "gpt-4.1-mini"
+    )
+
+
 def _call_openai_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
     if OpenAI is None:
         raise RuntimeError("OpenAI SDK is not installed")
-    api_key = (OPENAI_API_KEY or "").strip()
+
+    provider = _get_llm_provider()
+    api_key = _chat_api_key(provider)
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set")
+        expected = (
+            "VLLM_API_KEY/CHAT_API_KEY"
+            if provider in _VLLM_COMPATIBLE_PROVIDERS
+            else "OPENAI_API_KEY/CHAT_API_KEY"
+        )
+        raise RuntimeError(f"{expected} is not set")
+
     kwargs: dict[str, Any] = {"api_key": api_key}
-    base_url = (OPENAI_BASE_URL or "").strip()
+    base_url = _chat_base_url(provider)
     if base_url:
         kwargs["base_url"] = base_url
+
     client = OpenAI(**kwargs)
     response = client.chat.completions.create(
-        model=model,
+        model=_chat_model(model),
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        temperature=_env_float("OPENAI_TEMPERATURE", 0.2),
-        max_tokens=_env_int("OPENAI_MAX_TOKENS", 256),
+        temperature=_env_float("CHAT_TEMPERATURE", _env_float("OPENAI_TEMPERATURE", 0.2)),
+        max_tokens=_env_int("CHAT_MAX_TOKENS", _env_int("OPENAI_MAX_TOKENS", 256)),
+        timeout=float(_env_int("CHAT_TIMEOUT_S", _env_int("OLLAMA_TIMEOUT_S", 60))),
     )
     message = response.choices[0].message if response.choices else None
     content = getattr(message, "content", "") or ""
     return content.strip()
 def _call_ollama_chat_with_model(*, model: str, system_prompt: str, user_prompt: str) -> str:
-    if LLM_PROVIDER == "openai":
-        openai_model = model or OPENAI_CHAT_MODEL or RAG_MODEL or "gpt-4.1-mini"
+    if _is_openai_compatible_provider():
         return _call_openai_chat_with_model(
-            model=openai_model,
+            model=_chat_model(model),
             system_prompt=system_prompt,
             user_prompt=user_prompt,
         )
@@ -426,9 +485,12 @@ def _call_ollama_chat(
             "If you don't know, say you don't know."
         )
         user_prompt = f"Question:\n{question}\n\nContext:\n{context or ''}\n\nAnswer:"
-    model = RAG_MODEL
-    if LLM_PROVIDER == "openai":
-        model = OPENAI_CHAT_MODEL or RAG_MODEL or "gpt-4.1-mini"
+    if _is_openai_compatible_provider():
+        # CHAT_MODEL must win for the main generation path (for example a vLLM
+        # LoRA alias). AUDIT_MODEL remains explicit in the audit path.
+        model = _chat_model()
+    else:
+        model = os.getenv("RAG_MODEL") or RAG_MODEL
     return _call_ollama_chat_with_model(
         model=model,
         system_prompt=system_prompt,
@@ -935,6 +997,16 @@ class QueryResponse(BaseModel):
     removed_urls: List[str] = Field(default_factory=list)
     audit: Optional[AuditResult] = None
     debug: Optional[Dict[str, Any]] = None
+def _require_rag_admin_token(x_rag_admin_token: str | None) -> None:
+    """Protect mutating RAG endpoints when RAG_ADMIN_TOKEN is configured."""
+    expected = (os.getenv("RAG_ADMIN_TOKEN") or "").strip()
+    if expected and not (
+        x_rag_admin_token
+        and secrets.compare_digest(x_rag_admin_token, expected)
+    ):
+        raise HTTPException(status_code=401, detail="Invalid or missing RAG admin token.")
+
+
 @router.get("/status")
 def status() -> Dict[str, Any]:
     """
@@ -947,10 +1019,11 @@ def status() -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"RAG store error: {e}")
     return {"ok": True, "chunks_in_store": n, "docs_dir": DOCS_DIR}
 @router.post("/reindex")
-def reindex() -> Dict[str, Any]:
+def reindex(x_rag_admin_token: str | None = Header(default=None)) -> Dict[str, Any]:
     """
     Rebuild the index from docs dir JSON files (expected by scripts).
     """
+    _require_rag_admin_token(x_rag_admin_token)
     docs = DOCS_DIR
     if not os.path.isdir(docs):
         raise HTTPException(status_code=404, detail=f"Docs dir not found: {docs}")
@@ -962,7 +1035,11 @@ def reindex() -> Dict[str, Any]:
         logger.exception("reindex failed")
         raise HTTPException(status_code=502, detail=f"reindex failed: {e}")
 @router.post("/ingest", response_model=IngestResponse)
-def ingest(req: IngestRequest) -> IngestResponse:
+def ingest(
+    req: IngestRequest,
+    x_rag_admin_token: str | None = Header(default=None),
+) -> IngestResponse:
+    _require_rag_admin_token(x_rag_admin_token)
     docs = [d for d in (req.documents or []) if isinstance(d, str) and d.strip()]
     if not docs:
         raise HTTPException(status_code=400, detail="No documents provided.")
