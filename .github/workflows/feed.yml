@@ -2,7 +2,7 @@ name: Feed
 
 on:
   schedule:
-    - cron: '17,47 * * * *'
+    - cron: '0 * * * *'
   workflow_call:
     inputs:
       slot:
@@ -64,8 +64,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          # A selector exception is a failure, not a successful no-op.
-          # Otherwise the schedule-history check can suppress further attempts.
+          set +e
           python scripts/feed_schedule_gate.py \
             --config .github/feed_schedule.json \
             --event-name "${EVENT_NAME}" \
@@ -76,6 +75,18 @@ jobs:
             --github-token "${GITHUB_TOKEN}" \
             --current-run-id "${GITHUB_RUN_ID}" \
             --github-output "${GITHUB_OUTPUT}"
+          gate_rc=$?
+          set -e
+
+          if [ "$gate_rc" -ne 0 ]; then
+            echo "feed_schedule_gate.py failed with exit=${gate_rc}" >&2
+            {
+              echo "should_run=false"
+              echo "slot="
+              echo "window_id="
+              echo "reason=gate_failed_exit_${gate_rc}"
+            } >> "${GITHUB_OUTPUT}"
+          fi
 
       - name: Log selection
         run: |

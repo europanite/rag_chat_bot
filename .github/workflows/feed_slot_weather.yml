@@ -164,9 +164,7 @@ jobs:
           REACT_NATIVE_PACKAGER_HOSTNAME: "127.0.0.1"
         run: |
           set -euo pipefail
-          # Report an actual Docker/Compose failure rather than a silent no-op.
-          docker compose -f docker-compose.yml config --quiet
-          docker compose --progress plain -f docker-compose.yml build illustrate
+          docker compose -f docker-compose.yml build illustrate
 
       - name: Generate camera-based image and patch weather feed
         env:
