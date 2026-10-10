@@ -64,9 +64,28 @@ jobs:
           health_url="${CHAT_BASE_URL%/}"
           case "$health_url" in
             */v1/chat/completions) health_url="${health_url%/v1/chat/completions}" ;;
+            */v1/embeddings) health_url="${health_url%/v1/embeddings}" ;;
             */v1) health_url="${health_url%/v1}" ;;
           esac
-          curl --fail --show-error --silent "${health_url}/health"
+          case "$health_url" in
+            http://*|https://*) ;;
+            *) echo "::error::VLLM_CHAT_BASE_URL must be an HTTP(S) URL."; exit 1 ;;
+          esac
+          # Retry transient server startup/network errors, without printing credentials.
+          for attempt in 1 2 3 4 5; do
+            if status=$(curl --fail --silent --output /dev/null \
+                --write-out '%{http_code}' \
+                --header "Authorization: Bearer ${VLLM_API_KEY}" \
+                --connect-timeout 5 --max-time 15 \
+                "${health_url}/health"); then
+              echo "vLLM health check OK (HTTP ${status}, attempt ${attempt}/5)."
+              exit 0
+            fi
+            echo "::warning::vLLM health check failed (HTTP ${status:-000}, attempt ${attempt}/5)."
+            if [ "$attempt" -lt 5 ]; then sleep 10; fi
+          done
+          echo "::error::vLLM health failed after 5 attempts; check runner network access, server state, URL and secrets."
+          exit 1
 
       - name: Generate future event payload
         id: generate
@@ -82,24 +101,15 @@ jobs:
           DEBUG: "1"
           AVATAR_IMAGE: ${{ inputs.avatar_image }}
         run: |
-          set +e
+          set -euo pipefail
+          # A failed generator must never be marked successful. feed_schedule_gate.py
+          # treats a successful scheduled run in this window as completed.
           python scripts/generate_event_web_feed.py
-          status=$?
-          set -e
-
-          if [ "$status" -eq 0 ]; then
-            echo "changed=1" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if [ ! -f frontend/app/public/latest.json ]; then
-            echo "No publishable event payload was generated; skipping downstream publish."
-            echo "changed=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "generate_event_web_feed.py failed with exit code $status even though latest.json exists" >&2
-          exit "$status"
+          test -s frontend/app/public/latest.json || {
+            echo "::error::Generator exited successfully but latest.json is missing or empty."
+            exit 1
+          }
+          echo "changed=1" >> "$GITHUB_OUTPUT"
 
       - name: Export entry_json
         id: payload
