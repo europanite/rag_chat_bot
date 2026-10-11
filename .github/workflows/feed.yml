@@ -2,7 +2,7 @@ name: Feed
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '17,47 * * * *'
   workflow_call:
     inputs:
       slot:
@@ -63,8 +63,9 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
+          # Fail the select job if the gate or the GitHub API fails.
+          # A broken gate must not be reported as a successful no-op.
           set -euo pipefail
-          set +e
           python scripts/feed_schedule_gate.py \
             --config .github/feed_schedule.json \
             --event-name "${EVENT_NAME}" \
@@ -75,25 +76,31 @@ jobs:
             --github-token "${GITHUB_TOKEN}" \
             --current-run-id "${GITHUB_RUN_ID}" \
             --github-output "${GITHUB_OUTPUT}"
-          gate_rc=$?
-          set -e
-
-          if [ "$gate_rc" -ne 0 ]; then
-            echo "feed_schedule_gate.py failed with exit=${gate_rc}" >&2
-            {
-              echo "should_run=false"
-              echo "slot="
-              echo "window_id="
-              echo "reason=gate_failed_exit_${gate_rc}"
-            } >> "${GITHUB_OUTPUT}"
-          fi
 
       - name: Log selection
+        env:
+          SHOULD_RUN: ${{ steps.sel.outputs.should_run }}
+          SLOT: ${{ steps.sel.outputs.slot }}
+          WINDOW_ID: ${{ steps.sel.outputs.window_id }}
+          REASON: ${{ steps.sel.outputs.reason }}
         run: |
-          echo "should_run=${{ steps.sel.outputs.should_run }}"
-          echo "slot=${{ steps.sel.outputs.slot }}"
-          echo "window_id=${{ steps.sel.outputs.window_id }}"
-          echo "reason=${{ steps.sel.outputs.reason }}"
+          set -euo pipefail
+          echo "should_run=${SHOULD_RUN}"
+          echo "slot=${SLOT}"
+          echo "window_id=${WINDOW_ID}"
+          echo "reason=${REASON}"
+          {
+            echo "## Feed schedule gate"
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| should_run | \`${SHOULD_RUN}\` |"
+            echo "| slot | \`${SLOT}\` |"
+            echo "| window_id | \`${WINDOW_ID}\` |"
+            echo "| reason | \`${REASON}\` |"
+          } >> "${GITHUB_STEP_SUMMARY}"
+          if [[ "${SHOULD_RUN}" != "true" ]]; then
+            echo "::notice::Feed skipped: ${REASON} (window=${WINDOW_ID:-none})"
+          fi
 
   sspot:
     needs: select

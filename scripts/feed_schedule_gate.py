@@ -255,6 +255,32 @@ def request_json(url: str, token: str) -> dict:
         return json.load(resp)
 
 
+def was_feed_published(*, api_url: str, repo: str, run_id: int, token: str) -> bool:
+    """Check the publication steps, not the top-level run conclusion.
+
+    A select-only run can be green without posting anything. Conversely,
+    CloudFront invalidation may fail after the new feed is already on S3.
+    A successful state restore and S3 deployment are stronger evidence.
+    """
+    url = f"{api_url}/repos/{repo}/actions/runs/{run_id}/jobs?per_page=100"
+    payload = request_json(url, token)
+    if int(payload.get("total_count", 0)) > len(payload.get("jobs", [])):
+        raise RuntimeError(f"incomplete job list for run {run_id}; refusing to guess")
+
+    for job in payload.get("jobs", []):
+        # Names of nested reusable-workflow jobs can vary; identify the
+        # publication job by its distinctive completed steps instead.
+        steps = {str(step.get("name") or ""): step.get("conclusion")
+                 for step in job.get("steps", [])}
+        if (
+            steps.get("Restore generated state artifact into public dir (optional)") == "success"
+            and steps.get("Deploy frontend shell to S3 (preserve generated feed/image history)") == "success"
+        ):
+            return True
+
+    return False
+
+
 def find_blocking_run(
     *,
     api_url: str,
@@ -266,7 +292,7 @@ def find_blocking_run(
     end_utc: datetime,
 ) -> tuple[bool, str]:
     if not token:
-        return False, "missing_github_token"
+        raise RuntimeError("GITHUB_TOKEN is required to check scheduled publication history")
 
     quoted_workflow = urllib.parse.quote(workflow_file, safe="")
     url = (
@@ -291,10 +317,12 @@ def find_blocking_run(
 
         if status in {"queued", "in_progress", "pending", "requested", "waiting"}:
             return True, f"already_{status}"
-        if conclusion == "success":
-            return True, "already_success"
+        if conclusion and was_feed_published(
+            api_url=api_url, repo=repo, run_id=run_id, token=token
+        ):
+            return True, "already_published"
 
-    return False, "no_prior_success"
+    return False, "no_prior_publication"
 
 
 def decide(args: argparse.Namespace) -> Decision:
@@ -365,11 +393,11 @@ def emit(decision: Decision, github_output: str) -> None:
         "reason": decision.reason,
     }
     text = "".join(f"{k}={v}\n" for k, v in pairs.items())
+    # Keep a readable record even when GitHub CLI cannot download job logs.
+    sys.stdout.write(text)
     if github_output:
         with open(github_output, "a", encoding="utf-8") as fh:
             fh.write(text)
-    else:
-        sys.stdout.write(text)
 
 
 def main() -> int:
